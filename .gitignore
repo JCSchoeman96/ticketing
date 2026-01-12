@@ -8,3 +8,7 @@
 .DS_Store
 
 *:Zone.Identifier
+
+# Generated local extractions (do not commit)
+/contracts/suite/
+/contracts/canon/
