@@ -1,0 +1,8 @@
+/.deps/
+/_build/
+/cover/
+/doc/
+/tmp/
+*.swp
+*.swo
+.DS_Store
