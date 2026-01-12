@@ -18,3 +18,4 @@ contracts/working/
 
 # Local bundle archive (do not commit)
 contracts/bundles/_archive/
+.envrc.private
