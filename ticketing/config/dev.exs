@@ -3,10 +3,9 @@ config :ash, policies: [show_policy_breakdowns?: true]
 
 # Configure your database
 config :ticketing, Ticketing.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "ticketing_dev",
+  url:
+    System.get_env("DATABASE_URL") ||
+      "postgresql://postgres:postgres@localhost:5433/ticketing_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
