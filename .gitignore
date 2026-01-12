@@ -12,3 +12,6 @@
 # Generated local extractions (do not commit)
 /contracts/suite/
 /contracts/canon/
+
+# Local scratch / extracted bundles
+contracts/working/
