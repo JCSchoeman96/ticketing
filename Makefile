@@ -4,8 +4,8 @@
 CONTRACTS_ROOT := contracts/bundles
 
 # These will be set after extraction (we’ll fill them in once we see the filenames)
-CANON_JSON := contracts/canon/CANON-1_bundle_v0.9.40/CANON-1_Contract_v0.9.40.json
-CS_JSON := contracts/suite/CS-0/CS-0_bundle_v2.2.0/CS-0_Contract_v2.2.0.json
+CANON_JSON := contracts/bundles/CANON-1_bundle_v0.9.41_JSON_ONLY.zip
+CS_JSON := contracts/bundles/CS-0_bundle_v2.2.0_JSON_ONLY.zip
 LINT_RULES_JSON := contracts/suite/LINT-0/LINT-0_bundle_v2.0.11/LINT-0_Contract_v2.0.11.json
 
 contracts-check:
