@@ -1,0 +1,55 @@
+{
+  "artifact_kind": "test_gates",
+  "schema_version": "test-gates/1.0",
+  "suite_schema": "CS-0@2.2.0",
+  "doc_id": "CANON-1-GATE",
+  "version": "0.9.41",
+  "contract_ref": {
+    "doc_id": "CANON-1",
+    "version": "0.9.41"
+  },
+  "status": "active",
+  "generated_at_utc": "2026-01-12T05:27:24.438564Z",
+  "enforced_by": "ci_contract_gate_strict_v2.7.0",
+  "gates": [
+    {
+      "id": "CANON-1-GATE-0001",
+      "level": "P0",
+      "must": true,
+      "description": "Suite schema pin MUST be CS-0@2.2.0 for CANON-1 artifacts.",
+      "assertions": [
+        {
+          "type": "suite_schema_matches",
+          "mode": "automated",
+          "details": {
+            "expected": "CS-0@2.2.0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "CANON-1-GATE-0004",
+      "level": "P1",
+      "must": true,
+      "description": "No placeholder hash strings allowed in canonical_bundles entries (PRE_CALCULATED_SHA/PLACEHOLDER/TODO).",
+      "assertions": [
+        {
+          "type": "forbid_regex_in_artifact",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointers": [
+              "/canonical_bundles"
+            ],
+            "forbid_regex": [
+              "PRE_CALCULATED_SHA",
+              "PLACEHOLDER",
+              "TODO"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "title": "CANON-1 Test Gates"
+}
