@@ -19,3 +19,7 @@ contracts/working/
 # Local bundle archive (do not commit)
 contracts/bundles/_archive/
 .envrc.private
+
+# local convenience views (do not commit)
+contracts/bundles_core/
+contracts/bundles_optional/
