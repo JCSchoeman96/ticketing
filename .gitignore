@@ -1,24 +1,26 @@
-/.deps/
+# Elixir / Mix
+/deps/
 /_build/
 /cover/
 /doc/
 /tmp/
+erl_crash.dump
+.elixir_ls/
+
+# Editors / OS
 *.swp
 *.swo
 .DS_Store
-
 *:Zone.Identifier
+
+# Direnv secrets
+.envrc.private
 
 # Generated local extractions (do not commit)
 /contracts/suite/
 /contracts/canon/
-
-# Local scratch / extracted bundles
 contracts/working/
-
-# Local bundle archive (do not commit)
 contracts/bundles/_archive/
-.envrc.private
 
 # local convenience views (do not commit)
 contracts/bundles_core/
