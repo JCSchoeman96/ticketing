@@ -34,12 +34,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Check canonical authority pin schema
-        working-directory: ticketing
-        run: mix contract.authority --pin-only
       - name: Install and set up the application
         working-directory: ticketing
         run: mix setup
+      - name: Check canonical authority pin schema
+        working-directory: ticketing
+        run: mix contract.authority --pin-only
       - name: Check generated AshPostgres migrations
         working-directory: ticketing
         run: mix ash.codegen --check
