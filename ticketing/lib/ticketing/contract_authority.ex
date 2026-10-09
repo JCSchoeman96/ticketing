@@ -39,6 +39,7 @@ defmodule Ticketing.ContractAuthority do
     with :ok <- ensure_git_repository(expanded_path),
          {:ok, commit} <- git_head(expanded_path),
          :ok <- ensure_commit(commit, pin["reviewed_commit"]),
+         :ok <- ensure_clean_tracked_tree(expanded_path, pin["reviewed_commit"]),
          {:ok, version} <- manifest_version(expanded_path, pin),
          :ok <- ensure_tracer(expanded_path, pin["t0_tracer_path"]) do
       {:ok, %{path: expanded_path, commit: commit, canon_version: version}}
@@ -108,6 +109,22 @@ defmodule Ticketing.ContractAuthority do
   defp ensure_commit(commit, expected_commit) do
     {:error,
      "contracts checkout commit mismatch: expected #{expected_commit}, found #{commit}; update contracts/authority.json only after reviewing a new canonical release"}
+  end
+
+  defp ensure_clean_tracked_tree(path, reviewed_commit) do
+    case System.cmd("git", ["-C", path, "status", "--porcelain=v1", "--untracked-files=no"],
+           stderr_to_stdout: true
+         ) do
+      {"", 0} ->
+        :ok
+
+      {_status, 0} ->
+        {:error,
+         "contracts checkout tracked working tree is dirty; restore the checkout to reviewed commit #{reviewed_commit} before using it as canonical authority"}
+
+      {_output, _status} ->
+        {:error, "could not check tracked files in contracts checkout: #{path}"}
+    end
   end
 
   defp manifest_version(path, pin) do

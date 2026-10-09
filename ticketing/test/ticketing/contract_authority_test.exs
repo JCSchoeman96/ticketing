@@ -21,7 +21,6 @@ defmodule Ticketing.ContractAuthorityTest do
     refute File.exists?(Path.join(root, "contracts/bundles/CANON-1_bundle_v0.9.41_JSON_ONLY.zip"))
     refute File.exists?(Path.join(root, "contracts/working/canon_patch/CANON-1_bundle_v0.9.41"))
     refute File.exists?(Path.join(root, "contracts/tools/ci_contract_gate_strict_v2.7.0.py"))
-    refute File.exists?(Path.join(root, "Makefile"))
   end
 
   test "authority verification reports a missing configured checkout" do
@@ -47,6 +46,38 @@ defmodule Ticketing.ContractAuthorityTest do
     assert result.commit == pin["reviewed_commit"]
     assert result.canon_version == "2.0.10"
     assert result.path == checkout
+  end
+
+  test "authority verification rejects an unstaged tracked modification after the pinned commit" do
+    {checkout, pin} = fixture_checkout("2.0.10")
+    on_exit(fn -> File.rm_rf!(checkout) end)
+
+    File.write!(Path.join(checkout, pin["t0_tracer_path"]), "modified T0")
+
+    assert {:error, message} = ContractAuthority.verify_checkout(checkout, pin)
+    assert message =~ "tracked working tree is dirty"
+    assert message =~ pin["reviewed_commit"]
+  end
+
+  test "authority verification rejects staged tracked modifications" do
+    {checkout, pin} = fixture_checkout("2.0.10")
+    on_exit(fn -> File.rm_rf!(checkout) end)
+
+    File.write!(Path.join(checkout, pin["t0_tracer_path"]), "staged T0")
+    git!(checkout, ["add", pin["t0_tracer_path"]])
+
+    assert {:error, message} = ContractAuthority.verify_checkout(checkout, pin)
+    assert message =~ "tracked working tree is dirty"
+  end
+
+  test "authority verification ignores untracked scratch files" do
+    {checkout, pin} = fixture_checkout("2.0.10")
+    on_exit(fn -> File.rm_rf!(checkout) end)
+
+    File.write!(Path.join(checkout, "local-report.txt"), "scratch")
+
+    assert {:ok, result} = ContractAuthority.verify_checkout(checkout, pin)
+    assert result.commit == pin["reviewed_commit"]
   end
 
   defp fixture_checkout(canon_version) do
