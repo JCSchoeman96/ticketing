@@ -1,4 +1,17 @@
-# Ticketing
+# Ticketing application
+
+This Phoenix application is the product implementation in the parent repository. Run Mix
+commands from this directory. Canonical domain contracts live in the sibling
+`JCSchoeman96/ticketing-contracts` repository. The reviewed implementation baseline is
+CANON-1 2.0.10 at commit `cc335793e7a542e44938883f87cc96f796a4fe32`, recorded in
+`../contracts/authority.json` as a consumption pin rather than a second release.
+
+After B0 bootstrap, T0 is the next implementation slice. Its tracer is in the canonical
+contracts repository at `planning/tracers/T0-tenant-scoped-ga-pending-sale.md`.
+
+Use `mix setup` to fetch dependencies, create and migrate the development database, and build
+assets. The checked-in AshPostgres migration installs support functions and creates no
+application tables. Then use `mix contract.authority` to verify the local canonical checkout.
 
 To start your Phoenix server:
 
