@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ticketing_dev
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5433/ticketing_dev
+      DATABASE_URL_TEST: postgresql://postgres:postgres@localhost:5433/ticketing_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "28.3"
+          elixir-version: "1.19.5-otp-28"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Check canonical authority pin schema
+        working-directory: ticketing
+        run: mix contract.authority --pin-only
+      - name: Install and set up the application
+        working-directory: ticketing
+        run: mix setup
+      - name: Check generated AshPostgres migrations
+        working-directory: ticketing
+        run: mix ash.codegen --check
+      - name: Run application verification
+        working-directory: ticketing
+        run: mix precommit
