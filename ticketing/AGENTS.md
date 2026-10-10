@@ -1,3 +1,156 @@
+# Mandatory JIT Grill Gate
+
+This project is contract-first and uses Just-In-Time (JIT) implementation planning.
+
+## Absolute implementation rule
+
+**Do not begin product or domain implementation unless the task includes an approved JIT Implementation Packet produced from a completed JIT Grill session.**
+
+This rule applies before:
+
+- creating or materially changing Ash resources or actions;
+- adding domain persistence or migrations;
+- changing lifecycle or state-machine behavior;
+- implementing authorization, tenancy, or row-level security behavior;
+- implementing idempotency or concurrency behavior;
+- adding domain events, outbox behavior, jobs, or side effects;
+- changing API or domain boundaries;
+- implementing a new tracer, vertical slice, or material feature capability.
+
+A coding request, issue, tracer, roadmap item, historical Feature Planning Pack, or contract reference by itself is not sufficient authorization to implement.
+
+The preferred workflow is:
+
+```text
+Current canonical contracts / CANON
+→ current roadmap + tracer
+→ JIT Grill in ChatGPT
+→ approved JIT Implementation Packet
+→ coding agent implementation
+→ independent review
+```
+
+## What the JIT Grill establishes
+
+The JIT Grill is a planning and decision session performed immediately before implementation. It checks current authority for the specific increment and resolves material ambiguity before code is written.
+
+Where applicable, it must establish:
+
+1. Exact authority snapshot: canonical contracts repository commit, CANON version, active tracer, and governing contract IDs and versions.
+2. Implementation scope and explicit non-goals.
+3. Required Ash resources and ownership boundaries.
+4. Required Ash actions, inputs, outputs, guards, and failure behavior.
+5. Lifecycle rules: initial states, allowed transitions, guards, side effects, invalid transitions, and terminal states.
+6. Tenancy and authorization: `org_id` authority, actor identity and type, capabilities and policies, RLS requirements, and cross-tenant information hiding.
+7. Persistence invariants: required fields, foreign keys, uniqueness, checks, indexes, immutable fields, and database-enforced invariants.
+8. Transaction and concurrency boundaries: atomic operations, locks or compare-and-swap (CAS) and version fences, contention behavior, and rollback requirements.
+9. Idempotency: key source, uniqueness scope, replay result, and mismatched-replay behavior.
+10. Side effects: registered domain or outbox events, jobs, audit requirements, and required logs, spans, metrics, or alerts.
+11. Canonical errors and fail-closed behavior.
+12. Migration and rollout constraints.
+13. Acceptance evidence: happy-path, negative, cross-tenant, replay, race/concurrency, rollback, lifecycle, and applicable contract-regression tests.
+
+## Decision classification
+
+Classify every material JIT decision as one of the following:
+
+### `CONTRACT_LOCKED`
+
+Current canonical authority determines the behavior. Implement it as written. Do not substitute another design because it seems simpler or more idiomatic.
+
+### `IMPLEMENTATION_LOCKED`
+
+The contracts leave implementation freedom and the JIT Grill selected a project-level decision. Follow it for the current increment.
+
+### `IMPLEMENTATION_FREE`
+
+The decision is delegated to the coding agent because it does not change contract semantics, architecture, persistence invariants, tenancy, concurrency, idempotency, lifecycle, or externally observable behavior. Choose the simplest idiomatic implementation consistent with the repository.
+
+### `AUTHORITY_GAP`
+
+Current authority does not safely determine required behavior. Stop implementation. Do not invent semantics, private state, aliases, fake resources, fabricated identifiers, unregistered events, or undocumented state transitions. Report the exact gap so canonical authority or the active tracer can be corrected.
+
+## JIT Implementation Packet requirement
+
+A valid implementation task must include a JIT Implementation Packet with at least:
+
+```text
+JIT packet ID
+implementation increment
+authority snapshot
+governing contracts
+scope
+non-goals
+locked decisions
+implementation-free decisions
+resource/action mapping
+lifecycle rules
+tenancy/auth rules
+DB invariants
+transaction/concurrency rules
+idempotency rules
+errors
+events/side effects/observability
+required tests
+migration requirements
+known gaps
+definition of done
+```
+
+Keep the packet limited to the authority and decisions needed for the increment. Do not give the coding agent the full historical planning catalogue or every canonical contract when a narrow packet is enough.
+
+## Staleness rule
+
+A JIT Implementation Packet becomes stale and implementation must stop if:
+
+- the contracts authority pin changes;
+- a governing contract version changes;
+- CANON changes in a way relevant to the increment;
+- the active tracer changes materially;
+- implementation finds a contradiction with a locked decision;
+- scope expands beyond the packet; or
+- implementation requires a new decision about lifecycle, persistence, tenancy, authorization, idempotency, concurrency, money, inventory, or side effects.
+
+Return to ChatGPT for a targeted JIT re-grill. Do not silently reinterpret the packet.
+
+## Coding-agent behavior
+
+When a valid JIT packet is present:
+
+- treat its locked decisions as requirements;
+- do not repeat broad architecture planning already completed by the grill;
+- do not reopen resolved decisions merely to prefer another design;
+- use normal code-level reasoning to implement safely;
+- use TDD for material behavior;
+- preserve contract ownership boundaries;
+- prefer Ash actions over direct Repo bypasses for governed domain behavior;
+- surface contradictions immediately;
+- keep implementation inside the packet scope; and
+- provide verification evidence before claiming completion.
+
+If asked to implement product or domain behavior without a valid JIT packet, state that the gate has not been satisfied and request or propose a packet before implementation.
+
+## Exceptions
+
+A new JIT Grill is normally unnecessary for purely mechanical work that cannot alter domain behavior, such as typo-only documentation edits, formatting, comments, test renames with no behavior change, mechanical CI maintenance, or a mechanical follow-up to an already-approved packet.
+
+When uncertain whether a change can alter product semantics or architecture, require the JIT Grill.
+
+## Historical planning material
+
+Historical tracer-bullet catalogues and archived Feature Planning Packs are reference material. They may inform JIT Grill questions, risks, and tests, but they do not override:
+
+```text
+current canonical contracts
+→ current ROADMAP
+→ current tracer
+→ current JIT Implementation Packet
+```
+
+Do not implement historical pack sequencing merely because it exists.
+
+---
+
 This is a web application written using the Phoenix web framework.
 
 ## Project guidelines
