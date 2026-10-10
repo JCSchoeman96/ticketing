@@ -2,6 +2,8 @@
 
 This project is contract-first and uses Just-In-Time (JIT) implementation planning.
 
+The coding agent is an implementation executor, not the authority that approves its own JIT packet.
+
 ## Absolute implementation rule
 
 **Do not begin product or domain implementation unless the task includes an approved JIT Implementation Packet produced from a completed JIT Grill session.**
@@ -128,7 +130,7 @@ When a valid JIT packet is present:
 - keep implementation inside the packet scope; and
 - provide verification evidence before claiming completion.
 
-If asked to implement product or domain behavior without a valid JIT packet, state that the gate has not been satisfied and request or propose a packet before implementation.
+If asked to implement product or domain behavior without a valid approved JIT Implementation Packet, stop. State that the JIT Grill gate has not been satisfied and request an approved packet produced through the ChatGPT JIT Grill workflow. Do not conduct the JIT Grill, generate your own approval, or begin implementation.
 
 ## Exceptions
 
