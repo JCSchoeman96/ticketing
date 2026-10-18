@@ -8,9 +8,9 @@ defmodule Ticketing.ContractAuthorityTest do
   test "checked-in pin names the implementation's reviewed contract authority" do
     assert {:ok, pin} = ContractAuthority.load_pin(@pin_path)
     assert pin["repository"] == "JCSchoeman96/ticketing-contracts"
-    assert pin["reviewed_commit"] == "cc335793e7a542e44938883f87cc96f796a4fe32"
+    assert pin["reviewed_commit"] == "b6e4bac210a7bdd906b611984150d1f1198f3141"
     assert pin["canon_doc_id"] == "CANON-1"
-    assert pin["canon_version"] == "2.0.10"
+    assert pin["canon_version"] == "2.0.13"
     assert pin["manifest_path"] == "contracts/manifest.json"
     assert pin["t0_tracer_path"] == "planning/tracers/T0-tenant-scoped-ga-pending-sale.md"
   end
@@ -34,22 +34,22 @@ defmodule Ticketing.ContractAuthorityTest do
 
     assert {:error, message} = ContractAuthority.verify_checkout(checkout, pin)
     assert message =~ "CANON-1 version mismatch"
-    assert message =~ "expected 2.0.10"
+    assert message =~ "expected 2.0.13"
     assert message =~ "found 0.9.41"
   end
 
   test "authority verification accepts the pinned commit and required tracer" do
-    {checkout, pin} = fixture_checkout("2.0.10")
+    {checkout, pin} = fixture_checkout("2.0.13")
     on_exit(fn -> File.rm_rf!(checkout) end)
 
     assert {:ok, result} = ContractAuthority.verify_checkout(checkout, pin)
     assert result.commit == pin["reviewed_commit"]
-    assert result.canon_version == "2.0.10"
+    assert result.canon_version == "2.0.13"
     assert result.path == checkout
   end
 
   test "authority verification rejects an unstaged tracked modification after the pinned commit" do
-    {checkout, pin} = fixture_checkout("2.0.10")
+    {checkout, pin} = fixture_checkout("2.0.13")
     on_exit(fn -> File.rm_rf!(checkout) end)
 
     File.write!(Path.join(checkout, pin["t0_tracer_path"]), "modified T0")
@@ -60,7 +60,7 @@ defmodule Ticketing.ContractAuthorityTest do
   end
 
   test "authority verification rejects staged tracked modifications" do
-    {checkout, pin} = fixture_checkout("2.0.10")
+    {checkout, pin} = fixture_checkout("2.0.13")
     on_exit(fn -> File.rm_rf!(checkout) end)
 
     File.write!(Path.join(checkout, pin["t0_tracer_path"]), "staged T0")
@@ -71,7 +71,7 @@ defmodule Ticketing.ContractAuthorityTest do
   end
 
   test "authority verification ignores untracked scratch files" do
-    {checkout, pin} = fixture_checkout("2.0.10")
+    {checkout, pin} = fixture_checkout("2.0.13")
     on_exit(fn -> File.rm_rf!(checkout) end)
 
     File.write!(Path.join(checkout, "local-report.txt"), "scratch")
@@ -107,7 +107,7 @@ defmodule Ticketing.ContractAuthorityTest do
       "reviewed_commit" => String.trim(commit),
       "manifest_path" => "contracts/manifest.json",
       "canon_doc_id" => "CANON-1",
-      "canon_version" => "2.0.10",
+      "canon_version" => "2.0.13",
       "t0_tracer_path" => "planning/tracers/T0-tenant-scoped-ga-pending-sale.md"
     }
 
