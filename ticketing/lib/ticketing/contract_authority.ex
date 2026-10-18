@@ -71,8 +71,8 @@ defmodule Ticketing.ContractAuthority do
       pin["canon_doc_id"] != "CANON-1" ->
         {:error, "contract authority canon_doc_id must be CANON-1"}
 
-      pin["canon_version"] != "2.0.10" ->
-        {:error, "contract authority canon_version must be 2.0.10"}
+      pin["canon_version"] != "2.0.13" ->
+        {:error, "contract authority canon_version must be 2.0.13"}
 
       true ->
         :ok

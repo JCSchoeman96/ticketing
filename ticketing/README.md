@@ -3,7 +3,7 @@
 This Phoenix application is the product implementation in the parent repository. Run Mix
 commands from this directory. Canonical domain contracts live in the sibling
 `JCSchoeman96/ticketing-contracts` repository. The reviewed implementation baseline is
-CANON-1 2.0.10 at commit `cc335793e7a542e44938883f87cc96f796a4fe32`, recorded in
+CANON-1 2.0.13 at reviewed contracts commit `b6e4bac210a7bdd906b611984150d1f1198f3141`, recorded in
 `../contracts/authority.json` as a consumption pin rather than a second release.
 
 After B0 bootstrap, T0 is the next implementation slice. Its tracer is in the canonical

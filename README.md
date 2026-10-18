@@ -2,8 +2,8 @@
 
 This is the product implementation repository. The Phoenix application lives in `ticketing/`.
 Canonical domain authority lives in [JCSchoeman96/ticketing-contracts](https://github.com/JCSchoeman96/ticketing-contracts).
-This implementation consumes CANON-1 2.0.10 from reviewed contracts commit
-`cc335793e7a542e44938883f87cc96f796a4fe32`. The pin in `contracts/authority.json` records
+This implementation consumes CANON-1 2.0.13 from reviewed contracts commit
+`b6e4bac210a7bdd906b611984150d1f1198f3141`. The pin in `contracts/authority.json` records
 that reviewed baseline and does not create a second contract release.
 
 The next product implementation slice after bootstrap B0 is T0, described by
@@ -20,7 +20,7 @@ From the repository root:
 
    ```sh
    git clone git@github.com:JCSchoeman96/ticketing-contracts.git ../ticketing-contracts
-   git -C ../ticketing-contracts checkout cc335793e7a542e44938883f87cc96f796a4fe32
+   git -C ../ticketing-contracts checkout b6e4bac210a7bdd906b611984150d1f1198f3141
    ```
 
    If your checkout is elsewhere, set `TICKETING_CONTRACTS_PATH` in the shell or in the
