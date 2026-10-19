@@ -267,6 +267,12 @@ If implementation documentation exposes missing or contradictory required semant
 
 Do not change authority merely to match implementation documentation without an independently justified product-authority change. Authority changes may make downstream documentation stale; refresh that documentation through normal JIT and implementation work.
 
+## Authority change PR boundary
+
+Agent-authored changes to `authority/`, repository governance, planning/tracers, release tooling or canonical release inputs MUST also be pushed on a branch and opened as a PR before they are treated as completed or merge-ready.
+
+Authority validation passing locally does not replace PR review. The PR MUST expose the exact diff and fresh required validation/CI evidence for independent review. Agents MUST NOT push authority/governance changes directly to `main` or self-merge unless the user explicitly authorizes that specific merge.
+
 ## Decision classes
 
 Use these meanings consistently across authority/planning work.

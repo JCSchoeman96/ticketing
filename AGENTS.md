@@ -230,6 +230,34 @@ After a material JIP merges, verify the merged SHA, update only affected documen
 
 Plane document links and comments are navigation and execution metadata, not semantic authority.
 
+## Mandatory pull-request review boundary
+
+Any agent that changes repository files MUST work on a non-`main` branch, commit the intended changes, push that branch to GitHub, and open a pull request against the intended base branch before claiming the work complete or handing it off for completion.
+
+A local commit, clean worktree, passing local checks, patch summary, or chat handoff without an open PR is NOT sufficient completion evidence.
+
+The PR is the required review surface for ChatGPT, human reviewers and other agents. It MUST be reviewable and identify, where applicable:
+
+- the governing Plane work item / JIP;
+- purpose and scope/non-goals;
+- base and head SHA;
+- exact changed-file scope;
+- relevant locked decisions;
+- verification/tests performed;
+- known warnings, blockers or deliberate deferrals.
+
+Agents MUST NOT:
+
+- push directly to `main`;
+- bypass the PR because a change is small or mechanical;
+- mark a repository-changing Plane work item `Done` before a PR exists and required review/completion evidence is satisfied;
+- unblock dependent work merely because local implementation is finished when the current ticket still requires PR review/merge evidence;
+- merge their own PR unless the user explicitly authorizes that specific merge.
+
+Before merge, the final PR head MUST have applicable fresh CI/check evidence and independent review of the exact final diff. If the PR head changes materially after review, rerun the applicable checks and refresh review before merge.
+
+If GitHub or repository access prevents an agent from pushing/opening a PR, the agent MUST report that as a blocker rather than presenting a local-only branch as completed work.
+
 ## Required implementation references
 
 Reference repositories are implementation evidence, not canonical Ticketing product authority.

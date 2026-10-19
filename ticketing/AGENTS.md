@@ -88,6 +88,14 @@ Where relevant, describe the actual merged implementation, including database en
 
 Handoffs may be drafted during implementation. Verify their final state against the merged implementation SHA before closing the JIP.
 
+## Application PR handoff
+
+Every agent-authored change under `ticketing/` or to application/runtime configuration MUST be pushed and exposed through a GitHub PR before the coding agent claims completion.
+
+The handoff MUST include the PR number/URL, final head SHA, exact changed files, verification evidence and any remaining warnings/blockers. Local verification alone does not complete the ticket.
+
+The coding agent MUST leave the PR open for independent exact-diff review and required CI. Do not self-merge unless the user explicitly authorizes that specific merge.
+
 ### Domain behavior
 
 Prefer:
