@@ -46,7 +46,63 @@ If current official guidance materially changes architecture, persistence, trans
 
 ## Ash Framework rules
 
-Ash is the primary governed application/domain framework.
+Ash is the mandatory governed application/domain framework for canonical application state.
+
+### Non-bypassable Ash application boundary
+
+Canonical application/domain persistence MUST be modeled and operated through the approved Ash architecture, not through a parallel Ecto/Repo persistence layer.
+
+For governed canonical state:
+
+- every resource MUST be an Ash Resource and belong to an approved Ash Domain unless a user-approved JIP explicitly establishes a justified exception;
+- the JIT/JIP MUST establish domain/resource ownership, public code interfaces, allowed cross-domain dependencies, actor/tenant requirements, lifecycle ownership, transaction ownership and event/outbox ownership before implementation;
+- modular derived Ash Domain/Resource ownership documentation under `ticketing/docs/domains/` is derived implementation architecture and MUST NOT create or override canonical semantics;
+- PostgreSQL-backed resources MUST use `AshPostgres.DataLayer` unless a user-approved JIP, after explicit JIT evaluation, selects another persistence mechanism;
+- ordinary runtime reads and writes MUST pass through approved Ash actions and domain/resource code interfaces with the required actor, tenant and authorization context;
+- controllers, LiveViews, jobs, service modules, provider adapters and other callers MUST use the same governed boundary rather than reaching around it;
+- cross-domain behavior MUST call approved domain/action interfaces rather than couple domains through persistence access.
+
+Direct persistence bypass is prohibited by default. Runtime/application code MUST NOT use `Ticketing.Repo`, direct `Repo` CRUD, `Ecto.Query`, `Ecto.Multi`, `insert_all`/`update_all`/`delete_all`, raw SQL, database execution helpers or equivalent mechanisms as an alternative API for canonical domain state.
+
+Do not use `authorize?: false`, omit required actor/tenant context, bypass RLS, or duplicate Ash policy logic outside Ash merely for convenience or to make an operation succeed. Any trusted/system execution model must be explicitly designed, narrowly scoped, approved and tested.
+
+PostgreSQL remains a defence-in-depth enforcement layer. Required foreign keys, unique/check constraints, indexes, RLS, locks, transaction primitives and other database guarantees MUST support the governed Ash/AshPostgres model; they MUST NOT become a second application persistence interface.
+
+Low-level Repo/Ecto/SQL mechanics are allowed only for narrowly justified infrastructure work such as migrations, DDL, constraints, indexes, RLS, generated-migration correction, isolated test/fixture setup that cannot become a production shortcut, or an explicitly JIP-approved low-level mechanism needed to satisfy a locked concurrency/transaction invariant. Any approved runtime exception MUST remain behind the governed Ash action/interface boundary and preserve actor, tenant, policy, transaction, idempotency and lifecycle semantics.
+
+If implementation appears to require bypassing Ash/AshPostgres for canonical runtime behavior, STOP affected coding. Capture a Plane blocker/discovery, identify why approved Ash mechanisms are insufficient, run targeted JIT re-Grill, and amend/approve the JIP/spec before resuming if an exception is genuinely required.
+
+Convenience, familiarity, speculative performance concerns or shorter code are not sufficient justification for bypass.
+
+PR review MUST scrutinize direct Repo/Ecto/raw-SQL usage and require an explicit classification/justification for every such occurrence outside ordinary Ash/AshPostgres operation.
+
+## Local infrastructure
+
+Local DEV and TEST use the approved shared PostgreSQL endpoints and roles defined in the root `../AGENTS.md`: DEV at `127.0.0.1:55432` with `ticketing_dev` role/database, and TEST at `127.0.0.1:55433` with `ticketing_test` role/base database. They are separate physical clusters; tests MUST preserve `MIX_TEST_PARTITION` isolation and MUST NOT connect to or mutate DEV.
+
+Application code and tests MUST NOT lifecycle-manage workstation `dev-core`. Redis is not a current Ticketing prerequisite. After the infrastructure migration, direct local configuration MUST NOT silently fall back to legacy `postgres/postgres@localhost:5433` or legacy Redis defaults.
+
+Infrastructure-changing implementation MUST prove DEV/TEST separation, clean PostgreSQL 18 migration, non-superuser role behavior, and absence of secret leakage. It MUST leave legacy PostgreSQL 16 and Redis volumes untouched unless separately authorized.
+
+## Implementation documentation duties
+
+Read ticket/JIP-listed `Context Docs` in addition to the authority, JIP and spec. Treat Context Docs as convenient descriptions of existing implementation, not as authority.
+
+When implementation state changes, update only documents listed by the approved `Documentation Impact`. Create or update domain overviews, resource dossiers, platform documents, flows and navigation only when they are affected by the implemented work.
+
+Never create speculative dossiers for unimplemented resources, duplicate large contract bodies, promote implementation choices into product authority, rewrite unrelated documents, or use documentation to justify behavior that authority or the JIP contradicts.
+
+Where relevant, describe the actual merged implementation, including database enforcement, transaction boundaries, concurrency/version fencing, tenancy/RLS, events/outbox/jobs and interfaces.
+
+Handoffs may be drafted during implementation. Verify their final state against the merged implementation SHA before closing the JIP.
+
+## Application PR handoff
+
+Every agent-authored change under `ticketing/` or to application/runtime configuration MUST be pushed and exposed through a GitHub PR before the coding agent claims completion.
+
+The handoff MUST include the PR number/URL, final head SHA, exact changed files, verification evidence and any remaining warnings/blockers. Local verification alone does not complete the ticket.
+
+The coding agent MUST leave the PR open for independent exact-diff review and required CI. Do not self-merge unless the user explicitly authorizes that specific merge.
 
 ### Domain behavior
 

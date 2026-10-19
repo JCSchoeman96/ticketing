@@ -162,6 +162,131 @@ Canonical contracts remain authoritative. A newer Ash feature MUST NOT replace c
 
 Coding agents MUST NOT silently add or upgrade architectural dependencies.
 
+## Mandatory Ash-native application boundary
+
+The `ticketing/` application is Ash-native by architectural policy. This is a repository implementation invariant beneath canonical product authority, not a replacement for contract semantics.
+
+For canonical application/domain state:
+
+- every governed resource MUST be implemented as an Ash Resource and registered with an approved Ash Domain unless a user-approved JIP explicitly establishes a justified exception;
+- domain/resource ownership, public interfaces, allowed dependencies, actor/tenancy requirements, lifecycle ownership, transaction ownership and event/outbox ownership MUST be established through JIT/JIP decisions and reflected in modular derived Ash Domain/Resource ownership documentation under `ticketing/docs/domains/`;
+- that documentation is derived implementation architecture and MUST NOT create or override canonical semantics;
+- PostgreSQL-backed governed resources MUST use `AshPostgres.DataLayer` unless a user-approved JIP, after explicit JIT evaluation, selects a different persistence mechanism;
+- ordinary runtime reads and writes of canonical domain state MUST flow through approved Ash actions and approved domain/resource code interfaces with the required actor, tenant and authorization context;
+- cross-domain behavior MUST use approved domain/action interfaces rather than persistence-level coupling.
+
+Direct persistence bypass is prohibited by default. Application/runtime code MUST NOT use `Ticketing.Repo`, direct `Repo` CRUD, `Ecto.Query`, `Ecto.Multi`, `insert_all`/`update_all`/`delete_all`, raw SQL, database execution helpers or equivalent mechanisms as an alternative domain API for canonical state.
+
+Likewise, implementation MUST NOT use `authorize?: false`, omit required actor/tenant context, bypass RLS, or reproduce policy logic outside Ash merely for convenience or to make an operation succeed.
+
+PostgreSQL remains a required defence-in-depth enforcement layer. Database constraints, foreign keys, indexes, RLS, checks, locks, transaction primitives and other approved database guarantees SHOULD be used where required by authority/JIP, but they support the governed Ash model rather than form a parallel runtime persistence API.
+
+Low-level Repo/Ecto/SQL mechanics are permitted only for narrowly justified infrastructure concerns such as migrations, DDL, constraints, indexes, RLS, generated-migration correction, isolated test/fixture setup that cannot become a production shortcut, or an explicitly JIP-approved low-level mechanism required to satisfy a locked concurrency/transaction invariant. Any approved runtime exception MUST remain behind the governed Ash action/interface boundary and preserve actor, tenant, policy, transaction, idempotency and lifecycle semantics.
+
+If an implementation appears to require bypassing Ash/AshPostgres for canonical runtime behavior, that is a **STOP condition**:
+
+```text
+stop affected coding
+→ capture discovery/blocker in Plane
+→ identify why approved Ash mechanisms are insufficient
+→ targeted JIT re-Grill
+→ explicitly amend/approve JIP/spec if an exception is genuinely required
+→ only then resume
+```
+
+Convenience, familiarity, speculative performance concerns or shorter code are not sufficient reasons for an exception.
+
+Every material domain JIP/spec MUST state the applicable Ash Domain, Resource, action/interface, policy/actor/tenant, AshPostgres, transaction and direct-database-access posture. Independent review MUST scrutinize direct Repo/Ecto/raw-SQL usage and reject unexplained bypasses.
+
+## Ticketing local infrastructure and Docker contract
+
+Each workload MUST have exactly one lifecycle and configuration owner.
+
+Workstation `dev-core` is external, workstation-owned infrastructure. Repository agents MUST NOT create, start, stop, recreate, delete, adopt into another manager, or otherwise lifecycle-manage `dev-core` services.
+
+Ticketing local PostgreSQL uses these shared endpoints and roles:
+
+| Purpose | Ownership | Endpoint | Role | Database |
+| --- | --- | --- | --- | --- |
+| DEV | `SHARED_LOCAL` | `127.0.0.1:55432` | `ticketing_dev` | `ticketing_dev` |
+| TEST | `SHARED_LOCAL` | `127.0.0.1:55433` | `ticketing_test` | `ticketing_test` base database |
+
+DEV and TEST MUST be separate physical PostgreSQL clusters. Tests MUST NOT connect to or mutate DEV. The TEST role may have `CREATEDB` only to create deterministic `MIX_TEST_PARTITION` test databases. Do not broaden its privileges for convenience.
+
+PostgreSQL 18.6 is the approved T0-00 baseline. Ordinary local Ticketing work MUST NOT create a repository-owned `pgdata18` service or volume.
+
+Redis is currently **N/A** for Ticketing. Do not add Redis/Redix, migrate to shared Redis, or treat the legacy Redis container as an application requirement unless a later approved JIP establishes a real use. If shared Redis is later approved, project/environment namespaces are mandatory and `FLUSHALL`/`FLUSHDB` are prohibited.
+
+CI infrastructure is `TOOL_OWNED` by the CI job and MUST NOT depend on workstation `dev-core`.
+
+Existing repository-local PostgreSQL 16 and Redis containers/volumes are legacy rollback/evidence assets. Migration completion alone does not authorize deletion, purge, or reuse; deletion requires separate explicit user authorization.
+
+Adopt the repository's non-secret `.devcore/` allocation contract when implemented. Real credentials remain workstation-local and ignored; secrets MUST NOT be committed. Agents MUST NOT run credential rotation, destructive bootstrap, or force/reinitialization operations (including bootstrap `rotate` or `init --force` equivalents) without explicit need and user authorization.
+
+Because Ticketing is independently deployable, the repository must ultimately own a canonical deployment `compose.yaml`/Dockerfile contract. That deployment contract MUST NOT duplicate workstation `dev-core` PostgreSQL/Redis services. Portainer is for observation/administration, not project configuration authority. Dockge owns only workloads deliberately assigned to it. Production PostgreSQL/Redis ownership is not defined by this local workstation contract.
+
+Before tenant/RLS domain implementation, JIT MUST explicitly decide migration-owner/runtime-role and FORCE-RLS posture. Local database ownership MUST NOT be assumed to model final runtime RLS enforcement.
+
+## Modular implementation documentation
+
+`ticketing/docs/` describes merged implementation state. It is **DERIVED IMPLEMENTATION DOCUMENTATION**, never semantic authority.
+
+Do not create a single architecture god-file. Prefer the smallest independently useful documents that an agent can load selectively. Grow the structure only as implemented capabilities require:
+
+- `ticketing/docs/README.md`;
+- `ticketing/docs/platform/`;
+- `ticketing/docs/domains/`;
+- `ticketing/docs/flows/`;
+- `ticketing/docs/handoffs/`.
+
+`ticketing/docs/README.md` is concise navigation only.
+
+`ticketing/docs/platform/` holds documentation for implemented cross-cutting runtime, database, tenancy/RLS, authorization, transaction/concurrency, idempotency, errors, events/outbox, jobs, observability and quality concerns.
+
+`ticketing/docs/domains/README.md` may provide a compact index of implemented domains. `ticketing/docs/domains/<domain>/README.md` describes implemented domain ownership and boundaries. Add focused resource dossiers when useful. Keep detailed ownership in the domain documents and dossiers rather than a single map.
+
+`ticketing/docs/flows/` describes implemented cross-domain orchestration.
+
+`ticketing/docs/handoffs/<JIP>.md` is the frozen closeout and change record for a material JIP.
+
+Substantive documents SHOULD identify their status and nature, last verified `main` SHA, governing JIP, and relevant Plane, PR and authority references where useful. Do not describe speculative future architecture as current.
+
+Canonical authority wins over implementation documentation. If documentation disagrees with merged code, verify the code and correct stale documentation.
+
+Each material JIP MUST declare `Documentation Impact` using `CREATE`, `UPDATE` or `UNAFFECTED`, with exact paths where applicable. Executable Plane tickets MUST list the smallest useful `Context Docs` set.
+
+After a material JIP merges, verify the merged SHA, update only affected documents, create or update the handoff, verify the documents against merged code, record Plane closeout evidence, and then close the JIP.
+
+Plane document links and comments are navigation and execution metadata, not semantic authority.
+
+## Mandatory pull-request review boundary
+
+Any agent that changes repository files MUST work on a non-`main` branch, commit the intended changes, push that branch to GitHub, and open a pull request against the intended base branch before claiming the work complete or handing it off for completion.
+
+A local commit, clean worktree, passing local checks, patch summary, or chat handoff without an open PR is NOT sufficient completion evidence.
+
+The PR is the required review surface for ChatGPT, human reviewers and other agents. It MUST be reviewable and identify, where applicable:
+
+- the governing Plane work item / JIP;
+- purpose and scope/non-goals;
+- base and head SHA;
+- exact changed-file scope;
+- relevant locked decisions;
+- verification/tests performed;
+- known warnings, blockers or deliberate deferrals.
+
+Agents MUST NOT:
+
+- push directly to `main`;
+- bypass the PR because a change is small or mechanical;
+- mark a repository-changing Plane work item `Done` before a PR exists and required review/completion evidence is satisfied;
+- unblock dependent work merely because local implementation is finished when the current ticket still requires PR review/merge evidence;
+- merge their own PR unless the user explicitly authorizes that specific merge.
+
+Before merge, the final PR head MUST have applicable fresh CI/check evidence and independent review of the exact final diff. If the PR head changes materially after review, rerun the applicable checks and refresh review before merge.
+
+If GitHub or repository access prevents an agent from pushing/opening a PR, the agent MUST report that as a blocker rather than presenting a local-only branch as completed work.
+
 ## Required implementation references
 
 Reference repositories are implementation evidence, not canonical Ticketing product authority.
@@ -367,8 +492,8 @@ For an approved READY work item:
 - use discretion only for true `IMPLEMENTATION_FREE` choices;
 - use TDD for material behavior;
 - preserve contract ownership boundaries;
-- prefer governed Ash actions over direct Repo bypasses;
-- use Repo/DDL/test-fixture mechanisms only for justified infrastructure or explicit JIP needs;
+- use governed Ash Domain/Resource actions and interfaces for canonical runtime behavior; direct Repo/Ecto/raw-SQL bypass is prohibited except as explicitly allowed by the Mandatory Ash-native application boundary above;
+- use Repo/DDL/test-fixture mechanisms only for justified infrastructure or explicit JIP needs consistent with that boundary;
 - use current official APIs and idioms;
 - avoid unrelated refactors;
 - surface contradictions immediately;

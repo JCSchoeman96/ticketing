@@ -236,6 +236,47 @@ Store Blueprint Hardening, LiveFrames, framework documentation, package behavior
 
 If implementation/reference evidence reveals that a canonical requirement is impossible, contradictory or underspecified, open an `AUTHORITY_GAP`; do not silently reshape the contract to match the implementation.
 
+## Downstream Ash-native application boundary
+
+Canonical authority remains technology-neutral unless a technology itself is part of the product/system contract. The active `ticketing/` implementation is nevertheless governed by the repository-wide Ash-native architecture policy in the root `AGENTS.md` and the application rules in `ticketing/AGENTS.md`.
+
+Authority, ROADMAP and tracer work MUST preserve the distinction between product semantics and downstream implementation architecture:
+
+- derive required ownership, lifecycle, actor/tenant, authorization, transaction, concurrency, idempotency, event/outbox and persistence invariants from canonical authority;
+- allow JIT/JIP to map those invariants onto Ash Domains, Ash Resources, Ash actions, policies and AshPostgres;
+- treat modular derived Ash Domain/Resource ownership documentation under `ticketing/docs/domains/` as implementation architecture, not canonical semantic authority;
+- do not encode a direct Repo/Ecto/raw-SQL bypass into contracts, ROADMAP or tracers merely because it appears easier to implement;
+- do not weaken or reshape canonical semantics to fit a framework limitation.
+
+If the selected Ash/AshPostgres stack cannot safely express a canonical requirement, first determine which kind of problem exists:
+
+- missing, contradictory or insufficient canonical semantics → `AUTHORITY_GAP` and authority repair;
+- clear canonical semantics but an implementation/framework limitation → downstream technical blocker/prerequisite, targeted JIT re-Grill and explicit JIP/spec decision.
+
+A framework limitation by itself is NOT an `AUTHORITY_GAP` and MUST NOT cause canonical authority to be rewritten merely to accommodate the current implementation.
+
+The prohibition on direct persistence bypass applies to canonical runtime application behavior in `ticketing/`. It does not prohibit authority tooling from reading/writing authority artifacts or using implementation mechanisms appropriate to deterministic contract release, validation and provenance work.
+
+## Derived implementation documentation boundary
+
+`ticketing/docs/` is downstream derived implementation documentation. It may describe current application architecture, Ash domains and resources, database implementation, flows, runtime and infrastructure, and historical JIP outcomes.
+
+It MUST NOT override or silently extend CANON, canonical contracts, ROADMAP or the active tracer.
+
+If implementation documentation exposes missing or contradictory required semantics, classify the issue through the normal authority process. A material semantic deficiency is an `AUTHORITY_GAP`; implementation documentation cannot resolve it.
+
+Do not change authority merely to match implementation documentation without an independently justified product-authority change. Authority changes may make downstream documentation stale; refresh that documentation through normal JIT and implementation work.
+
+## Local infrastructure governance boundary
+
+Local infrastructure and ownership rules are downstream implementation governance. They MUST NOT create or override CANON semantics. An infrastructure or framework limitation that does not expose missing product semantics is a technical prerequisite or blocker, not automatically an `AUTHORITY_GAP`.
+
+## Authority change PR boundary
+
+Agent-authored changes to `authority/`, repository governance, planning/tracers, release tooling or canonical release inputs MUST also be pushed on a branch and opened as a PR before they are treated as completed or merge-ready.
+
+Authority validation passing locally does not replace PR review. The PR MUST expose the exact diff and fresh required validation/CI evidence for independent review. Agents MUST NOT push authority/governance changes directly to `main` or self-merge unless the user explicitly authorizes that specific merge.
+
 ## Decision classes
 
 Use these meanings consistently across authority/planning work.
