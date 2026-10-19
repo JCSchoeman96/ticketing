@@ -20,8 +20,11 @@ if System.get_env("PHX_SERVER") do
   config :ticketing, TicketingWeb.Endpoint, server: true
 end
 
-config :ticketing, TicketingWeb.Endpoint,
-  http: [port: String.to_integer(System.get_env("PORT", "4000"))]
+# DEV uses the Ticketing-specific port configured in dev.exs. Keep PORT for other environments.
+if config_env() != :dev do
+  config :ticketing, TicketingWeb.Endpoint,
+    http: [port: String.to_integer(System.get_env("PORT", "4000"))]
+end
 
 if config_env() == :prod do
   database_url =
