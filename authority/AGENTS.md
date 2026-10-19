@@ -244,7 +244,7 @@ Authority, ROADMAP and tracer work MUST preserve the distinction between product
 
 - derive required ownership, lifecycle, actor/tenant, authorization, transaction, concurrency, idempotency, event/outbox and persistence invariants from canonical authority;
 - allow JIT/JIP to map those invariants onto Ash Domains, Ash Resources, Ash actions, policies and AshPostgres;
-- treat the cumulative Ash Domain/Resource Ownership Map as derived implementation architecture, not canonical semantic authority;
+- treat modular derived Ash Domain/Resource ownership documentation under `ticketing/docs/domains/` as implementation architecture, not canonical semantic authority;
 - do not encode a direct Repo/Ecto/raw-SQL bypass into contracts, ROADMAP or tracers merely because it appears easier to implement;
 - do not weaken or reshape canonical semantics to fit a framework limitation.
 
@@ -256,6 +256,16 @@ If the selected Ash/AshPostgres stack cannot safely express a canonical requirem
 A framework limitation by itself is NOT an `AUTHORITY_GAP` and MUST NOT cause canonical authority to be rewritten merely to accommodate the current implementation.
 
 The prohibition on direct persistence bypass applies to canonical runtime application behavior in `ticketing/`. It does not prohibit authority tooling from reading/writing authority artifacts or using implementation mechanisms appropriate to deterministic contract release, validation and provenance work.
+
+## Derived implementation documentation boundary
+
+`ticketing/docs/` is downstream derived implementation documentation. It may describe current application architecture, Ash domains and resources, database implementation, flows, runtime and infrastructure, and historical JIP outcomes.
+
+It MUST NOT override or silently extend CANON, canonical contracts, ROADMAP or the active tracer.
+
+If implementation documentation exposes missing or contradictory required semantics, classify the issue through the normal authority process. A material semantic deficiency is an `AUTHORITY_GAP`; implementation documentation cannot resolve it.
+
+Do not change authority merely to match implementation documentation without an independently justified product-authority change. Authority changes may make downstream documentation stale; refresh that documentation through normal JIT and implementation work.
 
 ## Decision classes
 

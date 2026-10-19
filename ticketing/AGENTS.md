@@ -56,7 +56,7 @@ For governed canonical state:
 
 - every resource MUST be an Ash Resource and belong to an approved Ash Domain unless a user-approved JIP explicitly establishes a justified exception;
 - the JIT/JIP MUST establish domain/resource ownership, public code interfaces, allowed cross-domain dependencies, actor/tenant requirements, lifecycle ownership, transaction ownership and event/outbox ownership before implementation;
-- the cumulative Ash Domain/Resource Ownership Map is derived architecture documentation only and MUST NOT invent or override canonical semantics;
+- modular derived Ash Domain/Resource ownership documentation under `ticketing/docs/domains/` is derived implementation architecture and MUST NOT create or override canonical semantics;
 - PostgreSQL-backed resources MUST use `AshPostgres.DataLayer` unless a user-approved JIP, after explicit JIT evaluation, selects another persistence mechanism;
 - ordinary runtime reads and writes MUST pass through approved Ash actions and domain/resource code interfaces with the required actor, tenant and authorization context;
 - controllers, LiveViews, jobs, service modules, provider adapters and other callers MUST use the same governed boundary rather than reaching around it;
@@ -75,6 +75,18 @@ If implementation appears to require bypassing Ash/AshPostgres for canonical run
 Convenience, familiarity, speculative performance concerns or shorter code are not sufficient justification for bypass.
 
 PR review MUST scrutinize direct Repo/Ecto/raw-SQL usage and require an explicit classification/justification for every such occurrence outside ordinary Ash/AshPostgres operation.
+
+## Implementation documentation duties
+
+Read ticket/JIP-listed `Context Docs` in addition to the authority, JIP and spec. Treat Context Docs as convenient descriptions of existing implementation, not as authority.
+
+When implementation state changes, update only documents listed by the approved `Documentation Impact`. Create or update domain overviews, resource dossiers, platform documents, flows and navigation only when they are affected by the implemented work.
+
+Never create speculative dossiers for unimplemented resources, duplicate large contract bodies, promote implementation choices into product authority, rewrite unrelated documents, or use documentation to justify behavior that authority or the JIP contradicts.
+
+Where relevant, describe the actual merged implementation, including database enforcement, transaction boundaries, concurrency/version fencing, tenancy/RLS, events/outbox/jobs and interfaces.
+
+Handoffs may be drafted during implementation. Verify their final state against the merged implementation SHA before closing the JIP.
 
 ### Domain behavior
 

@@ -169,8 +169,8 @@ The `ticketing/` application is Ash-native by architectural policy. This is a re
 For canonical application/domain state:
 
 - every governed resource MUST be implemented as an Ash Resource and registered with an approved Ash Domain unless a user-approved JIP explicitly establishes a justified exception;
-- domain/resource ownership, public interfaces, allowed dependencies, actor/tenancy requirements, lifecycle ownership, transaction ownership and event/outbox ownership MUST be established through JIT/JIP decisions and reflected in the cumulative derived Ash Domain/Resource Ownership Map;
-- that Domain/Resource Ownership Map is derived architecture documentation and MUST NOT create or override canonical semantics;
+- domain/resource ownership, public interfaces, allowed dependencies, actor/tenancy requirements, lifecycle ownership, transaction ownership and event/outbox ownership MUST be established through JIT/JIP decisions and reflected in modular derived Ash Domain/Resource ownership documentation under `ticketing/docs/domains/`;
+- that documentation is derived implementation architecture and MUST NOT create or override canonical semantics;
 - PostgreSQL-backed governed resources MUST use `AshPostgres.DataLayer` unless a user-approved JIP, after explicit JIT evaluation, selects a different persistence mechanism;
 - ordinary runtime reads and writes of canonical domain state MUST flow through approved Ash actions and approved domain/resource code interfaces with the required actor, tenant and authorization context;
 - cross-domain behavior MUST use approved domain/action interfaces rather than persistence-level coupling.
@@ -197,6 +197,38 @@ stop affected coding
 Convenience, familiarity, speculative performance concerns or shorter code are not sufficient reasons for an exception.
 
 Every material domain JIP/spec MUST state the applicable Ash Domain, Resource, action/interface, policy/actor/tenant, AshPostgres, transaction and direct-database-access posture. Independent review MUST scrutinize direct Repo/Ecto/raw-SQL usage and reject unexplained bypasses.
+
+## Modular implementation documentation
+
+`ticketing/docs/` describes merged implementation state. It is **DERIVED IMPLEMENTATION DOCUMENTATION**, never semantic authority.
+
+Do not create a single architecture god-file. Prefer the smallest independently useful documents that an agent can load selectively. Grow the structure only as implemented capabilities require:
+
+- `ticketing/docs/README.md`;
+- `ticketing/docs/platform/`;
+- `ticketing/docs/domains/`;
+- `ticketing/docs/flows/`;
+- `ticketing/docs/handoffs/`.
+
+`ticketing/docs/README.md` is concise navigation only.
+
+`ticketing/docs/platform/` holds documentation for implemented cross-cutting runtime, database, tenancy/RLS, authorization, transaction/concurrency, idempotency, errors, events/outbox, jobs, observability and quality concerns.
+
+`ticketing/docs/domains/README.md` may provide a compact index of implemented domains. `ticketing/docs/domains/<domain>/README.md` describes implemented domain ownership and boundaries. Add focused resource dossiers when useful. Keep detailed ownership in the domain documents and dossiers rather than a single map.
+
+`ticketing/docs/flows/` describes implemented cross-domain orchestration.
+
+`ticketing/docs/handoffs/<JIP>.md` is the frozen closeout and change record for a material JIP.
+
+Substantive documents SHOULD identify their status and nature, last verified `main` SHA, governing JIP, and relevant Plane, PR and authority references where useful. Do not describe speculative future architecture as current.
+
+Canonical authority wins over implementation documentation. If documentation disagrees with merged code, verify the code and correct stale documentation.
+
+Each material JIP MUST declare `Documentation Impact` using `CREATE`, `UPDATE` or `UNAFFECTED`, with exact paths where applicable. Executable Plane tickets MUST list the smallest useful `Context Docs` set.
+
+After a material JIP merges, verify the merged SHA, update only affected documents, create or update the handoff, verify the documents against merged code, record Plane closeout evidence, and then close the JIP.
+
+Plane document links and comments are navigation and execution metadata, not semantic authority.
 
 ## Required implementation references
 
