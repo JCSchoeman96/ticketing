@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "ARCH-1",
+    "bundle_version": "3.0.4"
+  },
+  "doc_id": "ARCH-1",
+  "files": [
+    {
+      "bytes": 26014,
+      "path": "ARCH-1_Contract_v3.0.4.json",
+      "sha256": "c289d2c86151e448ee6acf99c0979cc35a80dea626b331cf956a387b645a3b0a"
+    },
+    {
+      "bytes": 15984,
+      "path": "ARCH-1_Test_Gates_v3.0.4.json",
+      "sha256": "081b8b8be50d4969bdbb035696f4867080ff46ce1f7abf59355bae9089e0fb2d"
+    }
+  ],
+  "generated_at_utc": "2026-04-15T13:42:24Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.0",
+  "version": "3.0.4"
+}

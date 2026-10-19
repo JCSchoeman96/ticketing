@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "RECON-1",
+    "bundle_version": "1.0.3"
+  },
+  "doc_id": "RECON-1",
+  "files": [
+    {
+      "bytes": 24496,
+      "path": "RECON-1_Contract_v1.0.3.json",
+      "sha256": "b12c98cbc5219aca421fd8c7bd347ef1270378aabba457ee20887f2eb5ec6051"
+    },
+    {
+      "bytes": 7659,
+      "path": "RECON-1_Test_Gates_v1.0.3.json",
+      "sha256": "24c19f35222031943a186d571c3c6f3a3dcfb6950b3fb44ef205f1bde5eacaa9"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.0.3"
+}

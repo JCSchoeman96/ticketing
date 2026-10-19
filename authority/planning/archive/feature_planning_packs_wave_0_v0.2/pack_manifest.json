@@ -1,0 +1,115 @@
+{
+  "artifact_kind": "feature_planning_pack_collection",
+  "files": [
+    {
+      "bytes": 5692,
+      "path": "0000_MVP0-000_repo-airlock-scaffold/00_FEATURE_PLAN.md",
+      "sha256": "d1310490c94216b3a3a035e87f33929d15bc14f46aab0d4c680032e6cb167829"
+    },
+    {
+      "bytes": 2101,
+      "path": "0000_MVP0-000_repo-airlock-scaffold/01_CODING_AGENT_PROMPT.md",
+      "sha256": "aa6c5ef760bce119f3a3da8cd917656eded8a6db1d3668d7e7855bcb3311e9e5"
+    },
+    {
+      "bytes": 939,
+      "path": "0000_MVP0-000_repo-airlock-scaffold/02_EVIDENCE_CHECKLIST.md",
+      "sha256": "89ce362a460da47062709e02b731d890696f18969f2d2bd71936cfa6b51d880e"
+    },
+    {
+      "bytes": 467,
+      "path": "0000_MVP0-000_repo-airlock-scaffold/pack.json",
+      "sha256": "cb89a1a3a74fc30090a82570f9cce4f2fde7f570be3de6453f3d09a98d275780"
+    },
+    {
+      "bytes": 6446,
+      "path": "0010_TB-000_governance-tracer-bullet/00_FEATURE_PLAN.md",
+      "sha256": "b56cd32c094833ed8d8c292f3c2cb0f1ff943940298e1856c31d94a9ac1e664a"
+    },
+    {
+      "bytes": 2415,
+      "path": "0010_TB-000_governance-tracer-bullet/01_CODING_AGENT_PROMPT.md",
+      "sha256": "6b8dd94682bbfc74f334fb8571b1c05c26e191ad844912aff65eb197508a45cb"
+    },
+    {
+      "bytes": 912,
+      "path": "0010_TB-000_governance-tracer-bullet/02_EVIDENCE_CHECKLIST.md",
+      "sha256": "f01f3ab067f779b4b9da49014a7ecf2f399dbd188444606525b70621c8eb0c65"
+    },
+    {
+      "bytes": 427,
+      "path": "0010_TB-000_governance-tracer-bullet/pack.json",
+      "sha256": "88c4514781817a4d0ee8caf4081dec7016d53f66934c20b08d6a02bd7be30c11"
+    },
+    {
+      "bytes": 4635,
+      "path": "0020_CI-001_deterministic-uuid-binary-sort/00_FEATURE_PLAN.md",
+      "sha256": "6da64886437ff4838966941413adf0b6107ecdda101c2749e8428c42c1bcfd1c"
+    },
+    {
+      "bytes": 2255,
+      "path": "0020_CI-001_deterministic-uuid-binary-sort/01_CODING_AGENT_PROMPT.md",
+      "sha256": "f90272ce3cdd3a3c1ae16288b046a3ec410e51da641885967ea35772cc621fc2"
+    },
+    {
+      "bytes": 925,
+      "path": "0020_CI-001_deterministic-uuid-binary-sort/02_EVIDENCE_CHECKLIST.md",
+      "sha256": "c910643c7ac16998699f49897229bf30ef401250f862ee356fc3aae364d76b19"
+    },
+    {
+      "bytes": 440,
+      "path": "0020_CI-001_deterministic-uuid-binary-sort/pack.json",
+      "sha256": "3438d04564ba2db61e72736396d9aa9b0e68a69dc3f6b7f84c0f16fec26c2ba8"
+    },
+    {
+      "bytes": 5266,
+      "path": "0030_CI-002_migration-safety-baseline/00_FEATURE_PLAN.md",
+      "sha256": "998be54eb8bb4e21722786b4ace2a3526fc3c9e88fbb60fcef5897462883bc16"
+    },
+    {
+      "bytes": 2149,
+      "path": "0030_CI-002_migration-safety-baseline/01_CODING_AGENT_PROMPT.md",
+      "sha256": "a991d07041dda92111d5137256a920602f369b6bc92523c744f8f9f3a5a6132c"
+    },
+    {
+      "bytes": 908,
+      "path": "0030_CI-002_migration-safety-baseline/02_EVIDENCE_CHECKLIST.md",
+      "sha256": "4d929237928b5c57568490c02c3e2028ffd625b82b5c5707c629c03366dc3080"
+    },
+    {
+      "bytes": 423,
+      "path": "0030_CI-002_migration-safety-baseline/pack.json",
+      "sha256": "45d40c9258ae115125df5fd91ce261b7c8046e46149ef3025a89e9742e0b2749"
+    },
+    {
+      "bytes": 1780,
+      "path": "00_README.md",
+      "sha256": "7b6ad4916b53e5989a399eb29a92fcc9b751646759cb4dd2e873759e707cd182"
+    },
+    {
+      "bytes": 694,
+      "path": "01_ORDER_INDEX.csv",
+      "sha256": "d8c8b8ee0b6636e5b9bc1bf544b82b79fe61cd6b152d8e2f1ba521bd3a741d5f"
+    },
+    {
+      "bytes": 2114,
+      "path": "01_ORDER_INDEX.json",
+      "sha256": "d55e0b5d7ea656a1b60ae01317d90d3fc2b7279a4b1583421859e3335e122abd"
+    },
+    {
+      "bytes": 912,
+      "path": "01_ORDER_INDEX.md",
+      "sha256": "8e1f7a843c486b35a3b158ca35d8bd7e0451dabd5248d55ac26ae0e117df6f9b"
+    },
+    {
+      "bytes": 1780,
+      "path": "_shared/AGENT_HANDOFF_RULES.md",
+      "sha256": "926b4d8bfbb1683d7ea75ecac6c700e5b3d1e2e782bdb214f509f3df57694979"
+    }
+  ],
+  "folder_ordering_rule": "Sort by the numeric prefix before the first underscore. Numeric gaps of 10 are intentional to allow future insertions.",
+  "generated_at_utc": "2026-06-04T19:49:48Z",
+  "name": "feature_planning_packs_wave_0",
+  "schema_version": "feature-planning-packs/0.1",
+  "version": "0.2"
+}

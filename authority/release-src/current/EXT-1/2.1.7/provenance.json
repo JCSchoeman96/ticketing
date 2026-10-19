@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/EXT-1_bundle_v2.1.6_refactored.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/EXT-1_bundle_v2.1.6_refactored.zip",
+  "source_zip_sha256": "81ecc09a506b3a48a39e1bb9a08956260d86409680260d6a9c6a5ff7e7f41b20",
+  "source_zip_bytes": 12266,
+  "source_version": "2.1.6",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "EXT-1_bundle_v2.1.6/EXT-1_Contract_v2.1.6.json",
+      "sha256": "9eab0ef0017c568fd330f8d38f26590bf805ec6adb2027736d3fc7a1de4a6914",
+      "bytes": 26832
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "EXT-1_bundle_v2.1.6/EXT-1_Test_Gates_v2.1.6.json",
+      "sha256": "ac446b406effd5eed0e129d7a268ea2f6b3ab82682dcd807572fdbe22d36b997",
+      "bytes": 24306
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "EXT-1_bundle_v2.1.6/EXT-1_Contract_v2.1.6.json",
+      "sha256": "21ce249907f4cb0ab3e5b0af66b81bfbb7dd9f05c7545817c219047625723d17",
+      "bytes": 26641
+    },
+    {
+      "source_member_path": "EXT-1_bundle_v2.1.6/EXT-1_Test_Gates_v2.1.6.json",
+      "sha256": "58f99366bb34d1b868e2dcc123ef3d3f1dcf5adb70eee984eaece27bc9325aa7",
+      "bytes": 26016
+    }
+  ]
+}

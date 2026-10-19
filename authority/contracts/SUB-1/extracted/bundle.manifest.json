@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "SUB-1",
+    "bundle_version": "1.2.1"
+  },
+  "doc_id": "SUB-1",
+  "files": [
+    {
+      "bytes": 28342,
+      "path": "SUB-1_Contract_v1.2.1.json",
+      "sha256": "eea43f0981bcc1446e283ef85ac9dfd2fa6f3607d2b740954e04052c8316de5d"
+    },
+    {
+      "bytes": 24555,
+      "path": "SUB-1_Test_Gates_v1.2.1.json",
+      "sha256": "3f1fd3412312e7186f2f7acfcbe04321afbdc4771b9629e65a4858b2befe1bc8"
+    }
+  ],
+  "generated_at_utc": "2026-02-06T15:41:24Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.0",
+  "version": "1.2.1"
+}

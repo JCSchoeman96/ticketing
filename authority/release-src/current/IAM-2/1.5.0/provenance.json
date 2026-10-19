@@ -1,0 +1,23 @@
+{
+  "bootstrap_commit": "b6e4bac210a7bdd906b611984150d1f1198f3141",
+  "candidate_preparation_base_commit": "b6e4bac210a7bdd906b611984150d1f1198f3141",
+  "provenance_statement": "Candidate IAM-2@1.5.0 derives from the exact manifest-selected installed IAM-2@1.4.0 bundle at b6e4bac210a7bdd906b611984150d1f1198f3141; new authority content is authored in this successor source.",
+  "source_bundle_path": "contracts/IAM-2/IAM-2_bundle_v1.4.0.zip",
+  "source_members": [
+    {
+      "bytes": 40644,
+      "sha256": "6d27b56a5cf3e5575a4d31e09b013c9ef76a025510970facd9c36c56abb9b6f1",
+      "source_member_path": "contracts/IAM-2/extracted/IAM-2_Contract_v1.4.0.json",
+      "tracked_source_path": "contract.json"
+    },
+    {
+      "bytes": 23678,
+      "sha256": "6958886d1c61dae0291496dfb9ee4482cb815d752d53967f7ef086dc5d29f5ff",
+      "source_member_path": "contracts/IAM-2/extracted/IAM-2_Test_Gates_v1.4.0.json",
+      "tracked_source_path": "test-gates.json"
+    }
+  ],
+  "source_version": "1.4.0",
+  "source_zip_bytes": 53843,
+  "source_zip_sha256": "559e07f6ebb1c1f90b64dd73fd7f082b5089a391ed7dd22a1ff3ed399621b16b"
+}

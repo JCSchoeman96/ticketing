@@ -1,30 +1,32 @@
 # Ticketing
 
-This is the product implementation repository. The Phoenix application lives in `ticketing/`.
-Canonical domain authority lives in [JCSchoeman96/ticketing-contracts](https://github.com/JCSchoeman96/ticketing-contracts).
-This implementation consumes CANON-1 2.0.13 from reviewed contracts commit
-`b6e4bac210a7bdd906b611984150d1f1198f3141`. The pin in `contracts/authority.json` records
-that reviewed baseline and does not create a second contract release.
+This repository contains both canonical Ticketing authority and its implementation. The authority files live in `authority/`. The Phoenix application lives in `ticketing/`. Physical co-location does not change the authority hierarchy: the application remains downstream of CANON, canonical contracts, the ROADMAP, and its active tracer.
 
-The next product implementation slice after bootstrap B0 is T0, described by
-`planning/tracers/T0-tenant-scoped-ga-pending-sale.md` in the contracts repository.
+Read the repository governance in [AGENTS.md](AGENTS.md), authority-specific rules in [authority/AGENTS.md](authority/AGENTS.md), and application rules in [ticketing/AGENTS.md](ticketing/AGENTS.md). Import provenance and source validation evidence are recorded in [authority/provenance/import.json](authority/provenance/import.json).
 
 ## Local setup
 
 From the repository root:
 
 1. Install the runtimes listed in `.tool-versions` with `mise install` or `asdf install`.
-2. Start PostgreSQL with `docker compose up -d db`. Compose publishes it on `localhost:5433`.
-3. Run `direnv allow` to load the local environment from `.envrc`.
-4. Check out the contracts repository beside this repository and pin it to the reviewed commit:
+2. Install authority validation dependencies:
 
    ```sh
-   git clone git@github.com:JCSchoeman96/ticketing-contracts.git ../ticketing-contracts
-   git -C ../ticketing-contracts checkout b6e4bac210a7bdd906b611984150d1f1198f3141
+   python3 -m pip install -r authority/requirements-release.txt pytest==9.1.1
    ```
 
-   If your checkout is elsewhere, set `TICKETING_CONTRACTS_PATH` in the shell or in the
-   ignored `.envrc.private` file. The default is `../../ticketing-contracts` from `ticketing/`.
+3. Start PostgreSQL with `docker compose up -d db`. Compose publishes it on `localhost:5433`.
+4. Run authority checks:
+
+   ```sh
+   PYTHONPATH=authority python3 -m pytest -q authority/tests
+   python3 authority/tools/contract_manifest.py verify --root authority
+   python3 authority/tools/generate_canon.py verify --root authority
+   python3 authority/tools/reconcile_contracts.py audit --canonical --strict --root authority \
+     --json-output /tmp/ticketing-authority-audit.json \
+     --markdown-output /tmp/ticketing-authority-audit.md
+   ```
+
 5. Run application commands from `ticketing/`:
 
    ```sh
@@ -35,7 +37,4 @@ From the repository root:
    mix phx.server
    ```
 
-`mix contract.authority --pin-only` checks the checked-in authority pin without accessing the
-contracts repository. CI uses this mode because it does not need credentials for the private
-contracts repository. `mix setup` also applies one AshPostgres support-function migration; it
-creates no application tables.
+`mix contract.authority` validates the in-repository authority. CANON's current version comes from `authority/contracts/manifest.json`; application source does not pin a moving CANON version.

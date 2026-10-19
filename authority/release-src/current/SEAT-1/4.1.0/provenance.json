@@ -1,0 +1,28 @@
+{
+  "bootstrap_commit": "70d9625dd5ff0f909b0c30c74a3f0be4162c11bc",
+  "candidate_preparation_base_commit": "70d9625dd5ff0f909b0c30c74a3f0be4162c11bc",
+  "provenance_statement": "SEAT-1@4.1.0 is a successor to installed SEAT-1@4.0.0. Its source contract and gates preserve the frozen installed release except for the coordinated replay proof-possession correction.",
+  "source_bundle_path": "contracts/SEAT-1/SEAT-1_bundle_v4.0.0.zip",
+  "source_zip_sha256": "3ee42fbc6e43e1a58233abb9de8b1cf5b23037d62dcf4add256af750267b07cc",
+  "source_zip_bytes": 163038,
+  "source_version": "4.0.0",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "release-src/current/SEAT-1/4.1.0/contract.json",
+      "sha256": "3f285d66ea31cc95aa3621241988b887562c0b575ee2f2ae37bf71d3b457d1dc",
+      "bytes": 135178
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "release-src/current/SEAT-1/4.1.0/test-gates.json",
+      "sha256": "45c0365c0819f7f1b018718b803122c2faca1405a19d8f48bc6cdfb7b22a7928",
+      "bytes": 35149
+    }
+  ],
+  "mechanical_normalization": {
+    "suite_schema": "CS-0@3.0.1",
+    "target_version": "4.1.0",
+    "generated_at_utc": "2026-10-18T12:54:14Z"
+  }
+}

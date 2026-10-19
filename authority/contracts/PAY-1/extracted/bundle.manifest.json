@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "PAY-1",
+    "bundle_version": "2.10.3"
+  },
+  "doc_id": "PAY-1",
+  "files": [
+    {
+      "bytes": 53376,
+      "path": "PAY-1_Contract_v2.10.3.json",
+      "sha256": "2e487d52cb974b9c07f91867730bd19149e279f6ca7202996e530e4b39ba6797"
+    },
+    {
+      "bytes": 32502,
+      "path": "PAY-1_Test_Gates_v2.10.3.json",
+      "sha256": "89d3ef3948ccfa57568508cabaa2431e44ab8fd50417c8f3ba097e2866c84958"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.10.3"
+}

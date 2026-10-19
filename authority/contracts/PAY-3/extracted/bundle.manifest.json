@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "PAY-3",
+    "bundle_version": "2.10.8"
+  },
+  "doc_id": "PAY-3",
+  "files": [
+    {
+      "bytes": 75102,
+      "path": "PAY-3_Contract_v2.10.8.json",
+      "sha256": "53366545a46191d1e1c020b65a6b963592ac24463ecaae4cf46985d72c0ea4ac"
+    },
+    {
+      "bytes": 32659,
+      "path": "PAY-3_Test_Gates_v2.10.8.json",
+      "sha256": "32eb1d5838bc4473b14cb4d539449038183859a9ab0d504d2880c54eda0e7e3a"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.10.8"
+}

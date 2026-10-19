@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "ORD-1",
+    "bundle_version": "4.0.1"
+  },
+  "doc_id": "ORD-1",
+  "files": [
+    {
+      "bytes": 124095,
+      "path": "ORD-1_Contract_v4.0.1.json",
+      "sha256": "7f8f256ebdae1eb6912d853fe867b36a0381dabfdc4e2c8d0890ec278cf2146d"
+    },
+    {
+      "bytes": 54826,
+      "path": "ORD-1_Test_Gates_v4.0.1.json",
+      "sha256": "d02d6730a9ab29bbcbce5045bcf0ef5bcb9298e54386189368320b53e4fc3472"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T12:54:14Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "4.0.1"
+}

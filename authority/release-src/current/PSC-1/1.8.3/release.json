@@ -1,0 +1,13 @@
+{
+  "doc_id": "PSC-1",
+  "version": "1.8.3",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch release preserves the v1.8.2 bulkhead/read-replica capability and aligns gates, suite schema, and release identity.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "9436a77f5f86599e60f606fc8b92ff535ba59f0819cd734f3c914acea0e75e03"
+  }
+}

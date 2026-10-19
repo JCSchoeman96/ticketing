@@ -1,0 +1,1466 @@
+{
+  "adapter_interface": {
+    "correlation": {
+      "description": "Inject v42_correlation_id as an opaque, tenant-safe HMAC into PSP metadata (never org_id/order_id).",
+      "external_representation": "opaque_hmac",
+      "hash_requirements": {
+        "algorithm": "HMAC_SHA256",
+        "min_entropy_bits": 128,
+        "no_plain_order_ids": true,
+        "no_plain_org_ids": true,
+        "requires_secret": true,
+        "secret_rotation_required": true
+      },
+      "provider_metadata_mapping_required": true,
+      "refund_correlation_hash_required": true,
+      "source_contract": "PAY-1",
+      "v42_correlation_id_required": true
+    },
+    "must_implement": [
+      "initialize_payment",
+      "confirm_or_capture",
+      "refund",
+      "verify_webhook",
+      "parse_event",
+      "fetch_transaction"
+    ],
+    "must_not": [
+      "write_core_domain_tables_directly",
+      "emit_evt1_events_directly",
+      "decide_ledger_postings"
+    ],
+    "operations": {
+      "confirm_or_capture": {
+        "errors": [
+          {
+            "code": "ERR_FORBIDDEN",
+            "subcode": "EXT_SIGNATURE_INVALID"
+          },
+          {
+            "code": "ERR_CONFLICT",
+            "subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH"
+          },
+          {
+            "code": "ERR_UNAVAILABLE",
+            "subcode": "EXT_WEBHOOK_RETRYABLE"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "amount_minor": "integer>=0|nil",
+            "currency": "iso_4217|nil",
+            "idempotency_key": "opaque_string",
+            "org_id": "uuid_v7",
+            "payment_intent_id": "uuid_v7",
+            "provider_reference_id": "string"
+          },
+          "required": [
+            "org_id",
+            "payment_intent_id",
+            "provider_reference_id",
+            "idempotency_key"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "captured_amount_minor": "integer>=0",
+            "currency": "iso_4217",
+            "provider_confirmed_at_utc": "utc_datetime_usec|nil",
+            "provider_event_id": "string|nil",
+            "provider_fee_minor": "integer>=0|nil",
+            "status": "succeeded|pending|failed"
+          },
+          "required": [
+            "status",
+            "captured_amount_minor",
+            "currency",
+            "provider_fee_minor",
+            "provider_confirmed_at_utc"
+          ]
+        }
+      },
+      "fetch_transaction": {
+        "errors": [
+          {
+            "code": "ERR_THIRD_PARTY",
+            "subcode": "EXT_WEBHOOK_RETRYABLE"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "provider": "string",
+            "provider_reference_id": "string"
+          },
+          "required": [
+            "provider",
+            "provider_reference_id"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "amount_minor": "integer|nil",
+            "currency": "iso_4217|nil",
+            "provider_confirmed_at_utc": "utc_datetime_usec|nil",
+            "provider_fee_minor": "integer|nil",
+            "status": "succeeded|pending|failed"
+          },
+          "required": [
+            "status",
+            "provider_confirmed_at_utc"
+          ]
+        }
+      },
+      "initialize_payment": {
+        "errors": [
+          {
+            "code": "ERR_BAD_REQUEST",
+            "subcode": "EXT_IDEMPOTENCY_KEY_REQUIRED"
+          },
+          {
+            "code": "ERR_CONFLICT",
+            "subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH"
+          },
+          {
+            "code": "ERR_THIRD_PARTY",
+            "subcode": "EXT_WEBHOOK_PERMANENT_FAILURE"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "amount_minor": "integer>=0",
+            "currency": "iso_4217",
+            "customer_ref": "string|nil",
+            "idempotency_key": "opaque_string",
+            "metadata": "map(string=>string)",
+            "org_id": "uuid_v7",
+            "payment_intent_id": "uuid_v7"
+          },
+          "required": [
+            "org_id",
+            "payment_intent_id",
+            "amount_minor",
+            "currency",
+            "idempotency_key"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "correlation_hash": "opaque_hmac",
+            "next_action": "map|nil",
+            "provider": "string",
+            "provider_reference_id": "string",
+            "status": "initialized|requires_action|failed"
+          },
+          "required": [
+            "provider",
+            "provider_reference_id",
+            "status",
+            "correlation_hash"
+          ]
+        }
+      },
+      "parse_event": {
+        "errors": [
+          {
+            "code": "ERR_BAD_REQUEST",
+            "subcode": "EXT_SIGNATURE_INVALID"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "provider": "string",
+            "raw_body": "bytes"
+          },
+          "required": [
+            "provider",
+            "raw_body"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "amount_minor": "integer|nil",
+            "correlation_hash": "opaque_hmac",
+            "currency": "iso_4217|nil",
+            "event_type": "string",
+            "occurred_at": "utc_datetime_usec",
+            "provider_event_id": "string",
+            "provider_fee_minor": "integer|nil"
+          },
+          "required": [
+            "provider_event_id",
+            "event_type",
+            "occurred_at",
+            "correlation_hash"
+          ]
+        }
+      },
+      "refund": {
+        "errors": [
+          {
+            "code": "ERR_BAD_REQUEST",
+            "subcode": "EXT_IDEMPOTENCY_KEY_REQUIRED"
+          },
+          {
+            "code": "ERR_CONFLICT",
+            "subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH"
+          },
+          {
+            "code": "ERR_THIRD_PARTY",
+            "subcode": "EXT_WEBHOOK_PERMANENT_FAILURE"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "amount_minor": "integer>=0",
+            "currency": "iso_4217",
+            "idempotency_key": "opaque_string",
+            "org_id": "uuid_v7",
+            "payment_intent_id": "uuid_v7",
+            "reason": "string|nil",
+            "refund_intent_id": "uuid_v7"
+          },
+          "required": [
+            "org_id",
+            "payment_intent_id",
+            "refund_intent_id",
+            "amount_minor",
+            "currency",
+            "idempotency_key"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "refund_correlation_hash": "opaque_hmac",
+            "refund_reference_id": "string",
+            "status": "succeeded|pending|failed"
+          },
+          "required": [
+            "status",
+            "refund_reference_id",
+            "refund_correlation_hash"
+          ]
+        }
+      },
+      "verify_payment_reference": {
+        "description": "When money_state is \"paid_confirmed\", evidence_digest_sha256 is the immutable proof digest; it MUST be non-null and stable for the same provider_reference_id.",
+        "errors": [
+          {
+            "code": "ERR_VALIDATION",
+            "subcode": "PAY_REFERENCE_INVALID"
+          },
+          {
+            "code": "ERR_NOT_FOUND",
+            "subcode": "PAY_REFERENCE_NOT_FOUND"
+          },
+          {
+            "code": "ERR_UNAVAILABLE",
+            "subcode": "EXT_WEBHOOK_RETRYABLE"
+          },
+          {
+            "code": "ERR_THIRD_PARTY",
+            "subcode": "EXT_WEBHOOK_PERMANENT_FAILURE"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "expected_order_id": "uuid_v7",
+            "org_id": "uuid_v7",
+            "provider": "string",
+            "provider_reference_id": "string"
+          },
+          "required": [
+            "org_id",
+            "expected_order_id",
+            "provider",
+            "provider_reference_id"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "correlation_hash": "opaque_hmac|nil",
+            "evidence_digest_sha256": "sha256_hex|nil",
+            "money_state": "paid_confirmed|pending|failed|awaiting_manual_verification|payment_plan_active|on_hold",
+            "order_id": "uuid_v7|nil",
+            "paid_confirmed_at_utc": "utc_datetime_usec|nil",
+            "payment_intent_id": "uuid_v7|nil",
+            "payment_reference_c14n": "string|nil",
+            "provider_confirmed_at_utc": "utc_datetime_usec|nil",
+            "verified_payment_attempt_id": "uuid_v7|nil"
+          },
+          "required": [
+            "money_state",
+            "is_final",
+            "captured_amount_minor",
+            "currency",
+            "provider_fee_minor",
+            "verified_payment_attempt_id",
+            "paid_confirmed_at_utc",
+            "evidence_digest_sha256",
+            "order_id",
+            "payment_intent_id",
+            "provider_confirmed_at_utc",
+            "correlation_hash"
+          ]
+        }
+      },
+      "verify_webhook": {
+        "errors": [
+          {
+            "code": "ERR_FORBIDDEN",
+            "subcode": "EXT_SIGNATURE_INVALID"
+          },
+          {
+            "code": "ERR_FORBIDDEN",
+            "subcode": "EXT_TIMESTAMP_SKEW"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "headers": "map(string=>string)",
+            "provider": "stripe|paystack",
+            "raw_body": "bytes"
+          },
+          "required": [
+            "provider",
+            "headers",
+            "raw_body"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "event_id": "string|nil",
+            "provider_account_ref": "string|nil",
+            "reason": "string",
+            "timestamp": "utc_datetime_usec|nil",
+            "verified": "boolean"
+          },
+          "required": [
+            "verified",
+            "reason",
+            "provider_account_ref"
+          ]
+        }
+      }
+    },
+    "strict_boundary_rules": [
+      "Adapter MAY read provider APIs, verify signatures, normalize payloads.",
+      "Adapter MUST NOT write core tables or emit EVT-1 events directly.",
+      "Adapter MUST NOT decide ledger postings."
+    ]
+  },
+  "artifact_kind": "contract",
+  "artifact_name": "PAY-1_Contract_v2.10.3.json",
+  "ash_3x_alignment": {
+    "actions_transactional": true,
+    "authorizer": "Ash.Policy.Authorizer",
+    "notes": [
+      "All payment mutations MUST be modeled as Ash actions (create/update/generic) with authorization policies and run under a transaction boundary.",
+      "Side effects must occur AFTER durable state is persisted (e.g., enqueue work in a producer), never as 'best-effort' before commit.",
+      "Tenant context MUST be explicit and required for all tenant-scoped payment operations."
+    ],
+    "policies_required": true,
+    "recommended_hooks": [
+      {
+        "hook": "around_action",
+        "why": "Wrap data-layer execution inside the transaction for safety checks and deterministic post-commit enqueue."
+      }
+    ]
+  },
+  "ash_resource_patterns": {
+    "actions": {
+      "policy_authorizer_required": true,
+      "transactional_required": true
+    },
+    "domain_first": true,
+    "forbid_direct_repo_usage_in_adapter": true,
+    "resources": [
+      {
+        "multitenancy_required": true,
+        "name": "PaymentIntent",
+        "uuid_pk_required": true
+      },
+      {
+        "multitenancy_required": true,
+        "name": "PaymentAttempt",
+        "uuid_pk_required": true
+      },
+      {
+        "multitenancy_required": true,
+        "name": "ProviderEvent",
+        "uuid_pk_required": true
+      },
+      {
+        "multitenancy_required": true,
+        "name": "Refund",
+        "uuid_pk_required": true
+      },
+      {
+        "multitenancy_required": true,
+        "name": "IdempotencyKey",
+        "uuid_pk_required": true
+      }
+    ]
+  },
+  "change_log": [
+    {
+      "changes": [
+        "JSON-only bundle",
+        "Ash 3.x alignment",
+        "Strengthened invariants"
+      ],
+      "date": "2026-01-02",
+      "version": "2.0.0"
+    },
+    {
+      "changes": [
+        "Telemetry/metrics",
+        "Ash resource patterns",
+        "Kubernetes policies"
+      ],
+      "date": "2026-01-05",
+      "version": "2.1.0"
+    },
+    {
+      "changes": [
+        "FINAL PRODUCTION HARDENING",
+        "Hash collision safety: amount/currency verification after correlation_hash lookup",
+        "Two-tier variance monitoring (1hr/$50 real-time + monthly aggregate)",
+        "Smart idempotency guidance (server suggests attempt_count increment)",
+        "Inspect field coverage CI gate (fails on new sensitive fields without exclusion)",
+        "Complete audit-proof payment boundary with PCI-DSS v4.0 compliance"
+      ],
+      "date": "2026-01-05",
+      "version": "2.5.0"
+    },
+    {
+      "changes": [
+        "DEPENDENCY ALIGNMENT: Upgraded TEN-1 min_version from 1.5.0 → 1.6.8 for canonical org_id tenant key semantics.",
+        "DEPENDENCY ALIGNMENT: Upgraded LED-1 min_version from 2.2.0 → 2.3.4 for org_id/RLS alignment.",
+        "No functional changes; dependency version bumps only for suite-wide alignment."
+      ],
+      "date": "2026-01-05",
+      "version": "2.6.0"
+    },
+    {
+      "changes": [
+        "Break PAY↔ORD dependency cycle: ORD-1 removed from dependencies (kept as non-normative reference).",
+        "Add PRICE-1 dependency; rounding tolerance + PriceSnapshot bound to PRICE-1.",
+        "Correlation hash hardened to HMAC_SHA256 with rotation requirement; forbid plain org_id/order_id in provider metadata.",
+        "Correct ERR-1 underscore discipline; fix idempotency mismatch subcode to ERR-1 registered value.",
+        "Move non-unique ProviderEvent(provider, correlation_hash) from identity to required_indexes.",
+        "Remove per-org webhook endpoints from tenant routing; prefer correlation-hash metadata routing with uniform responses.",
+        "Providers initial_supported constrained to verified webhooks (stripe, paystack).",
+        "Define explicit raw payload allow-list; add adapter operation IO schemas."
+      ],
+      "date_utc": "2026-01-09T13:41:11Z",
+      "version": "2.6.3"
+    },
+    {
+      "changes": [
+        "Introduced verify_payment_reference adapter operation to deterministically map external references to canonical money_state and verified_payment_attempt_id (issued only when paid_confirmed).",
+        "Bound invalid/missing reference failures to ERR-1 subcodes PAY_REFERENCE_INVALID and PAY_REFERENCE_NOT_FOUND.",
+        "Regenerated bundle manifest and gates metadata to eliminate drift."
+      ],
+      "date_utc": "2026-01-25T08:01:58Z",
+      "summary": "Harden payment proof verification interface for ORD/TKT issuance and align with ERR-1 registry.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "Added P0 evidence rule for verify_payment_reference: paid_confirmed MUST return non-null evidence_digest_sha256 and digest MUST be stable.",
+        "Clarified verify_payment_reference description regarding proof digest semantics."
+      ],
+      "date_utc": "2026-01-25T08:08:33Z",
+      "summary": "Require immutable proof digest on paid_confirmed verification results.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "verify_payment_reference outputs: evidence_digest_sha256 is now optional (sha256_hex|nil) and is required by rule only when money_state == paid_confirmed.",
+        "Outputs required list reduced to [money_state] to support pending/failed references without proof digests."
+      ],
+      "date_utc": "2026-01-25T08:09:16Z",
+      "summary": "Make evidence_digest_sha256 optional except when paid_confirmed.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "Expanded verify_payment_reference.money_state vocabulary (awaiting_manual_verification, payment_plan_active, on_hold).",
+        "Added optional payment_reference_c14n output and locked derivation rule (sha256 of provider_reference_id)."
+      ],
+      "date_utc": "2026-01-25T09:59:33Z",
+      "version": "2.7.4"
+    },
+    {
+      "changes": [
+        "GC-001 hardening: adapter call-order requires ORD grace arm + SEAT hold extension before initialize/capture.",
+        "GC-001 hardening: paid_confirmed_at_utc must be provider-confirmed time; forbid local ingest timestamp finality.",
+        "Adds gc_patch_register + dependency_pins for drift prevention.",
+        "Updates dependency floors to current suite anchors (ORD-1@3.5.0, SEAT-1@3.2.0, PAY-3@2.9.2, ERR-1@1.4.15)."
+      ],
+      "date": "2026-01-28",
+      "version": "2.7.5"
+    },
+    {
+      "changes": [
+        "Test gates: remove acceptance_criteria assertion type; replace with json_pointer_equals where possible.",
+        "Test gates: add details.json_pointers to forbid_regex_in_artifact assertions (CI strict compliance).",
+        "Test gates: replace PAN/CVV forbid-regex with deterministic redaction policy assertions to avoid self-triggering."
+      ],
+      "date_utc": "2026-01-29T10:42:02Z",
+      "summary": "Gate hygiene: convert non-deterministic acceptance_criteria assertions to deterministic assertions; fix forbid_regex assertions to include json_pointers; lock PCI redaction invariants."
+    },
+    {
+      "date_utc": "2026-01-29T11:33:16Z",
+      "summary": "GC-001 drift-prevention repin: ORD-1 floor/pin -> 3.5.4; refresh TEN-1/OBS-1 dependency floors.",
+      "version": "2.7.7"
+    },
+    {
+      "date_utc": "2026-02-01",
+      "summary": "Anchor patch: require immutable PaymentIntent.order_id; verify_payment_reference requires expected_order_id and returns order anchor; expose provider_confirmed_at_utc; legislate orphan payment audit_recovery posture (ND-195/ND-196).",
+      "version": "2.8.0"
+    },
+    {
+      "date_utc": "2026-02-03T07:00:03Z",
+      "summary": "Add provider_account_ref propagation for verified webhooks; align ProviderEvent identity to (provider, provider_account_ref, provider_event_id) to match SEC-1 triple-key dedupe.",
+      "version": "2.9.0"
+    },
+    {
+      "changes": [
+        "P0: Enforced Triple-Key webhook dedupe_key: provider + provider_account_ref + provider_event_id.",
+        "P0: Required provider_account_ref in ProviderEvent and PaymentAttempt identities.",
+        "P0: Added RP-0>=3.2.0 floor and raised Physics floors (LOCKS-1, SM-0, DP-1, EVT-1).",
+        "P1: Banned double-key dedupe anti-pattern for multi-account providers."
+      ],
+      "date": "2026-02-03",
+      "version": "2.10.0"
+    }
+  ],
+  "core_domain_contract": {
+    "reconciliation_requirements": {
+      "collision_handling": "fail_and_alert",
+      "hash_lookup_verification": {
+        "collision_handling": "return_multiple_results_error_if_verification_fails",
+        "description": "After correlation_hash lookup, MUST verify amount and currency against linked order.",
+        "required": true,
+        "verify_fields": [
+          "amount",
+          "currency",
+          "provider_reference_id"
+        ]
+      }
+    },
+    "required_attributes": [
+      {
+        "attributes": [
+          {
+            "description": "PCI-safe, allow-listed raw provider payload for audit and reconciliation.",
+            "name": "raw_payload",
+            "nullable": false,
+            "type": "map"
+          },
+          {
+            "description": "Opaque hash sent to PSP; indexed for O(1) bank investigation lookups.",
+            "name": "correlation_hash",
+            "nullable": false,
+            "type": "string"
+          }
+        ],
+        "resource": "ProviderEvent"
+      },
+      {
+        "attributes": [
+          {
+            "name": "order_id",
+            "nullable": false,
+            "type": "uuid_v7",
+            "why": "Intent–Order Anchor (ND-195). Prevents within-tenant swapping and orphan settlement."
+          }
+        ],
+        "resource": "PaymentIntent",
+        "why": "PaymentIntent MUST be born bound to a single ORD-1 order_id and that anchor MUST be immutable."
+      },
+      {
+        "allow_nil": false,
+        "attribute": "provider_account_ref",
+        "notes": "Account-scoped provider identifier used to fence dedupe keys and bind events to the correct integration account.",
+        "resource": "ProviderEvent",
+        "type": "string"
+      }
+    ],
+    "required_core_resources": [
+      {
+        "name": "PaymentIntent",
+        "purpose": "Core intent/state machine for a customer payment, tenant-scoped."
+      },
+      {
+        "name": "PaymentAttempt",
+        "purpose": "Provider-specific attempt/capture/confirm state, tenant-scoped."
+      },
+      {
+        "name": "ProviderEvent",
+        "purpose": "Durable store of verified provider webhook events for dedupe + replay; append-only."
+      },
+      {
+        "name": "Refund",
+        "purpose": "Refund command/state, tenant-scoped, idempotent."
+      },
+      {
+        "name": "IdempotencyKey",
+        "purpose": "Optional explicit resource to enforce request replay safety across commands."
+      }
+    ],
+    "required_identities": [
+      {
+        "identity": [
+          "provider",
+          "provider_account_ref",
+          "provider_event_id"
+        ],
+        "resource": "ProviderEvent",
+        "why": "Deduplicate replayed webhook deliveries."
+      },
+      {
+        "identity": [
+          "provider",
+          "provider_account_ref",
+          "provider_reference_id"
+        ],
+        "resource": "PaymentAttempt",
+        "why": "Prevent provider ref collisions and enable reconciliation joins."
+      },
+      {
+        "identity": [
+          "org_id",
+          "order_id"
+        ],
+        "resource": "PaymentIntent",
+        "why": "Single authoritative PaymentIntent per order within tenant; retries live under PaymentAttempt."
+      }
+    ],
+    "required_indexes": [
+      {
+        "index": [
+          "provider",
+          "correlation_hash"
+        ],
+        "resource": "ProviderEvent",
+        "uniqueness": "non_unique_selective",
+        "why": "Non-unique selective lookup support for reconciliation. MUST be verified with amount_minor+currency+provider_event_id before applying side-effects."
+      }
+    ],
+    "required_relationships": [
+      {
+        "description": "Every ProviderEvent MUST link to the PaymentAttempt it affects.",
+        "kind": "belongs_to",
+        "nullable": false,
+        "relationship": "payment_attempt",
+        "resource": "ProviderEvent",
+        "target_resource": "PaymentAttempt"
+      },
+      {
+        "description": "Every PaymentIntent MUST belong_to exactly one Order (ORD-1) via immutable order_id; settlement MUST verify this binding.",
+        "kind": "belongs_to",
+        "nullable": false,
+        "relationship": "order",
+        "resource": "PaymentIntent",
+        "target_resource": "Order"
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "API-0",
+      "edge_type": "integration_floor",
+      "min_version": "1.0.0",
+      "reason": "Endpoint idempotency_required policy for business/scanning/payment endpoints."
+    },
+    {
+      "doc_id": "ARCH-1",
+      "edge_type": "requires",
+      "min_version": "1.0.0",
+      "reason": "Retention/export rules for provider events, receipts, and reconciliation data."
+    },
+    {
+      "doc_id": "DP-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "reason": "Tenant/actor/context propagation rules for all commands and webhook ingestion."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.15",
+      "reason": "Canonical error codes/subcodes; includes SD-043 late-capture subcodes used in GC-001 workflows."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "integration_floor",
+      "min_version": "2.16.4",
+      "reason": "Context/type-safety alignment only; floor matches suite-head registry to prevent split-brain governance."
+    },
+    {
+      "doc_id": "EXT-1",
+      "edge_type": "integration_floor",
+      "min_version": "1.0.0",
+      "reason": "Webhook intake conventions and external surface mapping."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "4.1.1",
+      "reason": "Ledger immutability semantics for money postings and reconciliation."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "reason": "Idempotency and lock semantics for provider calls and key reuse mismatch."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.4",
+      "reason": "Operational quality gates; runtime harness expectations for deterministic assertions."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.15",
+      "reason": "Observability contracts for payment/webhook telemetry and incident correlations."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "paired_contract",
+      "min_version": "3.7.0",
+      "reason": "GC-001: Caller must arm payment-grace + seat-hold extensions prior to adapter init; late capture handling coordinated with ORD finalization."
+    },
+    {
+      "doc_id": "PAY-3",
+      "edge_type": "paired_contract",
+      "min_version": "2.9.2",
+      "reason": "GC-001: Deterministic reversal path (void/refund) for late capture after hold/grace expiry."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.3.0",
+      "reason": "Price/fee semantics and pricing snapshot cross-checks referenced in payment intents and reconciliation."
+    },
+    {
+      "doc_id": "PROD-1",
+      "edge_type": "integration_floor",
+      "min_version": "1.0.0",
+      "reason": "Producers used for async payment pipelines and webhook ingestion."
+    },
+    {
+      "doc_id": "SEAT-1",
+      "edge_type": "requires",
+      "min_version": "3.3.0",
+      "reason": "GC-001: Hold and grace-extension semantics for inventory truth; payment flows must not outlive holds."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.2.0",
+      "reason": "Security primitives: signing, secret storage, replay safety, and incident modes."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.6",
+      "reason": "Multi-tenant isolation; hide-existence; org_id routing invariants."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "TG-0 v2.3.0 gate standard: denial tests + runtime verification primitives + harness interlock."
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "governance_floor",
+      "min_version": "3.2.0",
+      "reason": "Ash 3.x resource and policy pattern floor for implementable contract examples and downstream dossier alignment."
+    },
+    {
+      "doc_id": "SM-0",
+      "edge_type": "governance_floor",
+      "min_version": "1.2.0",
+      "reason": "State machine governance floor for explicit transition discipline referenced by payment and webhook flows."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "integration_floor",
+      "min_version": "2.4.1",
+      "reason": "Context/type-safety: envelope/transport contract reference for boundary orchestration."
+    }
+  ],
+  "dependency_pins": {
+    "gc_001_chain": {
+      "ERR-1": "1.4.15",
+      "ORD-1": "3.5.4",
+      "PAY-3": "2.9.2",
+      "SEAT-1": "3.2.0"
+    }
+  },
+  "doc_id": "PAY-1",
+  "domain_invariants": {
+    "err1_primary_code_canonical": true
+  },
+  "emits_events": false,
+  "error_mappings": {
+    "TEN_TENANT_CONTEXT_MISSING": {
+      "err1_code": "ERR_FORBIDDEN",
+      "retryable": false
+    }
+  },
+  "gc_patch_register": {
+    "GC-001": {
+      "controls": {
+        "late_capture_compensation_via_pay3_required": true,
+        "no_paid_confirmed_without_provider_timestamp": true,
+        "paid_confirmed_at_provider_time_required": true,
+        "requires_ord_grace_arm_before_initialize": true
+      },
+      "notes": "PAY-1 adapter is not allowed to mint \"paid_confirmed\" without provider-confirmed timestamp; orchestration MUST arm ORD grace + SEAT hold extensions before initialize_payment; reversals on late capture occur via PAY-3.",
+      "sd": "SD-043"
+    }
+  },
+  "generated_at_utc": "2026-02-07T05:28:30Z",
+  "idempotency_rules": {
+    "conflict_behavior": {
+      "client_guidance": "Parameters changed; increment attempt_count and use new idempotency key.",
+      "error_subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH",
+      "smart_retry_detection": {
+        "changed_params_same_key_behavior": {
+          "client_guidance": "Parameters changed; increment attempt_count.",
+          "error_subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH",
+          "suggested_action": "increment_attempt_count"
+        },
+        "description": "Server distinguishes identical-param retries from new intents.",
+        "enabled": true,
+        "identical_params_behavior": "return_cached_result"
+      }
+    },
+    "idempotency_sdk_patterns": {
+      "forbidden_patterns": [
+        "per_request_random_key_without_context",
+        "sequential_small_integers"
+      ],
+      "recommended_derivation": "hmac_sha256(order_id || \":\" || attempt_count || \":\" || org_id, secret)"
+    },
+    "key_requirements": {
+      "description": "Keys MUST be context-derived and MUST be reused for retries.",
+      "deterministic_for_operation": true,
+      "entropy": "opaque_string_128bit_min",
+      "max_len": 255,
+      "min_entropy_bits": 128,
+      "money_type": "amount_minor_integer",
+      "parameter_consistency_required": true,
+      "recommended_format": "hmac_sha256(payment_intent_id || ':' || attempt_count || ':' || org_id, client_secret)",
+      "ttl_min_hours": 24
+    }
+  },
+  "invariants": {
+    "err1_primary_code_canonical": true,
+    "gc_001_late_capture_compensation_via_pay3": true,
+    "gc_001_no_paid_confirmed_without_provider_timestamp": true,
+    "gc_001_paid_confirmed_at_provider_time_only": true,
+    "gc_001_requires_ord_grace_arm_before_initialize": true,
+    "idempotency_everywhere": true,
+    "money_correctness_over_latency": true,
+    "no_enumeration_vectors": true,
+    "no_pan_no_cvv": true,
+    "orphan_payment_audit_recovery_posture": true,
+    "parameter_consistent_idempotency": true,
+    "payment_intent_order_anchor_required": true,
+    "provider_confirmed_at_utc_is_authority": true,
+    "reconciliation_authoritative": true,
+    "tenant_routing_deterministic": true,
+    "triple_key_identity_required": true,
+    "verify_payment_reference_returns_order_anchor": true,
+    "webhook_replay_safe_verification": true,
+    "webhook_verify_required": true
+  },
+  "last_updated_utc": "2026-02-07T05:28:30Z",
+  "ledger_validation": {
+    "block_fulfillment_beyond_tolerance": true,
+    "block_fulfillment_within_tolerance": false,
+    "confirm_or_capture_response": {
+      "must_include_provider_fees": true,
+      "provider_fees_type": "map"
+    },
+    "fee_variance_signal": {
+      "comparison_source": "PriceSnapshot",
+      "emitter": "core_domain",
+      "event_name": "payment.fee_variance_detected.v1",
+      "rounding_tolerance_source": "PRICE-1"
+    },
+    "rounding_variance_monitor": {
+      "aggregation_window": "monthly",
+      "alert_event": "finance.rounding_variance_exceeded.v1",
+      "delegated_to": [
+        "LED-1",
+        "OBS-1"
+      ],
+      "description": "Two-tier monitoring: realtime (1hr/$50) + monthly aggregate.",
+      "dimension": "org_id",
+      "max_variance_amount": "CONFIGURED_PER_ORG_MINOR_UNITS",
+      "monitoring_tiers": {
+        "tier_1_realtime": {
+          "alert_event": "finance.rounding_variance_realtime_threshold.v1",
+          "description": "Alert if cumulative variance exceeds configured per-org minor-unit threshold within 1 hour.",
+          "threshold_amount": "CONFIGURED_PER_ORG_MINOR_UNITS",
+          "window": "1_hour"
+        },
+        "tier_2_aggregate": {
+          "alert_event": "finance.rounding_variance_exceeded.v1",
+          "description": "Alert if monthly cumulative variance exceeds limit.",
+          "threshold_amount": "CONFIGURED_PER_ORG",
+          "window": "monthly"
+        }
+      }
+    },
+    "within_tolerance_behavior": "detect_and_report_only"
+  },
+  "normative_source": "json",
+  "operational_flags": {
+    "required": [
+      "PAYOUT_FREEZE",
+      "DEGRADED_MONEY_MODE"
+    ]
+  },
+  "outbox_events": [],
+  "policies": {
+    "kubernetes_gatekeeper": {
+      "constraints_required_for_production": [
+        "pay1-namespaces-restricted",
+        "pay1-resource-limits",
+        "pay1-no-privileged-psp-pods",
+        "pay1-approved-secrets-only"
+      ],
+      "required": true
+    }
+  },
+  "providers": {
+    "capability_profile": {
+      "must": [
+        "3ds_or_sca_support",
+        "signed_webhooks_with_replay_safe_verification",
+        "dispute_chargeback_events"
+      ]
+    },
+    "extensible": true,
+    "initial_supported": [
+      "stripe",
+      "paystack"
+    ]
+  },
+  "reconciliation": {
+    "archival_policy_ref": "ARCH-1",
+    "authoritative": true,
+    "idempotent": true,
+    "queue": "ops"
+  },
+  "redaction_policy": {
+    "raw_payload_storage": {
+      "allowed_fields": [
+        "provider",
+        "provider_event_id",
+        "event_type",
+        "created_at",
+        "livemode",
+        "object_id",
+        "object_type",
+        "amount_minor",
+        "currency",
+        "fee_minor",
+        "status",
+        "reason",
+        "error_code",
+        "error_message",
+        "metadata"
+      ],
+      "attribute": "raw_payload",
+      "description": "Explicit allow-list with mask-by-default to prevent PAN/CVV storage. Unknown fields are masked unless explicitly allowed.",
+      "mask_by_default_unknown_fields": true,
+      "pci_forbidden_fields": [
+        "pan",
+        "card_number",
+        "card_number_full",
+        "primary_account_number",
+        "cvv",
+        "cvc",
+        "csc",
+        "expiry",
+        "expiry_date",
+        "expiration_date",
+        "pin"
+      ],
+      "resource": "ProviderEvent",
+      "strategy": "allow_list"
+    },
+    "unknown_field_alert": {
+      "delegated_to": "OBS-1",
+      "description": "Emit max one signal per provider per hour with sample field names.",
+      "max_signals_per_window": 1,
+      "per_provider": true,
+      "sample_unknown_keys_max": 10,
+      "signal_event": "payment.unknown_payload_fields_detected.v1",
+      "threshold_unknown_fields": 3,
+      "window_seconds": 3600
+    }
+  },
+  "references": [
+    {
+      "kind": "psp_docs",
+      "note": "Stripe may deliver the same event more than once; core must dedupe by event ID + object.",
+      "provider": "stripe",
+      "topic": "webhook_duplicates"
+    },
+    {
+      "kind": "psp_docs",
+      "note": "Idempotency keys must be collision-resistant and parameter-consistent.",
+      "provider": "stripe",
+      "topic": "idempotency_keys"
+    },
+    {
+      "doc_id": "ORD-1",
+      "kind": "contract",
+      "note": "Non-normative integration reference only (removed from dependencies to prevent PAY↔ORD cycle)."
+    }
+  ],
+  "rules": [
+    {
+      "applies_to": [
+        "ProviderEvent"
+      ],
+      "category": "evidence",
+      "rationale": "Prevents evidence loss and enables audit trails.",
+      "rule_id": "PAY-1-PATCH-001",
+      "severity": "P0",
+      "text": "ProviderEvent MUST persist PCI-safe raw_payload and belong_to PaymentAttempt."
+    },
+    {
+      "applies_to": [
+        "adapter_interface"
+      ],
+      "category": "correlation",
+      "rationale": "Enables bit-for-bit correlation from PSP to orders/ledger.",
+      "rule_id": "PAY-1-PATCH-004",
+      "severity": "P0",
+      "text": "Every outbound PSP request MUST include v42_correlation_id in provider metadata."
+    },
+    {
+      "applies_to": [
+        "adapter_interface"
+      ],
+      "category": "correlation",
+      "rationale": "Respects data-minimization and PCI/PII boundaries.",
+      "rule_id": "PAY-1-PATCH-004B",
+      "severity": "P0",
+      "text": "For external PSPs, correlation ID MUST be opaque hash, not raw UUIDs."
+    },
+    {
+      "applies_to": [
+        "ProviderEvent"
+      ],
+      "category": "correlation",
+      "rationale": "Prevents audit gaps from bank-provided hashes.",
+      "rule_id": "PAY-1-PATCH-004C",
+      "severity": "P0",
+      "text": "ProviderEvent MUST persist correlation_hash with indexed (provider, correlation_hash) identity."
+    },
+    {
+      "applies_to": [
+        "IdempotencyKey"
+      ],
+      "category": "idempotency",
+      "rationale": "Aligns idempotency mismatch signaling with ERR-1 registry to avoid unregistered subcodes.",
+      "rule_id": "PAY-1-PATCH-006",
+      "severity": "P1",
+      "text": "On idempotency mismatch (same key, different parameters), return ERR_CONFLICT with subcode LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH and actionable client guidance."
+    },
+    {
+      "applies_to": [
+        "IdempotencyKey"
+      ],
+      "category": "idempotency",
+      "rationale": "Reduces collision and enumeration risk; keeps key format implementation-agnostic.",
+      "rule_id": "PAY-1-PATCH-006B",
+      "severity": "P2",
+      "text": "Idempotency keys MUST be opaque strings with ≥128-bit effective security (e.g., UUIDv7-equivalent entropy)."
+    },
+    {
+      "applies_to": [
+        "telemetry"
+      ],
+      "category": "observability",
+      "rationale": "Enables provider-specific SRE signals.",
+      "rule_id": "PAY-1-PATCH-008",
+      "severity": "P1",
+      "text": "Metrics MUST be labelled with provider_id under bounded cardinality."
+    },
+    {
+      "applies_to": [
+        "telemetry"
+      ],
+      "category": "observability",
+      "rationale": "Zero-cost compile-time redaction.",
+      "rule_id": "PAY-1-PATCH-009",
+      "severity": "P1",
+      "text": "Payment structs MUST derive Inspect using :only/:except."
+    },
+    {
+      "applies_to": [
+        "ledger_validation"
+      ],
+      "category": "finance",
+      "rationale": "Ledger-grade financial truth.",
+      "rule_id": "PAY-1-PATCH-010",
+      "severity": "P0",
+      "text": "confirm_or_capture MUST surface provider_fees and emit variance event."
+    },
+    {
+      "applies_to": [
+        "ledger_validation"
+      ],
+      "category": "finance",
+      "rationale": "Balances CX and ledger accuracy.",
+      "rule_id": "PAY-1-PATCH-011",
+      "severity": "P0",
+      "text": "Within-tolerance variances auto-post; out-of-tolerance MUST block."
+    },
+    {
+      "applies_to": [
+        "redaction_policy"
+      ],
+      "category": "evidence",
+      "rationale": "Prevents alert fatigue while preserving evidence monitoring.",
+      "rule_id": "PAY-1-PATCH-012",
+      "severity": "P1",
+      "text": "Emit unknown-field alert max once per provider per hour with sample keys."
+    },
+    {
+      "applies_to": [
+        "ledger_validation"
+      ],
+      "category": "finance",
+      "rationale": "Prevents aggregated leakage.",
+      "rule_id": "PAY-1-PATCH-013",
+      "severity": "P1",
+      "text": "Monitor cumulative monthly variance per org_id; emit alert when exceeded."
+    },
+    {
+      "applies_to": [
+        "IdempotencyKey"
+      ],
+      "category": "idempotency",
+      "rationale": "Ensures retry determinism.",
+      "rule_id": "PAY-1-PATCH-014",
+      "severity": "P1",
+      "text": "Keys MUST be context-derived and MUST be reused for retries."
+    },
+    {
+      "applies_to": [
+        "ProviderEvent"
+      ],
+      "category": "correlation",
+      "rationale": "Prevents wrong-order reconciliation from hash collisions.",
+      "rule_id": "PAY-1-PATCH-015",
+      "severity": "P0",
+      "text": "After correlation_hash lookup, MUST verify amount/currency before finalizing."
+    },
+    {
+      "applies_to": [
+        "ledger_validation"
+      ],
+      "category": "finance",
+      "rationale": "Prevents detection lag.",
+      "rule_id": "PAY-1-PATCH-016",
+      "severity": "P1",
+      "text": "Implement two-tier variance monitoring: real-time (1hr/$50) and monthly."
+    },
+    {
+      "applies_to": [
+        "IdempotencyKey"
+      ],
+      "category": "idempotency",
+      "rationale": "Guides clients to correct retry behavior.",
+      "rule_id": "PAY-1-PATCH-017",
+      "severity": "P1",
+      "text": "On conflict, suggest attempt_count increment; identical params return cache."
+    },
+    {
+      "applies_to": [
+        "telemetry"
+      ],
+      "category": "observability",
+      "rationale": "Prevents maintenance-driven log leaks.",
+      "rule_id": "PAY-1-PATCH-018",
+      "severity": "P1",
+      "text": "CI MUST fail if new sensitive field added without Inspect exclusion."
+    },
+    {
+      "rationale": "UUIDv7 is for entity identity; idempotency keys are security-sensitive opaque tokens.",
+      "rule_id": "PAY-1-UUID7-001",
+      "severity": "P0",
+      "text": "Entity IDs MUST be UUIDv7. Idempotency keys MUST be opaque strings with ≥128-bit effective security; MAY be deterministic HMAC-derived; MUST NOT be UUIDv4 or guessable tokens."
+    },
+    {
+      "rule_id": "PAY-1-REFUND-001",
+      "severity": "P0",
+      "text": "Refund idempotency via (org_id, refund_correlation_hash)"
+    },
+    {
+      "rule_id": "PAY-1-COLL-001",
+      "severity": "P0",
+      "text": "Hash collision → fail_and_alert OBS-1 event"
+    },
+    {
+      "applies_to": [
+        "adapter_interface.verify_payment_reference"
+      ],
+      "category": "money_state",
+      "rationale": "Prevents ambiguous payment finality and downstream ticket issuance drift.",
+      "rule_id": "PAY-1-PATCH-CANONICAL-MONEY-CONFIRMED",
+      "severity": "P0",
+      "text": "If money_state == paid_confirmed then verified_payment_attempt_id and paid_confirmed_at_utc MUST be non-null and emitted exclusively by verify_payment_reference; no other operation may produce paid_confirmed."
+    },
+    {
+      "applies_to": [
+        "AdapterInterface.verify_payment_reference"
+      ],
+      "category": "evidence",
+      "rationale": "Prevents 'paid_confirmed' without immutable proof pointer; blocks spoofing and supports auditability.",
+      "rule_id": "PAY-1-PATCH-VERIFY-REF-EVIDENCE-DIGEST",
+      "severity": "P0",
+      "text": "When verify_payment_reference returns money_state == \"paid_confirmed\", evidence_digest_sha256 MUST be non-null and MUST identify immutable payment proof bytes stored by the platform (e.g., provider receipt JSON / PSP signed artifact). The digest MUST be stable for the same provider + provider_reference_id."
+    },
+    {
+      "details": "money_state MUST be one of: paid_confirmed, pending, failed, awaiting_manual_verification, payment_plan_active, on_hold. Only paid_confirmed MAY be treated as sufficient to issue tickets (TKT-1) or admit (SCAN-1). awaiting_manual_verification is used for manual EFT/cash flows pending operator attestation. payment_plan_active is used when installments are accepted but the order MUST NOT be finalized as paid until the plan completes. on_hold is used when a provider authorization/chargeback/compliance hold prevents settlement.",
+      "id": "PAY-1-RULE-MONEY-STATE-VOCAB",
+      "priority": "P0",
+      "rule": "PAY-1 money_state vocabulary is authoritative across the suite."
+    },
+    {
+      "details": "payment_reference_c14n MUST be computed as: 'payref_c14n/v1:' + provider + ':' + sha256_hex(provider_reference_id). payment_reference_c14n MUST NOT include the raw provider_reference_id. Systems MAY log payment_reference_c14n and MUST NOT log raw provider_reference_id unless required for support with explicit access controls.",
+      "id": "PAY-1-RULE-PAYREF-C14N",
+      "priority": "P1",
+      "rule": "PAY-1 defines payment_reference_c14n for safe correlation in logs and signatures."
+    },
+    {
+      "applies_to": [
+        "adapter_interface.initialize_payment",
+        "adapter_interface.confirm_or_capture"
+      ],
+      "category": "gc_001",
+      "rationale": "Prevents the GC-001 “late capture after hold expiry” race by enforcing orchestration call-order and fail-closed behavior.",
+      "rule_id": "PAY-1-GC001-ORD-GRACE-001",
+      "severity": "P0",
+      "text": "The application MUST arm ORD-1 payment grace (Order.payment_grace_expires_at_utc set and in the future) AND extend any SEAT holds before calling PAY-1.initialize_payment or PAY-1.confirm_or_capture. PAY-1 implementations MUST treat missing/invalid tenant or payment_intent context as fail-closed (ERR_FORBIDDEN or ERR_BAD_REQUEST) and MUST NOT proceed with provider initialization/capture."
+    },
+    {
+      "applies_to": [
+        "adapter_interface.verify_payment_reference",
+        "adapter_interface.parse_event"
+      ],
+      "category": "gc_001",
+      "rationale": "Ensures payment finality timestamps are authoritative and supports deterministic late-capture windows (SD-043).",
+      "rule_id": "PAY-1-GC001-PROVIDER-TIME-001",
+      "severity": "P0",
+      "text": "When money_state == paid_confirmed, paid_confirmed_at_utc MUST represent a provider-confirmed timestamp (provider event creation/processing time or provider receipt time that is authoritative). It MUST NOT be derived from local ingest time. If provider-confirmed time is unavailable, money_state MUST NOT be paid_confirmed (use pending or awaiting_manual_verification)."
+    },
+    {
+      "applies_to": [
+        "adapter_interface.parse_event"
+      ],
+      "category": "gc_001",
+      "rationale": "Stops “phantom payment time” drift which otherwise breaks grace/hold expiry comparisons.",
+      "rule_id": "PAY-1-GC001-PARSE-OCCURRED-AT-001",
+      "severity": "P0",
+      "text": "parse_event.occurred_at MUST be sourced from provider payload metadata when available. If a provider does not emit a timestamp, occurred_at MUST be derived from an authoritative provider processing/receipt time (not local ingest time) or the event MUST be rejected as unverifiable (ERR_BAD_REQUEST)."
+    },
+    {
+      "category": "finance",
+      "rule_id": "PAY-1-ND-195-ANCHOR-IMMUTABLE",
+      "severity": "P0",
+      "text": "PaymentIntent MUST include a non-null `order_id` (uuid_v7) and this `order_id` MUST be immutable after creation. Payment authorization/capture MUST NOT proceed unless the referenced ORD-1 order exists and is `pending`."
+    },
+    {
+      "category": "reconciliation",
+      "rule_id": "PAY-1-ND-195-VERIFY-ANCHOR",
+      "severity": "P0",
+      "text": "verify_payment_reference MUST require `expected_order_id` and MUST return `order_id` and `payment_intent_id`. If the provider reference resolves to a different order_id than expected, the operation MUST error (swap/replay defense)."
+    },
+    {
+      "category": "money_state",
+      "rule_id": "PAY-1-ND-193-PROVIDER-TIME-AUTHORITY",
+      "severity": "P0",
+      "text": "For any transition to `paid_confirmed`, PAY-1 MUST persist and expose `provider_confirmed_at_utc` from the provider/gateway as the authoritative time. Application server time MUST NOT be used as provider-confirmed time."
+    },
+    {
+      "category": "observability",
+      "rule_id": "PAY-1-ND-196-ORPHAN-PAID-SINK",
+      "severity": "P0",
+      "text": "If provider confirms payment for an order already terminal (`canceled` or `expired`), PAY-1 MUST emit OBS-1 `audit_recovery` with {org_id, order_id, payment_intent_id, provider_reference_id, provider_confirmed_at_utc} and MUST flag funds for deterministic disposition (refund or unallocated credit journaling)."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "sections": [
+    {
+      "id": "1.4.4",
+      "text": "All public error envelopes MUST emit ERR-1 primary codes with underscores (e.g., ERR_BAD_REQUEST, ERR_CONFLICT, ERR_FORBIDDEN). Implementations MUST NOT emit underscore-less aliases (e.g., ERRBADREQUEST).",
+      "title": "ERR-1 canonical primary codes"
+    }
+  ],
+  "security_requirements": {
+    "pci_scope": {
+      "hosted_payment_pages_preferred": true,
+      "no_pan_no_cvv": true,
+      "token_only": true
+    },
+    "secrets": {
+      "no_plaintext_in_logs": true,
+      "rotation_required": true,
+      "store": "vault_or_kms"
+    },
+    "webhook_verification": {
+      "constant_time_compare_required": true
+    }
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines the hard boundary between the core payments domain and external PSP providers (Stripe/Paystack/PayFast/etc), including idempotency, webhook safety, tenancy isolation, and ledger separation.",
+  "summary_detail": {
+    "non_goals": [
+      "Defining the internal finance ledger double-entry model (see LED-1).",
+      "Defining the full external/public API surface (see API-0 / EXT-1).",
+      "PCI/PSP provider certification steps beyond invariants and boundaries."
+    ],
+    "one_liner": "Defines the hard boundary between the core payments domain and external PSP providers (Stripe/Paystack/PayFast/etc), including idempotency, webhook safety, tenancy isolation, and ledger separation.",
+    "problem": "Payments integrations fail in the denial paths: duplicate webhooks, replay attacks, cross-tenant routing mistakes, and accidental ledger coupling. Without a strict adapter contract, every PSP integration invents its own semantics.",
+    "solution": "A single PSP adapter interface with mandatory security, idempotency, and tenancy invariants; all PSP input is normalized into core domain resources/events; the adapter may never mutate core tables directly nor decide ledger postings."
+  },
+  "telemetry": {
+    "logs": {
+      "custom_inspect_required": true,
+      "custom_inspect_resources": [
+        "PaymentIntent",
+        "PaymentAttempt",
+        "Refund"
+      ],
+      "examples_forbidden_fields": [
+        "pan",
+        "card_number",
+        "cvv",
+        "raw_psp_payload"
+      ],
+      "forbid_raw_struct_inspect_without_redaction": true,
+      "forbid_runtime_regex_redaction_in_inspect": true,
+      "forbid_secrets_in_logs": true,
+      "include_trace_ids": true,
+      "inspect_maintenance_requirements": {
+        "ci_gate_required": true,
+        "description": "CI fails if new field added to payment structs without Inspect exclusion.",
+        "new_field_policy": "fail_ci_if_sensitive_field_added_without_except_entry",
+        "sensitive_field_patterns": [
+          "card",
+          "cvv",
+          "pan",
+          "pin",
+          "password",
+          "secret",
+          "token",
+          "billing_postcode",
+          "phone_number"
+        ]
+      },
+      "inspect_strategy": "derive_only_or_except",
+      "structured": true
+    },
+    "metrics": {
+      "cardinality_rules": {
+        "forbid_user_identifiers_as_labels": true,
+        "max_label_values_per_dim": 64,
+        "max_label_values_per_dim_per_tenant": 64,
+        "provider_id_max_values": 32
+      },
+      "counters": [
+        "pay1.payment_attempts_total{provider, outcome}",
+        "pay1.webhook_events_total{provider, result}",
+        "pay1.idempotency_conflict_total{provider}"
+      ],
+      "histograms": [
+        "pay1.webhook_processing_duration_ms{provider}"
+      ],
+      "provider_label": "provider_id",
+      "required": true
+    },
+    "tracer": {
+      "actions_instrumented": [
+        "initialize_payment",
+        "confirm_or_capture",
+        "refund",
+        "webhook_ingest",
+        "reconciliation_import"
+      ],
+      "ash_tracer_module_required": true,
+      "required": true,
+      "span_attributes": [
+        "pay1.intent_id",
+        "pay1.attempt_id",
+        "pay1.provider",
+        "pay1.provider_id",
+        "pay1.org_id",
+        "pay1.amount",
+        "pay1.currency",
+        "pay1.idempotency_key",
+        "pay1.webhook_event_id",
+        "pay1.webhook_retry_count"
+      ]
+    }
+  },
+  "tier": 3,
+  "title": "Payments — PSP Adapter Contract (JSON-only)",
+  "updated_at": "2026-02-07T05:28:30Z",
+  "version": "2.10.3",
+  "webhooks": {
+    "anti_patterns": [
+      "Performing heavy work synchronously inside webhook handler before persisting to durable storage/queue.",
+      "Using 'ticket lookup' or 'transaction lookup' endpoints that allow enumeration of valid IDs.",
+      "Routing tenant by untrusted URL params without signature-bound metadata.",
+      "Double-key dedupe (provider + provider_event_id) is forbidden in multi-account environments; dedupe_key MUST include provider_account_ref."
+    ],
+    "dedupe_key": "provider + provider_account_ref + provider_event_id",
+    "process_async": true,
+    "receiver_requirements": {
+      "ack_fast_process_async": true,
+      "backoff_strategy": "exponential_jitter",
+      "dead_letter_queue_required": true,
+      "dedupe_window_min_days": 7,
+      "dedupe_window_min_hours": 168,
+      "durable_ingest_before_2xx": true,
+      "hide_existence_response_uniform": true,
+      "max_retries": 5,
+      "reject_timestamp_out_of_window": true,
+      "reject_unsigned": true,
+      "require_provider_account_ref": true,
+      "routing_prefers_correlation_hash": true
+    },
+    "tenant_routing_methods": [
+      "psp_metadata_correlation_hash"
+    ],
+    "verification": {
+      "paystack": {
+        "docs": "https://paystack.com/docs/payments/webhooks/",
+        "header": "x-paystack-signature"
+      },
+      "stripe": {
+        "docs": "https://docs.stripe.com/webhooks/signatures",
+        "header": "Stripe-Signature"
+      }
+    }
+  }
+}

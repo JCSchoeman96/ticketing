@@ -1,0 +1,388 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "DP-1_Contract_v3.0.0.json",
+  "change_log": [
+    {
+      "changes": [
+        "CRITICAL FIX: Corrected artifact_kind to CS-0@2.2.0 enums (test_gates, bundle_manifest WITH underscores).",
+        "CRITICAL FIX: Corrected assertion type values to CS-0 canonical enumerated constants (WITH underscores).",
+        "CRITICAL FIX: Replaced all tenant/tenant_id references with org_id (tenant key consistency).",
+        "CRITICAL FIX: Made UUID typing explicit (UUIDv7) in all DB/RLS examples.",
+        "Regenerated manifest with correct byte-level SHA256 hashing."
+      ],
+      "date_utc": "2026-01-08T18:16:15Z",
+      "type": "patch",
+      "version": "2.0.3"
+    },
+    {
+      "changes": [
+        "NEW: infrastructure_topology.connection_pooling with strict_bulkhead policy and required repo names/config keys.",
+        "NEW: DP-015 and DP-016 rules for pool isolation and best-effort caps.",
+        "FIX: DP-1-GATE-003 version parity expectations corrected (previously mismatched)."
+      ],
+      "date_utc": "2026-02-03T08:06:56Z",
+      "summary": "P0 bulkhead pool isolation: mandate separate primary vs background DB pools; add numeric caps to prevent connection starvation during hot sales; align dependency on OBQC-1.",
+      "version": "2.1.0"
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "Schema envelopes for contract/test_gates/bundle_manifest artifacts."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Gate authoring rules and CI enforcement posture."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "Strict CI bundle integrity validation."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.9",
+      "reason": "Canonical org_id multitenancy and hide-existence semantics."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.0.13",
+      "reason": "Transaction-local lock discipline and support-mode safe-ops posture."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.3.25",
+      "reason": "Canonical error envelope and stable error codes/subcodes."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "governance_floor",
+      "min_version": "3.2.0",
+      "reason": "Security posture and authorization requirements (including provider-scoped webhook ingest invariants)."
+    },
+    {
+      "doc_id": "PROD-1",
+      "edge_type": "registry_floor",
+      "min_version": "1.0.3",
+      "reason": "Producer identity and namespace governance for data plane telemetry."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Eventing contracts for outbox patterns and data plane event streams."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.1.4",
+      "reason": "Queue workers consume DB connections; bulkhead pool isolation MUST align with OBQC-1 concurrency budgets and node specialization."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "registry_floor",
+      "min_version": "2.4.0",
+      "reason": "Schema_ref token normalization context."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0"
+  },
+  "doc_id": "DP-1",
+  "emits_events": false,
+  "err_1_mappings": [
+    {
+      "case": "missing_tenant_context",
+      "subcode": "TEN_TENANT_CONTEXT_MISSING",
+      "top_level": "ERR_NOT_FOUND",
+      "subcode_visibility": "internal_only"
+    },
+    {
+      "case": "missing_or_invalid_actor_context",
+      "subcode": "AUTH_ACTOR_CONTEXT_MISSING",
+      "top_level": "ERR_UNAUTHENTICATED"
+    },
+    {
+      "case": "missing_request_id",
+      "subcode": "OBS_REQUEST_ID_MISSING",
+      "top_level": "ERR_BAD_REQUEST"
+    },
+    {
+      "case": "support_mode_unauthorized_cross_tenant_attempt",
+      "subcode": "TEN_SUPPORT_MODE_UNAUTHORIZED",
+      "top_level": "ERR_FORBIDDEN"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "identity_standards": {
+    "id_type": "uuid_v7",
+    "timestamp_type": "utc_datetime_usec"
+  },
+  "infrastructure_topology": {
+    "connection_pooling": {
+      "background_repo_required": true,
+      "isolation_level": "strict_bulkhead",
+      "policy": {
+        "best_effort_pool_fraction_max": 0.2,
+        "notes": [
+          "Synchronous HTTP/API traffic MUST be protected from async starvation by physical pool isolation (separate Repo/pool).",
+          "Best-effort workloads MUST be capped to preserve checkout/OLTP availability during spikes."
+        ],
+        "reserved_fraction_sync_api_min": 0.3
+      },
+      "repo_names": {
+        "background": "Ticketing.Repo.Background",
+        "primary": "Ticketing.Repo"
+      },
+      "required_config_keys": {
+        "background_pool_size": "V42_DB_POOL_SIZE_BACKGROUND",
+        "primary_pool_size": "V42_DB_POOL_SIZE_PRIMARY"
+      }
+    }
+  },
+  "last_updated_utc": "2026-02-03T08:06:56Z",
+  "normative_source": "json",
+  "outbox_events": [],
+  "project_namespace": {
+    "db_namespace": "ticketing",
+    "forbid_module_prefixes": [
+      "V42."
+    ],
+    "otp_app": ":ticketing",
+    "root_namespace": "Ticketing"
+  },
+  "references": [
+    {
+      "id": "ASH-CODE-IF",
+      "source": "hexdocs",
+      "title": "Ash Code Interfaces (actor/tenant opts)",
+      "url": "https://hexdocs.pm/ash/code-interfaces.html"
+    },
+    {
+      "id": "ASH-ACTOR-AUTHZ",
+      "source": "hexdocs",
+      "title": "Ash Actors & Authorization (actor usage guidance)",
+      "url": "https://hexdocs.pm/ash/3.4.4/actors-and-authorization.html"
+    }
+  ],
+  "rules": [
+    {
+      "id": "DP-001",
+      "implementation_notes": [
+        "Enforce with LINT-0 (static grep/AST checks) and code review.",
+        "Allow-listed exceptions: migration code, repository adapter internals."
+      ],
+      "level": "P0",
+      "rationale": "This prevents silent bypass of tenant isolation, audit context, timeouts, and lock discipline.",
+      "statement": "All persistence operations MUST flow through the DataPlane boundary module. Application/business code MUST NOT call Repo.* directly."
+    },
+    {
+      "id": "DP-002",
+      "implementation_notes": [
+        "Use a typed request context struct (e.g., %DP.Context{}) and validate it at the boundary.",
+        "System jobs MUST use a declared system actor and still provide a org_id (unless the resource is explicitly global)."
+      ],
+      "level": "P0",
+      "rationale": "Actor attribution and tenant scoping are not optional in a multi-tenant system; failing open is a security incident.",
+      "statement": "Fail-closed is mandatory: if tenant context (org_id) is missing, invalid, or cannot be applied to the tx-local GUC, the operation MUST be denied and no query may execute without tenant context. TEN_TENANT_CONTEXT_MISSING MAY be retained as internal causal/audit telemetry. At a tenant-hidden HTTP boundary, the external error MUST use top-level ERR_NOT_FOUND and conform to TEN-1's missing-tenant HTTP uniformity policy; TEN_TENANT_CONTEXT_MISSING MUST NOT be exposed as a distinguishing HTTP subcode."
+    },
+    {
+      "id": "DP-003",
+      "implementation_notes": [
+        "Use set_config('app.current_org_id', org_id_uuid_v7, true), set_config('app.actor_id', actor_id_uuid_v7, true), set_config('app.request_id', request_id, true).",
+        "Set lock_timeout and statement_timeout locally at tx start.",
+        "Never set these via SESSION scope (no persistence across requests)."
+      ],
+      "level": "P0",
+      "rationale": "SET LOCAL / set_config({org_id}/{request_id}/{actor}, true) context is only guaranteed visible within the transaction; making reads transactional avoids Ash default non-transactional reads breaking RLS/audit invariants.",
+      "statement": "DataPlane MUST ensure tx-local Postgres GUC context (tenant and correlation) is established for every database interaction before the first query. In Ash 3.x, this MUST be implemented using Ash-native transaction boundaries and hooks (e.g., per-action transaction setup) rather than requiring callers to wrap every action in an outer Repo.transaction. The invariant is: GUC values MUST be tx-local (SET LOCAL / set_config('app.current_org_id', org_id, true)) and MUST NOT leak across pooled connections."
+    },
+    {
+      "id": "DP-004",
+      "implementation_notes": [
+        "Ash resources: define multitenancy strategy attribute and attribute-based multitenancy with org_id.",
+        "DB: composite unique indexes include (org_id, natural_key_hash)."
+      ],
+      "level": "P0",
+      "rationale": "Attribute multitenancy makes tenant filters and integrity constraints explicit, preventing cross-tenant collisions and accidental reads.",
+      "statement": "Tenant-scoped resources MUST use attribute-based multitenancy with org_id NOT NULL, and all unique identities/constraints MUST be org_id-scoped (include org_id)."
+    },
+    {
+      "id": "DP-005",
+      "implementation_notes": [
+        "Default policy template: USING (org_id = current_setting('app.current_org_id', true)::uuid) WITH CHECK (org_id = current_setting('app.current_org_id', true)::uuid).",
+        "Disable bypass: application role must not have BYPASSRLS."
+      ],
+      "level": "P0",
+      "rationale": "Database-level enforcement is the last line of defense against drift and coding agent mistakes.",
+      "statement": "All Postgres Row-Level Security (RLS) policies and queries that rely on tenant isolation MUST use the tx-local GUC 'app.current_org_id' as the single source of truth for the current tenant. The value MUST be set inside the same database transaction using SET LOCAL (or set_config('app.current_org_id', org_id, true)) and MUST NOT be set with a session-scoped SET."
+    },
+    {
+      "id": "DP-006",
+      "implementation_notes": [
+        "Prefer Domain code interfaces; pass opts like actor: %{id: uuid_v7, type: :human|:service|:system}, tenant: org_id, authorize?: true.",
+        "If using raw Ash.Query/Ash.Changeset, set the actor/tenant on those structures before executing.",
+        "Example (canonical): Ticketing.SomeDomain.SomeResource.read(id, actor: %{id: org_user_id, type: :human}, tenant: org_id, authorize?: true)"
+      ],
+      "level": "P0",
+      "rationale": "Ash authorization and multitenancy depend on actor/tenant context; leaving them implicit creates security and correctness gaps.",
+      "statement": "All Ash calls MUST include explicit context: actor: %{id: uuid_v7, type: :human|:service|:system}, tenant: org_id (tenant value equals the current org_id), and authorize?: true (unless explicitly waived by an allow-listed governance rule). Passing org_id as a custom option key is forbidden; tenancy MUST use Ash's tenant option."
+    },
+    {
+      "id": "DP-007",
+      "implementation_notes": [
+        "Coordinate with PROD-1 (producer) and EVT-1 (event registry).",
+        "DataPlane writes the outbox record atomically; producers deliver asynchronously."
+      ],
+      "level": "P1",
+      "rationale": "Prevents 'state changed but side effect missing' and ensures reliable retries.",
+      "statement": "All external side effects (webhooks, emails, third-party API calls) MUST be driven from an outbox persisted in the same transaction as the state change."
+    },
+    {
+      "id": "DP-008",
+      "implementation_notes": [
+        "Set timeouts at transaction start; keep transactions short.",
+        "Perform external calls only after commit via outbox/producers."
+      ],
+      "level": "P1",
+      "rationale": "Prevents pool exhaustion and cascading failures under load.",
+      "statement": "Long-running reads/writes MUST set timeouts (statement_timeout, lock_timeout) and MUST avoid holding locks across network calls."
+    },
+    {
+      "id": "DP-009",
+      "implementation_notes": [
+        "Use request_id as the minimum; add trace_id/span_id where tracing is enabled.",
+        "Include producer_id when running from background workers."
+      ],
+      "level": "P2",
+      "rationale": "Required for incident response, forensic audits, and support.",
+      "statement": "DataPlane MUST attach request correlation identifiers to logs, traces, and DB audit context for every transaction."
+    },
+    {
+      "id": "DP-010",
+      "implementation_notes": [
+        "DataPlane overwrites/sets org_id in changesets based on ctx.tenant for all tenant-scoped resources.",
+        "Forbid client-controlled org_id in public APIs; validate and strip if present."
+      ],
+      "level": "P0",
+      "rationale": "Prevents confused-deputy bugs where a caller can write into another tenant by supplying a different tenant_id.",
+      "statement": "Tenant identity MUST be derived from the trusted request context and MUST NOT be accepted from untrusted payload fields for org_id-scoped resources."
+    },
+    {
+      "id": "DP-011",
+      "implementation_notes": [
+        "Persist org_id + actor (or actor_id) in the job args at enqueue time.",
+        "Workers reconstruct ctx and call DataPlane.run/2."
+      ],
+      "level": "P0",
+      "rationale": "Async work is a common drift vector; it must respect the same invariants as online requests.",
+      "statement": "All inbound requests MUST carry a request_id (uuid_v7). The request_id MUST be propagated end-to-end and MUST be attached to logs/events/traces. If request_id is missing, the operation MUST be denied and MUST return ERR_BAD_REQUEST + OBS_REQUEST_ID_MISSING."
+    },
+    {
+      "id": "DP-012",
+      "implementation_notes": [
+        "Use dedicated actions (e.g., :support_read) that require an elevated role claim and produce an audit event.",
+        "Never disable RLS globally; if a bypass is required, it must be via a separate DB role used only for the support tool, not the application runtime."
+      ],
+      "level": "P1",
+      "rationale": "Cross-tenant reads are occasionally required for support, but must be rare, explicit, and auditable.",
+      "statement": "Support-mode (cross-tenant) operations are forbidden by default. If an operation attempts cross-tenant access, it MUST be denied unless support-mode is explicitly enabled, capability-gated, and fully audited. Unauthorized support-mode attempts MUST return ERR_FORBIDDEN + TEN_SUPPORT_MODE_UNAUTHORIZED."
+    },
+    {
+      "id": "DP-013",
+      "implementation_notes": [
+        "Workers claim a small batch under transaction, commit, then process; repeat.",
+        "Integrate with LOCKS-1 patterns for row claiming and idempotent state transitions."
+      ],
+      "level": "P1",
+      "rationale": "Long transactions exhaust pools and amplify contention; SKIP LOCKED enables horizontal scaling of workers.",
+      "statement": "Bulk/scan workloads MUST avoid long-lived transactions; they MUST chunk work and use SKIP LOCKED patterns when competing workers are expected."
+    },
+    {
+      "id": "DP-014",
+      "implementation_notes": [
+        "Prefer natural keys + unique indexes under org_id scope.",
+        "If not possible, store an idempotency key resource keyed by (org_id, key) and gate repeats."
+      ],
+      "level": "P2",
+      "rationale": "Retries are inevitable (timeouts, deadlocks, network flaps). Without idempotency the DataPlane can create duplicate effects.",
+      "statement": "Every org_id-scoped mutation MUST be idempotency-safe at the boundary (either by natural idempotency keys or explicit idempotency records)."
+    },
+    {
+      "id": "DP-015",
+      "implementation_notes": [
+        "Implement as two Ecto repos with separate pools: Ticketing.Repo (primary) and Ticketing.Repo.Background (background).",
+        "Enforce separate pool_size env vars: V42_DB_POOL_SIZE_PRIMARY and V42_DB_POOL_SIZE_BACKGROUND.",
+        "Background jobs MUST route all DB access via Ticketing.Repo.Background (or a clearly separated pool config)."
+      ],
+      "level": "P0",
+      "rationale": "Prevents background workloads (e.g., mass email, exports, projections) from exhausting DB connections and taking checkout/API offline during hot sales.",
+      "statement": "Connection pool bulkheads are mandatory: synchronous HTTP/API traffic MUST use a dedicated primary Repo pool and MUST NOT share connection slots with async background jobs (OBQC-1 consumers)."
+    },
+    {
+      "id": "DP-016",
+      "implementation_notes": [
+        "Use infrastructure_topology.connection_pooling.policy.reserved_fraction_sync_api_min and best_effort_pool_fraction_max as the normative caps.",
+        "If you operate dedicated worker node pools, the DB pool bulkhead still applies; node isolation alone is insufficient."
+      ],
+      "level": "P0",
+      "rationale": "A hard cap prevents self-DDOS by low-priority jobs during spikes; a reserve guarantees checkout can still authorize payments and issue tickets.",
+      "statement": "Best-effort background workloads MUST be capped: the background pool_size MUST be <= best_effort_pool_fraction_max of total available Postgres connection budget, and the primary pool MUST reserve at least reserved_fraction_sync_api_min for synchronous API/checkout traffic."
+    },
+    {
+      "id": "DP-T0-AUDIT-001",
+      "level": "P0",
+      "statement": "Transition-audit records MUST be persisted internally in the same transaction as the successful state transition. They MUST retain tenant, actor, request, and trace context. They are not EVT-1 events and MUST NOT be written to the event outbox."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "",
+  "tenancy": {
+    "leakage_policy": "hide_existence",
+    "note": "DP-1 governs data plane boundaries; org_id isolation is enforced at Ash policy and Postgres RLS layers.",
+    "request_id_guc_name": "app.request_id",
+    "rls_current_setting_expression": "current_setting('app.current_org_id', true)::uuid",
+    "rls_guc_name": "app.current_org_id",
+    "strategy": "ash_attribute",
+    "tenant_key": "org_id",
+    "tenant_required": true,
+    "missing_tenant_context": {
+      "http_boundary": {
+        "authority": "TEN-1",
+        "policy_ref": "/tenancy/hide_existence/http_surface_uniformity/missing_tenant",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      "internal_behavior": "fail_closed",
+      "internal_causal_subcode": "TEN_TENANT_CONTEXT_MISSING"
+    }
+  },
+  "tier": 3,
+  "title": "DP-1 — Data Plane Boundary & Database Context",
+  "updated_at": "2026-02-03T08:06:56Z",
+  "version": "3.0.0",
+  "transition_audit_semantics": {
+    "record_type": "internal transition-audit record",
+    "atomicity": "same transaction as successful state transition",
+    "required_context": [
+      "org_id",
+      "actor_id",
+      "request_id",
+      "trace_id",
+      "contract_id",
+      "action_id"
+    ],
+    "domain_events": false,
+    "evt1_registration": false
+  }
+}

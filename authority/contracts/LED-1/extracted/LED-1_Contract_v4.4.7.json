@@ -1,0 +1,2115 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "LED-1_bundle_v4.4.7_JSON_ONLY",
+  "banned_anti_patterns": {
+    "AP-ASH2-DRIFT": {
+      "ban": true,
+      "rule": "Ash 2.x API terminology (Ash.Api, api_actions) MUST NOT appear; use Ash 3.x Domains.",
+      "severity": "P0"
+    },
+    "AP-GLOBAL-SEQUENCE": {
+      "ban": true,
+      "rule": "Global sequences are forbidden for money identifiers; use tenant-scoped counters when required.",
+      "severity": "P0"
+    },
+    "AP-NO-CANON-DEP": {
+      "ban": true,
+      "rule": "CANON-1 MUST NOT be declared as a dependency.",
+      "severity": "P0"
+    },
+    "AP-RMW": {
+      "ban": true,
+      "rule": "Read-modify-write for balances and period state is forbidden; use atomic DB predicates.",
+      "severity": "P0"
+    }
+  },
+  "changelog": [
+    {
+      "date_utc": "2026-02-09T06:20:41Z",
+      "kind": "patch",
+      "notes": [
+        "Add posting_date_strategy + occurred_at_utc to LedgerPostingIntent for closed-period-safe adjustments.",
+        "Add P0 invariant enforcing strict vs slide_to_open behavior."
+      ],
+      "version": "4.4.5"
+    },
+    {
+      "changes": [
+        "FIXED P0: Changed all IDs (org_id, ledger_id, posting_id, entry_id, period_id, snapshot_id, event_id) from uuid/string to uuid_v7 for time-ordered financial record IDs.",
+        "FIXED P0: Replaced non-canonical error tokens (ERRCONFLICT, ERRNOTFOUND) with ERR-1 canonical codes (ERR_CONFLICT, ERR_NOT_FOUND, ERR_FORBIDDEN).",
+        "FIXED P0: Made period close semantics computable: defined period assignment via effective_at_utc bounds and pending state as 'postings committed + outbox published'.",
+        "FIXED P0: Updated RP-0 dependency from min_version 2.2.2 to 3.0.0 to match suite (RP-0@3.0.0 available).",
+        "FIXED P0: Changed event namespace from v42.ledger.* to ticketing.ledger.* for suite consistency (aligns with PROD-1 namespace allowlist).",
+        "FIXED P1: Removed 'entrypoints_must_require' (API-centric) and replaced with 'domain_actions_must_require' (Ash 3.x terminology).",
+        "FIXED P1: Removed org_id and ledger_id from metric labels (high-cardinality explosion); retained in logs/traces only.",
+        "FIXED P1: Added LED-1-P0-006 invariant for account_id validation: entries MUST validate account_id belongs to same (org_id, ledger_id).",
+        "Added entry_id to LedgerEntry resource for explicit deterministic reference.",
+        "Updated EVT-1 dependency reason to reflect ticketing.ledger.* namespace."
+      ],
+      "date": "2026-01-09",
+      "version": "3.0.1"
+    },
+    {
+      "breaking": true,
+      "date_utc": "2026-01-26T11:46:33Z",
+      "summary": "LED-1 major semantic lock-down (COA + explicit debit/credit lines + payout window authority + reserves + posting templates)."
+    },
+    {
+      "breaking": false,
+      "date_utc": "2026-01-26T11:48:02Z",
+      "summary": "Add normative semantic hashing canonicalization rules for idempotency_payload_hash_sha256."
+    },
+    {
+      "changes": [
+        "Added Posting Intent interaction model (post_intent) and locked external callers to intents rather than raw ledger legs.",
+        "Defined immutable Posting Template Standard Library with explicit fee non-refundable default (principal-only refunds) and organizer-absorbed full refund option.",
+        "Added Early Release Manual (break-glass) template to move organizer payable from pending -> available under finance approval.",
+        "Made idempotency semantic hash cover Posting Intent payload (template_id + args + refs + source refs), excluding trace/request IDs.",
+        "Added counterparty_org_id dimension to postings/entries for platform-as-supplier-of-record modeling (platform ledger holds tax and organizer payable)."
+      ],
+      "date_utc": "2026-01-26T12:09:27Z",
+      "version": "4.1.0"
+    },
+    {
+      "at_utc": "2026-01-26T12:33:00Z",
+      "id": "LED-411-TEMPL-DET",
+      "summary": "Make dispute + refund templates deterministic (no union posting_kind; no ambiguous bucket selection); make tax_context_digest optional for intents.",
+      "type": "patch"
+    },
+    {
+      "at_utc": "2026-02-01T19:50:23Z",
+      "id": "LED-1-412-STRUCT-GATES",
+      "summary": "CI-strict bundle.manifest.json + executable LED-1-GATE baseline; bump v4.1.2.",
+      "type": "patch"
+    },
+    {
+      "at_utc": "2026-02-08T17:48:08Z",
+      "id": "LED-1-444-PHASE6-RUNTIME-PINS",
+      "summary": "Phase 6 hardening: add SHA-256 dependency_pins for API-0/PSC-1/PROD-1 and align dependency_floors (EVT-2, REFUND-1) to current suite heads.",
+      "type": "patch"
+    }
+  ],
+  "chart_of_accounts": {
+    "authority": "LED-1",
+    "rules": [
+      "Each org_id MUST have exactly one active system account per system_account_type per (ledger_id,currency).",
+      "Account currency MUST match ledger currency; cross-currency accounts are forbidden.",
+      "Implementations MAY support additional non-system accounts, but posting templates MUST only rely on system_account_types."
+    ],
+    "scope": "org_id + ledger_id (currency-ledger)",
+    "system_account_types": [
+      "provider_clearing",
+      "cash_or_bank",
+      "unallocated_receipts",
+      "organizer_payable_pending",
+      "organizer_payable_available",
+      "tax_payable",
+      "platform_fee_revenue",
+      "refund_liability_pending",
+      "dispute_reserve",
+      "payout_hold_reserve",
+      "fx_gain_loss",
+      "rounding_adjustment"
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "ARCH-1",
+      "edge_type": "requires",
+      "min_version": "3.0.3",
+      "reason": "Architecture constraints (immutability, truth sources, data-plane rules)."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.10",
+      "reason": "Canonical error envelope and error code taxonomy."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "requires",
+      "min_version": "2.16.4",
+      "reason": "Event registry law and drift-hash parity enforcement."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.1",
+      "reason": "Normalized schema_ref token for event envelope validation tooling."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "reason": "Locking discipline for hot-path money operations."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.6",
+      "reason": "Observability invariants for critical money flows."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.7.0",
+      "reason": "Order linkage and ordering invariants for ledger postings."
+    },
+    {
+      "doc_id": "PAY-3",
+      "edge_type": "requires",
+      "min_version": "2.10.0",
+      "reason": "Settlement/reconciliation producer coordination; ledger-first boundary."
+    },
+    {
+      "doc_id": "PAY-4",
+      "edge_type": "requires",
+      "min_version": "2.4.1",
+      "reason": "Treasury boundary integration (requests postings; ledger emits truth)."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.3.0",
+      "reason": "Price snapshot linkage for postings and audits."
+    },
+    {
+      "doc_id": "REFUND-1",
+      "edge_type": "requires",
+      "min_version": "1.6.4",
+      "reason": "Refund lifecycle integration; ledger postings for refund finalization."
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "requires",
+      "min_version": "3.0.1",
+      "reason": "Runtime primitives and canonical identifiers."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.2.0",
+      "reason": "Security invariants for financial operations and idempotency keys."
+    },
+    {
+      "doc_id": "TAX-1",
+      "edge_type": "requires",
+      "min_version": "2.0.1",
+      "reason": "Tax computation linkage for postings."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.4",
+      "reason": "Tenancy invariants and org_id scoping."
+    },
+    {
+      "doc_id": "API-0",
+      "edge_type": "requires",
+      "min_version": "1.1.1",
+      "reason": "Public wire protocol law (rate limiting, overload semantics, retry/backoff, pagination)."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "requires",
+      "min_version": "1.8.2",
+      "reason": "Flash-sale physics (bulkheads, concurrency caps, timeout discipline, paging constraints)."
+    },
+    {
+      "doc_id": "PROD-1",
+      "edge_type": "requires",
+      "min_version": "1.1.3",
+      "reason": "Production survival + break-glass + legislative quorum bypass protocol (QUORUM-1 bound)."
+    }
+  ],
+  "dependency_floors": {
+    "API-0": "1.1.1",
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.1",
+    "PROD-1": "1.1.3",
+    "PSC-1": "1.8.2",
+    "REFUND-1": "1.6.4"
+  },
+  "dependency_pins": {
+    "API-0": {
+      "artifact": "API-0_Contract_v1.1.1.json",
+      "sha256": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991",
+      "version": "1.1.1"
+    },
+    "PROD-1": {
+      "artifact": "PROD-1_Contract_v1.1.3.json",
+      "sha256": "1b53890c44a5387244d6d2eac803180e77b716629bfc00d294d500e79a70194f",
+      "version": "1.1.3"
+    },
+    "PSC-1": {
+      "artifact": "PSC-1_Contract_v1.8.2.json",
+      "sha256": "d29f4e93d95677713d2b16d6e2e60a5916f5f3a99da1ff24e70b50303f10c9a1",
+      "version": "1.8.2"
+    }
+  },
+  "doc_id": "LED-1",
+  "domain_actions": {
+    "close_period": {
+      "errors": {
+        "already_closed": {
+          "code": "ERR_CONFLICT",
+          "subcode": "LED_PERIOD_CLOSED"
+        },
+        "envelope_ref": "ERR-1",
+        "invalid_transition": {
+          "code": "ERR_CONFLICT"
+        },
+        "missing_tenant_context": {
+          "code": "ERR_FORBIDDEN"
+        },
+        "pending_postings": {
+          "code": "ERR_CONFLICT"
+        },
+        "tenant_denial": {
+          "code": "ERR_NOT_FOUND"
+        }
+      },
+      "inputs_required": [
+        "org_id",
+        "ledger_id",
+        "period_id",
+        "close_at_utc",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "period_id",
+        "state",
+        "closed_at_utc"
+      ],
+      "purpose": "Close a ledger period with monotonic period ordering and snapshot gating.",
+      "validation_rules": [
+        "all postings.effective_at_utc >= period.opens_at_utc AND effective_at_utc < close_at_utc have published(org_id, posting_id)=true",
+        "open->closing sets period.closed_at_utc = close_at_utc; closing->closed requires drain complete",
+        "LOCKS-1 PHYSICS: Ledger mutation MUST acquire a transaction-scoped advisory lock using namespace 101 and a deterministic 64-bit key derived from (org_id, ledger_id). Implementations MUST use pg_advisory_xact_lock(key64) where key64 = (101<<56) | (hash_64(org_id||':'||ledger_id) & ((1<<56)-1)). Passing UUIDs directly to advisory locks is forbidden.",
+        "TEMPORAL ANCHOR: Producers MUST mint version via LedgerCursor in the same DB transaction as LedgerEntry+LedgerOutboxEvent writes: (1) pg_advisory_xact_lock(namespace 101 key64 for org_id+ledger_id), (2) SELECT current_version FROM ledger_cursor WHERE (org_id, ledger_id) FOR UPDATE, (3) v_next=current_version+1, (4) write ledger entries/posting, (5) insert LedgerOutboxEvent with version=v_next and ledger_id, (6) UPDATE ledger_cursor SET current_version=v_next, updated_at_utc=now()."
+      ]
+    },
+    "create_snapshot": {
+      "errors": {
+        "envelope_ref": "ERR-1",
+        "missing_tenant_context": {
+          "code": "ERR_FORBIDDEN"
+        },
+        "period_not_closed": {
+          "code": "ERR_CONFLICT"
+        },
+        "tenant_denial": {
+          "code": "ERR_NOT_FOUND"
+        }
+      },
+      "inputs_required": [
+        "org_id",
+        "ledger_id",
+        "period_id",
+        "snapshot_at_utc",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "snapshot_id",
+        "snapshot_at_utc"
+      ],
+      "purpose": "Create an immutable ledger snapshot for a period boundary.",
+      "validation_rules": [
+        "Snapshot MUST reference a closed period.",
+        "Snapshot MUST be immutable and content-addressed (snapshot_hash).",
+        "LOCKS-1 PHYSICS: Ledger mutation MUST acquire a transaction-scoped advisory lock using namespace 101 and a deterministic 64-bit key derived from (org_id, ledger_id). Implementations MUST use pg_advisory_xact_lock(key64) where key64 = (101<<56) | (hash_64(org_id||':'||ledger_id) & ((1<<56)-1)). Passing UUIDs directly to advisory locks is forbidden.",
+        "TEMPORAL ANCHOR: Producers MUST mint version via LedgerCursor in the same DB transaction as LedgerEntry+LedgerOutboxEvent writes: (1) pg_advisory_xact_lock(namespace 101 key64 for org_id+ledger_id), (2) SELECT current_version FROM ledger_cursor WHERE (org_id, ledger_id) FOR UPDATE, (3) v_next=current_version+1, (4) write ledger entries/posting, (5) insert LedgerOutboxEvent with version=v_next and ledger_id, (6) UPDATE ledger_cursor SET current_version=v_next, updated_at_utc=now()."
+      ]
+    },
+    "post_entries": {
+      "errors": {
+        "bad_request": {
+          "code": "ERR_BAD_REQUEST"
+        },
+        "envelope_ref": "ERR-1",
+        "idempotency_key_reuse": {
+          "code": "ERR_CONFLICT",
+          "subcode": "LED_IDEMPOTENCY_KEY_REUSE"
+        },
+        "idempotency_replay": {
+          "code": "ERR_CONFLICT",
+          "subcode": "LED_IDEMPOTENCY_REPLAY"
+        },
+        "missing_tenant_context": {
+          "code": "ERR_FORBIDDEN"
+        },
+        "tenant_denial": {
+          "code": "ERR_NOT_FOUND"
+        },
+        "unbalanced_entry": {
+          "code": "ERR_BAD_REQUEST",
+          "subcode": "LED_UNBALANCED_ENTRY"
+        }
+      },
+      "inputs_required": [
+        "org_id",
+        "ledger_id",
+        "posting_id",
+        "entries",
+        "idempotency_key",
+        "actor_id",
+        "request_id",
+        "trace_id",
+        "posting_kind",
+        "source_domain",
+        "source_kind",
+        "source_id",
+        "source_version",
+        "source_digest_sha256"
+      ],
+      "output_minimum": [
+        "posting_id",
+        "posted_at_utc",
+        "posting_kind",
+        "source_domain",
+        "source_kind",
+        "source_id",
+        "source_version",
+        "source_digest_sha256",
+        "idempotency_payload_hash_sha256"
+      ],
+      "purpose": "INTERNAL ONLY: post balanced entries directly. External domains MUST use post_intent except break-glass migrations.",
+      "validation_rules": [
+        "post_entries MUST be treated as platform-internal only; external domain callers MUST use post_intent. Direct entry posting requires GOV-0 break-glass approval and MUST be auditable.",
+        "posting_id MUST be unique via UNIQUE (org_id, posting_id).",
+        "entries MUST be non-empty and MUST net to zero per currency.",
+        "All entries in a posting MUST share the same effective_at_utc.",
+        "LedgerPosting.effective_at_utc MUST equal entries[0].effective_at_utc.",
+        "idempotency_key reuse with different semantic payload MUST be rejected (ERR_CONFLICT).",
+        "Missing org_id context MUST return ERR_FORBIDDEN.",
+        "Cross-tenant access MUST return ERR_NOT_FOUND (hide existence per TEN-1).",
+        "When idempotency_key is provided, the ledger service MUST compute idempotency_payload_hash_sha256 as SHA-256 over the canonical JSON form of the semantic payload: {org_id, ledger_id, posting_kind, effective_at_utc, entries[], source_domain, source_kind, source_id, source_version, source_digest_sha256, tax_context_digest_sha256?}. The canonical JSON form MUST follow CANON-1 JSON canonicalization rules. trace_id and request_id MUST be excluded. If the same (org_id, ledger_id, idempotency_key) is replayed with a different idempotency_payload_hash_sha256, the request MUST fail with ERR_CONFLICT and subcode LED_IDEMPOTENCY_KEY_REUSE.",
+        "Every posting MUST include posting_kind and source reference fields (source_domain, source_kind, source_id, source_version, source_digest_sha256). For source_domain that matches a contract in this suite (e.g., ORD-1, PAY-3, REFUND-1, TAX-1), source_digest_sha256 MUST be the authoritative digest from that source's immutable snapshot (e.g., order_price_snapshot_digest_sha256 for ORD-1). The ledger MUST NOT recompute price or tax amounts.",
+        "LOCKS-1 PHYSICS: Ledger mutation MUST acquire a transaction-scoped advisory lock using namespace 101 and a deterministic 64-bit key derived from (org_id, ledger_id). Implementations MUST use pg_advisory_xact_lock(key64) where key64 = (101<<56) | (hash_64(org_id||':'||ledger_id) & ((1<<56)-1)). Passing UUIDs directly to advisory locks is forbidden.",
+        "TEMPORAL ANCHOR: Producers MUST mint version via LedgerCursor in the same DB transaction as LedgerEntry+LedgerOutboxEvent writes: (1) pg_advisory_xact_lock(namespace 101 key64 for org_id+ledger_id), (2) SELECT current_version FROM ledger_cursor WHERE (org_id, ledger_id) FOR UPDATE, (3) v_next=current_version+1, (4) write ledger entries/posting, (5) insert LedgerOutboxEvent with version=v_next and ledger_id, (6) UPDATE ledger_cursor SET current_version=v_next, updated_at_utc=now()."
+      ]
+    },
+    "post_intent": {
+      "errors": {
+        "bad_request": {
+          "code": "ERR_BAD_REQUEST"
+        },
+        "envelope_ref": "ERR-1",
+        "idempotency_key_reuse": {
+          "code": "ERR_CONFLICT",
+          "subcode": "LED_IDEMPOTENCY_KEY_REUSE"
+        },
+        "idempotency_replay": {
+          "code": "ERR_CONFLICT",
+          "subcode": "LED_IDEMPOTENCY_REPLAY"
+        },
+        "missing_tenant_context": {
+          "code": "ERR_FORBIDDEN"
+        },
+        "period_closed": {
+          "code": "ERR_CONFLICT",
+          "subcode": "LED_PERIOD_CLOSED"
+        },
+        "template_args_invalid": {
+          "code": "ERR_BAD_REQUEST",
+          "subcode": "LED_TEMPLATE_ARGS_INVALID"
+        },
+        "tenant_denial": {
+          "code": "ERR_NOT_FOUND"
+        },
+        "unknown_template": {
+          "code": "ERR_BAD_REQUEST",
+          "subcode": "LED_UNKNOWN_TEMPLATE"
+        }
+      },
+      "inputs_optional": [
+        "tax_context_digest_sha256"
+      ],
+      "inputs_required": [
+        "org_id",
+        "ledger_id",
+        "intent_id",
+        "template_id",
+        "args",
+        "refs",
+        "idempotency_key",
+        "actor_id",
+        "request_id",
+        "trace_id",
+        "posting_kind",
+        "source_domain",
+        "source_kind",
+        "source_id",
+        "source_version",
+        "source_digest_sha256"
+      ],
+      "output_minimum": [
+        "intent_id",
+        "posting_id",
+        "posted_at_utc",
+        "posting_kind",
+        "template_id",
+        "idempotency_payload_hash_sha256"
+      ],
+      "purpose": "Post a ledger change via a named posting template. LED expands intent into balanced entries and stores intent+posting atomically.",
+      "validation_rules": [
+        "template_id MUST reference a template in posting_templates.library_allowlist.",
+        "posting_kind MUST equal the template's posting_kind.",
+        "LED MUST validate args schema for the given template_id; missing or extra required fields MUST fail closed (LED_TEMPLATE_ARGS_INVALID).",
+        "LED MUST expand the intent to a balanced set of entries using COA account_type mapping; external callers MUST NOT provide debits/credits.",
+        "idempotency_payload_hash_sha256 MUST be SHA-256 over CANON-1 canonical JSON of the intent payload: {template_id, posting_kind, args, refs, source_domain, source_kind, source_id, source_version, source_digest_sha256, tax_context_digest_sha256 (optional)}. trace_id and request_id MUST be excluded.",
+        "Replays with same (org_id, ledger_id, idempotency_key) and identical idempotency_payload_hash_sha256 MUST return the previously stored posting result; mismatched hash MUST fail with ERR_CONFLICT/LED_IDEMPOTENCY_KEY_REUSE.",
+        "Postings MUST fail closed when the target period is closed unless the template_id is explicitly marked break_glass and actor has GOV-0 break-glass approval.",
+        "LOCKS-1 PHYSICS: Ledger mutation MUST acquire a transaction-scoped advisory lock using namespace 101 and a deterministic 64-bit key derived from (org_id, ledger_id). Implementations MUST use pg_advisory_xact_lock(key64) where key64 = (101<<56) | (hash_64(org_id||':'||ledger_id) & ((1<<56)-1)). Passing UUIDs directly to advisory locks is forbidden.",
+        "TEMPORAL ANCHOR: Producers MUST mint version via LedgerCursor in the same DB transaction as LedgerEntry+LedgerOutboxEvent writes: (1) pg_advisory_xact_lock(namespace 101 key64 for org_id+ledger_id), (2) SELECT current_version FROM ledger_cursor WHERE (org_id, ledger_id) FOR UPDATE, (3) v_next=current_version+1, (4) write ledger entries/posting, (5) insert LedgerOutboxEvent with version=v_next and ledger_id, (6) UPDATE ledger_cursor SET current_version=v_next, updated_at_utc=now()."
+      ]
+    }
+  },
+  "domain_invariants": [
+    {
+      "applies_to": [
+        "event_emission",
+        "outbox_events",
+        "ledger_postings"
+      ],
+      "rule_id": "LED-1-P0-011-EVT-DERIVED-FINAL-PAYLOAD",
+      "severity": "P0",
+      "text": "Ledger posting outbox events MUST be schema-governed and final. Any event emitted under the ledger topic MUST be registered in EVT-1 with governance.source=derived_from_ash_resource and ash_resource_ref=\"LED-1:LedgerEntry\" (or the canonical ledger entry resource). The emitted payload MUST be a strict projection of LedgerEntry public fields (no extra keys / shadow data). If a field is required by downstream consumers, it MUST appear in EVT-1.required_data_keys; otherwise it MUST NOT be emitted."
+    },
+    {
+      "applies_to": [
+        "domain_actions"
+      ],
+      "category": "tenancy",
+      "rationale": "Prevents cross-tenant money movement and metadata leakage.",
+      "rule_id": "LED-1-P0-001",
+      "severity": "P0",
+      "text": "All ledger actions MUST require org_id in explicit context and MUST be tenant-scoped. Cross-tenant access MUST deny with hide-existence semantics (ERR_NOT_FOUND)."
+    },
+    {
+      "applies_to": {
+        "outbox_events": [
+          "ticketing.ledger.posted.v1",
+          "ticketing.ledger.settled.v1"
+        ]
+      },
+      "rule_id": "LED-1-P0-011-EVT-FINAL-DERIVED",
+      "severity": "P0",
+      "text": "Any Ledger outbox event emitted by LED-1 MUST be schema-governed by EVT-1 and MUST represent a finalized LedgerEntry state (no partials). The event payload MUST be derivable from the LED-1 LedgerEntry public attributes (mirror semantics) and MUST NOT contain Shadow Data keys not declared as required_data_keys in EVT-1. If an event is marked final:true in EVT-1, LED-1 MUST treat the underlying LedgerEntry as immutable and MUST NOT emit compensating mutations via the same event_type (use a new event version instead)."
+    },
+    {
+      "applies_to": [
+        "LedgerPosting",
+        "LedgerEntry"
+      ],
+      "category": "money_integrity",
+      "rationale": "Prevents inconsistent money state and reconciliation divergence.",
+      "rule_id": "LED-1-P0-002",
+      "severity": "P0",
+      "text": "Posting creation MUST be atomic and MUST validate balanced entries per currency before commit; no intermediate partial posting state is permitted."
+    },
+    {
+      "applies_to": [
+        "post_entries",
+        "close_period"
+      ],
+      "category": "lock_discipline",
+      "rationale": "Avoids race conditions under concurrency.",
+      "rule_id": "LED-1-P0-003",
+      "severity": "P0",
+      "text": "No read-modify-write is permitted for balances, period state, or snapshot content. Mutations MUST use atomic database predicates per LOCKS-1."
+    },
+    {
+      "applies_to": [
+        "post_entries"
+      ],
+      "category": "idempotency",
+      "rationale": "Network retries must not create duplicate postings or silent divergence.",
+      "rule_id": "LED-1-P0-004",
+      "severity": "P0",
+      "text": "post_entries MUST be idempotent via (org_id, ledger_id, idempotency_key). A replay with an identical semantic payload MUST return the prior result; a replay with a changed semantic payload MUST return ERR_CONFLICT."
+    },
+    {
+      "applies_to": [
+        "LedgerOutboxEvent"
+      ],
+      "category": "eventing",
+      "rationale": "Prevents phantom events and preserves traceability.",
+      "rule_id": "LED-1-P0-005",
+      "severity": "P0",
+      "text": "Ledger outbox events MUST be written transactionally in the same commit as the posting/period/snapshot change. Event payloads MUST include org_id, trace_id, and request_id."
+    },
+    {
+      "applies_to": [
+        "LedgerEntry"
+      ],
+      "category": "referential_integrity",
+      "rationale": "Prevents cross-tenant posting via account_id injection.",
+      "rule_id": "LED-1-P0-006",
+      "severity": "P0",
+      "text": "LedgerEntry.account_id MUST belong to the same (org_id, ledger_id) as the posting referenced by LedgerEntry.posting_id. Cross-ledger or cross-tenant account references are forbidden and MUST be validated before entry creation."
+    },
+    {
+      "rule_id": "LED-1-P0-ACK-INTEGRITY",
+      "severity": "P0",
+      "text": "LedgerOutboxAck.event_id MUST reference LedgerOutboxEvent.event_id. LedgerOutboxAck.org_id MUST equal LedgerOutboxEvent.org_id and LedgerOutboxAck.posting_id MUST equal LedgerOutboxEvent.aggregate_id."
+    },
+    {
+      "invariant_id": "LED-1-P0-004",
+      "statement": "If a posting is created with an idempotency_key, the ledger MUST bind that key to the semantic payload by storing idempotency_payload_hash_sha256 and enforcing that any replay under the same (org_id, ledger_id, idempotency_key) MUST have an identical semantic payload hash.",
+      "title": "Idempotency semantic hash binding"
+    },
+    {
+      "invariant_id": "LED-1-P0-005",
+      "statement": "Every ledger posting MUST carry posting_kind and a source reference (source_domain, source_kind, source_id, source_version, source_digest_sha256). These fields MUST be sufficient to reconcile the ledger to upstream authoritative records (orders, payments, refunds, tax adjustments) without ambiguity.",
+      "title": "Postings are source-referenced and auditable"
+    },
+    {
+      "invariant_id": "LED-1-P0-006",
+      "statement": "Ledger postings that include tax MUST use tax values as provided by upstream authoritative records (TAX-1 OrderTaxRecord / TaxAdjustmentRecord and the ORD-1 price snapshot). The ledger MUST NOT recompute taxes from rates; it records source_digest_sha256 and, when present, tax_context_digest_sha256 for audit and remittance.",
+      "title": "Tax is recorded, not recomputed"
+    },
+    {
+      "applies_to": [
+        "outbox_worker",
+        "event_emission"
+      ],
+      "rule_id": "LED-1-INV-SEQ-001",
+      "severity": "P0",
+      "text": "Outbox workers MUST implement a 500ms visibility window (T_gap=500ms) to prevent false-positive version gaps due to Postgres commit/visibility skew. If an event for (org_id, ledger_id) is observed with version > expected_next_version, the worker MUST buffer the higher-version event and wait up to T_gap for the missing expected_next_version to become visible. If the missing version becomes visible within T_gap, the worker MUST flush buffered events in strict ascending version order without opening the circuit. If expected_next_version is still missing after T_gap expires, the worker MUST OPEN CIRCUIT for that ledger_id stream, MUST halt publishing for that ledger_id, and MUST emit a governed anomaly/alert indicating a version gap requiring operator investigation/backfill."
+    },
+    {
+      "applies_to": [
+        "outbox_events",
+        "event_envelope"
+      ],
+      "rule_id": "LED-1-INV-REGISTRY-BINDING-001",
+      "severity": "P0",
+      "text": "The LED-1 producer MUST NOT hardcode registry_version_sha. It MUST resolve registry_version_sha at runtime from the V42_RUNTIME_REGISTRY_SHA environment configuration. If this configuration is missing or malformed (not 64-hex), the producer MUST fail to start or MUST refuse to emit outbox events. In Backfill Mode only, the producer MAY emit the LEGACY_SHA_SENTINEL (64 zeros) as defined in EVT-1 envelope governance; normal runtime emission MUST use the bound SHA."
+    },
+    {
+      "applies_to": [
+        "ledger_postings"
+      ],
+      "rule_id": "LED-1-P0-070-POSTING-DATE-STRATEGY",
+      "severity": "P0",
+      "text": "Slide-to-open posting_date_strategy MUST be deterministic. If occurred_at_utc (or a refund's authoritative issuance_at_utc) lands in a CLOSED period, the service MUST select an OPEN period as follows: choose the OPEN period with the MIN(start_at_utc) such that start_at_utc >= occurred_at_utc. If no such OPEN period exists, the operation MUST fail closed with an ERR_LED_NO_OPEN_PERIOD. The selected posting_period_id MUST be recorded on the finalized LedgerPosting."
+    },
+    {
+      "rule_id": "LED-1-P0-210-REFUND-TAX-CREDITNOTE-LINKAGE",
+      "severity": "P0",
+      "text": "Refund clock + audit linkage are non-negotiable. For refund-related postings, LedgerPostingIntent.refs MUST include tax_credit_note_id (uuid_v7) when a TAX-1 CreditNote exists. The Ledger service MUST be barred from sampling its own clock: LedgerPostingIntent.occurred_at_utc MUST be bitwise identical to TAX-1 CreditNote.issuance_at_utc (authoritative clock), and LedgerPosting.occurred_at_utc MUST be bitwise identical to LedgerPostingIntent.occurred_at_utc. LedgerEntry.refs MUST carry tax_credit_note_id to enable one-click audit linkage from ledger to tax evidence."
+    },
+    {
+      "rule_id": "LED-1-P0-072-REFUND-ORIGIN-PERSISTENCE",
+      "severity": "P0",
+      "text": "Origin attribution MUST persist on the journal. For postings derived from historical liabilities (e.g., refunds of prior-period sales), origin_period_id and origin_tax_point_at_utc MUST be stored on the finalized LedgerPosting (not only on intents). Any finalized LedgerPosting created from a LedgerPostingIntent that supplied these fields MUST copy them verbatim."
+    }
+  ],
+  "double_entry_model": {
+    "balance_rule": "sum(debit.amount_minor) == sum(credit.amount_minor) per posting (currency strict)",
+    "direction_enum": [
+      "debit",
+      "credit"
+    ],
+    "line_representation": "direction + positive amount_minor",
+    "reversal_rule": "Reversal postings MUST negate the original posting exactly and reference reverses_posting_id."
+  },
+  "generated_at_utc": "2026-02-09T06:20:41Z",
+  "last_updated_utc": "2026-02-09T06:20:41Z",
+  "limits_and_budgets": {
+    "concurrency_limit": 64,
+    "p99_latency_ms": 250,
+    "rate_limit_per_tenant": {
+      "limit": 600,
+      "unit": "minute"
+    }
+  },
+  "normative_source": "json",
+  "observability": {
+    "logs": {
+      "forbid_secrets": true,
+      "required_fields": [
+        "request_id",
+        "trace_id",
+        "org_id"
+      ],
+      "structured": true
+    },
+    "metrics": {
+      "bounded_label_rules": {
+        "forbid_tenant_identifiers": true,
+        "forbid_user_identifiers": true,
+        "max_values_per_label": 64,
+        "rationale": "org_id and ledger_id create cardinality explosions; use logs/traces for tenant filtering."
+      },
+      "required": [
+        {
+          "labels": [
+            "result"
+          ],
+          "name": "ticketing.ledger.postings.total",
+          "type": "counter"
+        },
+        {
+          "labels": [],
+          "name": "ticketing.ledger.posting.duration_ms",
+          "type": "histogram"
+        },
+        {
+          "labels": [
+            "result"
+          ],
+          "name": "ticketing.ledger.period.close.total",
+          "type": "counter"
+        }
+      ]
+    },
+    "trace": {
+      "required_span_attributes": [
+        "app.org_id",
+        "app.request_id",
+        "app.actor_id"
+      ],
+      "trace_id_propagation_required": true
+    }
+  },
+  "outbox_events": [
+    {
+      "emission_semantics": {
+        "final_event": true
+      },
+      "event_name": "ticketing.ledger.entry.posted.v1",
+      "required_keys": [
+        "event_id",
+        "occurred_at_utc",
+        "posting_id",
+        "ledger_id",
+        "version"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ledger"
+    },
+    {
+      "emission_semantics": {
+        "final_event": true
+      },
+      "event_name": "ticketing.ledger.period.closed.v1",
+      "required_keys": [
+        "event_id",
+        "occurred_at_utc",
+        "period_id",
+        "ledger_id",
+        "version"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ledger"
+    },
+    {
+      "emission_semantics": {
+        "final_event": true
+      },
+      "event_name": "ticketing.ledger.snapshot.created.v1",
+      "required_keys": [
+        "event_id",
+        "occurred_at_utc",
+        "snapshot_id",
+        "period_id",
+        "ledger_id",
+        "version"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ledger"
+    }
+  ],
+  "payout_window_model": {
+    "authoritative_state": "LedgerPeriod.state",
+    "lock_rule": "effective_at_utc within closed period MUST be rejected (fail closed).",
+    "note": "This satisfies suite-wide led_payout_window_state gating; contracts MUST derive from LedgerPeriod.state.",
+    "states": [
+      "open",
+      "closing",
+      "closed"
+    ]
+  },
+  "posting_kind_registry": {
+    "kinds": [
+      {
+        "code": "pay_capture_recorded",
+        "severity": "P0"
+      },
+      {
+        "code": "pay_receipts_allocated",
+        "severity": "P0"
+      },
+      {
+        "code": "refund_initiated",
+        "severity": "P0"
+      },
+      {
+        "code": "refund_succeeded",
+        "severity": "P0"
+      },
+      {
+        "code": "dispute_opened",
+        "severity": "P0"
+      },
+      {
+        "code": "dispute_won",
+        "severity": "P0"
+      },
+      {
+        "code": "dispute_lost",
+        "severity": "P0"
+      },
+      {
+        "code": "payout_window_closed",
+        "severity": "P0"
+      },
+      {
+        "code": "payout_executed",
+        "severity": "P0"
+      },
+      {
+        "code": "tax_adjustment",
+        "severity": "P0"
+      },
+      {
+        "code": "rounding_adjustment",
+        "severity": "P1"
+      },
+      {
+        "code": "early_release_manual",
+        "severity": "P0"
+      }
+    ],
+    "version": "LED-PK-1"
+  },
+  "posting_templates": {
+    "early_payout_policy": {
+      "default": "post_event_payout",
+      "early_payout_allowed": true,
+      "early_payout_requires_break_glass": true,
+      "early_release_template_id": "EARLY_RELEASE_MANUAL"
+    },
+    "fee_policy": {
+      "note": "Platform fees represent non-recoverable PSP costs and are non-refundable by default; full refunds are allowed only when organizer absorbs the fee loss. Bucket-specific refund templates are required; REFUND_*_PENDING applies when funds are still pending; REFUND_*_AVAILABLE applies after payout window close.",
+      "platform_fee_refundable_default": false,
+      "refund_default_template_id": "REFUND_PRIN_ONLY_PENDING",
+      "refund_default_template_id_by_bucket": {
+        "organizer_payable_available": "REFUND_PRIN_ONLY_AVAILABLE",
+        "organizer_payable_pending": "REFUND_PRIN_ONLY_PENDING"
+      },
+      "refund_full_absorbed_template_id": "REFUND_FULL_ABSORBED_PENDING",
+      "refund_full_absorbed_template_id_by_bucket": {
+        "organizer_payable_available": "REFUND_FULL_ABSORBED_AVAILABLE",
+        "organizer_payable_pending": "REFUND_FULL_ABSORBED_PENDING"
+      }
+    },
+    "idempotency": "Idempotency is defined on canonicalized intent payload hash (CANON-1) and idempotency_key.",
+    "library_allowlist": [
+      "DISPUTE_FREEZE",
+      "DISPUTE_LOST_RESOLVE_AVAILABLE_FEE",
+      "DISPUTE_LOST_RESOLVE_PENDING_FEE",
+      "DISPUTE_WON_RESOLVE",
+      "EARLY_RELEASE_MANUAL",
+      "PAYOUT_EXEC",
+      "PAYOUT_WINDOW_CLOSED",
+      "PAY_CAPTURE_RECORDED",
+      "REFUND_FULL_ABSORBED_AVAILABLE",
+      "REFUND_FULL_ABSORBED_PENDING",
+      "REFUND_PRIN_ONLY_AVAILABLE",
+      "REFUND_PRIN_ONLY_PENDING",
+      "ROUNDING_ADJUSTMENT",
+      "SALE_STD",
+      "TAX_ADJUSTMENT"
+    ],
+    "strategy": "Intent-based templates. External callers MUST use template_id + args; LED expands to balanced entries via COA mapping.",
+    "templates": [
+      {
+        "args_schema": {
+          "optional": [
+            "counterparty_org_id"
+          ],
+          "required": [
+            "gross_minor",
+            "currency",
+            "provider_ref"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "unallocated_receipts"
+        ],
+        "debit": [
+          "provider_clearing"
+        ],
+        "must": "On provider-confirmed capture, record gross funds into provider_clearing against unallocated_receipts.",
+        "posting_kind": "pay_capture_recorded",
+        "template_id": "PAY_CAPTURE_RECORDED"
+      },
+      {
+        "args_schema": {
+          "optional": [
+            "allocation_method",
+            "rounding_mode"
+          ],
+          "required": [
+            "total_minor",
+            "tax_minor",
+            "fee_minor",
+            "currency",
+            "counterparty_org_id"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "tax_payable",
+          "platform_fee_revenue",
+          "organizer_payable_pending"
+        ],
+        "debit": [
+          "unallocated_receipts"
+        ],
+        "must": "Allocate unallocated_receipts into tax_payable, platform_fee_revenue, organizer_payable_pending using immutable ORD-1/PRICE-1/TAX-1 snapshots. Platform fee is recognized immediately and is non-refundable by default.",
+        "posting_kind": "pay_receipts_allocated",
+        "template_id": "SALE_STD"
+      },
+      {
+        "args_schema": {
+          "optional": [
+            "provider_case_id"
+          ],
+          "required": [
+            "disputed_minor",
+            "currency",
+            "counterparty_org_id"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "dispute_reserve"
+        ],
+        "debit": [
+          "organizer_payable_available"
+        ],
+        "must": "On dispute/chargeback opened, move the disputed amount from organizer_payable_available into dispute_reserve for the counterparty_org_id.",
+        "posting_kind": "dispute_opened",
+        "template_id": "DISPUTE_FREEZE"
+      },
+      {
+        "args_schema": {
+          "optional": [
+            "window_id"
+          ],
+          "required": [
+            "amount_minor",
+            "currency",
+            "counterparty_org_id"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "organizer_payable_available"
+        ],
+        "debit": [
+          "organizer_payable_pending"
+        ],
+        "must": "When payout window closes, move organizer_payable_pending -> organizer_payable_available for the counterparty_org_id.",
+        "posting_kind": "payout_window_closed",
+        "template_id": "PAYOUT_WINDOW_CLOSED"
+      },
+      {
+        "args_schema": {
+          "optional": [],
+          "required": [
+            "payout_minor",
+            "currency",
+            "counterparty_org_id",
+            "payout_ref"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "cash_or_bank"
+        ],
+        "debit": [
+          "organizer_payable_available"
+        ],
+        "must": "On payout execution, reduce organizer_payable_available and reduce cash_or_bank.",
+        "posting_kind": "payout_executed",
+        "template_id": "PAYOUT_EXEC"
+      },
+      {
+        "args_schema": {
+          "optional": [
+            "admin_actor_id"
+          ],
+          "required": [
+            "amount_minor",
+            "currency",
+            "counterparty_org_id",
+            "finance_approval_ref"
+          ]
+        },
+        "break_glass": true,
+        "credit": [
+          "organizer_payable_available"
+        ],
+        "debit": [
+          "organizer_payable_pending"
+        ],
+        "must": "Break-glass: manually move funds from organizer_payable_pending -> organizer_payable_available prior to the payout window close. Requires GOV-0 break-glass approval and finance evidence reference.",
+        "posting_kind": "early_release_manual",
+        "template_id": "EARLY_RELEASE_MANUAL"
+      },
+      {
+        "args_schema": {
+          "optional": [],
+          "required": [
+            "tax_delta_minor",
+            "currency",
+            "counterparty_org_id",
+            "reason"
+          ]
+        },
+        "break_glass": false,
+        "must": "When tax point differs from quote and a delta arises, record a tax_adjustment posting that preserves auditability.",
+        "posting_kind": "tax_adjustment",
+        "template_id": "TAX_ADJUSTMENT"
+      },
+      {
+        "args_schema": {
+          "optional": [],
+          "required": [
+            "delta_minor",
+            "currency",
+            "counterparty_org_id",
+            "reason"
+          ]
+        },
+        "break_glass": false,
+        "must": "Record rounding adjustments deterministically when required by allocation strategy.",
+        "posting_kind": "rounding_adjustment",
+        "template_id": "ROUNDING_ADJUSTMENT"
+      },
+      {
+        "args_schema": {
+          "optional": [
+            "provider_case_id"
+          ],
+          "required": [
+            "disputed_minor",
+            "currency",
+            "counterparty_org_id"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "organizer_payable_available"
+        ],
+        "debit": [
+          "dispute_reserve"
+        ],
+        "must": "Resolve a dispute that was won: move dispute_reserve back to organizer_payable_available.",
+        "posting_kind": "dispute_won",
+        "template_id": "DISPUTE_WON_RESOLVE"
+      },
+      {
+        "args_schema": {
+          "optional": [
+            "bank_fee_minor",
+            "provider_case_id"
+          ],
+          "required": [
+            "disputed_minor",
+            "currency",
+            "counterparty_org_id"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "cash_or_bank",
+          "cash_or_bank"
+        ],
+        "debit": [
+          "dispute_reserve",
+          "organizer_payable_pending"
+        ],
+        "must": "Resolve a dispute that was lost: move dispute_reserve to cash_or_bank; if bank_fee_minor provided, debit organizer_payable_pending for bank_fee_minor.",
+        "posting_kind": "dispute_lost",
+        "template_id": "DISPUTE_LOST_RESOLVE_PENDING_FEE"
+      },
+      {
+        "args_schema": {
+          "optional": [
+            "bank_fee_minor",
+            "provider_case_id"
+          ],
+          "required": [
+            "disputed_minor",
+            "currency",
+            "counterparty_org_id"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "cash_or_bank",
+          "cash_or_bank"
+        ],
+        "debit": [
+          "dispute_reserve",
+          "organizer_payable_available"
+        ],
+        "must": "Resolve a dispute that was lost: move dispute_reserve to cash_or_bank; if bank_fee_minor provided, debit organizer_payable_available for bank_fee_minor.",
+        "posting_kind": "dispute_lost",
+        "template_id": "DISPUTE_LOST_RESOLVE_AVAILABLE_FEE"
+      },
+      {
+        "args_schema": {
+          "optional": [
+            "refund_ref",
+            "reason_code"
+          ],
+          "required": [
+            "refund_minor",
+            "currency",
+            "counterparty_org_id",
+            "tax_minor"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "cash_or_bank",
+          "cash_or_bank"
+        ],
+        "debit": [
+          "organizer_payable_pending",
+          "tax_payable"
+        ],
+        "must": "Refund principal only (fee non-refundable). Funds are returned from organizer_payable_pending.",
+        "posting_kind": "refund_succeeded",
+        "template_id": "REFUND_PRIN_ONLY_PENDING"
+      },
+      {
+        "args_schema": {
+          "optional": [
+            "refund_ref",
+            "reason_code"
+          ],
+          "required": [
+            "refund_minor",
+            "currency",
+            "counterparty_org_id",
+            "tax_minor"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "cash_or_bank",
+          "cash_or_bank"
+        ],
+        "debit": [
+          "organizer_payable_available",
+          "tax_payable"
+        ],
+        "must": "Refund principal only (fee non-refundable). Funds are returned from organizer_payable_available.",
+        "posting_kind": "refund_succeeded",
+        "template_id": "REFUND_PRIN_ONLY_AVAILABLE"
+      },
+      {
+        "args_schema": {
+          "optional": [
+            "refund_ref",
+            "reason_code"
+          ],
+          "required": [
+            "refund_minor",
+            "currency",
+            "counterparty_org_id",
+            "tax_minor",
+            "fee_minor"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "cash_or_bank",
+          "cash_or_bank",
+          "cash_or_bank"
+        ],
+        "debit": [
+          "organizer_payable_pending",
+          "tax_payable",
+          "platform_fee_revenue"
+        ],
+        "must": "Refund full amount including fee; organizer absorbs fee loss. Funds are returned from organizer_payable_pending for principal+fee; tax_payable reduced accordingly.",
+        "posting_kind": "refund_succeeded",
+        "template_id": "REFUND_FULL_ABSORBED_PENDING"
+      },
+      {
+        "args_schema": {
+          "optional": [
+            "refund_ref",
+            "reason_code"
+          ],
+          "required": [
+            "refund_minor",
+            "currency",
+            "counterparty_org_id",
+            "tax_minor",
+            "fee_minor"
+          ]
+        },
+        "break_glass": false,
+        "credit": [
+          "cash_or_bank",
+          "cash_or_bank",
+          "cash_or_bank"
+        ],
+        "debit": [
+          "organizer_payable_available",
+          "tax_payable",
+          "platform_fee_revenue"
+        ],
+        "must": "Refund full amount including fee; organizer absorbs fee loss. Funds are returned from organizer_payable_available for principal+fee; tax_payable reduced accordingly.",
+        "posting_kind": "refund_succeeded",
+        "template_id": "REFUND_FULL_ABSORBED_AVAILABLE"
+      }
+    ]
+  },
+  "required_db_constraints": {
+    "check_ledger_id_parity": "CHECK (ledger_id = aggregate_id)",
+    "check_version_positive": "CHECK (version > 0)",
+    "coa_unique_code": {
+      "constraint": "UNIQUE (org_id, ledger_id, account_code)"
+    },
+    "coa_unique_type": {
+      "constraint": "UNIQUE (org_id, ledger_id, account_type)"
+    },
+    "entry_fk_account": {
+      "constraint": "FOREIGN KEY (org_id, ledger_id, account_id) REFERENCES ledger_accounts(org_id, ledger_id, account_id)"
+    },
+    "entry_fk_posting": {
+      "constraint": "FOREIGN KEY (org_id, ledger_id, posting_id) REFERENCES ledger_postings(org_id, ledger_id, posting_id)"
+    },
+    "idempotency_unique": {
+      "constraint": "UNIQUE (org_id, ledger_id, idempotency_key)"
+    },
+    "ledger_cursor_unique": "UNIQUE (org_id, ledger_id)",
+    "ledger_cursor_version_nonnegative": "CHECK (current_version >= 0)",
+    "one_open_period_per_ledger": {
+      "constraint": "UNIQUE (org_id, ledger_id) WHERE state IN ('open','closing')"
+    },
+    "posting_idempotency_unique": {
+      "constraint": "UNIQUE (org_id, ledger_id, idempotency_key)"
+    },
+    "posting_unique": {
+      "constraint": "UNIQUE (org_id, posting_id)"
+    }
+  },
+  "reserve_model": {
+    "minimum_reserve_accounts": [
+      "dispute_reserve",
+      "payout_hold_reserve"
+    ],
+    "payout_block_rule": "Payout execution MUST be blocked if derived available balance would become negative after reserves.",
+    "principle": "Exposure controls MUST be ledger-visible; no implicit reserves."
+  },
+  "resource_model": {
+    "resources": [
+      {
+        "actions": [],
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "account_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "currency",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "account_code",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "enum": [
+              "asset",
+              "liability",
+              "equity",
+              "revenue",
+              "expense"
+            ],
+            "name": "account_class",
+            "nullable": false,
+            "type": "atom"
+          },
+          {
+            "enum": [
+              "debit",
+              "credit"
+            ],
+            "name": "normal_balance",
+            "nullable": false,
+            "type": "atom"
+          },
+          {
+            "enum": [
+              "provider_clearing",
+              "cash_or_bank",
+              "unallocated_receipts",
+              "organizer_payable_pending",
+              "organizer_payable_available",
+              "tax_payable",
+              "platform_fee_revenue",
+              "refund_liability_pending",
+              "dispute_reserve",
+              "payout_hold_reserve",
+              "fx_gain_loss",
+              "rounding_adjustment"
+            ],
+            "name": "account_type",
+            "nullable": false,
+            "type": "atom"
+          },
+          {
+            "name": "label",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "enum": [
+              "active",
+              "disabled"
+            ],
+            "name": "status",
+            "nullable": false,
+            "type": "atom"
+          },
+          {
+            "name": "external_gl_code",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "disabled_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "description": "Chart-of-accounts record. Accounts are tenant-scoped and currency-ledger scoped.",
+        "name": "LedgerAccount"
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "intent_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "posting_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "template_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "posting_kind",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "args",
+            "nullable": false,
+            "type": "object"
+          },
+          {
+            "name": "refs",
+            "nullable": false,
+            "type": "object"
+          },
+          {
+            "name": "idempotency_key",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "idempotency_payload_hash_sha256",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "trace_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "request_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "occurred_at_utc",
+            "notes": [
+              "Business event time (origin). Preserved for compliance linkage even when posting is rolled forward."
+            ],
+            "type": "utc_datetime_usec"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "enum": [
+              "strict",
+              "slide_to_open"
+            ],
+            "name": "posting_date_strategy",
+            "notes": [
+              "strict: post in occurred_at_utc period; slide_to_open: if occurred_at_utc period is closed, roll forward to earliest open period while preserving occurred_at_utc."
+            ],
+            "type": "enum"
+          }
+        ],
+        "identities": [
+          {
+            "keys": [
+              "org_id",
+              "intent_id"
+            ],
+            "name": "org_intent_unique"
+          },
+          {
+            "keys": [
+              "org_id",
+              "ledger_id",
+              "idempotency_key"
+            ],
+            "name": "org_ledger_idempotency_unique"
+          }
+        ],
+        "immutability": "append_only",
+        "name": "LedgerPostingIntent",
+        "purpose": "Append-only intent record describing the semantic posting request (template_id + args + refs) used to generate a LedgerPosting.",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "posting_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "idempotency_key",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "effective_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "posted_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Authoritative occurrence timestamp for the economic event. For refunds, MUST equal TAX-1 CreditNote.issuance_at_utc.",
+            "name": "occurred_at_utc",
+            "required": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "LedgerPeriod id that contains occurred_at_utc at evaluation time. Required when posting_date_strategy='slide_to_open' to preserve source-period linkage.",
+            "name": "origin_period_id",
+            "required": false,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Original tax point timestamp for prior-period linkage (e.g., order finalization tax point). Required for refund/tax-credit postings.",
+            "name": "origin_tax_point_at_utc",
+            "required": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "trace_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "request_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "posting_kind",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "source_domain",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "source_kind",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "source_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "source_external_id",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "source_version",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "source_digest_sha256",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "tax_context_digest_sha256",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "idempotency_payload_hash_sha256",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "currency",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "reverses_posting_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "posting_template_id",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "counterparty_org_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          }
+        ],
+        "identities": [
+          {
+            "keys": [
+              "org_id",
+              "posting_id"
+            ],
+            "name": "org_posting_unique"
+          },
+          {
+            "keys": [
+              "org_id",
+              "ledger_id",
+              "idempotency_key"
+            ],
+            "name": "org_id_ledger_id_idempotency_key"
+          }
+        ],
+        "immutability": "append_only",
+        "name": "LedgerPosting",
+        "purpose": "Append-only posting envelope for a balanced set of LedgerEntry rows.",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "posting_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "entry_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "account_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "currency",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "amount_minor",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "effective_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "ledger_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "debit",
+              "credit"
+            ],
+            "name": "direction",
+            "nullable": false,
+            "type": "atom"
+          },
+          {
+            "name": "memo",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "line_ref",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "counterparty_org_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Optional cross-domain references for audit linkage.",
+            "name": "refs",
+            "nullable": false,
+            "properties": {
+              "refund_id": {
+                "description": "REFUND-1 refund id that originated this posting, if applicable.",
+                "required": false,
+                "type": "uuid_v7"
+              },
+              "tax_credit_note_id": {
+                "description": "TAX-1 CreditNote id for audit linkage.",
+                "required": false,
+                "type": "uuid_v7"
+              }
+            },
+            "type": "object"
+          }
+        ],
+        "identities": [
+          {
+            "keys": [
+              "org_id",
+              "entry_id"
+            ],
+            "name": "org_id_entry_id"
+          },
+          {
+            "keys": [
+              "org_id",
+              "posting_id",
+              "account_id"
+            ],
+            "name": "org_id_posting_id_account_id"
+          }
+        ],
+        "immutability": "append_only",
+        "name": "LedgerEntry",
+        "purpose": "Append-only line item entry associated to a posting.",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "period_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "open",
+              "closing",
+              "closed"
+            ],
+            "name": "state",
+            "nullable": false,
+            "type": "atom"
+          },
+          {
+            "name": "opens_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "closed_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "identities": [
+          {
+            "keys": [
+              "org_id",
+              "ledger_id",
+              "period_id"
+            ],
+            "name": "org_id_ledger_id_period_id"
+          }
+        ],
+        "immutability": "state_machine",
+        "name": "LedgerPeriod",
+        "purpose": "Ledger period state machine for close + reconciliation boundaries.",
+        "state_machine": {
+          "states": [
+            "open",
+            "closing",
+            "closed"
+          ],
+          "transitions": {
+            "closing_to_closed": {
+              "guard": "all postings published"
+            },
+            "idempotent_closed": "closed -> closed allowed",
+            "open_to_closing": {
+              "guard": "period state open"
+            }
+          }
+        },
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "period_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "snapshot_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "snapshot_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "snapshot_hash",
+            "nullable": false,
+            "type": "string"
+          }
+        ],
+        "identities": [
+          {
+            "keys": [
+              "org_id",
+              "snapshot_id"
+            ],
+            "name": "org_id_snapshot_id"
+          },
+          {
+            "keys": [
+              "org_id",
+              "ledger_id",
+              "period_id",
+              "snapshot_at_utc"
+            ],
+            "name": "org_id_ledger_id_period_id_snapshot_at"
+          }
+        ],
+        "immutability": "append_only",
+        "name": "LedgerSnapshot",
+        "purpose": "Immutable snapshot of derived balances at a period boundary.",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "posting_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "acked_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "trace_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "request_id",
+            "nullable": false,
+            "type": "string"
+          }
+        ],
+        "identities": [
+          {
+            "keys": [
+              "org_id",
+              "event_id"
+            ],
+            "name": "org_event_ack"
+          }
+        ],
+        "immutability": "append_only",
+        "name": "LedgerOutboxAck",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "description": "Explicit ledger aggregate identifier; MUST equal aggregate_id for backward compatibility.",
+            "name": "ledger_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Monotonically increasing integer version scoped to (org_id, ledger_id).",
+            "name": "version",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "description": "posting_id for posting events",
+            "name": "aggregate_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_name",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "occurred_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "payload",
+            "nullable": false,
+            "type": "map"
+          },
+          {
+            "name": "trace_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "request_id",
+            "nullable": false,
+            "type": "string"
+          }
+        ],
+        "identities": [
+          {
+            "keys": [
+              "org_id",
+              "event_id"
+            ],
+            "name": "org_id_event_id"
+          },
+          {
+            "keys": [
+              "org_id",
+              "ledger_id",
+              "version"
+            ],
+            "name": "ledger_version"
+          }
+        ],
+        "immutability": "append_only",
+        "name": "LedgerOutboxEvent",
+        "purpose": "Transactional outbox for ledger events; emitted only after commit.",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Current published version cursor for this ledger_id.",
+            "name": "current_version",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "updated_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "identities": [
+          {
+            "keys": [
+              "org_id",
+              "ledger_id"
+            ],
+            "name": "ledger_head"
+          }
+        ],
+        "immutability": {
+          "immutable_fields": [
+            "org_id",
+            "ledger_id"
+          ],
+          "mutable_fields": [
+            "current_version",
+            "updated_at_utc"
+          ]
+        },
+        "name": "LedgerCursor",
+        "purpose": "Atomic state-holder for ledger version sequencing; mints monotonic versions for LedgerOutboxEvent.",
+        "tenant_scoped": true
+      }
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "LED-P0-COA-001",
+      "severity": "P0",
+      "text": "LedgerAccount MUST exist; LedgerEntry.account_id MUST reference an existing LedgerAccount in the same org_id and ledger_id."
+    },
+    {
+      "rule_id": "LED-P0-DOUBLE-ENTRY-001",
+      "severity": "P0",
+      "text": "LedgerEntry MUST include direction=debit|credit and amount_minor MUST be positive. Each LedgerPosting MUST balance: sum(debits)==sum(credits)."
+    },
+    {
+      "rule_id": "LED-P0-HOTPATH-001",
+      "severity": "P0",
+      "text": "Implementations MUST NOT rely on synchronous mutable balance tables for correctness; balances MUST be derived projections (LedgerSnapshot) and may be updated asynchronously."
+    },
+    {
+      "rule_id": "LED-P0-PAYOUT-WINDOW-001",
+      "severity": "P0",
+      "text": "LedgerPeriod.state is the authoritative payout-window state; contracts requiring led_payout_window_state MUST derive from LED-1 LedgerPeriod.state."
+    },
+    {
+      "rule_id": "LED-P0-PERIOD-LOCK-001",
+      "severity": "P0",
+      "text": "Postings with occurred_at_utc within a closed LedgerPeriod MUST be rejected when posting_date_strategy='strict'. When posting_date_strategy='slide_to_open', the posting MUST roll forward to the earliest open period and preserve origin_period_id."
+    },
+    {
+      "rule_id": "LED-P0-PUBLISHED-UNIVERSAL",
+      "severity": "P0",
+      "text": "published(org_id, posting_id) := NOT EXISTS (LedgerOutboxEvent e WHERE e.org_id = org_id AND e.aggregate_id = posting_id AND NOT EXISTS (LedgerOutboxAck a WHERE a.org_id = org_id AND a.event_id = e.event_id AND a.posting_id = posting_id))"
+    },
+    {
+      "rule_id": "LED-P0-RESERVE-001",
+      "severity": "P0",
+      "text": "Disputes/chargebacks/payout holds MUST be represented via explicit reserve accounts and reserve movement postings."
+    },
+    {
+      "rule_id": "LED-P0-REVERSAL-001",
+      "severity": "P0",
+      "text": "Corrections MUST be append-only reversal postings referencing reverses_posting_id with exact negation of original entries."
+    },
+    {
+      "id": "LED_SUPPLIER_OF_RECORD_DEFAULT",
+      "must": "Platform is Supplier-of-Record by default. Tax payable is recorded to platform tax liability accounts. Organizer amounts are recorded as liabilities (organizer payable) owed to counterparty_org_id. LED postings MUST include counterparty_org_id when touching organizer payable or dispute reserve accounts."
+    },
+    {
+      "id": "LED_POSTING_INTENT_ONLY",
+      "must": "External domain services (e.g., ORD-1, PAY-3, REFUND-1) SHALL NOT submit raw ledger legs. They MUST submit PostingIntents referencing a template_id in the allowlist. Direct post_entries is break-glass only."
+    },
+    {
+      "id": "LED_FEE_NON_REFUNDABLE_DEFAULT",
+      "must": "Platform fee revenue is non-refundable by default. Refund postings SHALL default to REFUND_PRIN_ONLY. Full refunds SHALL only be allowed via REFUND_FULL_ABSORBED or an explicitly approved template."
+    },
+    {
+      "id": "LED_EARLY_PAYOUT_BREAK_GLASS",
+      "must": "Early payout release prior to payout_window close MUST use EARLY_RELEASE_MANUAL and MUST include finance_approval_ref and GOV-0 break-glass evidence."
+    },
+    {
+      "id": "LED_DISPUTE_LOST_BANK_FEE_BUCKET",
+      "must": "When resolving a lost dispute with bank_fee_minor, the caller MUST choose DISPUTE_LOST_RESOLVE_PENDING_FEE if the fee is charged against pending funds, otherwise DISPUTE_LOST_RESOLVE_AVAILABLE_FEE. LED SHALL NOT infer the bucket."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "security_posture": {
+    "auth_boundary": "domain_action",
+    "break_glass": {
+      "must": "Templates marked break_glass=true (e.g., EARLY_RELEASE_MANUAL) MUST require GOV-0 break-glass approval. post_entries is also break-glass only.",
+      "reference": "GOV-0"
+    },
+    "data_retention_days": 2555,
+    "pii_fields": []
+  },
+  "semantic_hashing": {
+    "algorithm": "SHA-256 over canonical JSON bytes (UTF-8).",
+    "canonicalization": {
+      "canon_contract_ref": {
+        "doc_id": "CANON-1",
+        "note": "A later strict CANON pass MUST align this canonicalization precisely with CANON-1. Until then, this section is normative for idempotency hashing."
+      },
+      "purpose": "Eliminate drift/hallucinations by making payload hashing deterministic across implementations.",
+      "rules": [
+        "Canonical JSON MUST be produced with object keys sorted lexicographically (Unicode codepoint order).",
+        "Arrays MUST preserve order exactly; callers MUST treat array order as semantically significant.",
+        "Numbers MUST be integers for all *_minor money fields; floating point is forbidden.",
+        "Strings MUST be UTF-8; no escaping differences permitted beyond JSON spec.",
+        "No insignificant whitespace (no pretty printing) in the canonical byte stream.",
+        "All optional fields that are absent MUST be omitted (do not include explicit nulls) unless the contract explicitly says null is meaningful."
+      ]
+    },
+    "field": "LedgerPosting.idempotency_payload_hash_sha256",
+    "idempotency_payload_hash_definition": "SHA-256 over CANON-1 canonical JSON of PostingIntent payload: {template_id, posting_kind, args, refs, source_domain, source_kind, source_id, source_version, source_digest_sha256, tax_context_digest_sha256?}. request_id and trace_id MUST be excluded. The hash MUST cover INTENT, not expanded legs.",
+    "payload_scope": "The semantic payload MUST include posting_kind, currency, effective_at_utc, source_domain/kind/id/version, and all entry lines (account_id, direction, amount_minor, line_ref if present)."
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "Authoritative immutable ledger for the Ticketing platform. Defines chart-of-accounts, balanced double-entry postings, append-only reversal mechanics, period close & payout-window states, reserve/exposure modeling, and deterministic idempotency with semantic payload hashing.\n\nUpdate: Interaction model is intent-based. External domains (ORD-1/PAY-3/REFUND-1) submit PostingIntents referencing a template_id; LED-1 expands to balanced entries using the COA, enforcing fee non-refundability by default and supporting break-glass early release.",
+  "tenancy": {
+    "context_requirements": {
+      "ambient_tenancy_forbidden": true,
+      "domain_actions_must_require": [
+        "org_id",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ]
+    },
+    "leakage_policy": "hide_existence",
+    "strategy": "ash_attribute",
+    "tenant_key": "org_id"
+  },
+  "tier": 2,
+  "title": "LED-1 \u2014 Ledger Core (Immutable Double\u2011Entry + Chart of Accounts)",
+  "version": "4.4.7"
+}

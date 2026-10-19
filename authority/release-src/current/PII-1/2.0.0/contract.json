@@ -1,0 +1,1310 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "PII-1_Contract_v2.0.0.json",
+  "banned_anti_patterns": [
+    {
+      "ban": true,
+      "description": "Raw PII (email, phone, IP) in metric/trace labels; violates cardinality bounds and leaks sensitive data in logs/dashboards.",
+      "enforcement_layer": [
+        "lint",
+        "obs_runtime_validation"
+      ],
+      "id": "AP-PII-RAW-LABELS",
+      "severity": "P0"
+    },
+    {
+      "ban": true,
+      "description": "Plaintext tier_direct PII stored in database or cache; violates encryption rule (PII-1-RULE-001).",
+      "enforcement_layer": [
+        "db_constraint",
+        "lint",
+        "ash_validation"
+      ],
+      "id": "AP-PII-UNENCRYPTED-AT-REST",
+      "severity": "P0"
+    },
+    {
+      "ban": true,
+      "description": "Treating client-provided PII or consent state as authoritative; server MUST re-validate and re-encrypt on every write.",
+      "enforcement_layer": [
+        "application_logic",
+        "ash_validation"
+      ],
+      "id": "AP-PII-CLIENT-TRUTH",
+      "severity": "P0"
+    },
+    {
+      "ban": true,
+      "description": "Application-level tenant filtering instead of PostgreSQL RLS; enables cross-tenant data leakage via SQL injection or logic bugs.",
+      "enforcement_layer": [
+        "postgres_rls",
+        "ash_policy",
+        "ci_gate"
+      ],
+      "id": "AP-PII-CROSS-TENANT-LEAK",
+      "severity": "P0"
+    },
+    {
+      "ban": true,
+      "description": "Retaining tier_direct PII beyond DATA-1 baseline (90 days operational) without explicit legal justification and audit trail.",
+      "enforcement_layer": [
+        "data_retention_job",
+        "compliance_audit"
+      ],
+      "id": "AP-PII-LONG-RETENTION",
+      "severity": "P0"
+    },
+    {
+      "ban": true,
+      "description": "Using raw device_id or IP address for cross-session user tracking without consent; violates GDPR legitimate interest test.",
+      "enforcement_layer": [
+        "consent1_check",
+        "application_logic"
+      ],
+      "id": "AP-PII-NO-FINGERPRINTING",
+      "severity": "P0"
+    },
+    {
+      "ban": true,
+      "description": "Aggregating PII across tenants (org_id) without explicit superadmin authorization; enables cross-org profiling.",
+      "enforcement_layer": [
+        "ash_policy",
+        "postgres_rls"
+      ],
+      "id": "AP-PII-IMPLICIT-AGGREGATION",
+      "severity": "P0"
+    }
+  ],
+  "canonical": false,
+  "changelog": [
+    {
+      "version": "1.1.2",
+      "date": "2026-06-03T15:30:00Z",
+      "changes": [
+        "Split subject_key semantics: subject_key is now an opaque UUIDv7 issued by PII-1 and MUST NOT be derived from direct or quasi identifiers.",
+        "Added subject_lookup_key_hash as a vault-only deterministic HMAC-SHA256 lookup/upsert key that MUST NOT be emitted outside PII-1.",
+        "Clarified that PII-1 remains a non-producer contract: PII writes append-only audit records; DSAR-1 owns formal DSAR lifecycle/outbox events.",
+        "Removed orphaned EVT-1 dependency floor from PII-1 because PII-1 remains non-producer.",
+        "Normalized PII capability names to dot-scoped names pending IAM-1 alignment.",
+        "Banned subject_key and subject_lookup_key_hash from metrics, traces, logs, analytics dimensions, vendor payloads, COMM/NOTIF/TRK/BI/API payloads, and external API payloads."
+      ]
+    },
+    {
+      "changes": [
+        "Lock subject_key as generated UUIDv7 (NOT derived from direct PII) to enforce vault exclusivity and org-scoped DSAR.",
+        "Clarify encryption hierarchy: per-subject envelope keys wrapped by per-org tenant KMS key; DSAR cryptoshred destroys envelope keys.",
+        "Align DSAR capability references with IAM-1.",
+        "Normalize suite_schema to CS-0@2.2.0."
+      ],
+      "date_utc": "2026-01-21",
+      "version": "1.0.3"
+    },
+    {
+      "changes": [
+        "Lock joinable identifiers as pseudonymous PII to prevent re-identification via join keys in exports/BI/telemetry.",
+        "Add PII->DATA-1 classification interop mapping (c0..c4) and export ceiling rules.",
+        "Expand PII field registry with common joinable identifiers.",
+        "Align dependency minimum versions to current suite baseline where known."
+      ],
+      "date_utc": "2026-01-29",
+      "version": "1.1.0"
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "BP-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Blueprint baseline patterns and anti-pattern bans."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Suite schema source of truth for contract-suite/1.0, test-gates/1.0, bundle-manifest/1.0."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Test-gates schema + authoring constraints for CI strict."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "requires",
+      "min_version": "1.6.0",
+      "reason": "Constitutional invariants: immutability boundaries, truth preservation, and platform-wide constraints."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.4",
+      "reason": "Multi-tenancy: org_id sealing, hide-existence semantics, and cross-tenant prohibition."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.1.0",
+      "reason": "Capability-based authorization model for PII access, export, and break-glass. (includes DSAR/PII capabilities and support roles)."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.0.7",
+      "reason": "Encryption/key management expectations required for PII vault and cryptoshred semantics."
+    },
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "requires",
+      "min_version": "1.2.1",
+      "reason": "Classification tiers + minimization/redaction posture; retention class mapping."
+    },
+    {
+      "doc_id": "ARCH-1",
+      "edge_type": "requires",
+      "min_version": "3.0.1",
+      "reason": "Retention, archival, and destruction semantics; DSAR execution evidence expectations."
+    },
+    {
+      "doc_id": "CONSENT-1",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "Consent categories and withdrawal semantics that constrain identity mapping/linking."
+    },
+    {
+      "doc_id": "TRK-1",
+      "edge_type": "requires",
+      "min_version": "1.3.1",
+      "reason": "Tracking schema and payload constraints: PII-1 imposes hard MUST NOT rules on TRK events."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "4.1.1",
+      "reason": "Immutable ledger boundary: cryptoshred MUST NOT mutate postings or financial truth."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.3.3",
+      "reason": "Immutable order truth boundary: snapshots MUST NOT be mutated by DSAR/consent actions."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.0.15",
+      "reason": "Immutable price snapshot boundary: cryptoshred MUST NOT alter historical pricing truth."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.6",
+      "reason": "PII access anomaly monitoring expectations; detection and evidence posture."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.10",
+      "reason": "Canonical error envelope and subcode conventions for privacy/PII errors."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "requires",
+      "min_version": "1.7.0",
+      "reason": "Enforce anti-differencing controls for aggregate analytics surfaces (query normalization, caching windows, and rate limiting)."
+    }
+  ],
+  "dependency_floors": {},
+  "doc_id": "PII-1",
+  "domain_sections": {
+    "access_control": {
+      "audit_reason_registry": {
+        "allowed_reasons": [
+          "customer_support_case",
+          "fraud_investigation",
+          "legal_compliance",
+          "security_incident_response",
+          "dsar_fulfillment",
+          "billing_dispute"
+        ],
+        "must_be_one_of_allowed_reasons": true
+      },
+      "audit_requirements": {
+        "append_only": true,
+        "reason_codes": [
+          "support_request",
+          "security_incident",
+          "fraud_investigation",
+          "legal_request",
+          "dsar_request",
+          "system_migration"
+        ]
+      },
+      "capability_model": {
+        "iam_capabilities_required": [
+          "pii.read",
+          "pii.export",
+          "pii.drilldown",
+          "pii.mapping.write",
+          "pii.cryptoshred.execute",
+          "pii.break_glass"
+        ]
+      }
+    },
+    "anonymization_threshold": {
+      "applies_to_outputs": [
+        "counts",
+        "percentages",
+        "averages",
+        "time_series",
+        "breakdowns"
+      ],
+      "complementary_suppression": {
+        "applies_to": [
+          "breakdowns",
+          "cross_tabs"
+        ],
+        "enabled": true,
+        "method": "suppress_additional_cell_when_any_cell_suppressed",
+        "rule": "When any cell in a breakdown is suppressed due to min_population_size, the system MUST suppress at least one additional cell to prevent reconstruction by subtraction."
+      },
+      "min_population_size": 5,
+      "must_not_display_below_threshold": true,
+      "notes": "This rule prevents singling-out / inference re-identification in pseudonymous analytics.",
+      "override_policy": {
+        "allowed_only_via": "pii_export_job",
+        "requires_audit_reason": true,
+        "requires_capability": "pii.export"
+      },
+      "required_behavior_below_threshold": "return_insufficient_population",
+      "rule_id": "anonymization_min_population_size",
+      "statement": "Aggregated analytics outputs SHALL NOT be displayed when underlying population size is less than min_population_size unless access is capability-gated as PII export.",
+      "totals_handling": {
+        "options_allowed": [
+          "suppress_totals_when_any_cell_suppressed",
+          "exclude_suppressed_cells_from_totals_and_mark_total_as_partial"
+        ],
+        "rule": "Totals MUST NOT enable reconstruction of suppressed cells."
+      }
+    },
+    "anti_differencing_controls": {
+      "evidence": "Audit logs MUST record canonical_query_key, time_bucket, cache_hit, suppression_applied, and override_used.",
+      "parameters": {
+        "cache_window_seconds": 86400,
+        "max_distinct_queries_per_hour": 30,
+        "max_total_queries_per_hour": 120,
+        "min_population_size": 5,
+        "minimum_time_bucket": "day"
+      },
+      "purpose": "Prevent re-identification via differencing attacks against anonymized/aggregate analytics.",
+      "requirements": [
+        "Analytics query surfaces SHALL enforce query_normalization so semantically-equivalent queries map to a canonical cache key.",
+        "Analytics query surfaces SHALL enforce minimum_time_bucket='day' for time-series breakdowns.",
+        "Analytics query surfaces SHALL enforce cache_window_seconds=86400 for aggregate query results (>=1 day).",
+        "Analytics query surfaces SHALL enforce per_actor_rate_limits: max_total_queries_per_hour=120 and max_distinct_queries_per_hour=30 per actor per org_id.",
+        "Any override of suppression or bucket controls MUST be export-only (no UI display) and MUST require pii.export capability with mandatory audit reason."
+      ]
+    },
+    "consent_interaction": {
+      "consent_does_not_override_retention": "Consent withdrawal does NOT extend retention beyond DATA-1 baseline (90 days operational); PII deleted at earlier of (consent_withdrawal + 30d, retention_expiry)",
+      "consent_proof_integrity": "Consent records are append-only per ARCH-1; DSAR deletion MUST NOT mutate consent_records table; consent metadata preserved for audit",
+      "consent_withdrawal_to_deletion": "When consent withdrawn for purpose X, raw PII used exclusively for purpose X MUST be scheduled for DSAR deletion within 30 days unless legal retention exception applies (LED-1, ORD-1)",
+      "description": "Integration with CONSENT-1 for consent-driven PII lifecycle",
+      "dsar_legal_obligation_override": {
+        "requirements": [
+          "Operation MUST require IAM capability dsar.process (or dsar.export/dsar.cryptoshred depending on action).",
+          "Operation MUST record audit entry with bounded reason code dsar_legal_obligation and evidence refs (non-PII)."
+        ],
+        "requires_capabilities": [
+          "dsar.approve_org (or dsar.approve_platform for platform-wide)",
+          "dsar.execute (system)"
+        ],
+        "statement": "Consent state MUST NOT gate DSAR operations; DSAR lawful basis is legal obligation."
+      },
+      "most_restrictive_wins": "If user privacy_mode is 'eu_strict', PII collection MUST be minimized even if consent granted; collect only fields required for transactional necessity"
+    },
+    "cryptoshred": {
+      "definition": "Cryptoshred SHALL destroy the cryptographic material and mapping records required to link subject_key to any real-world identity, without mutating immutable facts.",
+      "evidence_required": {
+        "append_only_audit_required": true
+      },
+      "immutability_boundaries": {
+        "led_postings_must_not_mutate": true
+      }
+    },
+    "data_subject_rights_tooling": {
+      "deletion_workflow": {
+        "authorization": "IAM-1 actor with DSAR permission or superadmin",
+        "deletion_method": "Cryptoshred: destroy the subject identity mapping keys and any PII field-level envelope keys, rendering vault ciphertext permanently unlinkable; schedule purge of redundant ciphertext blobs per ARCH-1/DATA-1.",
+        "description": "GDPR Article 17 / POPIA Section 24: Right to erasure",
+        "error_handling": "ERR-PII-007 if subject not found (hide-existence); ERR-PII-010 if timeline breached",
+        "exceptions": [
+          "LED-1 ledger postings (legal retention)",
+          "ORD-1 price snapshots (contractual retention)",
+          "Audit trail metadata (who/when/why but not PII content)"
+        ],
+        "ledger_preservation": "DSAR deletion MUST NOT mutate LED-1 postings; financial records remain immutable per ARCH-1",
+        "recovery": "No recovery after cryptoshred execution; DSAR cancellation is only allowed before execution completes.",
+        "scope": "Single org_id only; cascade to all PII records but preserve audit trail metadata",
+        "telemetry_handling": "TRK-1 raw behavioral events tied to subject_key/session_key SHALL be deleted OR transformed to anonymous (no subject_key/session_key) while preserving only aggregate analytics subjectless outputs.",
+        "timeline": "within 30 days per GDPR/POPIA"
+      },
+      "dsar_audit_trail": {
+        "description": "PII-1 does not produce formal DSAR lifecycle/outbox events. PII-1 writes append-only vault audit records consumed by DSAR-1. DSAR-1 owns DSAR requested/completed/failed lifecycle events and EVT registry integration.",
+        "formal_event_owner": "DSAR-1",
+        "pii_1_emits_events": false,
+        "events": [],
+        "audit_records": [
+          "pii.vault_access_record",
+          "pii.cryptoshred_evidence_record",
+          "pii.mapping_lookup_record"
+        ],
+        "retention": "7 years minimum for regulatory audit via ARCH-1/DATA-1"
+      },
+      "export_workflow": {
+        "authorization": "IAM-1 actor with DSAR permission or superadmin",
+        "description": "GDPR Article 15 / POPIA Section 23: Data subject access request",
+        "error_handling": "ERR-DSAR-TIMEOUT if export takes >30 days; ERR-PII-006 if cross-tenant access attempted",
+        "excluded_data": [
+          "Other users' data in same org",
+          "Ledger postings (LED-1 immutable)",
+          "Order price snapshots (ORD-1 immutable)"
+        ],
+        "format": "JSON or CSV structured export",
+        "included_data": [
+          "All tier_direct PII (decrypted)",
+          "Consent records",
+          "Audit trail of PII access",
+          "Pseudonymization mappings (subject_key → email hash)"
+        ],
+        "scope": "Single org_id only; no cross-tenant data leakage",
+        "timeline": "within 30 days per GDPR/POPIA"
+      },
+      "portability_workflow": {
+        "authorization": "IAM-1 actor with DSAR permission or superadmin",
+        "description": "GDPR Article 20: Right to data portability",
+        "error_handling": "ERR-DSAR-TIMEOUT if export takes >30 days",
+        "format": "Machine-readable JSON with schema documentation",
+        "scope": "User-provided data only (name, email, phone, consent records); excludes derived analytics or inferred data",
+        "timeline": "within 30 days per GDPR/POPIA"
+      }
+    },
+    "observability_cardinality_rules": {
+      "description": "Prevents PII leakage via high-cardinality metric labels and trace attributes",
+      "no_raw_pii_in_labels": {
+        "allowed_labels": [
+          "org_id",
+          "event_type",
+          "result",
+          "error_code",
+          "pii_tier"
+        ],
+        "cardinality_limit": "Subject-level identifiers are forbidden regardless of cardinality; allowed labels must remain operational and non-subject.",
+        "enforcement_mechanism": "OBS-1 metric aggregation MUST reject labels not in allowed_labels list; runtime validation required",
+        "forbidden_labels": [
+          "actor_id",
+          "customer_id",
+          "customer_phone",
+          "device_id",
+          "full_user_agent",
+          "ip_address",
+          "membership_id",
+          "name",
+          "postal_code",
+          "session_key",
+          "subject_key",
+          "subject_lookup_key_hash",
+          "user_email",
+          "user_id"
+        ]
+      },
+      "trace_attributes": {
+        "allowed_attributes": [
+          "org_id",
+          "request_id",
+          "trace_id",
+          "correlation_id",
+          "incident_id",
+          "dsar_request_id",
+          "export_job_id",
+          "audit_event_id",
+          "job_id",
+          "error_code"
+        ],
+        "forbidden_attributes": [
+          "actor_id",
+          "customer_id",
+          "email",
+          "ip_address",
+          "membership_id",
+          "phone",
+          "session_key",
+          "subject_key",
+          "subject_lookup_key_hash",
+          "user_agent",
+          "user_id"
+        ],
+        "sampling": "Parent-based head sampling; PII-heavy traces MUST be tail-sampled at ≤1% if org_id cardinality >1000"
+      },
+      "subject_identifier_observability_ban": {
+        "subject_key_forbidden_everywhere": true,
+        "subject_lookup_key_hash_forbidden_everywhere": true,
+        "statement": "subject_key and subject_lookup_key_hash MUST NOT appear in metric labels, trace attributes, log fields, analytics dimensions, BI dimensions, vendor payloads, COMM/NOTIF/TRK/BI/API payloads, or external API payloads."
+      }
+    },
+    "pii_classification_taxonomy": {
+      "class_ids": [
+        "pii_direct",
+        "pii_sensitive",
+        "pseudonymous",
+        "anonymous",
+        "aggregate"
+      ],
+      "classes": [
+        {
+          "class_id": "pii_direct",
+          "description": "Direct identifiers that can identify a natural person without additional data (or with minimal effort).",
+          "examples": [
+            "email",
+            "phone_e164",
+            "gov_id",
+            "full_name_with_contact",
+            "street_address",
+            "passport_number"
+          ],
+          "storage_rules": {
+            "allowed_locations": [
+              "pii_vault_only"
+            ],
+            "encryption_at_rest": "must",
+            "encryption_in_transit": "must",
+            "forbidden_locations": [
+              "tracking_events",
+              "bi_read_models",
+              "logs",
+              "ledger_postings",
+              "order_snapshots",
+              "price_snapshots"
+            ]
+          }
+        },
+        {
+          "class_id": "pii_sensitive",
+          "description": "Special category or highly sensitive personal data; handling requires explicit consent category and additional controls.",
+          "examples": [
+            "biometric_template",
+            "health_information",
+            "religion",
+            "political_opinion",
+            "union_membership"
+          ],
+          "storage_rules": {
+            "additional_controls": [
+              "explicit_consent_required",
+              "break_glass_required_for_access"
+            ],
+            "allowed_locations": [
+              "pii_vault_only"
+            ],
+            "encryption_at_rest": "must",
+            "encryption_in_transit": "must",
+            "forbidden_locations": [
+              "tracking_events",
+              "bi_read_models",
+              "logs",
+              "ledger_postings",
+              "order_snapshots",
+              "price_snapshots"
+            ]
+          }
+        },
+        {
+          "class_id": "pseudonymous",
+          "description": "Identifiers that do not directly identify a person but can be linked back through controlled mappings.",
+          "examples": [
+            "subject_key",
+            "session_key",
+            "device_key"
+          ],
+          "storage_rules": {
+            "allowed_locations": [
+              "tracking_events",
+              "bi_read_models",
+              "domain_records"
+            ],
+            "forbidden_locations": [
+              "logs_with_raw_values"
+            ],
+            "linkability": "must_be_destroyable_by_cryptoshred"
+          }
+        },
+        {
+          "class_id": "anonymous",
+          "description": "Data that cannot reasonably be linked to a person by the platform after enforced minimization and thresholding.",
+          "examples": [
+            "page_view_count_by_day",
+            "ticket_sales_by_event_bucketed"
+          ],
+          "storage_rules": {
+            "allowed_locations": [
+              "tracking_events",
+              "bi_read_models"
+            ],
+            "requirements": [
+              "anonymization_threshold_enforced",
+              "no_singling_out"
+            ]
+          }
+        },
+        {
+          "class_id": "aggregate",
+          "description": "Aggregated statistics computed over populations where singling-out is prevented by thresholding and bucketing.",
+          "examples": [
+            "conversion_rate_by_channel",
+            "avg_order_value_by_week"
+          ],
+          "storage_rules": {
+            "allowed_locations": [
+              "bi_read_models"
+            ],
+            "requirements": [
+              "min_population_size_threshold",
+              "bucket_or_suppress_small_cells"
+            ]
+          }
+        }
+      ],
+      "classification_tiers": {
+        "tier_direct": {
+          "description": "Directly identifies an individual (name, email, phone, national ID, biometric data).",
+          "retention_policy": "90 days operational baseline per DATA-1; archive post-90d with continued encryption; delete on DSAR or 7-year maximum.",
+          "storage_policy": "AES-256-GCM encrypted at rest with KMS-managed per-tenant keys; quarterly key rotation mandatory.",
+          "transmission_policy": "TLS 1.2+ only; no plaintext logging; hash with SHA-256 if logging required for debugging."
+        },
+        "tier_non_identifying": {
+          "description": "Aggregated or anonymized data that cannot re-identify individuals (aggregate counts, percentile distributions).",
+          "retention_policy": "Indefinite retention permitted; no DSAR deletion obligation.",
+          "storage_policy": "No encryption required; plaintext storage permitted.",
+          "transmission_policy": "Standard HTTPS; permitted in public analytics and reporting."
+        },
+        "tier_pseudonymous": {
+          "description": "Stable pseudonymous identifier issued by the PII boundary (subject_key uuid_v7, session_key UUIDv7). Not derived from direct identifiers.",
+          "retention_policy": "Subject keys: 7 years for audit trail; session keys: 90 days operational.",
+          "storage_policy": "Plaintext storage permitted only inside approved domain/vault records where needed for joins; subject_key immutable after issuance within org_id; session_key ephemeral; subject_lookup_key_hash is vault-only.",
+          "transmission_policy": "TLS 1.2+ inside authorized service boundaries only; subject_key MUST NOT be used in telemetry/observability labels, traces, logs, analytics dimensions, vendor payloads, or external API payloads."
+        },
+        "tier_quasi_id": {
+          "description": "Can identify individual when combined with other data (IP address, user agent, postal code, age bucket, device ID).",
+          "retention_policy": "Hashed values: 90 days operational; raw values: never persisted beyond request lifecycle.",
+          "storage_policy": "Hashed with daily-rotated salt from KMS; raw value NOT persisted; hash algorithm SHA-256 or BLAKE3.",
+          "transmission_policy": "TLS 1.2+; hashed value only in logs and telemetry; raw value ephemeral (request-scoped only)."
+        }
+      },
+      "data_class_interop": {
+        "data_class_system": {
+          "doc_id": "DATA-1",
+          "min_version": "1.2.1"
+        },
+        "export_ceiling_rules": [
+          {
+            "rule_id": "PII-1-XPORT-CEIL-001",
+            "statement": "Any export payload containing any field classified as pii_direct or pseudonymous MUST be treated as at least DATA-1 class c3 (restricted_pii)."
+          },
+          {
+            "rule_id": "PII-1-XPORT-CEIL-002",
+            "statement": "Any export payload containing any field classified as pii_sensitive MUST be treated as DATA-1 class c4 (regulated_high_risk)."
+          },
+          {
+            "rule_id": "PII-1-XPORT-CEIL-003",
+            "statement": "Exports treated as DATA-1 class c2 or lower MUST NOT contain joinable identifiers (per joinable_identifier_policy) and MUST NOT contain any direct identifiers."
+          }
+        ],
+        "pii_class_to_data_class_default": [
+          {
+            "data_class_id": "c3",
+            "pii_class_id": "pii_direct",
+            "rationale": "Direct identifiers are restricted PII."
+          },
+          {
+            "data_class_id": "c3",
+            "pii_class_id": "pseudonymous",
+            "rationale": "Joinable identifiers enable re-identification through controlled mappings."
+          },
+          {
+            "data_class_id": "c4",
+            "pii_class_id": "pii_sensitive",
+            "rationale": "Special-category or regulated personal data is high-risk."
+          },
+          {
+            "data_class_id": "c2",
+            "pii_class_id": "anonymous",
+            "rationale": "Non-identifying but confidential/internal by default."
+          },
+          {
+            "data_class_id": "c2",
+            "pii_class_id": "aggregate",
+            "rationale": "Aggregates can be confidential; anti-differencing controls apply."
+          }
+        ]
+      },
+      "description": "Four-tier classification system for personal data fields with mandatory storage, transmission, and retention policies per GDPR/POPIA standards.",
+      "field_ids": [
+        "email",
+        "phone_e164",
+        "gov_id",
+        "full_name",
+        "street_address",
+        "subject_key",
+        "session_key",
+        "ip_address",
+        "user_agent",
+        "event_count_aggregate"
+      ],
+      "field_registry": [
+        {
+          "class_id": "pii_direct",
+          "field_id": "email"
+        },
+        {
+          "class_id": "pii_direct",
+          "field_id": "phone_e164"
+        },
+        {
+          "class_id": "pii_direct",
+          "field_id": "full_name"
+        },
+        {
+          "class_id": "pii_direct",
+          "field_id": "street_address"
+        },
+        {
+          "class_id": "pii_direct",
+          "field_id": "gov_id"
+        },
+        {
+          "class_id": "pseudonymous",
+          "field_id": "subject_key"
+        },
+        {
+          "class_id": "pseudonymous",
+          "field_id": "session_key"
+        },
+        {
+          "class_id": "pii_direct",
+          "field_id": "ip_address"
+        },
+        {
+          "class_id": "pseudonymous",
+          "field_id": "user_id"
+        },
+        {
+          "class_id": "pseudonymous",
+          "field_id": "actor_id"
+        },
+        {
+          "class_id": "pseudonymous",
+          "field_id": "attendee_id"
+        },
+        {
+          "class_id": "pseudonymous",
+          "field_id": "order_id"
+        },
+        {
+          "class_id": "pseudonymous",
+          "field_id": "membership_id"
+        },
+        {
+          "class_id": "pseudonymous",
+          "field_id": "customer_id"
+        },
+        {
+          "class_id": "pseudonymous",
+          "field_id": "user_agent"
+        },
+        {
+          "class_id": "aggregate",
+          "field_id": "event_count_aggregate"
+        }
+      ],
+      "joinable_identifier_policy": {
+        "classification_rule": "If a field_id matches explicit_field_ids or any field_id_patterns and is not in exempt_field_ids, it MUST be classified at least as pseudonymous.",
+        "default_class_id": "pseudonymous",
+        "definition": "A joinable identifier is any identifier that can be used (directly or via stable joins) to resolve, infer, or retrieve a natural person within the platform boundary (including via orders, memberships, attendees, or identity mappings).",
+        "exempt_field_ids": [
+          "org_id",
+          "event_id",
+          "occurrence_id",
+          "venue_id",
+          "product_id",
+          "price_id",
+          "seat_id",
+          "section_id",
+          "category_id"
+        ],
+        "explicit_field_ids": [
+          "user_id",
+          "actor_id",
+          "attendee_id",
+          "order_id",
+          "membership_id",
+          "customer_id",
+          "subject_key",
+          "session_key"
+        ],
+        "export_minimum_data_class": "c3",
+        "field_id_patterns": [
+          "^(user_id|actor_id|attendee_id|order_id|membership_id|customer_id|purchaser_id)$",
+          "^(subject_key|session_key|subject_id)$"
+        ],
+        "notes": [
+          "Conservative by design: treat join keys as PII for exports even when they are not direct identifiers.",
+          "Exemptions cover non-person entity identifiers that are not resolvable to a natural person without additional data."
+        ]
+      }
+    },
+    "pseudonymization_standards": {
+      "hashed_quasi_id_derivation": {
+        "algorithm": "SHA-256 (or BLAKE3 for performance)",
+        "input": "raw_value (IP, user_agent, device_id) || daily_salt",
+        "output": "Hex-encoded hash (64 characters for SHA-256)",
+        "retention": "Hashed value: 90 days operational; raw value: never persisted beyond request scope",
+        "salt_source": "KMS-managed daily salt rotated at 00:00 UTC; per-tenant"
+      },
+      "session_key_derivation": {
+        "algorithm": "random UUIDv7 generation",
+        "input": "timestamp + random entropy",
+        "non_deterministic": true,
+        "notes": "Session keys are NOT reversible to user identity; used for session tracking only",
+        "renewal": "per-session; expires on logout or session timeout (24 hours max)"
+      },
+      "subject_key_derivation": {
+        "algorithm": "opaque UUIDv7 generated by PII-1",
+        "input": "PII-1 generated entropy and UUIDv7 timestamp component only; MUST NOT include email, phone, name, IP address, device id, order id, membership id, actor id, user id, provider id, tracking id, or any direct/quasi identifier",
+        "deterministic": false,
+        "tenant_scope": "stable for the issued subject within org_id after creation",
+        "exposure_rule": "subject_key is a pseudonymous join identifier and MUST NOT be emitted to metrics, traces, logs, analytics dimensions, vendor payloads, COMM/NOTIF/TRK/BI/API payloads, or external API payloads",
+        "must_not_be_derived_from_direct_identifiers": true
+      },
+      "subject_lookup_key_hash_derivation": {
+        "algorithm": "HMAC-SHA256",
+        "input": "normalized_identifier || org_id || identifier_kind || normalizer_version",
+        "key": "versioned secret pepper owned by SEC-1 and accessible only inside the PII vault boundary",
+        "output": "vault-confined binary/hash value used only for deterministic lookup/upsert",
+        "tenant_bound": true,
+        "versioned_secret_pepper_required": true,
+        "normalizer_version_required": true,
+        "vault_only": true,
+        "must_not_be_emitted_outside_pii_1": true,
+        "forbidden_locations": [
+          "events",
+          "logs",
+          "metrics",
+          "traces",
+          "analytics",
+          "COMM-1 payloads",
+          "NOTIF-1 payloads",
+          "TRK-1 payloads",
+          "BI-1 read models",
+          "API-0/EXT-1 responses",
+          "vendor payloads"
+        ]
+      }
+    },
+    "rules_and_invariants": {
+      "invariants": [
+        {
+          "inv_id": "PII-1-INV-001",
+          "severity": "P0",
+          "statement": "A tier_direct PII field MUST never be stored unencrypted at rest; encrypted_at_rest constraint is constitutional (cannot be waived)."
+        },
+        {
+          "inv_id": "PII-1-INV-002",
+          "severity": "P0",
+          "statement": "An org_id value MUST be immutable once a PII record is created; no org_id modification allowed (TEN-1 invariant)."
+        },
+        {
+          "inv_id": "PII-1-INV-003",
+          "severity": "P0",
+          "statement": "A query for PII MUST filter by org_id via PostgreSQL RLS; no application-only filtering is acceptable (security-by-database, not security-by-application)."
+        },
+        {
+          "inv_id": "PII-1-INV-004",
+          "severity": "P0",
+          "statement": "subject_key MUST be an opaque UUIDv7 generated by PII-1 and MUST remain stable for the subject within org_id after issuance. subject_key MUST NOT be derived from direct identifiers, quasi-identifiers, tracking identifiers, analytics identifiers, provider identifiers, or any deterministic hash of those identifiers. Deterministic re-identification or idempotent lookup MUST use a separate vault-confined subject_lookup_key_hash."
+        },
+        {
+          "inv_id": "PII-1-INV-005",
+          "severity": "P0",
+          "statement": "A DSAR request MUST be honored within 30 days; timeline breach is regulatory non-compliance (GDPR fines up to 4% global revenue)."
+        },
+        {
+          "inv_id": "PII-1-INV-006",
+          "severity": "P0",
+          "statement": "A consent withdrawal or DSAR deletion MUST NOT mutate transactional truth (LED-1 ledger postings, ORD-1 price snapshots); consent and PII are metadata only, never authoritative for revenue recognition."
+        },
+        {
+          "inv_id": "PII-1-INV-007",
+          "severity": "P0",
+          "statement": "An encryption key rotation MUST be auditable; old keys MUST be retained for historical decryption; no key destruction without 7-year retention minimum and DPO approval."
+        },
+        {
+          "inv_id": "PII-1-INV-008",
+          "severity": "P0",
+          "statement": "Aggregated outputs (counts, averages, percentages, breakdowns) MUST NOT be displayed when the underlying population size is below the anonymization threshold (k=5) unless access is capability-gated as a PII export job with audit evidence."
+        },
+        {
+          "inv_id": "PII-1-INV-009",
+          "severity": "P0",
+          "statement": "Direct identifiers (pii_direct) MUST live only in the PII vault. Direct identifiers MUST NOT appear in tracking payloads, analytics read models, logs, immutable ledger postings, or order/price snapshots."
+        },
+        {
+          "id": "pii_dsar_consent_override_legal_obligation",
+          "rationale": "Privacy law obligations require DSAR fulfillment irrespective of marketing/analytics consent. Blocking DSAR on consent would create regulatory and operational risk.",
+          "scope": "org_id scoped; platform-wide DSAR requires platform capability + explicit multi-org scope.",
+          "statement": "DSAR processing (identity verification, export, and cryptoshred) SHALL NOT be blocked by consent state; DSAR operates under legal obligation and MUST be permitted only with explicit IAM capability and append-only audit evidence."
+        },
+        {
+          "id": "pii_1_inv_anonymization_threshold_min_population_size",
+          "rule": "Aggregate analytics MUST NOT display any cell with population count < 5 (min_population_size).",
+          "severity": "p0"
+        },
+        {
+          "id": "pii_1_inv_complementary_suppression",
+          "new_proposed_invariant": true,
+          "rule": "If any cell is suppressed for k-anonymity, complementary suppression MUST be applied to prevent reconstruction by differencing.",
+          "severity": "p0"
+        },
+        {
+          "id": "pii_1_inv_min_time_bucket_day",
+          "new_proposed_invariant": true,
+          "rule": "Time-series analytics MUST use minimum time bucket of day for breakdowns to reduce re-identification risk.",
+          "severity": "p0"
+        },
+        {
+          "id": "pii_1_inv_query_cache_and_rate_limits",
+          "new_proposed_invariant": true,
+          "rule": "Aggregate analytics MUST implement query normalization, caching (>=86400s), and per-actor rate limits to reduce differencing attack surface.",
+          "severity": "p0"
+        },
+        {
+          "id": "pii_1_inv_joinable_ids_pseudonymous",
+          "new_proposed_invariant": true,
+          "rule": "A joinable identifier MUST be classified at least as pseudonymous PII and MUST be treated as DATA-1 class c3 (restricted_pii) for exports/BI/telemetry payload classification.",
+          "severity": "p0"
+        },
+        {
+          "id": "pii_1_inv_sensitive_implies_c4",
+          "new_proposed_invariant": true,
+          "rule": "Any payload containing pii_sensitive fields MUST be classified as DATA-1 class c4 (regulated_high_risk) and MUST require regulated export capability + audit logging.",
+          "severity": "p0"
+        }
+      ],
+      "rules": [
+        {
+          "description": "All tier_direct PII MUST be encrypted at rest with AES-256-GCM; no plaintext storage permitted except for exceptions (org_id, record_id, timestamps, pseudonymous keys).",
+          "enforcement_layer": [
+            "db_constraint",
+            "ash_validation",
+            "ci_lint"
+          ],
+          "rule_id": "PII-1-RULE-001",
+          "severity": "P0"
+        },
+        {
+          "description": "PII records MUST be tenant-sealed via org_id immutability and PostgreSQL RLS; no application-level tenant filtering permitted.",
+          "enforcement_layer": [
+            "postgres_rls",
+            "ash_policy",
+            "ci_gate"
+          ],
+          "rule_id": "PII-1-RULE-002",
+          "severity": "P0"
+        },
+        {
+          "description": "Cross-tenant PII access attempts MUST be rejected at database layer with ERR-NOT-FOUND (hide-existence per TEN-1); never ERR-FORBIDDEN which leaks existence.",
+          "enforcement_layer": [
+            "postgres_rls",
+            "ash_policy"
+          ],
+          "rule_id": "PII-1-RULE-003",
+          "severity": "P0"
+        },
+        {
+          "description": "Pseudonymized join identifiers exposed outside the vault MUST be opaque identifiers issued by PII-1. Deterministic lookup hashes MAY exist only inside the PII vault and MUST be HMAC-SHA256 based, tenant-bound, normalizer-versioned, secret-peppered, and never emitted outside PII-1.",
+          "enforcement_layer": [
+            "pii_vault_boundary",
+            "ash_validation",
+            "ci_gate"
+          ],
+          "rule_id": "PII-1-RULE-004",
+          "severity": "P0"
+        },
+        {
+          "description": "Data subject rights (export, deletion, portability) MUST be executed within 30 days per GDPR Article 15-20 / POPIA Section 23-24; timeline breach is non-compliance.",
+          "enforcement_layer": [
+            "application_logic",
+            "dsar_workflow",
+            "alert"
+          ],
+          "rule_id": "PII-1-RULE-005",
+          "severity": "P0"
+        },
+        {
+          "description": "Encryption keys MUST be rotated quarterly (every 90 days); old keys retained for decryption of historical records with 7-year retention minimum; key destruction requires DPO approval.",
+          "enforcement_layer": [
+            "kms_policy",
+            "ops_runbook"
+          ],
+          "rule_id": "PII-1-RULE-006",
+          "severity": "P0"
+        },
+        {
+          "description": "Raw PII and subject-level identifiers, including subject_key and subject_lookup_key_hash, MUST NOT appear in metric labels, trace attributes, log fields, analytics dimensions, vendor payloads, COMM/NOTIF/TRK/BI/API payloads, or external API payloads.",
+          "enforcement_layer": [
+            "obs_validation",
+            "trk1_schema",
+            "ci_lint"
+          ],
+          "rule_id": "PII-1-RULE-007",
+          "severity": "P0"
+        },
+        {
+          "description": "PII-1 MUST NOT emit formal domain outbox events. PII modifications, encryption operations, pseudonymization actions, and DSAR support actions MUST write append-only PII audit records; DSAR-1 owns formal DSAR lifecycle/outbox events.",
+          "enforcement_layer": [
+            "application_logic",
+            "evt1_outbox"
+          ],
+          "rule_id": "PII-1-RULE-008",
+          "severity": "P0"
+        }
+      ]
+    },
+    "storage_encryption_rules": {
+      "emergency_key_access": "Superadmin break-glass via GOV-0 with audit trail; requires justification and DPO notification",
+      "encryption_algorithm": "AES-256-GCM",
+      "exceptions": {
+        "reason": "org_id and record_id required for RLS and indexing; timestamps required for retention queries; subject_key/session_key are pseudonymous but remain subject-level and are forbidden from observability, analytics, vendor, COMM/NOTIF/TRK/BI/API, and external API payloads. subject_lookup_key_hash is vault-only and is not a general storage exception.",
+        "unencrypted_fields": [
+          "org_id",
+          "record_id",
+          "created_at_utc",
+          "updated_at_utc",
+          "subject_key",
+          "session_key"
+        ]
+      },
+      "key_derivation": "KMS-managed per-tenant keys; key_id stored with record; key material NEVER persisted in application database",
+      "key_hierarchy": [
+        "tenant_master_key (KMS, per org_id) wraps envelope keys",
+        "subject_envelope_key (DEK, per subject_key within org_id) encrypts tier_direct PII rows/columns"
+      ],
+      "rotation": {
+        "clarification": [
+          "tenant_master_key rotation MAY retain historical keys for non-shredded subjects.",
+          "wrapped envelope keys for cryptoshredded subjects MUST be deleted; historical tenant keys MUST NOT resurrect access."
+        ]
+      },
+      "rotation_frequency": "quarterly (every 90 days)",
+      "rotation_procedure": "Generate new key_id from KMS; re-encrypt all tier_direct PII with new key; old keys retained for historical decryption with 7-year retention",
+      "tier_direct": {
+        "cryptoshred": "DSAR cryptoshred MUST destroy the subject_envelope_key (and wrapped key blob) for the subject_key; vault ciphertext MAY remain but MUST be irrecoverable without the destroyed key.",
+        "encryption_at_rest": "MUST use subject_envelope_key (per subject_key within org_id); envelope key MUST be wrapped by tenant_master_key in KMS.",
+        "notes": [
+          "This enables subject-level cryptoshred without destroying org-wide keys.",
+          "tenant_master_key rotation MUST NOT re-enable access to cryptoshredded subjects."
+        ]
+      }
+    },
+    "tracking_integration": {
+      "banned_direct_identifier_fields": [
+        "email",
+        "phone_e164",
+        "gov_id",
+        "full_name",
+        "street_address"
+      ],
+      "hard_prohibitions": {
+        "enforcement": "reject_event_payload",
+        "must_not_include_classes": [
+          "pii_direct",
+          "pii_sensitive"
+        ],
+        "must_not_include_fields": [
+          "email",
+          "phone_e164",
+          "full_name",
+          "street_address",
+          "gov_id",
+          "ip_address"
+        ]
+      },
+      "notes": [
+        "Telemetry/tracking events must never contain direct identifiers (e.g., email, phone, gov_id).",
+        "subject_key, subject_lookup_key_hash, and session_key MUST NOT be emitted to TRK-1 payloads, vendor payloads, logs, metrics, traces, BI dimensions, or external APIs."
+      ],
+      "trk1_alignment": {
+        "allowed_tracking_fields": [
+          "org_id",
+          "event_type",
+          "timestamp_utc",
+          "parsed_device_type",
+          "hashed_ip",
+          "hashed_user_agent"
+        ],
+        "description": "TRK-1 integration rules for PII-safe telemetry",
+        "enforcement": "TRK-1 event schema validation MUST reject payloads with forbidden fields; CI lint gate enforces schema compliance",
+        "forbidden_tracking_fields": [
+          "device_id_raw",
+          "email",
+          "full_user_agent",
+          "ip_address",
+          "name",
+          "phone",
+          "session_key",
+          "subject_key",
+          "subject_lookup_key_hash"
+        ],
+        "no_raw_pii_rule": "TRK-1 payloads MUST NOT include raw email, phone, IP address, full user_agent, name, or any tier_direct field",
+        "subject_key_standard": "subject_key remains vault-issued and MUST NOT be emitted to TRK-1 payloads; use subjectless or aggregate telemetry only outside the PII vault."
+      },
+      "trk_payload_must_not_contain_direct_identifiers": true
+    },
+    "subject_identity_model": {
+      "subject_key": {
+        "type": "uuid_v7",
+        "generated_by": "PII-1",
+        "opaque": true,
+        "stable_within_org_id_after_issuance": true,
+        "must_not_be_derived_from_identifiers": true,
+        "forbidden_derivation_inputs": [
+          "email",
+          "phone",
+          "name",
+          "ip_address",
+          "device_id",
+          "user_agent",
+          "order_id",
+          "membership_id",
+          "actor_id",
+          "user_id",
+          "provider_id",
+          "tracking_id"
+        ],
+        "forbidden_external_surfaces": [
+          "events",
+          "logs",
+          "metrics",
+          "traces",
+          "analytics_dimensions",
+          "BI-1 dimensions",
+          "COMM-1 payloads",
+          "NOTIF-1 payloads",
+          "TRK-1 payloads",
+          "API-0/EXT-1 responses",
+          "vendor payloads"
+        ]
+      },
+      "subject_lookup_key_hash": {
+        "type": "hmac_sha256",
+        "vault_only": true,
+        "tenant_bound": true,
+        "identifier_kind_bound": true,
+        "normalizer_version_bound": true,
+        "versioned_secret_pepper_required": true,
+        "may_be_used_for": [
+          "idempotent_lookup",
+          "subject_upsert_inside_pii_vault"
+        ],
+        "must_not_be_emitted_outside_pii_1": true
+      }
+    }
+  },
+  "emits_events": false,
+  "errors": {
+    "error_family": "ERR-1",
+    "min_version": "1.3.32",
+    "subcodes": {
+      "PII_ACCESS_DENIED": "Actor lacks required IAM capability or tenant scope.",
+      "PII_AUDIT_REASON_REQUIRED": "Audit reason is required and MUST be from bounded list.",
+      "PII_CRYPTOSHRED_FAILED": "Cryptoshred operation failed; MUST preserve immutable truth and emit audit evidence.",
+      "PII_DATA_CLASSIFICATION_VIOLATION": "Data classification rules violated (storage, transmission, retention, or redaction).",
+      "PII_EXPORT_TOKEN_INVALID_OR_EXPIRED": "Export retrieval token invalid, expired, already used, or not found.",
+      "PII_LOG_REDACTION_VIOLATION": "Logs contain disallowed PII or failed deterministic redaction.",
+      "PII_MAPPING_FORBIDDEN_BY_CONSENT": "Identity mapping/linking is forbidden by consent or withdrawal.",
+      "PII_VAULT_ALIAS_FORBIDDEN": "Attempted to create/store alias outside PII vault or alias class forbidden.",
+      "PII_VAULT_ALIAS_NOT_FOUND": "Requested alias or mapping does not exist (hide-existence rules apply)."
+    }
+  },
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "last_updated_utc": "2026-06-03T15:30:00Z",
+  "limits_and_budgets": {
+    "concurrency_limit": {
+      "dsar_export_per_tenant": 10,
+      "pii_encryption_per_tenant": 100,
+      "unit": "per_second"
+    },
+    "p99_latency_ms": {
+      "dsar_export": 5000,
+      "pii_encryption": 200,
+      "pii_pseudonymization": 50
+    },
+    "rate_limit_per_tenant": {
+      "dsar_requests": 10,
+      "pii_writes": 1000,
+      "unit": "per_minute"
+    }
+  },
+  "migration": {
+    "compat_strategy": "Semver only; policy version immutable per ARCH-1.",
+    "data_backfills": "If adding new PII field to field_registry, backfill with encrypted=false flag and schedule encryption job; do NOT block deployments on backfill.",
+    "field_registry_immutability": "Existing field classifications MUST NOT change tier retroactively; new fields require minor version bump.",
+    "rolling_deploy_safety": "Encryption and pseudonymization MUST remain idempotent across N and N-1 versions; key_id immutability ensures compatibility."
+  },
+  "normative_source": {
+    "kind": "json"
+  },
+  "observability": {
+    "cardinality_limits": {
+      "forbid_user_identifiers_as_labels": true,
+      "max_label_values_per_dim": 64
+    },
+    "metrics": {
+      "counters": [
+        {
+          "labels": [
+            "org_id",
+            "pii_tier",
+            "result"
+          ],
+          "name": "ticketing.pii.encryptions.total"
+        },
+        {
+          "labels": [
+            "org_id",
+            "algorithm",
+            "result"
+          ],
+          "name": "ticketing.pii.pseudonymizations.total"
+        },
+        {
+          "labels": [
+            "org_id",
+            "dsar_type",
+            "outcome"
+          ],
+          "name": "ticketing.pii.dsar_requests.total"
+        },
+        {
+          "labels": [
+            "org_id",
+            "rotation_status"
+          ],
+          "name": "ticketing.pii.key_rotations.total"
+        }
+      ]
+    },
+    "request_id_propagation": {
+      "field": "request_id",
+      "required": true
+    },
+    "slo_targets": {
+      "p99_latency_ms": 200,
+      "release_block": "if p99 > 500ms for 5 min, page on-call"
+    },
+    "trace_id_propagation": {
+      "field": "trace_id",
+      "required": true
+    }
+  },
+  "outbox_events": [],
+  "purpose_and_boundaries": {
+    "never_owns": [
+      "Ledger decisions or revenue recognition (LED-1)",
+      "Order pricing or checkout finalization (ORD-1)",
+      "Payment capture or provider integration (PAY-1)",
+      "Seat allocation or hold management (SEAT-1)",
+      "Telemetry collection or routing logic (TRK-1)",
+      "Consent state machine or purpose grants (CONSENT-1)",
+      "Event serialization or outbox delivery (EVT-1)"
+    ],
+    "out_of_scope": [
+      "Legal interpretation of GDPR Article 17 or POPIA Section 24 (legal review required)",
+      "Cross-border data transfer mechanisms (SCCs, BCRs)",
+      "External DLP tooling or SIEM integration",
+      "Third-party consent management platforms (OneTrust, Cookiebot)"
+    ],
+    "owns": [
+      "PII field classification taxonomy (direct, quasi-identifier, pseudonymous, non-identifying)",
+      "Storage encryption rules (AES-256-GCM, KMS key derivation, quarterly rotation)",
+      "Pseudonymization standards (opaque subject_key UUIDv7; vault-only subject_lookup_key_hash; session_key UUIDv7)",
+      "Data subject rights workflows (export, deletion, portability within 30 days)",
+      "PII-to-TRK-1 integration rules (no raw PII in telemetry payloads)",
+      "Observability cardinality rules (no raw PII in metric labels)",
+      "Tenant-sealed PII access control (org_id immutability, hide-existence semantics)"
+    ]
+  },
+  "schema_version": "contract-suite/1.0",
+  "scope": {
+    "applies_to": [
+      "web",
+      "mobile_web",
+      "public_api",
+      "admin_portal",
+      "organizer_portal",
+      "background_jobs"
+    ]
+  },
+  "security_posture": {
+    "auth_boundary": "SEC-1",
+    "data_retention_days": 90,
+    "notes": "Tier_direct PII encrypted at rest; tier_quasi_id hashed only. All PII access requires org_id context and IAM-1 authorization.",
+    "pii_fields": [
+      "name",
+      "email",
+      "phone",
+      "ip_address_hash",
+      "user_agent_hash",
+      "device_id_hash"
+    ]
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Normative authority for personal data classification (GDPR/POPIA), encryption at rest (AES-256-GCM), pseudonymization standards (uuid_v7 subject keys), tenant-sealed PII handling via org_id + PostgreSQL RLS, and data subject rights tooling (export, deletion, portability) within 30-day timelines. Enforces no-raw-PII-in-telemetry rule across TRK-1 and OBS-1 integrations.",
+  "tenancy": {
+    "context_required": true,
+    "cross_tenant_error_mapping": "ERR_NOT_FOUND",
+    "cross_tenant_lookup_error": "ERR_NOT_FOUND",
+    "forbid_ambient_tenancy": true,
+    "hide_existence": true,
+    "leakage_policy": "hide_existence",
+    "missing_tenant_context_error": "ERR_NOT_FOUND",
+    "notes": "Platform superadmin has platform-scoped PII viewing for compliance audits; organizers see only their org_id data. No application-level tenant filtering permitted; PostgreSQL RLS is constitutional requirement.",
+    "platform_org_id_mode": "superadmin_only",
+    "rls_enforcement": "mandatory_via_postgres_policies",
+    "rls_policy": {
+      "enforced_on_tables": [
+        "pii_records",
+        "pii_field_registry",
+        "encryption_keys",
+        "pseudonymization_cache",
+        "dsar_requests"
+      ],
+      "rule": "SELECT * FROM pii_records WHERE org_id = current_setting('app.current_tenant_org_id')::uuid"
+    },
+    "strategy": "ash_attribute",
+    "superadmin_bypass": "allowed via GOV-0 break-glass with audit trail",
+    "tenant_immutable": true,
+    "tenant_key": "org_id"
+  },
+  "tier": "1-critical",
+  "title": "PII Boundary, Identity Mapping, and Cryptoshred Contract",
+  "version": "2.0.0",
+  "approved_authority_corrections": {
+    "tenant_boundary_correction": {
+      "missing_tenant": "HTTP 404 ERR_NOT_FOUND",
+      "missing_or_wrong_tenant_hidden_resource": "HTTP 404 ERR_NOT_FOUND",
+      "internal_causes": "audit and telemetry only"
+    },
+    "ownership": "PII-1 owns direct email/phone identifiers and tenant-bound PII evidence; subject_lookup_key_hash is vault-only and MUST NOT be exposed to IAM."
+  }
+}

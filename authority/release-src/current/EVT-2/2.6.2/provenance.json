@@ -1,0 +1,44 @@
+{
+  "bootstrap_commit": "51a8e5e77cfcfab9caac3ba1631230b0d6c6f6d7",
+  "provenance_statement": "Editable successor source bootstrapped from the exact active EVT-2 2.5.4 ZIP in contracts/EVT-2; the source bundle and every member are recorded by hash and byte length.",
+  "source_bundle_path": "contracts/EVT-2/EVT-2_bundle_v2.5.4.zip",
+  "source_zip_sha256": "cae22964f1ff81ccb1089dbef472902846be67e35f5db7db75a56f3e125552a9",
+  "source_zip_bytes": 11647,
+  "source_version": "2.5.4",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "EVT-2_bundle_v2.5.4/EVT-2_Contract_v2.5.4.json",
+      "sha256": "bd32baab634ceddb429076668cc13b2c24e2fd560fe2325450572ffb8d228287",
+      "bytes": 55849
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "EVT-2_bundle_v2.5.4/EVT-2-GATE_TestGates_v2.5.4.json",
+      "sha256": "f96ca17a368f8cbbfb6ae8e3c74b524539d38148be9c1f51bd55b82fb9be9a9f",
+      "bytes": 12001
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "EVT-2_bundle_v2.5.4/",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_member_path": "EVT-2_bundle_v2.5.4/EVT-2_Contract_v2.5.4.json",
+      "sha256": "2523cf9d9cac2eade6118eea8b2b12753c1bc62d6d9b348f581bb0f70deb88ec",
+      "bytes": 45798
+    },
+    {
+      "source_member_path": "EVT-2_bundle_v2.5.4/EVT-2-GATE_TestGates_v2.5.4.json",
+      "sha256": "62dffb533c2a1cf1fa493e805195f154052ef75b2e07cd4a3998850bfef7b282",
+      "bytes": 7823
+    },
+    {
+      "source_member_path": "EVT-2_bundle_v2.5.4/bundle.manifest.json",
+      "sha256": "42c7a23529de36cddb7a5742912960a0f3dee5e0cf1f51f3d290f6186b0b43c5",
+      "bytes": 626
+    }
+  ]
+}

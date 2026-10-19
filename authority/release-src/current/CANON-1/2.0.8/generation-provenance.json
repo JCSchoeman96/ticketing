@@ -1,0 +1,46 @@
+{
+  "canonical_member_count": 56,
+  "format_version": 1,
+  "generated_release": {
+    "doc_id": "CANON-1",
+    "version": "2.0.8"
+  },
+  "generation_inputs": {
+    "active_manifest_sha256": "d0c58bf5e6006c954d481b02b1df870f5dcbcff66efa7d69301f140b900b40a6",
+    "base_canon_version": "2.0.7",
+    "base_canon_zip_sha256": "e6f47f456603fbace99f9a66b7583a425d94ccb482867acbcc9f5b8f9ecb7343",
+    "candidate_releases": [
+      {
+        "doc_id": "EVT-2",
+        "sha256": "4536e77cdb83360c36ac2bedb0a8140d36ee9190a14134734b450a987e5880df",
+        "version": "2.6.2"
+      },
+      {
+        "doc_id": "OFFER-1",
+        "sha256": "90aa27181a5026fbfc3b536fbc6c2914f66eaaa28a34c239e8c026400d7bb09c",
+        "version": "1.3.2"
+      },
+      {
+        "doc_id": "ORD-1",
+        "sha256": "95426534f3bf18230b0ae583aca5234d660e81bc0da2d6fbe8ff65fa9aad237f",
+        "version": "3.8.2"
+      },
+      {
+        "doc_id": "SEAT-1",
+        "sha256": "5b21e369e38f7f7592187e7bcd1091c4e0fb8d3e71ab2399b3dc400e6f7eca6e",
+        "version": "3.7.2"
+      }
+    ],
+    "dependency_closure_sha256": "5da4806936c1879afc74cf5b94f03efdc325c27889424cbec86a396b158bb275",
+    "generator_commit": "7275fda66132d4ec019a26171536b78c7a6fc2b0",
+    "generator_version": "2.0.0",
+    "manifest_validation_status": "VALID",
+    "superseded_identity_defects": []
+  },
+  "generation_status": "BUILT_CANDIDATE_SOURCE",
+  "generator": "tools/generate_canon.py",
+  "generator_commit": "7275fda66132d4ec019a26171536b78c7a6fc2b0",
+  "generator_version": "2.0.0",
+  "resolved_selection_path": "release-src/current/CANON-1/2.0.8/resolved-selection.json",
+  "resolved_selection_sha256": "80088fb6f814fccbdc9a643af22d4256d782c17f2aa78971a43766d10bcf1175"
+}

@@ -1,0 +1,418 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "REFUND-1_Test_Gates_v1.7.3.json",
+  "contract_ref": {
+    "doc_id": "REFUND-1",
+    "version": "1.7.3"
+  },
+  "doc_id": "REFUND-1-GATE",
+  "gates": [
+    {
+      "acceptance_criteria": [
+        "{\"equals\": false, \"json_pointer\": \"/data_model/resources[0]/fields[name=tax_profile_id]/nullable\"}",
+        "{\"equals\": false, \"json_pointer\": \"/data_model/resources[0]/fields[name=tax_inclusion_mode]/nullable\"}",
+        "{\"equals\": false, \"json_pointer\": \"/data_model/resources[0]/fields[name=tax_rounding_mode]/nullable\"}",
+        "{\"contains\": \"Tie-breakers\", \"json_pointer\": \"/domain_invariants/tax_apportionment_determinism/rule\"}"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "items": [
+              "{\"equals\": false, \"json_pointer\": \"/data_model/resources[0]/fields[name=tax_profile_id]/nullable\"}",
+              "{\"equals\": false, \"json_pointer\": \"/data_model/resources[0]/fields[name=tax_inclusion_mode]/nullable\"}",
+              "{\"equals\": false, \"json_pointer\": \"/data_model/resources[0]/fields[name=tax_rounding_mode]/nullable\"}",
+              "{\"contains\": \"Tie-breakers\", \"json_pointer\": \"/domain_invariants/tax_apportionment_determinism/rule\"}"
+            ]
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Prevents tax drift and penny leaks by requiring tax_profile_id, tax_inclusion_mode, and tax_rounding_mode to be present and non-null alongside tax_context_digest_sha256.",
+      "failure_message": "REFUND-1 is missing required tax snapshot fields or deterministic tax apportionment invariant.",
+      "id": "REFUND-1-P0-TAX-APPORTIONMENT-SNAPSHOT-001",
+      "level": "P0",
+      "must": true,
+      "title": "RefundRequest MUST persist tax snapshot fields for deterministic apportionment"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "Suite schema pin.",
+      "failure_message": "Suite schema pin.",
+      "id": "REFUND-1-GATE-0001",
+      "level": "P0",
+      "must": true,
+      "title": "Suite schema pin."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "Bundle manifest must use canonical filename.",
+      "failure_message": "Bundle manifest must use canonical filename.",
+      "id": "REFUND-1-GATE-0002",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle manifest must use canonical filename."
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle files must match manifest (sha256 + bytes).",
+      "failure_message": "Bundle files must match manifest (sha256 + bytes).",
+      "id": "REFUND-1-GATE-0003",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle files must match manifest (sha256 + bytes)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "REFUND-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.7.3",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "REFUND-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "1.7.3",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Doc pointers are consistent.",
+      "failure_message": "Doc pointers are consistent.",
+      "id": "REFUND-1-GATE-0004",
+      "level": "P0",
+      "must": true,
+      "title": "Doc pointers are consistent."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.refund.finalized.v2",
+            "json_pointer": "/outbox_events/0/event_name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "refund_id",
+              "order_id",
+              "occurrence_id",
+              "checkout_group_id",
+              "amount_minor",
+              "currency_iso",
+              "payment_reference",
+              "verified_payment_attempt_id",
+              "refunded_at_utc",
+              "reason_subcode",
+              "ticket_revocation_batch_id"
+            ],
+            "json_pointer": "/outbox_events/0/required_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/0/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Ensures refund outbox event is chemically pure: no envelope keys in required_keys, schema_ref normalized to EVT-2, and only v2 event is present.",
+      "failure_message": "Ensures refund outbox event is chemically pure: no envelope keys in required_keys, schema_ref normalized to EVT-2, and only v2 event is present.",
+      "id": "REFUND-1-GATE-OUTBOX-HYGIENE-V2",
+      "level": "P0",
+      "must": true,
+      "title": "Ensures refund outbox event is chemically pure: no envelope keys in required_keys, schema_ref normalized to EVT-2, and only v2 event is present."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Prevents split-brain registry deployments by enforcing EVT-1 dependency floor at suite-head registry (2.16.4).",
+      "failure_message": "Prevents split-brain registry deployments by enforcing EVT-1 dependency floor at suite-head registry (2.16.4).",
+      "id": "REFUND-1-GATE-EVT-1-FLOOR-HARDENED",
+      "level": "P0",
+      "must": true,
+      "title": "Prevents split-brain registry deployments by enforcing EVT-1 dependency floor at suite-head registry (2.16.4)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "ticketing\\.refund\\.finalized\\.v1"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Forbids any lingering references to ticketing.refund.finalized.v1 in REFUND-1 to prevent accidental emission or tooling ambiguity.",
+      "failure_message": "Forbids any lingering references to ticketing.refund.finalized.v1 in REFUND-1 to prevent accidental emission or tooling ambiguity.",
+      "id": "REFUND-1-GATE-FORBID-REFUND-FINALIZED-V1",
+      "level": "P0",
+      "must": true,
+      "title": "Forbids any lingering references to ticketing.refund.finalized.v1 in REFUND-1 to prevent accidental emission or tooling ambiguity."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "description": "sha256 hex digest of TAX-1 tax context used for this refund; MUST match the digest for the order price snapshot tax context.",
+              "name": "tax_context_digest_sha256",
+              "nullable": false,
+              "type": "sha256_hex"
+            },
+            "json_pointer": "/data_model/resources/0/fields/14"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Locks the refund→tax context binding field in the RefundRequest data model.",
+      "failure_message": "Locks the refund→tax context binding field in the RefundRequest data model.",
+      "id": "REFUND-1-GATE-TAXCTX-DIGEST-FIELD",
+      "level": "P0",
+      "must": true,
+      "title": "Locks the refund→tax context binding field in the RefundRequest data model."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "QUORUM-1",
+            "json_pointer": "/dependencies/15/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "When a refund proceeds via manual approval (status=manual_review) or any override path (system_cancel, goodwill, or fee_refund exceptions), override_evidence_digest_sha256 MUST be present and MUST be the sha256 hex digest of an evidence package that includes a QUORUM-1 attestation for this refund override. The QUORUM-1 attestation transcript MUST bind at minimum: refund_id, order_id, occurrence_id, amount_minor, currency_iso, tax_portion_minor, tax_context_digest_sha256, fee_refund_policy, refunded_fee_minor, and reason_subcode. Signatures MUST be from distinct quorum identities per QUORUM-1 invariants; replay across different refund_id MUST be cryptographically invalid.",
+            "json_pointer": "/domain_invariants/override_evidence_quorum_binding/rule"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Prevents social-theater overrides by requiring QUORUM-1 dependency and explicit invariant.",
+      "failure_message": "Prevents social-theater overrides by requiring QUORUM-1 dependency and explicit invariant.",
+      "id": "REFUND-1-GATE-QUORUM-OVERRIDE-BINDING",
+      "level": "P0",
+      "must": true,
+      "title": "Prevents social-theater overrides by requiring QUORUM-1 dependency and explicit invariant."
+    },
+    {
+      "acceptance_criteria": [
+        "{\"op\": \"exists\", \"path\": \"$.data_model.resources[0].fields[?(@.name=='tax_law_config_digest_sha256')]\"}",
+        "{\"op\": \"exists\", \"path\": \"$.data_model.resources[0].fields[?(@.name=='credit_note_reporting_profile_digest_sha256')]\"}",
+        "{\"op\": \"exists\", \"path\": \"$.data_model.resources[0].fields[?(@.name=='jurisdiction_evidence_sha256')]\"}",
+        "{\"op\": \"exists\", \"path\": \"$.data_model.resources[0].fields[?(@.name=='tax_context_digest_version')]\"}",
+        "{\"op\": \"exists\", \"path\": \"$.data_model.resources[0].fields[?(@.name=='order_tax_apportionment_priority_map_sha256')]\"}",
+        "{\"op\": \"exists\", \"path\": \"$.domain_invariants.tax_time_travel_pitic_pinning\"}",
+        "{\"op\": \"exists\", \"path\": \"$.domain_invariants.tax_digest_tenancy_salt_required\"}",
+        "{\"op\": \"exists\", \"path\": \"$.domain_invariants.tax_apportionment_priority_map_required\"}",
+        "{\"op\": \"exists\", \"path\": \"$.domain_invariants.ledger_period_readability_interlock\"}"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "items": [
+              "{\"op\": \"exists\", \"path\": \"$.data_model.resources[0].fields[?(@.name=='tax_law_config_digest_sha256')]\"}",
+              "{\"op\": \"exists\", \"path\": \"$.data_model.resources[0].fields[?(@.name=='credit_note_reporting_profile_digest_sha256')]\"}",
+              "{\"op\": \"exists\", \"path\": \"$.data_model.resources[0].fields[?(@.name=='jurisdiction_evidence_sha256')]\"}",
+              "{\"op\": \"exists\", \"path\": \"$.data_model.resources[0].fields[?(@.name=='tax_context_digest_version')]\"}",
+              "{\"op\": \"exists\", \"path\": \"$.data_model.resources[0].fields[?(@.name=='order_tax_apportionment_priority_map_sha256')]\"}",
+              "{\"op\": \"exists\", \"path\": \"$.domain_invariants.tax_time_travel_pitic_pinning\"}",
+              "{\"op\": \"exists\", \"path\": \"$.domain_invariants.tax_digest_tenancy_salt_required\"}",
+              "{\"op\": \"exists\", \"path\": \"$.domain_invariants.tax_apportionment_priority_map_required\"}",
+              "{\"op\": \"exists\", \"path\": \"$.domain_invariants.ledger_period_readability_interlock\"}"
+            ]
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Refund MUST pin tax PITIC digests + TAXCTX-V2 + order apportionment priority + LED-1 interlock",
+      "failure_message": "REFUND-1 lacks PITIC tax anchors, TAXCTX-V2 versioning, order-defined apportionment priority, or LED-1 interlock.",
+      "id": "REFUND-1-P0-TAX-PITIC-AND-LED-INTERLOCK-001",
+      "level": "P0",
+      "must": true,
+      "title": "Refund MUST pin tax PITIC digests + TAXCTX-V2 + order apportionment priority + LED-1 interlock"
+    },
+    {
+      "acceptance_criteria": [
+        "{\"json_pointer_exists\": [\"/data_model/resources/0/fields[name=order_tax_apportionment_priority_map]\", \"/data_model/resources/0/fields[name=order_tax_apportionment_priority_map_sha256]\", \"/domain_invariants/tax_apportionment_priority_map_required\"]}"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "items": [
+              "{\"json_pointer_exists\": [\"/data_model/resources/0/fields[name=order_tax_apportionment_priority_map]\", \"/data_model/resources/0/fields[name=order_tax_apportionment_priority_map_sha256]\", \"/domain_invariants/tax_apportionment_priority_map_required\"]}"
+            ]
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Contract MUST define and persist both order_tax_apportionment_priority_map and order_tax_apportionment_priority_map_sha256; refund finalization must fail closed if missing/mismatched.",
+      "failure_message": "Missing apportionment priority map field or invariant; partial refunds can leak pennies or drift.",
+      "id": "REFUND-1-P0-ORDER-TAX-APPORTIONMENT-MAP-PRESENT",
+      "level": "P0",
+      "must": true,
+      "title": "Refund persists order tax apportionment priority map + sha"
+    },
+    {
+      "acceptance_criteria": [
+        "{\"contains\": \"verify_priority_map_integrity!\", \"path\": \"$.domain_actions\", \"type\": \"json_path_exists_and_contains\"}"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "items": [
+              "{\"contains\": \"verify_priority_map_integrity!\", \"path\": \"$.domain_actions\", \"type\": \"json_path_exists_and_contains\"}"
+            ]
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "REFUND-1 MUST define domain action verify_priority_map_integrity! to recompute and validate sha handshake.",
+      "failure_message": "Missing verify_priority_map_integrity! domain action.",
+      "id": "REFUND-1-P0-VERIFY-PRIORITY-MAP-INTEGRITY-001",
+      "level": "P0",
+      "must": true,
+      "title": "REFUND-1 MUST define domain action verify_priority_map_integrity! to recompute and validate sha handshake."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "tax_apportionment_legacy_orders"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "REFUND-1-P0-FORBID-LEGACY-TAX-FALLBACK-001",
+      "failure_message": "REFUND-1-P0-FORBID-LEGACY-TAX-FALLBACK-001",
+      "id": "REFUND-1-P0-FORBID-LEGACY-TAX-FALLBACK-001",
+      "level": "P0",
+      "must": true,
+      "title": "REFUND-1-P0-FORBID-LEGACY-TAX-FALLBACK-001"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_invariants/tax_apportionment_strict_map/strict"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "REFUND-1-P0-STRICT-TAX-MAP-001",
+      "failure_message": "REFUND-1-P0-STRICT-TAX-MAP-001",
+      "id": "REFUND-1-P0-STRICT-TAX-MAP-001",
+      "level": "P0",
+      "must": true,
+      "title": "REFUND-1-P0-STRICT-TAX-MAP-001"
+    }
+  ],
+  "generated_at_utc": "2026-02-09T05:38:26Z",
+  "last_updated_utc": "2026-02-09T05:38:26Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "REFUND-1 Test Gates",
+  "updated_at_utc": "2026-02-08T19:32:45Z",
+  "version": "1.7.3"
+}

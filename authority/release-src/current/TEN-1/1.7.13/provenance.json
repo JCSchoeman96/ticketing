@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/TEN-1_bundle_v1.7.12_refactored.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/TEN-1_bundle_v1.7.12_refactored.zip",
+  "source_zip_sha256": "d210295733c5ebae19ec5545abf2baadc93356778f7b25aaa1dbb9688a7cb609",
+  "source_zip_bytes": 15683,
+  "source_version": "1.7.12",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "TEN-1_bundle_v1.7.12/TEN-1_Contract_v1.7.12.json",
+      "sha256": "4e87dafd7891a63cd4c3b6f6c79a8f1c3d5c428b585d87315c7fa9e161e589c2",
+      "bytes": 43641
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "TEN-1_bundle_v1.7.12/TEN-1_Test_Gates_v1.7.12.json",
+      "sha256": "78838931a1668fc8aff7ea021ad15ee396f07f99229106fc546d36fe5aec4855",
+      "bytes": 27468
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "TEN-1_bundle_v1.7.12/TEN-1_Contract_v1.7.12.json",
+      "sha256": "1e1a01112a38e00e38e5742d66c64e86606a73d52a4bede74b3a0a1afa075390",
+      "bytes": 43647
+    },
+    {
+      "source_member_path": "TEN-1_bundle_v1.7.12/TEN-1_Test_Gates_v1.7.12.json",
+      "sha256": "8163388bc6ebb94e66f03436d4ecf395159915f78047a9aaf7b3f0ff9243e28a",
+      "bytes": 27478
+    }
+  ]
+}

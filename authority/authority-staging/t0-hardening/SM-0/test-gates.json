@@ -1,0 +1,321 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "SM-0",
+    "version": "1.2.3"
+  },
+  "doc_id": "SM-0-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "bundle_manifest",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.1 across contract, test_gates, and bundle_manifest.",
+      "id": "SM-0-GATE-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {
+            "exclude": [
+              "bundle.manifest.json"
+            ]
+          },
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle MUST include required files and exact bundle.manifest.json filename.",
+      "id": "SM-0-GATE-002",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "SM-0-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "SM-0",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "1.2.3",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SM-0",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.2.3",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract/Test Gates linkage MUST be exact (doc_id/version parity).",
+      "id": "SM-0-GATE-003",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\b(TODO|TBD|FIXME|REPLACEME)\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "\\b(TODO|TBD|FIXME|REPLACEME)\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders (TODO/TBD/FIXME/REPLACEME) allowed in active artifacts.",
+      "id": "SM-0-GATE-004",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/tenancy/tenant_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenant key MUST be org_id (not tenant_id or organization_id).",
+      "id": "SM-0-GATE-005",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(\\\\^|~|>=|<=|>|<|=)"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Dependency pin hygiene: min_version MUST be exact semver (no ranges like >=, ^, ~).",
+      "id": "SM-0-GATE-006",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "DP-1",
+            "json_pointer": "/dependencies/2/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.1.0",
+            "json_pointer": "/dependencies/2/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bLOCKS-0\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Dependency parity MUST preserve required DP-1 linkage and MUST NOT reference forbidden legacy lock contracts.",
+      "id": "SM-0-GATE-007",
+      "level": "P0",
+      "must": true,
+      "title": "Dependency parity + forbidden legacy references"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "P0",
+            "json_pointer": "/banned_anti_patterns/SM-0-ANTI-005/severity"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Blind updates that mutate state-machine-owned attributes without a CAS predicate (lock_version and/or current state) are FORBIDDEN. Examples: update_all/force_change_attribute without an UPDATE filter on lock_version/state.",
+            "json_pointer": "/banned_anti_patterns/SM-0-ANTI-005/ban"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Zombie-worker hardening: banned anti-pattern SM-0-ANTI-005 MUST exist and be P0.",
+      "id": "SM-0-GATE-008",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Prevent CI theatre: this contract MUST remain a non-producer (no outbox events).",
+      "failure_message": "Fail build: non-producer contract gained an outbox surface.",
+      "id": "SM-0-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "Non-producer contract invariants"
+    },
+    {
+      "id": "SM0-INTERNAL-AUDIT-RECORD",
+      "title": "Transition audit is internal",
+      "description": "Transition audit records are not EVT-1 events and SM-0 emits_events remains false.",
+      "failure_message": "SM-0 transition audit semantics failed.",
+      "level": "P0",
+      "must": true,
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "artifact_kind": "contract",
+            "expected": "Transition audit records are not EVT-1 events and SM-0 emits_events remains false."
+          }
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-02-03T08:46:41.888090Z",
+  "last_updated_utc": "2026-02-03T08:46:41.888090Z",
+  "normative_source": "json",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "SM-0 Test Gates",
+  "version": "1.2.3"
+}

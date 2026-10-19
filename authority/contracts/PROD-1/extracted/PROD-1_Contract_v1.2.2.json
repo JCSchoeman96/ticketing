@@ -1,0 +1,617 @@
+{
+  "actions_and_workflows": {
+    "initialization": {
+      "must": [
+        "Validate producer schema at application boot.",
+        "Fail fast if producer.service/kind violates allowlists or forbidden fields are present."
+      ]
+    },
+    "operations": {
+      "break_glass": [
+        "Activation MUST require 2-person rule and be time-boxed.",
+        "Every bypassed action MUST emit P0 audit logs."
+      ],
+      "deployments": [
+        "Deployments MUST enter maintenance/drain mode per DMSC-1 before schema migrations or disruptive changes.",
+        "Deployments MUST be abortable; rollback MUST be a first-class plan."
+      ],
+      "restore_drills": [
+        "Automated restore drill MUST run at least every 30 days and record evidence.",
+        "Restore drill MUST validate tenant isolation invariants (TEN-1) and canonical error envelopes (ERR-1)."
+      ]
+    },
+    "runtime": {
+      "must": [
+        "Expose producer metadata as read-only fields in telemetry/event envelopes.",
+        "Propagate request_id for public entry points; producer is not a request identifier."
+      ]
+    }
+  },
+  "artifact_kind": "contract",
+  "artifact_name": "PROD-1_Contract_v1.1.3.json",
+  "change_log": [
+    {
+      "date_utc": "2026-02-08T16:50:30Z",
+      "id": "PROD-1-CHG-1.1.2-LEGISLATIVE-BYPASS",
+      "summary": "Introduce Legislative Bypass Protocol for emergency crypto/profile rotations without CI lockout (time-boxed dual-pin window, audited approvals, mandatory cleanup)."
+    },
+    {
+      "changes": [
+        "P0 Fix: Changed invalid_producer_schema error_code from ERRBADREQUEST to ERR_BAD_REQUEST (ERR-1 canonical format).",
+        "P0 Fix: Changed forbidden_field_present error_code from ERRINTERNALERROR to ERR_BAD_REQUEST (client schema violations are not internal errors).",
+        "P1 Fix: Added instance_id format constraint (uuid_v7) with deterministic exception for Kubernetes pod names (RFC 1123 DNS label pattern)."
+      ],
+      "date": "2026-01-09",
+      "version": "1.0.4"
+    },
+    {
+      "changes": [
+        "Restored CS-0@2.2.0 snake_case envelope keys and suite_schema format.",
+        "Aligned test gate assertion types + details payloads to BP-0 gate conventions.",
+        "Enforced ticketing.* namespace via regex + explicit allowlist (v42.* rejected by construction).",
+        "Pinned TEN-1 min_version to 1.6.9 and removed CANON-1 dependency (BP-0 AP-NO-CANON-DEP)."
+      ],
+      "date": "2026-01-08",
+      "version": "1.0.3"
+    },
+    {
+      "changes": [
+        "Added 'ticketing.tickets' to producer_service_allowlist to legalize the Ticket domain as a first-class producer service under PROD-1 producer sovereignty."
+      ],
+      "date": "2026-02-04",
+      "version": "1.0.5"
+    },
+    {
+      "date_utc": "2026-02-07T12:00:00Z",
+      "kind": "major_feature",
+      "summary": "Upgrade PROD-1 from naming/namespace governance to production survival constitution: DR (PITR/WAL), break-glass protocol, infra immutability, health endpoints, graceful draining, and game-day discipline.",
+      "version": "1.1.0"
+    },
+    {
+      "changes": [
+        "Phase 8: Legislative quorum identities integration for bypass authorization (QUORUM-1).",
+        "Bypass evidence schema v2: quorum signatures bind incident_id + bypass_transcript_sha256.",
+        "Isolation invariant non-optional: distinct security boundaries required."
+      ],
+      "date_utc": "2026-02-08",
+      "version": "1.1.3"
+    }
+  ],
+  "data_model": {
+    "producer": {
+      "field_types": {
+        "build_sha": {
+          "type": "string"
+        },
+        "cluster": {
+          "type": "string"
+        },
+        "deployment_env": {
+          "type": "string"
+        },
+        "instance_id": {
+          "deterministic_exception": {
+            "allowed": true,
+            "max_length": 63,
+            "note": "RFC 1123 DNS label format (lowercase alphanumeric + hyphen)",
+            "pattern": "^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$",
+            "reason": "Kubernetes pod names are permitted as deterministic alternatives to UUIDv7"
+          },
+          "format": "uuid_v7",
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "runtime": {
+          "type": "string"
+        },
+        "service": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "optional_fields": [
+        "deployment_env",
+        "region",
+        "cluster",
+        "build_sha",
+        "runtime"
+      ],
+      "required_fields": [
+        "service",
+        "kind",
+        "version",
+        "instance_id"
+      ]
+    }
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "Suite schema and envelope validation."
+    },
+    {
+      "doc_id": "BP-0",
+      "edge_type": "requires",
+      "min_version": "1.0.6",
+      "reason": "Blueprint baseline bundle structure + deterministic CI gates."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Gate authoring posture and enforcement boundary."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.12",
+      "reason": "Multi-tenant isolation and org_id truth; break-glass must not violate tenancy."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.5",
+      "reason": "Authorization model + emergency (break-glass) capabilities and actor identity."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.6.1",
+      "reason": "Canonical error envelope and code discipline for denials and incident flows."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "requires",
+      "min_version": "2.16.4",
+      "reason": "Producer metadata placement in event envelopes."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.17",
+      "reason": "OTel alignment, audit/event logging requirements, and bounded-label requirements."
+    },
+    {
+      "doc_id": "DMSC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.1",
+      "reason": "Drain/deploy/maintenance coordination; graceful shutdown and incident freeze semantics."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.8",
+      "reason": "Operational budgets and quality controls (latency/error/queue bounds)."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.1",
+      "reason": "Fail-fast lock discipline and hot-path concurrency expectations."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.3.1",
+      "reason": "Crypto primitives, offline hydration manifest envelope law, and signing/canonicalization pins."
+    },
+    {
+      "doc_id": "EXT-1",
+      "edge_type": "requires",
+      "min_version": "2.1.5",
+      "reason": "Public webhook/API surfaces must propagate producer + request_id consistently."
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "requires",
+      "min_version": "3.2.1",
+      "reason": "Ash 3.x terminology, multitenancy conventions, and resource boundary discipline."
+    },
+    {
+      "doc_id": "QUORUM-1",
+      "edge_type": "requires",
+      "min_version": "1.0.0",
+      "reason": "Legislative quorum identities for bypass authorization."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4",
+    "QUORUM-1": "1.0.0"
+  },
+  "dependency_pins": {
+    "QUORUM-1": {
+      "artifact": "QUORUM-1_Contract_v1.0.0.json",
+      "sha256": "cfe68b4f0214998cf49a70d0ac732f07aae464c6b4720fa98d29b69e66322835",
+      "version": "1.0.0"
+    }
+  },
+  "doc_id": "PROD-1",
+  "emits_events": false,
+  "errors": {
+    "error_contract": "ERR-1",
+    "violations": {
+      "forbidden_field_present": {
+        "error_code": "ERR_BAD_REQUEST",
+        "note": "Forbidden fields are client schema violations, not internal errors",
+        "retryable": false
+      },
+      "invalid_producer_schema": {
+        "error_code": "ERR_BAD_REQUEST",
+        "retryable": false
+      }
+    }
+  },
+  "events_and_ordering": {
+    "rule": "PROD-1 does not emit domain events; it governs producer identity metadata and operational invariants."
+  },
+  "generated_at_utc": "2026-02-08T17:09:44Z",
+  "invariants": {
+    "disaster_recovery": {
+      "backup_verification": {
+        "must": true,
+        "restore_drill_frequency_days_max": 30,
+        "restore_drill_requirements": [
+          "Restore to isolated sandbox from backups + WAL and run automated integrity checks.",
+          "Record drill evidence as an immutable audit record (OBS-1 audit trail + artifact hash)."
+        ]
+      },
+      "pitr": {
+        "definition": "Platform MUST support point-in-time recovery to any timestamp within retention window.",
+        "must": true,
+        "retention_days_min": 14
+      },
+      "targets": {
+        "local_ha": {
+          "rpo_seconds": 1,
+          "rto_minutes": 15,
+          "scope": "single-region high availability (primary + synchronous standby)"
+        },
+        "regional_dr": {
+          "rpo_seconds": 60,
+          "rto_minutes": 60,
+          "scope": "region loss / full rebuild from object storage archives"
+        }
+      },
+      "three_two_one_rule": {
+        "copies_min": 3,
+        "media_types_min": 2,
+        "must": true,
+        "offsite_min": 1
+      },
+      "wal_archiving": {
+        "max_archive_lag_seconds_regional": 60,
+        "mode": "continuous",
+        "must": true,
+        "notes": [
+          "Nightly pg_dump alone is forbidden for production DR. PITR requires WAL archiving.",
+          "WAL archive destination MUST be immutable object storage (versioned buckets) with server-side encryption."
+        ],
+        "transport": "object_storage"
+      }
+    },
+    "emergency_access_protocol": {
+      "activation": {
+        "cooldown_minutes": 60,
+        "max_duration_minutes": 30,
+        "quorum": {
+          "m": 2,
+          "n": 3,
+          "note": "Minimum 2-of-3 designated break-glass custodians."
+        },
+        "required_factors": [
+          "hardware_key_or_passkey",
+          "separate_admin_identity",
+          "out_of_band_confirmation"
+        ],
+        "token_scope": "admin:break_glass",
+        "token_signing_ref": "SEC-1 (Ed25519 + JCS + Base64URL)",
+        "two_person_rule": true
+      },
+      "approval_model": {
+        "quorum_ref": "QUORUM-1",
+        "quorum_sha256_pin": "cfe68b4f0214998cf49a70d0ac732f07aae464c6b4720fa98d29b69e66322835",
+        "signatures_must_bind_fields": [
+          "producer_id",
+          "bypass_reason",
+          "expiration_at_utc",
+          "transcript_sha256"
+        ]
+      },
+      "ash_policy_bypass": {
+        "constraints": [
+          "Bypass MUST be explicit per-action and MUST NOT allow arbitrary reads across org_id boundaries.",
+          "Bypass MUST require actor capability 'admin.break_glass.execute' and an active break-glass token.",
+          "Bypass MUST force stronger logging (P0 audit) for each bypassed action."
+        ],
+        "intent": "Only during active break-glass window, allow a constrained set of corrective actions otherwise denied by normal Ash policies.",
+        "recommended_check_module": "Ticketing.Checks.IsBreakGlassEnabled"
+      },
+      "audit": {
+        "audit_sink": "OBS-1.audit_log",
+        "immutability": "Audit records MUST be append-only and MUST NOT be deletable.",
+        "must_emit_audit_record": true,
+        "required_fields": [
+          "activated_at_utc",
+          "activated_by_actor_id",
+          "approver_actor_ids",
+          "reason_code",
+          "incident_ref",
+          "expires_at_utc"
+        ]
+      },
+      "default": "disabled",
+      "name": "break_glass"
+    },
+    "forbidden_fields": [
+      "tenant_id",
+      "orgid",
+      "email",
+      "user_id",
+      "userid",
+      "request_id",
+      "pid",
+      "ticket_id",
+      "session_id",
+      "ip",
+      "phone"
+    ],
+    "graceful_shutdown_and_draining": {
+      "http_drain": {
+        "keep_existing_connections_seconds": 30,
+        "must": true,
+        "note": "Use drainers compatible with your server (Bandit/Cowboy) and load balancer connection draining.",
+        "send_new_requests_503": true
+      },
+      "maintenance_mode_ref": "DMSC-1",
+      "must": true,
+      "oban_drain": {
+        "must": true,
+        "note": "Workers MUST checkpoint progress; shutdown MUST stop accepting new jobs before grace window."
+      },
+      "shutdown_grace_seconds": 30
+    },
+    "health_checks": {
+      "endpoints_required": true,
+      "liveness": {
+        "path": "/health/liveness",
+        "semantics": "BEAM VM is responsive; does not check downstream dependencies."
+      },
+      "must_not_expose_secrets": true,
+      "readiness": {
+        "path": "/health/readiness",
+        "semantics": "Can serve traffic; MUST check DB connectivity + Redis reachability + queue backpressure."
+      }
+    },
+    "infrastructure_hygiene": {
+      "config_source_of_truth": "runtime.exs (no ad-hoc on-node edits)",
+      "ephemeral_nodes_required": true,
+      "mutable_infrastructure_forbidden": true,
+      "root_filesystem_read_only_recommended": true,
+      "secret_management": {
+        "forbid_hardcoded_secrets": true,
+        "max_secret_age_days": 90,
+        "rotation_without_code_deploy_required": true,
+        "runtime_injection_required": true
+      },
+      "ssh_access_forbidden_in_prod": true
+    },
+    "key_isolation_law": {
+      "rule_id": "PROD-1-INV-002",
+      "severity": "P0",
+      "text": "Quorum keys MUST reside in distinct security partitions (separate HSM slots or KMS accounts). Verification of 'Two-Person Rule' is invalid if keys share an administrative boundary."
+    },
+    "legislative_bypass_protocol": {
+      "allowed_use_cases": [
+        "crypto_vulnerability_emergency_rotation",
+        "key_compromise_response",
+        "pqc_break_response",
+        "critical_conformance_tooling_migration"
+      ],
+      "approval_model": {
+        "approval_evidence_required": true,
+        "quorum_ref": {
+          "doc_id": "QUORUM-1",
+          "min_version": "1.0.0",
+          "quorum_id": "ticketing.legislative.bypass.q1"
+        },
+        "requires_incident_id": true,
+        "requires_quorum_signatures": true,
+        "signatures_must_bind_fields": [
+          "incident_id",
+          "window",
+          "targets",
+          "bypass_transcript_sha256",
+          "runner_sha256",
+          "contract_sha256"
+        ]
+      },
+      "dual_pin_policy": {
+        "cleanup_required": true,
+        "mode": "dual_pin_then_cutover",
+        "requires_explicit_target_list": true,
+        "requires_old_and_new_pins": true,
+        "targets_must_be_dependency_pins": true
+      },
+      "enabled": true,
+      "errors": {
+        "rls_bypass": {
+          "subcode": "RLS_BYPASS_ATTEMPT",
+          "top_level": "ERR_INTERNAL"
+        }
+      },
+      "evidence": {
+        "bypass_attestation_schema": "prod-1/bypass-attestation/1.0",
+        "filename_pattern": "PROD1-BYPASS-EVIDENCE-{incident_id}.json",
+        "must_include": [
+          "incident_id",
+          "incident_state",
+          "window",
+          "targets",
+          "bypass_transcript_sha256",
+          "bypass_attestations"
+        ],
+        "notes": "Attestations MUST be verified against QUORUM-1 pinned signer identities. CI roles are forbidden signers.",
+        "schema": "prod-1/legislative-bypass-evidence/2.0"
+      },
+      "incident_voiding_rule": {
+        "must": "Bypass evidence MUST only be accepted while incident_state == 'open'. Once closed, the bypass is cryptographically void for future changes because signatures bind incident_id and transcript.",
+        "note": "CI cannot verify external incident systems; enforcement is via binding signatures to incident_id + transcript and time-boxed window."
+      },
+      "non_derogable_invariants": [
+        "Postgres Row-Level Security (RLS) MUST NOT be disabled or bypassed in production under any circumstances.",
+        "Direct UPDATE/DELETE on immutable finance tables (LED-1 LedgerPosting/LedgerEntry; PAY-4 payout postings) is FORBIDDEN; corrections must be additive via reversing postings.",
+        "Ticket credential immutability (TKT-1 TicketCredential status history) MUST NOT be overwritten; revocation must be append-only and auditable.",
+        "Any break-glass bypass that would violate the above MUST fail-closed and emit an audit incident."
+      ],
+      "notes": "This protocol is for emergency rotations only. Routine upgrades MUST follow standard governance and cannot use the bypass window.",
+      "objective": "Enable emergency, time-boxed cryptographic and profile rotations (e.g., PQC/vulnerability response) without suite self-lockout, while preserving auditability and deterministic rollback/cleanup.",
+      "policy_isolation_invariant": {
+        "enforced_by": "QUORUM-1-INVARIANT-ISOLATION",
+        "must": "Primary quorum signers MUST be in distinct security boundaries (e.g., separate cloud accounts) per QUORUM-1."
+      },
+      "suite_lockout_prevention_rules": [
+        "During an active bypass window, affected contracts MUST allow BOTH old and new artifact pins for the declared targets.",
+        "The bypass window MUST be time-boxed and MUST be closed by a cleanup patch removing the old pins.",
+        "All bypass activity MUST be traceable to an incident_id and dual approvals.",
+        "Bypass attestations MUST be cryptographically bound to incident_id; replay across incidents is invalid.",
+        "Bypass attestations MUST include bypass_transcript_sha256 derived from the exact target pin change set."
+      ],
+      "window_policy": {
+        "clock_source": "utc",
+        "incident_bound": true,
+        "max_window_seconds": 86400,
+        "requires_explicit_window_object": true,
+        "requires_incident_id_in_window": true,
+        "window_object_schema": "prod-1/legislative-bypass-window/2.0"
+      }
+    },
+    "operational_game_days": {
+      "evidence": "Each game day MUST produce an immutable audit record.",
+      "frequency_days_max": 90,
+      "must": true,
+      "scenarios": [
+        "Kill primary DB node and verify failover + app reconnect.",
+        "Simulate Redis outage and verify degraded-mode behavior and lock fallback.",
+        "Rotate signing keys and verify offline scanners remain valid through grace overlap."
+      ]
+    },
+    "otel_resource_mapping": {
+      "service.instance.id": "producer.instance_id",
+      "service.name": "producer.service",
+      "service.version": "producer.version"
+    },
+    "producer_kind_enum": [
+      "api",
+      "worker",
+      "scheduler",
+      "webhook_consumer",
+      "outbox_publisher",
+      "reconciler",
+      "cli"
+    ],
+    "producer_service_allowlist": [
+      "ticketing.orders",
+      "ticketing.tickets",
+      "ticketing.seats",
+      "ticketing.ledger",
+      "ticketing.payments",
+      "ticketing.scanning",
+      "ticketing.memberships",
+      "ticketing.events",
+      "ticketing.auth",
+      "ticketing.webhooks",
+      "ticketing.integrations",
+      "ticketing.notifications",
+      "ticketing.observability",
+      "ticketing.admin"
+    ],
+    "producer_service_pattern": "^ticketing\\.[a-z0-9_]+(\\.[a-z0-9_]+)*$",
+    "rules": [
+      "producer.service MUST match producer_service_pattern.",
+      "producer.service MUST be a member of producer_service_allowlist.",
+      "producer.kind MUST be a member of producer_kind_enum.",
+      "Producer metadata MUST NOT contain any forbidden_fields (these keys MUST NOT appear in producer identity, instance_id claims, or static service metadata).",
+      "Producer metadata MUST be derived at boot from environment/config and MUST NOT be mutated per-request."
+    ]
+  },
+  "last_updated_utc": "2026-02-08T17:09:44Z",
+  "migration": {
+    "semver_rules": {
+      "major": "Breaking changes to required fields, naming rules, or allowlist semantics.",
+      "minor": "Additive allowlist/enum expansions or optional fields.",
+      "patch": "Non-breaking tightening or schema compliance fixes."
+    }
+  },
+  "normative_source": {
+    "kind": "json"
+  },
+  "observability": {
+    "bounded_labels": {
+      "max_label_values_per_dimension": 64
+    },
+    "required": {
+      "logs": [
+        "audit.break_glass.activated",
+        "audit.break_glass.action_executed",
+        "dr.restore_drill.completed"
+      ],
+      "metrics": [
+        "http.server.request.duration",
+        "db.query.duration",
+        "oban.queue.latency",
+        "redis.command.error_rate"
+      ],
+      "slo_budgets_ref": "OBQC-1",
+      "traces": [
+        "request.trace_id propagation end-to-end (envelope only)"
+      ]
+    },
+    "rule": "Production systems MUST provide audit-grade observability: bounded labels, immutable incident audit logs, and actionable SLO telemetry."
+  },
+  "outbox_events": [],
+  "purpose_and_boundaries": {
+    "boundaries": [
+      "PROD-1 is normative for production posture and operational invariants; it does not define business-domain behavior (orders, pricing, tickets).",
+      "PROD-1 does not define cryptographic primitives (SEC-1 owns crypto); PROD-1 references SEC-1 for signing/canonicalization where needed.",
+      "PROD-1 does not define per-resource authorization rules; IAM-1 owns access models. PROD-1 defines the break-glass protocol that IAM-1 must expose and OBS-1 must audit."
+    ],
+    "purpose": [
+      "Define non-negotiable production survivability laws (DR + emergency access + integrity) for the Ticketing platform.",
+      "Define deterministic producer identity and namespace rules used across event envelopes, logs, metrics, and audit trails.",
+      "Define enforceable operational invariants that block deployments when violated (\"no theatre\" gates + pinned constants)."
+    ]
+  },
+  "schema_version": "contract-suite/1.0",
+  "security": {
+    "break_glass_ref": "invariants.emergency_access_protocol",
+    "crypto_ref": "SEC-1",
+    "forbid_secrets": true,
+    "pii_fields": [],
+    "rule": "Security posture MUST be deterministic, auditable, and compatible with emergency operations (break-glass) without violating tenancy.",
+    "secret_rotation_ref": "invariants.infrastructure_hygiene.secret_management"
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "Production-grade survival, disaster recovery, and emergency access laws for Ticketing. Defines immutable producer identity rules plus operational physics: PITR/WAL archiving, RPO/RTO targets, graceful shutdown/drain discipline, break-glass policy bypass protocol, and infrastructure immutability/secret rotation requirements.",
+  "tenancy": {
+    "notes": [
+      "All public entry points MUST require org_id context; producer fields MUST NOT replace org_id.",
+      "Producer payload MUST NOT contain org_id, tenant_id, or other tenant identifiers."
+    ],
+    "rule": "Producer identity is system metadata and MUST NOT be used as a tenancy key.",
+    "tenant_key": "org_id"
+  },
+  "tier": 2,
+  "title": "Production Governance & Survival",
+  "updated_at_utc": null,
+  "version": "1.2.2"
+}

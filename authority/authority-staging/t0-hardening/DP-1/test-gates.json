@@ -1,0 +1,478 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "DP-1-GATE_TestGates_v2.1.1.json",
+  "contract_ref": {
+    "doc_id": "DP-1",
+    "version": "2.1.1"
+  },
+  "doc_id": "DP-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "bundle_manifest",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.1 across contract, test_gates, and bundle_manifest.",
+      "id": "DP-1-GATE-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {
+            "exclude": [
+              "bundle.manifest.json"
+            ]
+          },
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle MUST include required files and exact bundle.manifest.json filename.",
+      "id": "DP-1-GATE-002",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "DP-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "DP-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "2.1.1",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "DP-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.1.1",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract/Test Gates linkage MUST be exact (doc_id/version parity).",
+      "id": "DP-1-GATE-003",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\x54\\x4f\\x44\\x4f",
+              "\\x54\\x42\\x44",
+              "\\x46\\x49\\x58\\x4d\\x45",
+              "\\x52\\x45\\x50\\x4c\\x41\\x43\\x45\\x4d\\x45"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "\\x54\\x4f\\x44\\x4f",
+              "\\x54\\x42\\x44",
+              "\\x46\\x49\\x58\\x4d\\x45",
+              "\\x52\\x45\\x50\\x4c\\x41\\x43\\x45\\x4d\\x45"
+            ],
+            "json_pointers": [
+              "/gates"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholder tokens allowed in active artifacts. Uses hex-encoded tokens to prevent self-match.",
+      "id": "DP-1-GATE-004",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/tenancy/tenant_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenant key MUST be org_id (not tenant_id or organization_id).",
+      "id": "DP-1-GATE-005",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "app.current_org_id",
+            "json_pointer": "/tenancy/rls_guc_name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "current_setting('app.current_org_id', true)::uuid",
+            "json_pointer": "/tenancy/rls_current_setting_expression"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RLS tenant GUC name and type-cast MUST be pinned to TEN-1 invariant (app.current_org_id, ::uuid).",
+      "id": "DP-1-GATE-RLS-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\x4c\\x4f\\x43\\x4b\\x53\\x2d\\x30"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "LOCKS-0 references are forbidden; suite uses LOCKS-1.",
+      "id": "DP-1-GATE-DEP-LOCKS-001",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "strict_bulkhead",
+            "json_pointer": "/infrastructure_topology/connection_pooling/isolation_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/infrastructure_topology/connection_pooling/background_repo_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Ticketing.Repo",
+            "json_pointer": "/infrastructure_topology/connection_pooling/repo_names/primary"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Ticketing.Repo.Background",
+            "json_pointer": "/infrastructure_topology/connection_pooling/repo_names/background"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 0.3,
+            "json_pointer": "/infrastructure_topology/connection_pooling/policy/reserved_fraction_sync_api_min"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 0.2,
+            "json_pointer": "/infrastructure_topology/connection_pooling/policy/best_effort_pool_fraction_max"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "V42_DB_POOL_SIZE_PRIMARY",
+            "json_pointer": "/infrastructure_topology/connection_pooling/required_config_keys/primary_pool_size"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "V42_DB_POOL_SIZE_BACKGROUND",
+            "json_pointer": "/infrastructure_topology/connection_pooling/required_config_keys/background_pool_size"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Bulkhead pool isolation MUST be declared and pinned (strict_bulkhead with repo names and numeric caps).",
+      "id": "DP-1-GATE-010",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Non-producer contract MUST declare emits_events=false and outbox_events=[] in the contract artifact.",
+      "failure_message": "DP-1 declares producer semantics or non-empty outbox events despite non-producer intent.",
+      "id": "DP-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "Non-producer declaration remains explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "dependency_floors.EVT-1 MUST remain pinned to 2.16.4 in the contract artifact.",
+      "failure_message": "dependency_floors.EVT-1 drifted from the pinned value 2.16.4.",
+      "id": "DP-1-GATE-EVT-1-FLOOR-PIN",
+      "level": "P1",
+      "must": false,
+      "title": "EVT-1 floor pin remains stable"
+    },
+    {
+      "id": "DP1-INTERNAL-AUDIT-CONTEXT",
+      "title": "Internal transition audit context",
+      "description": "Successful CAS transitions write internal audit records atomically with tenant, actor, request, and trace context, without EVT-1 outbox events.",
+      "failure_message": "DP-1 internal transition audit semantics failed.",
+      "level": "P0",
+      "must": true,
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "artifact_kind": "contract",
+            "expected": "Successful CAS transitions write internal audit records atomically with tenant, actor, request, and trace context, without EVT-1 outbox events."
+          }
+        }
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "fail_closed",
+            "json_pointer": "/tenancy/missing_tenant_context/internal_behavior"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN_TENANT_CONTEXT_MISSING",
+            "json_pointer": "/tenancy/missing_tenant_context/internal_causal_subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "internal_only",
+            "json_pointer": "/err_1_mappings/0/subcode_visibility"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_NOT_FOUND",
+            "json_pointer": "/err_1_mappings/0/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN-1",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/authority"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "/tenancy/hide_existence/http_surface_uniformity/missing_tenant",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/policy_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_NOT_FOUND",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Missing-tenant handling MUST fail closed internally, externalize as ERR_NOT_FOUND, and defer HTTP subcode, detail, and header uniformity to TEN-1.",
+      "failure_message": "DP-1 missing-tenant behavior overrides TEN-1 or exposes internal causal telemetry at the HTTP boundary.",
+      "id": "DP-1-GATE-TEN-1-MISSING-TENANT-001",
+      "level": "P0",
+      "must": true,
+      "title": "Missing-tenant behavior follows TEN-1"
+    },
+    {
+      "id": "DP-1-GATE-ERR-REGISTRY-MAPPING-001",
+      "title": "Actor-context mapping matches ERR-1",
+      "description": "DP-1 actor-context mappings use the registered ERR-1 top-level code for each subcode.",
+      "failure_message": "DP-1 actor-context error mapping drifted from ERR-1.",
+      "level": "P1",
+      "must": true,
+      "assertions": [
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_dp_actor_context_mapping_matches_err1_registry"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-02-03T08:06:56Z",
+  "last_updated_utc": "2026-02-03T08:06:56Z",
+  "normative_source": "json",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "DP-1 Test Gates",
+  "updated_at": null,
+  "version": "2.1.1"
+}

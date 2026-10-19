@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "DP-1",
+    "bundle_version": "3.0.0"
+  },
+  "doc_id": "DP-1",
+  "files": [
+    {
+      "bytes": 19151,
+      "path": "DP-1_Contract_v3.0.0.json",
+      "sha256": "b1f2e09a929b70ad37bc84ad7ca9ce96590170eebfc40200e9762d102dca5a09"
+    },
+    {
+      "bytes": 14857,
+      "path": "DP-1_Test_Gates_v3.0.0.json",
+      "sha256": "0f282303ddabf7bd9a457667a54422a9777ff15c9b3449dad4ff4bca0859712a"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "3.0.0"
+}

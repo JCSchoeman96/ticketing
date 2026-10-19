@@ -1,0 +1,39 @@
+{
+  "bootstrap_commit": "51a8e5e77cfcfab9caac3ba1631230b0d6c6f6d7",
+  "provenance_statement": "Editable successor source bootstrapped from the exact active OFFER-1 1.2.0 ZIP in contracts/OFFER-1; the source bundle and every member are recorded by hash and byte length.",
+  "source_bundle_path": "contracts/OFFER-1/OFFER-1_bundle_v1.2.0.zip",
+  "source_zip_sha256": "98c4254c5e83e844d967b378615646436c7dc5f2baf769792410767744de7a42",
+  "source_zip_bytes": 7533,
+  "source_version": "1.2.0",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "OFFER-1_bundle_v1.2.0/OFFER-1_Contract_v1.2.0.json",
+      "sha256": "b78963a83ea6e82b9f8377f58ac1fc436ceaa8e0d86513ec62f0801124537453",
+      "bytes": 45646
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "OFFER-1_bundle_v1.2.0/OFFER-1-GATE_TestGates_v1.2.0.json",
+      "sha256": "7be16886f97c3e02225d7626a84e441cf019bbefe676af70e38a5da76e6836bd",
+      "bytes": 15612
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "OFFER-1_bundle_v1.2.0/OFFER-1-GATE_TestGates_v1.2.0.json",
+      "sha256": "d870cebd52665e73e86b773dab9ccdacfbd1cc8f1a15a703301afc20569e6269",
+      "bytes": 7366
+    },
+    {
+      "source_member_path": "OFFER-1_bundle_v1.2.0/OFFER-1_Contract_v1.2.0.json",
+      "sha256": "963eeafc67e90333a27204fea6d54bf5b5bdb9a059416fe846999fd2db5edc9b",
+      "bytes": 25609
+    },
+    {
+      "source_member_path": "OFFER-1_bundle_v1.2.0/bundle.manifest.json",
+      "sha256": "7483faae84300aec8cc77636a1a63d01155c702c990f8a984b0f1c7eed48ff66",
+      "bytes": 634
+    }
+  ]
+}

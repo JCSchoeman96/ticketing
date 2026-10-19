@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "SCA-1",
+    "bundle_version": "1.0.5"
+  },
+  "doc_id": "SCA-1",
+  "files": [
+    {
+      "bytes": 18195,
+      "path": "SCA-1_Contract_v1.0.5.json",
+      "sha256": "9a651aa33b06394e2f65f9dfdb8bbef50c337521f54230517a853a2451b17191"
+    },
+    {
+      "bytes": 8075,
+      "path": "SCA-1_Test_Gates_v1.0.5.json",
+      "sha256": "f0c3090969bb59913d2a1558bb1af3219105684f50b3c9587284f3867e84e28f"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.0.5"
+}

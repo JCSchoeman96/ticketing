@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "SEAT-1",
+    "bundle_version": "4.1.0"
+  },
+  "doc_id": "SEAT-1",
+  "files": [
+    {
+      "bytes": 135178,
+      "path": "SEAT-1_Contract_v4.1.0.json",
+      "sha256": "3f285d66ea31cc95aa3621241988b887562c0b575ee2f2ae37bf71d3b457d1dc"
+    },
+    {
+      "bytes": 35149,
+      "path": "SEAT-1_Test_Gates_v4.1.0.json",
+      "sha256": "45c0365c0819f7f1b018718b803122c2faca1405a19d8f48bc6cdfb7b22a7928"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T12:54:14Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "4.1.0"
+}

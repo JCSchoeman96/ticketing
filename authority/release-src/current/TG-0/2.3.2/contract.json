@@ -1,0 +1,376 @@
+{
+  "anti_patterns": [
+    "Gates that restate the rule without an observable acceptance criteria.",
+    "\u2018Happy-path only\u2019 gates that omit denial cases for security/money/tenancy.",
+    "Gates coupled to an implementation detail instead of an invariant.",
+    "Unstable gate IDs (renumbered per edit) or IDs containing placeholder markers."
+  ],
+  "artifact_kind": "contract",
+  "baseline_mandatory_gates": [
+    {
+      "intent": "Contract JSON validates against CS-0 contract schema; Test Gates JSON validates against CS-0 test_gates schema.",
+      "level": "P0",
+      "name": "Schema validity"
+    },
+    {
+      "intent": "Bundle contains exactly 3 artifacts: Contract JSON, Test Gates JSON, bundle.manifest.json. No extras.",
+      "level": "P0",
+      "name": "Bundle integrity"
+    },
+    {
+      "intent": "Gate doc_id is <DOCID>-GATE; contract_ref matches doc_id+version; gate IDs are stable and unique.",
+      "level": "P0",
+      "name": "Naming & linkage"
+    },
+    {
+      "intent": "If the contract governs tenancy/authz/idempotency/money/inventory/scanning, negative_tests must be present and explicit.",
+      "level": "P0",
+      "name": "Denial tests for high-risk domains"
+    }
+  ],
+  "change_log": [
+    {
+      "changes": [
+        "Added TG-0-RUN-001 Harness Interlock for runtime/dynamic verification assertions.",
+        "Defined machine-addressable trigger schemas for runtime verification (ash_action, http_route, worker_job).",
+        "Defined runtime/dynamic assertion primitive vocabulary (telemetry_signal_emitted, trace_span_relationship, attribute_presence_assert, error_envelope_correlation, sampling_decision).",
+        "Clarified that org_id is the sole constitutional tenant context key for runtime telemetry assertions."
+      ],
+      "date_utc": "2026-01-06T12:00:00Z",
+      "version": "2.3.0"
+    },
+    {
+      "changes": [
+        "CI strict compliance patch: schema/gate/manifest drift fixes."
+      ],
+      "date_utc": "2026-01-06T08:30:45Z",
+      "version": "2.2.4"
+    },
+    {
+      "changes": [
+        "CI strict compliance patch: schema/gate/manifest drift fixes."
+      ],
+      "date_utc": "2026-01-06T08:24:59Z",
+      "version": "2.2.3"
+    },
+    {
+      "at_utc": "2026-01-06T07:52:48Z",
+      "summary": "Remove self-failing placeholder tokens; bump patch version; keep gate taxonomy unchanged.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "BREAKING: converted TG-0 to JSON-only normative contract; removed markdown artifact requirements.",
+        "Updated baseline gates to JSON-only bundle format (3 artifacts) and manifest integrity checks.",
+        "Made denial-test requirements explicit for scanning/idempotency and other high-risk domains."
+      ],
+      "date": "2026-01-02",
+      "version": "2.0.0"
+    },
+    {
+      "changes": [
+        "Metadata + test gate normalization for CI strict enforceability."
+      ],
+      "date": "2026-01-05",
+      "date_utc": "2026-01-05T08:44:45Z",
+      "version": "2.2.1"
+    },
+    {
+      "changes": [
+        "Corrected release identity and aligned the suite-schema assertion with accepted CS-0@3.0.1.",
+        "Completed the existing non-producer gate using its existing MUST failure text and TG-0 gate-field definitions; no new invariant was added.",
+        "Classified the existing EVT-1 minimum as registry_floor from its recorded registry-parity rationale, as required by CS-0 dependency records."
+      ],
+      "date_utc": "2026-10-09T00:00:00Z",
+      "version": "2.3.2"
+    }
+  ],
+  "changelog": [
+    {
+      "changes": [
+        "Added TG-0-RUN-001 Harness Interlock for runtime/dynamic verification assertions.",
+        "Defined machine-addressable trigger schemas for runtime verification (ash_action, http_route, worker_job).",
+        "Defined runtime/dynamic assertion primitive vocabulary (telemetry_signal_emitted, trace_span_relationship, attribute_presence_assert, error_envelope_correlation, sampling_decision).",
+        "Clarified that org_id is the sole constitutional tenant context key for runtime telemetry assertions."
+      ],
+      "date_utc": "2026-01-06T12:00:00Z",
+      "version": "2.3.0"
+    },
+    {
+      "changes": [
+        "Aligned header envelope to CS-0@2.1.0 (schema_version, suite_schema).",
+        "Standardized on assertion-style gates (assertions array) for all test gate artifacts."
+      ],
+      "date_utc": "2026-01-02T16:46:47Z",
+      "version": "2.1.0"
+    },
+    {
+      "changes": [
+        "P1: Declared explicit non-producer surface (emits_events=false, outbox_events=[]).",
+        "P1: Added registry floor parity dependency pin on EVT-1@2.16.4.",
+        "P1: Added ASSERT-NON-PRODUCER gate to prevent CI theatre."
+      ],
+      "date_utc": "2026-02-07T00:00:00.000000Z",
+      "type": "patch",
+      "version": "2.3.1"
+    }
+  ],
+  "definitions": {
+    "acceptance_criteria": "Observable outcomes that can be converted into automated tests without interpretation.",
+    "gate": "A required evidence check proving a contract rule or invariant.",
+    "level": {
+      "P0": "Correctness/safety; blocks release.",
+      "P1": "Important; blocks by default for this suite.",
+      "P2": "Advisory."
+    },
+    "negative_tests": "Explicit denial cases (must-fail scenarios)."
+  },
+  "dependencies": [
+    {
+      "doc_id": "EVT-1",
+      "min_version": "2.16.4",
+      "reason": "Registry floor parity for Phase-5 Airlock.",
+      "edge_type": "registry_floor"
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4"
+  },
+  "doc_id": "TG-0",
+  "dynamic_verification_standard": {
+    "assertion_primitives": {
+      "attribute_presence_assert": {
+        "constitutional_invariant": "attribute_key used for tenant context MUST be app.org_id (or equivalent canonical key).",
+        "description": "Asserts a required attribute is present on all spans matching a filter.",
+        "required": [
+          "span_filter",
+          "attribute_key"
+        ]
+      },
+      "error_envelope_correlation": {
+        "constitutional_invariant": "metric_tag_key MUST be 'error_code'.",
+        "description": "Asserts returned ERR-1 error codes correlate with emitted metric tags.",
+        "required": [
+          "error_code_key",
+          "metric_name",
+          "metric_tag_key"
+        ]
+      },
+      "sampling_decision": {
+        "description": "Asserts sampling decisions for traces/metrics based on route/job patterns.",
+        "required": [
+          "subject_filter",
+          "expected_sampling_rate",
+          "tolerance"
+        ]
+      },
+      "telemetry_signal_emitted": {
+        "constitutional_invariant": "required_tags MUST include org_id.",
+        "description": "Asserts a specific metric signal was emitted with required tags and value type.",
+        "required": [
+          "signal_type",
+          "metric_name",
+          "required_tags"
+        ]
+      },
+      "trace_span_relationship": {
+        "constitutional_invariant": "span attributes used for tenant context MUST use org_id (e.g., app.org_id).",
+        "description": "Asserts parent/child span relationships within a trace to prove context propagation.",
+        "required": [
+          "parent_span_filter",
+          "child_span_filter",
+          "relationship"
+        ]
+      }
+    },
+    "encoding_rule": {
+      "dynamic_assertion_types": [
+        "telemetry_signal_emitted",
+        "trace_span_relationship",
+        "attribute_presence_assert",
+        "error_envelope_correlation",
+        "sampling_decision"
+      ],
+      "note": "CS-0@2.2.0 restricts gate assertion modes to manual|automated. Runtime verification assertions MUST use mode='automated' with the primitive as 'type'. CI MUST treat these types as requiring the Runtime Harness Adapter."
+    },
+    "trigger_schemas": {
+      "ash_action": {
+        "notes": "tenant_fixture MUST encode org_id, not any alternative tenant key.",
+        "optional": [
+          "params_fixture",
+          "actor_fixture",
+          "tenant_fixture"
+        ],
+        "required": [
+          "domain",
+          "resource",
+          "action"
+        ]
+      },
+      "http_route": {
+        "notes": "path_template MUST be deterministic and free of regex wildcards.",
+        "optional": [
+          "body_fixture",
+          "headers_fixture",
+          "query_params"
+        ],
+        "required": [
+          "method",
+          "path_template"
+        ]
+      },
+      "worker_job": {
+        "optional": [
+          "args_fixture",
+          "queue_name"
+        ],
+        "required": [
+          "worker_module"
+        ]
+      }
+    }
+  },
+  "emits_events": false,
+  "gate_schema_style": "assertion",
+  "gate_structure_normative": {
+    "recommended_fields": [
+      {
+        "name": "negative_tests",
+        "notes": "Denial cases; mandatory for high-risk domains.",
+        "type": "string[]"
+      },
+      {
+        "name": "property_tests",
+        "notes": "Generative invariants / fuzz cases where applicable.",
+        "type": "string[]"
+      },
+      {
+        "name": "evidence",
+        "notes": "Pointers to automation, queries, logs, or proofs.",
+        "type": "string[]"
+      }
+    ],
+    "required_fields": [
+      {
+        "name": "id",
+        "notes": "Stable identifier, no spaces. Format: <DOCID>-P#-NN (recommended).",
+        "type": "string"
+      },
+      {
+        "name": "level",
+        "notes": "One of P0 | P1 | P2.",
+        "type": "string"
+      },
+      {
+        "name": "must",
+        "notes": "true for required gates.",
+        "type": "boolean"
+      },
+      {
+        "name": "description",
+        "notes": "What is being proven and why it matters.",
+        "type": "string"
+      },
+      {
+        "name": "acceptance_criteria",
+        "notes": "Testable outcomes; no ambiguity.",
+        "type": "string[]"
+      }
+    ]
+  },
+  "gate_system": {
+    "assertion_object_shape": {
+      "details": "type-specific payload",
+      "mode": "manual|automated (runtime primitives encoded as automated types; see dynamic_verification_standard.encoding_rule)",
+      "type": "see CS-0.schemas.test_gates.gates.items.properties.assertions"
+    },
+    "gate_style": "assertion",
+    "legacy_gate_style_allowed": false,
+    "priority_levels": [
+      "P0",
+      "P1",
+      "P2"
+    ]
+  },
+  "generated_at_utc": "2026-01-06T12:00:00Z",
+  "high_risk_domains_requiring_negative_tests": [
+    "tenancy",
+    "authorization",
+    "authentication",
+    "idempotency",
+    "money",
+    "payments",
+    "ledger",
+    "inventory",
+    "holds",
+    "scanning",
+    "api_security"
+  ],
+  "last_updated_utc": "2026-10-09T00:00:00Z",
+  "normative_source": "json",
+  "outbox_events": [],
+  "references": [
+    {
+      "doc_id": "CG-0",
+      "kind": "contract",
+      "note": "CG-0 defines the CI enforcement checks that operationalize TG-0."
+    },
+    {
+      "doc_id": "ERR-1",
+      "kind": "contract",
+      "note": "Error envelope/codes used by denial tests to assert correct failure semantics."
+    }
+  ],
+  "rules": [
+    {
+      "category": "runtime_integrity",
+      "rationale": "Prevents contracts from promising runtime safety that the repository cannot execute, eliminating enforcement theater for dynamic gates.",
+      "rule_id": "TG-0-RUN-001",
+      "severity": "P0",
+      "text": "Harness Interlock. If any <DOCID>-GATE contains runtime verification assertions (telemetry_signal_emitted, trace_span_relationship, attribute_presence_assert, error_envelope_correlation, sampling_decision), the target repository MUST include a Runtime Harness Adapter at 'test/support/v42_harness.ex'. CI MUST fail if such assertions exist and the harness entry point is missing."
+    },
+    {
+      "category": "format",
+      "rationale": "Prevents 'documentation-only' contracts that cannot be enforced in CI.",
+      "rule_id": "TG-0-FMT-001",
+      "severity": "P0",
+      "text": "All contracts MUST ship a companion <DOCID>-GATE test-gates artifact with machine-actionable acceptance criteria."
+    },
+    {
+      "category": "format",
+      "rationale": "Prevents silent drift where gates point at an older contract version. Without this, you can 'pass CI' while enforcing the wrong contract.",
+      "rule_id": "TG-0-FMT-002",
+      "severity": "P0",
+      "text": "Each <DOCID>-GATE artifact MUST set contract_ref.doc_id == <DOCID> and contract_ref.version == contract.version. CI MUST fail on any mismatch."
+    },
+    {
+      "category": "bundle",
+      "rationale": "Deterministic CI validation and reproducible hashing/pinning.",
+      "rule_id": "TG-0-BUNDLE-001",
+      "severity": "P0",
+      "text": "Contract bundles MUST be JSON-only and MUST contain exactly: <DOCID>_Contract_vX.Y.Z.json, <DOCID>_Test_Gates_vX.Y.Z.json, bundle.manifest.json (no extras)."
+    },
+    {
+      "category": "naming",
+      "rationale": "Stable IDs are required for automated tracking, waivers, and audit history.",
+      "rule_id": "TG-0-ID-001",
+      "severity": "P0",
+      "text": "Gate IDs MUST be stable, unique, and MUST NOT include placeholder tokens. Recommended format: <DOCID>-P0-001 / <DOCID>-P1-002."
+    },
+    {
+      "category": "safety",
+      "rationale": "Most real incidents are denial-path failures, not happy-path failures.",
+      "rule_id": "TG-0-NEG-001",
+      "severity": "P0",
+      "text": "Contracts in high-risk domains MUST include explicit negative_tests covering cross-tenant access, unauthorized access, stale-version writes, and replay/idempotency abuse as applicable."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines the enterprise gate system (P0/P1/P2) and the assertion-style gate shape used by all *-GATE artifacts.",
+  "tier": 1,
+  "title": "Test Gate Standard (JSON-only)",
+  "updated_at_utc": "2026-10-09T00:00:00Z",
+  "version": "2.3.2"
+}

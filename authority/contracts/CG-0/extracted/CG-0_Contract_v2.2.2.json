@@ -1,0 +1,211 @@
+{
+  "artifact_kind": "contract",
+  "change_log": [
+    {
+      "changes": [
+        "BREAKING: converted CG-0 to JSON-only normative contract; removed markdown enforcement and 4-artifact assumptions.",
+        "Aligned strict checks with JSON-only bundles (contract json, gates json, bundle manifest).",
+        "Moved python reference implementation to an external repo path (not inside the bundle)."
+      ],
+      "date": "2026-01-02",
+      "version": "2.0.0"
+    },
+    {
+      "id": "CG0-222-DEPENDENCY-EDGE",
+      "summary": "Adds registry_floor to the existing EVT-1 parity dependency so the release conforms to CS-0 v3 dependency structure."
+    },
+    {
+      "id": "CG0-222-GATE-SCHEMA",
+      "summary": "Completes required test-gate fields for the existing non-producer control under CS-0 v3."
+    }
+  ],
+  "changelog": [
+    {
+      "changes": [
+        "Aligned header envelope to CS-0@2.1.0 (schema_version, suite_schema).",
+        "Pinned reference implementations to versioned CI scripts and workflow.",
+        "Adopted assertion-style gates (assertions array) in CG-0-GATE artifact."
+      ],
+      "date_utc": "2026-01-02T16:46:47Z",
+      "version": "2.1.0"
+    },
+    {
+      "changes": [
+        "P1: Declared explicit non-producer surface (emits_events=false, outbox_events=[]).",
+        "P1: Added registry floor parity dependency pin on EVT-1@2.16.4.",
+        "P1: Added ASSERT-NON-PRODUCER gate to prevent CI theatre."
+      ],
+      "date_utc": "2026-02-07T00:00:00.000000Z",
+      "type": "patch",
+      "version": "2.2.1"
+    },
+    {
+      "changes": [
+        "Carry forward the owner-approved CG-0 v2.2.1 non-producer and EVT-1 parity semantics without behavioral changes.",
+        "Correct the successor release identity and align suite_schema to the proposed CS-0@3.0.1 baseline.",
+        "Classify the existing EVT-1 parity dependency as registry_floor under the ratified CS-0 v3 dependency schema.",
+        "Complete the P1 non-producer gate fields required by CS-0 v3 while preserving its existing assertions."
+      ],
+      "date_utc": "2026-10-09T00:00:00.000000Z",
+      "type": "patch",
+      "version": "2.2.2"
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "EVT-1",
+      "min_version": "2.16.4",
+      "reason": "Registry floor parity for Phase-5 Airlock.",
+      "edge_type": "registry_floor"
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4"
+  },
+  "doc_id": "CG-0",
+  "emits_events": false,
+  "generated_at_utc": "2026-01-02T16:46:47Z",
+  "inputs_outputs": {
+    "inputs": [
+      {
+        "name": "--root",
+        "notes": "Directory containing bundles.",
+        "type": "path"
+      },
+      {
+        "name": "--canon",
+        "notes": "CANON-1 bundle zip (source of truth for pinned bundles).",
+        "type": "zip"
+      },
+      {
+        "name": "--cs",
+        "notes": "CS-0 bundle zip containing JSON Schemas.",
+        "type": "zip"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "exit_code",
+        "notes": "0 on PASS; non-zero on FAIL.",
+        "type": "int"
+      },
+      {
+        "name": "stderr",
+        "notes": "Deterministic list of failures (first N shown).",
+        "type": "text"
+      }
+    ]
+  },
+  "last_updated_utc": "2026-10-09T00:00:00Z",
+  "normative_source": "json",
+  "outbox_events": [],
+  "reference_implementation": {
+    "ash_governance_lint_script": "ci_ash_governance_lint_v1.0.0.py",
+    "ci_contract_gate_script": "ci_contract_gate_strict_v2.4.0.py",
+    "cli_contract": {
+      "defaults": {
+        "contracts_dir": "<root>/contracts"
+      },
+      "optional_args": [
+        "--contracts-dir",
+        "--fail-on-warn"
+      ],
+      "required_args": [
+        "--root",
+        "--canon",
+        "--cs"
+      ],
+      "script": "ci_contract_gate_strict_v2.4.0.py"
+    },
+    "expected_path_in_repo": "ci/ci_contract_gate_strict.py",
+    "github_actions_workflow": "github_actions_contract_suite_gate_v2.5.0.yml",
+    "language": "python",
+    "notes": [
+      "Tool MUST reflect this contract (CG-0) and TG-0 bundle format.",
+      "Tool MUST reject any bundle that contains markdown artifacts in the canonical build (derived markdown may live outside the bundle)."
+    ],
+    "primary_gate_script": "ci_contract_gate_strict_v2.3.0.py"
+  },
+  "references": [
+    {
+      "doc_id": "TG-0",
+      "kind": "contract",
+      "note": "Defines the required test-gate content shape; CG-0 enforces it structurally."
+    },
+    {
+      "doc_id": "CANON-1",
+      "kind": "contract",
+      "note": "Pins canonical bundles and artifacts; CI uses it as source of truth."
+    },
+    {
+      "doc_id": "CS-0",
+      "kind": "contract",
+      "note": "Schema bundle used for validation."
+    }
+  ],
+  "rules": [
+    {
+      "category": "integrity",
+      "rationale": "Prevents unreviewed bundles from silently entering the suite and stops drift.",
+      "rule_id": "CG-0-P0-001",
+      "severity": "P0",
+      "text": "CI MUST treat CANON-1 as the source of truth: only bundles declared in canonical_docs are validated; each bundle sha256 and artifact sha256 MUST match CANON-1 pins."
+    },
+    {
+      "category": "schema",
+      "rationale": "Ensures machine readability and prevents agents from generating against invalid shapes.",
+      "rule_id": "CG-0-P0-002",
+      "severity": "P0",
+      "text": "CI MUST validate contract JSON and test-gates JSON against CS-0 schemas (Draft 2020-12)."
+    },
+    {
+      "category": "bundle",
+      "rationale": "Eliminates dual-source-of-truth ambiguity and keeps hashing/pinning stable.",
+      "rule_id": "CG-0-P0-003",
+      "severity": "P0",
+      "text": "Canonical bundles MUST be JSON-only and MUST not contain markdown artifacts (no extras beyond pinned artifacts)."
+    },
+    {
+      "category": "governance",
+      "rationale": "Avoids naming drift that breaks dependency graphs and tooling.",
+      "rule_id": "CG-0-P1-001",
+      "severity": "P1",
+      "text": "Doc IDs MUST be stable and non-aggregate (no underscores). Versions MUST be strict semver."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "scope": {
+    "does_not_validate": [
+      "Runtime behavior (belongs to domain test suites).",
+      "Performance characteristics beyond what perf/obs contracts specify."
+    ],
+    "validates": [
+      "Bundles declared in CANON-1 canonical_docs",
+      "Bundle SHA pinning and inner artifact SHA pinning",
+      "Schema validation against CS-0",
+      "Doc ID/version linkage between contract and gates",
+      "Gate ID hygiene and placeholder avoidance"
+    ]
+  },
+  "status": "active",
+  "strictness_levels": {
+    "P0": [
+      "Every bundle declared in CANON-1 exists at --root and its sha256 matches CANON-1 bundle_sha256.",
+      "Bundle contains exactly the artifacts pinned by CANON-1 (no extras, no missing).",
+      "Each pinned artifact sha256 matches CANON-1 pins.",
+      "Contract JSON and Test Gates JSON validate against CS-0 schemas.",
+      "Contract doc_id/version match CANON-1 entry; gates contract_ref matches contract."
+    ],
+    "P1": [
+      "No aggregate doc_ids (no underscores).",
+      "Versions are strict SemVer X.Y.Z.",
+      "Gate IDs contain no TODO/TBD/PLACEHOLDER tokens and are unique per file.",
+      "Dependencies/supersedes doc_ids exist in CANON-1 canonical+deferred lists."
+    ]
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines the CI governance gate for Contract Suite artifacts (schema validation, bundle integrity, and strict envelope enforcement).",
+  "tier": 1,
+  "title": "CI Contract Gate Standard (JSON-only bundles)",
+  "version": "2.2.2"
+}

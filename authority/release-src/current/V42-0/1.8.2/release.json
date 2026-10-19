@@ -1,0 +1,14 @@
+{
+  "doc_id": "V42-0",
+  "version": "1.8.2",
+  "proposed_successor_version": "1.8.2",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Build candidate applying owner-approved D7 migration to tracked V42-0 v1.8.1. This is not a released or canonical bundle.",
+  "source_provenance": {
+    "kind": "tracked-bundle-successor-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "0129f10cc7e3d105bb0a5685b3ef744725b1118a014b8d1098959de2d8b2e658"
+  }
+}

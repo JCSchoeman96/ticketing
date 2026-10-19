@@ -1,0 +1,25 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "DMSC-1",
+    "bundle_version": "2.2.2"
+  },
+  "bundle_sha256": "46e96a1bfb5c4fefd62ff17270584d00db7c8f6ae1f4eb642507bbc1736d05a1",
+  "doc_id": "DMSC-1",
+  "files": [
+    {
+      "bytes": 16951,
+      "path": "DMSC-1-GATE_TestGates_v2.2.2.json",
+      "sha256": "333bb9431822029b5dc127cb7de6799ac63fb8f7951c521b917991b181fd12c7"
+    },
+    {
+      "bytes": 23835,
+      "path": "DMSC-1_Contract_v2.2.2.json",
+      "sha256": "fa2d87f774814c7a1cf424360857685ade77b07c8005886c6a02a5749f27e22d"
+    }
+  ],
+  "generated_at_utc": "2026-04-15T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.0",
+  "version": "2.2.2"
+}

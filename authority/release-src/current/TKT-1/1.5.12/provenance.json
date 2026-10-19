@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/TKT-1_bundle_v1.5.11_refactored.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/TKT-1_bundle_v1.5.11_refactored.zip",
+  "source_zip_sha256": "6627e75361614f6a23371a8f0437fb4cff695ef2a4945fd6c970e5774ddbb623",
+  "source_zip_bytes": 22836,
+  "source_version": "1.5.11",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "TKT-1_bundle_v1.5.11/TKT-1_Contract_v1.5.11.json",
+      "sha256": "110b3dd4dd53a1023c0ffc368b153d2359e4aa4a44a8ec7506f46daf71c91d98",
+      "bytes": 74873
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "TKT-1_bundle_v1.5.11/TKT-1_Test_Gates_v1.5.11.json",
+      "sha256": "6a55352e93b420e5845e4cf51e7169a5f03ba2c87bf82aed7f2eaf7d79c1ec5e",
+      "bytes": 40756
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "TKT-1_bundle_v1.5.11/TKT-1_Contract_v1.5.11.json",
+      "sha256": "5b77f2c984a170d0baad1f1de0085e7a29859acfb6a4a179e81b3935c09952c9",
+      "bytes": 75047
+    },
+    {
+      "source_member_path": "TKT-1_bundle_v1.5.11/TKT-1_Test_Gates_v1.5.11.json",
+      "sha256": "ce8f86881672f43f35aa3a23ef755ab86b7b2ee35c2ba5e662eddfc2011548bf",
+      "bytes": 32881
+    }
+  ]
+}

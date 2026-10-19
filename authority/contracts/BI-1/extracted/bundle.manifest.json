@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "BI-1",
+    "bundle_version": "1.0.2"
+  },
+  "doc_id": "BI-1",
+  "files": [
+    {
+      "bytes": 30240,
+      "path": "BI-1_Contract_v1.0.2.json",
+      "sha256": "4dc933dfbaf0e2edad0308d6272968ee53fe45a674f515c0b8c6c382908d758b"
+    },
+    {
+      "bytes": 14370,
+      "path": "BI-1_Test_Gates_v1.0.2.json",
+      "sha256": "1ef297662966a7d1f547ce4428ec709ba0c26bd990b25a561cf987c9beacecf5"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.0.2"
+}

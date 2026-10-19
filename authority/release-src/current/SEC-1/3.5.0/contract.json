@@ -1,0 +1,2396 @@
+{
+  "adapter_interface": {
+    "correlation": {
+      "description": "Inject v42_correlation_id as an opaque, tenant-safe HMAC into PSP metadata (never org_id/order_id).",
+      "external_representation": "opaque_hmac",
+      "hash_requirements": {
+        "algorithm": "HMAC_SHA256",
+        "min_entropy_bits": 128,
+        "no_plain_order_ids": true,
+        "no_plain_org_ids": true,
+        "requires_secret": true,
+        "secret_rotation_required": true
+      },
+      "provider_metadata_mapping_required": true,
+      "refund_correlation_hash_required": true,
+      "source_contract": "PAY-1",
+      "v42_correlation_id_required": true
+    },
+    "must_implement": [
+      "initialize_payment",
+      "confirm_or_capture",
+      "refund",
+      "verify_webhook",
+      "parse_event",
+      "fetch_transaction"
+    ],
+    "must_not": [
+      "write_core_domain_tables_directly",
+      "emit_evt1_events_directly",
+      "decide_ledger_postings"
+    ],
+    "operations": {
+      "confirm_or_capture": {
+        "errors": [
+          {
+            "code": "ERR_FORBIDDEN",
+            "subcode": "EXT_SIGNATURE_INVALID"
+          },
+          {
+            "code": "ERR_CONFLICT",
+            "subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH"
+          },
+          {
+            "code": "ERR_UNAVAILABLE",
+            "subcode": "EXT_WEBHOOK_RETRYABLE"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "amount_minor": "integer>=0|nil",
+            "currency": "iso_4217|nil",
+            "idempotency_key": "opaque_string",
+            "org_id": "uuid_v7",
+            "payment_intent_id": "uuid_v7",
+            "provider_reference_id": "string"
+          },
+          "required": [
+            "org_id",
+            "payment_intent_id",
+            "provider_reference_id",
+            "idempotency_key"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "captured_amount_minor": "integer>=0",
+            "currency": "iso_4217",
+            "provider_event_id": "string|nil",
+            "provider_fee_minor": "integer>=0|nil",
+            "status": "succeeded|pending|failed"
+          },
+          "required": [
+            "status",
+            "captured_amount_minor",
+            "currency",
+            "provider_fee_minor"
+          ]
+        }
+      },
+      "fetch_transaction": {
+        "errors": [
+          {
+            "code": "ERR_THIRD_PARTY",
+            "subcode": "EXT_WEBHOOK_RETRYABLE"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "provider": "string",
+            "provider_reference_id": "string"
+          },
+          "required": [
+            "provider",
+            "provider_reference_id"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "amount_minor": "integer|nil",
+            "currency": "iso_4217|nil",
+            "provider_fee_minor": "integer|nil",
+            "status": "succeeded|pending|failed"
+          },
+          "required": [
+            "status"
+          ]
+        }
+      },
+      "initialize_payment": {
+        "errors": [
+          {
+            "code": "ERR_BAD_REQUEST",
+            "subcode": "EXT_IDEMPOTENCY_KEY_REQUIRED"
+          },
+          {
+            "code": "ERR_CONFLICT",
+            "subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH"
+          },
+          {
+            "code": "ERR_THIRD_PARTY",
+            "subcode": "EXT_WEBHOOK_PERMANENT_FAILURE"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "amount_minor": "integer>=0",
+            "currency": "iso_4217",
+            "customer_ref": "string|nil",
+            "idempotency_key": "opaque_string",
+            "metadata": "map(string=>string)",
+            "org_id": "uuid_v7",
+            "payment_intent_id": "uuid_v7"
+          },
+          "required": [
+            "org_id",
+            "payment_intent_id",
+            "amount_minor",
+            "currency",
+            "idempotency_key"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "correlation_hash": "opaque_hmac",
+            "next_action": "map|nil",
+            "provider": "string",
+            "provider_reference_id": "string",
+            "status": "initialized|requires_action|failed"
+          },
+          "required": [
+            "provider",
+            "provider_reference_id",
+            "status",
+            "correlation_hash"
+          ]
+        }
+      },
+      "parse_event": {
+        "errors": [
+          {
+            "code": "ERR_BAD_REQUEST",
+            "subcode": "EXT_SIGNATURE_INVALID"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "provider": "string",
+            "raw_body": "bytes"
+          },
+          "required": [
+            "provider",
+            "raw_body"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "amount_minor": "integer|nil",
+            "correlation_hash": "opaque_hmac",
+            "currency": "iso_4217|nil",
+            "event_type": "string",
+            "occurred_at": "utc_datetime_usec",
+            "provider_account_ref": "string|nil",
+            "provider_event_id": "string",
+            "provider_fee_minor": "integer|nil"
+          },
+          "required": [
+            "provider_event_id",
+            "event_type",
+            "occurred_at",
+            "correlation_hash"
+          ]
+        }
+      },
+      "refund": {
+        "errors": [
+          {
+            "code": "ERR_BAD_REQUEST",
+            "subcode": "EXT_IDEMPOTENCY_KEY_REQUIRED"
+          },
+          {
+            "code": "ERR_CONFLICT",
+            "subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH"
+          },
+          {
+            "code": "ERR_THIRD_PARTY",
+            "subcode": "EXT_WEBHOOK_PERMANENT_FAILURE"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "amount_minor": "integer>=0",
+            "currency": "iso_4217",
+            "idempotency_key": "opaque_string",
+            "org_id": "uuid_v7",
+            "payment_intent_id": "uuid_v7",
+            "reason": "string|nil",
+            "refund_intent_id": "uuid_v7"
+          },
+          "required": [
+            "org_id",
+            "payment_intent_id",
+            "refund_intent_id",
+            "amount_minor",
+            "currency",
+            "idempotency_key"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "refund_correlation_hash": "opaque_hmac",
+            "refund_reference_id": "string",
+            "status": "succeeded|pending|failed"
+          },
+          "required": [
+            "status",
+            "refund_reference_id",
+            "refund_correlation_hash"
+          ]
+        }
+      },
+      "verify_payment_reference": {
+        "description": "When money_state is \"paid_confirmed\", evidence_digest_sha256 is the immutable proof digest; it MUST be non-null and stable for the same provider_reference_id.",
+        "errors": [
+          {
+            "code": "ERR_VALIDATION",
+            "subcode": "PAY_REFERENCE_INVALID"
+          },
+          {
+            "code": "ERR_NOT_FOUND",
+            "subcode": "PAY_REFERENCE_NOT_FOUND"
+          },
+          {
+            "code": "ERR_UNAVAILABLE",
+            "subcode": "EXT_WEBHOOK_RETRYABLE"
+          },
+          {
+            "code": "ERR_THIRD_PARTY",
+            "subcode": "EXT_WEBHOOK_PERMANENT_FAILURE"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "org_id": "uuid_v7",
+            "provider": "string",
+            "provider_reference_id": "string"
+          },
+          "required": [
+            "org_id",
+            "provider",
+            "provider_reference_id"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "evidence_digest_sha256": "sha256_hex|nil",
+            "money_state": "paid_confirmed|pending|failed|awaiting_manual_verification|payment_plan_active|on_hold",
+            "paid_confirmed_at_utc": "utc_datetime_usec|nil",
+            "payment_reference_c14n": "string|nil",
+            "verified_payment_attempt_id": "uuid_v7|nil"
+          },
+          "required": [
+            "money_state"
+          ]
+        }
+      },
+      "verify_webhook": {
+        "errors": [
+          {
+            "code": "ERR_FORBIDDEN",
+            "subcode": "EXT_SIGNATURE_INVALID"
+          },
+          {
+            "code": "ERR_FORBIDDEN",
+            "subcode": "EXT_TIMESTAMP_SKEW"
+          }
+        ],
+        "inputs": {
+          "properties": {
+            "headers": "map(string=>string)",
+            "provider": "stripe|paystack",
+            "raw_body": "bytes"
+          },
+          "required": [
+            "provider",
+            "headers",
+            "raw_body"
+          ]
+        },
+        "outputs": {
+          "properties": {
+            "event_id": "string|nil",
+            "provider_account_ref": "string|nil",
+            "reason": "string",
+            "timestamp": "utc_datetime_usec|nil",
+            "verified": "boolean"
+          },
+          "required": [
+            "verified",
+            "reason"
+          ]
+        }
+      }
+    },
+    "strict_boundary_rules": [
+      "Adapter MAY read provider APIs, verify signatures, normalize payloads.",
+      "Adapter MUST NOT write core tables or emit EVT-1 events directly.",
+      "Adapter MUST NOT decide ledger postings."
+    ]
+  },
+  "artifact_kind": "contract",
+  "artifact_name": "SEC-1_Contract_v3.5.0.json",
+  "ash_3x_alignment": {
+    "actions_transactional": true,
+    "authorizer": "Ash.Policy.Authorizer",
+    "notes": [
+      "All payment mutations MUST be modeled as Ash actions (create/update/generic) with authorization policies and run under a transaction boundary.",
+      "Side effects must occur AFTER durable state is persisted (e.g., enqueue work in a producer), never as 'best-effort' before commit.",
+      "Tenant context MUST be explicit and required for all tenant-scoped payment operations."
+    ],
+    "policies_required": true,
+    "recommended_hooks": [
+      {
+        "hook": "around_action",
+        "why": "Wrap data-layer execution inside the transaction for safety checks and deterministic post-commit enqueue."
+      }
+    ]
+  },
+  "ash_resource_patterns": {
+    "actions": {
+      "policy_authorizer_required": true,
+      "transactional_required": true
+    },
+    "domain_first": true,
+    "forbid_direct_repo_usage_in_adapter": true,
+    "resources": [
+      {
+        "multitenancy_required": true,
+        "name": "PaymentIntent",
+        "uuid_pk_required": true
+      },
+      {
+        "multitenancy_required": true,
+        "name": "PaymentAttempt",
+        "uuid_pk_required": true
+      },
+      {
+        "multitenancy_required": true,
+        "name": "ProviderEvent",
+        "uuid_pk_required": true
+      },
+      {
+        "multitenancy_required": true,
+        "name": "Refund",
+        "uuid_pk_required": true
+      },
+      {
+        "multitenancy_required": true,
+        "name": "IdempotencyKey",
+        "uuid_pk_required": true
+      }
+    ]
+  },
+  "change_log": [
+    {
+      "changes": [
+        "NEW: JCS conformance vectors providing input_json_text + expected_canonical_json + expected_sha256 + expected_utf8_bytes_b64url.",
+        "NEW: Ed25519 conformance vectors for OfflineHydrationManifestV1 signing (canonical bytes exclude signature field).",
+        "NEW: Rules + gates requiring services that sign/verify to execute these vectors in CI."
+      ],
+      "date": "2026-02-08",
+      "summary": "Phase 5: byte-level canonicalization/signature conformance vectors (Root of Trust hardening).",
+      "version": "3.3.2"
+    },
+    {
+      "changes": [
+        "JSON-only bundle",
+        "Ash 3.x alignment",
+        "Strengthened invariants"
+      ],
+      "date": "2026-01-02",
+      "version": "2.0.0"
+    },
+    {
+      "changes": [
+        "Telemetry/metrics",
+        "Ash resource patterns",
+        "Kubernetes policies"
+      ],
+      "date": "2026-01-05",
+      "version": "2.1.0"
+    },
+    {
+      "changes": [
+        "FINAL PRODUCTION HARDENING",
+        "Hash collision safety: amount/currency verification after correlation_hash lookup",
+        "Two-tier variance monitoring (1hr/$50 real-time + monthly aggregate)",
+        "Smart idempotency guidance (server suggests attempt_count increment)",
+        "Inspect field coverage CI gate (fails on new sensitive fields without exclusion)",
+        "Complete audit-proof payment boundary with PCI-DSS v4.0 compliance"
+      ],
+      "date": "2026-01-05",
+      "version": "2.5.0"
+    },
+    {
+      "changes": [
+        "DEPENDENCY ALIGNMENT: Upgraded TEN-1 min_version from 1.5.0 → 1.6.8 for canonical org_id tenant key semantics.",
+        "DEPENDENCY ALIGNMENT: Upgraded LED-1 min_version from 2.2.0 → 2.3.4 for org_id/RLS alignment.",
+        "No functional changes; dependency version bumps only for suite-wide alignment."
+      ],
+      "date": "2026-01-05",
+      "version": "2.6.0"
+    },
+    {
+      "changes": [
+        "Break PAY↔ORD dependency cycle: ORD-1 removed from dependencies (kept as non-normative reference).",
+        "Add PRICE-1 dependency; rounding tolerance + PriceSnapshot bound to PRICE-1.",
+        "Correlation hash hardened to HMAC_SHA256 with rotation requirement; forbid plain org_id/order_id in provider metadata.",
+        "Correct ERR-1 underscore discipline; fix idempotency mismatch subcode to ERR-1 registered value.",
+        "Move non-unique ProviderEvent(provider, correlation_hash) from identity to required_indexes.",
+        "Remove per-org webhook endpoints from tenant routing; prefer correlation-hash metadata routing with uniform responses.",
+        "Providers initial_supported constrained to verified webhooks (stripe, paystack).",
+        "Define explicit raw payload allow-list; add adapter operation IO schemas."
+      ],
+      "date_utc": "2026-01-09T13:41:11Z",
+      "version": "2.6.3"
+    },
+    {
+      "changes": [
+        "Introduced verify_payment_reference adapter operation to deterministically map external references to canonical money_state and verified_payment_attempt_id (issued only when paid_confirmed).",
+        "Bound invalid/missing reference failures to ERR-1 subcodes PAY_REFERENCE_INVALID and PAY_REFERENCE_NOT_FOUND.",
+        "Regenerated bundle manifest and gates metadata to eliminate drift."
+      ],
+      "date_utc": "2026-01-25T08:01:58Z",
+      "summary": "Harden payment proof verification interface for ORD/TKT issuance and align with ERR-1 registry.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "Added P0 evidence rule for verify_payment_reference: paid_confirmed MUST return non-null evidence_digest_sha256 and digest MUST be stable.",
+        "Clarified verify_payment_reference description regarding proof digest semantics."
+      ],
+      "date_utc": "2026-01-25T08:08:33Z",
+      "summary": "Require immutable proof digest on paid_confirmed verification results.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "verify_payment_reference outputs: evidence_digest_sha256 is now optional (sha256_hex|nil) and is required by rule only when money_state == paid_confirmed.",
+        "Outputs required list reduced to [money_state] to support pending/failed references without proof digests."
+      ],
+      "date_utc": "2026-01-25T08:09:16Z",
+      "summary": "Make evidence_digest_sha256 optional except when paid_confirmed.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "Expanded verify_payment_reference.money_state vocabulary (awaiting_manual_verification, payment_plan_active, on_hold).",
+        "Added optional payment_reference_c14n output and locked derivation rule (sha256 of provider_reference_id)."
+      ],
+      "date_utc": "2026-01-25T09:59:33Z",
+      "version": "2.7.4"
+    },
+    {
+      "changes": [
+        "Explicitly declare dependencies for referenced contracts: TKT-1>=1.2.0, SCAN-1>=1.2.1, EVT-2>=2.3.1.",
+        "Fix bundle-level CI strict linkages (gates doc_id suffix -GATE, contract_ref object).",
+        "Regenerate bundle.manifest.json to CS-0 bundle_manifest schema (bundle-manifest/1.0)."
+      ],
+      "date_utc": "2026-01-26T05:35:31Z",
+      "summary": "Harden SEC-1 governance + CI strict compatibility without changing key semantics."
+    },
+    {
+      "changes": [
+        "Add ProviderEvent processing fields (processing_state, attempt_count, timestamps, last_error_*).",
+        "Add webhooks.receiver_requirements.dedupe_strategy: state_aware_requeue_existing.",
+        "Mandate durable enqueue-before-2xx (or sweeper guarantee) and add recovery_sweeper model.",
+        "Add dependency on OBQC-1 for async processing semantics.",
+        "Upgrade SEC-1 Test Gates to CS-0 test-gates schema (P0 automated assertions)."
+      ],
+      "date_utc": "2026-02-02T19:59:26Z",
+      "summary": "State-aware webhook dedupe + recovery model to prevent silent loss after 2xx acknowledgement.",
+      "version": "3.1.0"
+    },
+    {
+      "changes": [
+        "Introduce ProviderEvent.provider_account_ref (non-null) and harden dedupe identity to (provider, provider_account_ref, provider_event_id) under org_id tenant scope.",
+        "Require DB unique index (org_id, provider, provider_account_ref, provider_event_id) to satisfy TEN-1 org_id-first uniqueness for tenant-scoped resources.",
+        "Extend adapter interface to surface provider_account_ref (resolved from verified integration account context, not from untrusted client input).",
+        "Update test gates to lock the above invariants."
+      ],
+      "date_utc": "2026-02-03T05:15:59Z",
+      "summary": "Add provider_account_ref to webhook dedupe identity; enforce tenant-safe uniqueness.",
+      "version": "3.2.0"
+    },
+    {
+      "changes": [
+        "Pinned offline crypto primitives: JCS (RFC 8785), Ed25519 (RFC 8032), Base64URL no padding (RFC 4648).",
+        "Legislated root Offline Hydration Manifest schema in SEC-1 (keys + ticket revocations + allow-lists + dispute flags).",
+        "Added key lifecycle rotation overlap rule bound to EVT-2.max_offline_age_seconds.",
+        "Renamed PSP patch rules to SEC-PSP-* namespace.",
+        "Added missing PublicKeySummary entity and moved key/signature encodings to Base64URL without padding."
+      ],
+      "date": "2026-02-07",
+      "version": "3.3.0"
+    },
+    {
+      "changes": [
+        "Fixed semantic pointer to EVT-2.Occurrence.scan_max_offline_age_seconds (replacing the prior non-existent scan_policy path).",
+        "No behavior change beyond pointer correctness; crypto primitives and hydration schema unchanged."
+      ],
+      "date": "2026-02-07",
+      "version": "3.3.1"
+    },
+    {
+      "change_id": "SEC-1-CHG-3.3.5-PHASE7-ATTEST",
+      "changed_at_utc": "2026-02-08T15:49:47Z",
+      "summary": "Phase 7: Conformance Evidence v3.0 with nonce challenge + identity attestation signature; runner tool upgraded to v1.3.0 and pinned by sha256."
+    }
+  ],
+  "core_domain_contract": {
+    "reconciliation_requirements": {
+      "collision_handling": "fail_and_alert",
+      "hash_lookup_verification": {
+        "collision_handling": "return_multiple_results_error_if_verification_fails",
+        "description": "After correlation_hash lookup, MUST verify amount and currency against linked order.",
+        "required": true,
+        "verify_fields": [
+          "amount",
+          "currency",
+          "provider_reference_id"
+        ]
+      }
+    },
+    "required_attributes": [
+      {
+        "attributes": [
+          {
+            "description": "Tenant key; MUST be resolved server-side and set before any ProviderEvent write (TEN-1).",
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Payment provider identifier (e.g., 'stripe', 'paystack').",
+            "name": "provider",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "description": "Opaque integration account reference (recommended: UUIDv7) that scopes provider identifiers and prevents cross-account collisions; MUST NOT be a client-controlled value.",
+            "name": "provider_account_ref",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "description": "Provider event identifier scoped to provider_account_ref (e.g., Stripe event id).",
+            "name": "provider_event_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "description": "PCI-safe, allow-listed raw provider payload for audit and reconciliation.",
+            "name": "raw_payload",
+            "nullable": false,
+            "type": "map"
+          },
+          {
+            "description": "Opaque hash sent to PSP; indexed for O(1) bank investigation lookups.",
+            "name": "correlation_hash",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "description": "UTC timestamp when the provider event was first durably ingested (before any 2xx ack).",
+            "name": "first_received_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "UTC timestamp when the provider event was last observed (including replays).",
+            "name": "last_received_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Async processing state: one of ['received','queued','processing','processed','failed','dead_letter'].",
+            "name": "processing_state",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "description": "Number of processing attempts made for this provider event.",
+            "name": "attempt_count",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "description": "UTC timestamp after which the event is eligible for retry enqueue.",
+            "name": "next_retry_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "UTC timestamp of the most recent processing attempt start.",
+            "name": "last_attempt_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Stable ERR-1 code/subcode for the most recent processing failure, if any.",
+            "name": "last_error_code",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "description": "Human-readable summary of the most recent processing failure, if any.",
+            "name": "last_error_message",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "description": "UTC timestamp when the provider event was moved to dead_letter, if applicable.",
+            "name": "dead_lettered_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "resource": "ProviderEvent"
+      }
+    ],
+    "required_core_resources": [
+      {
+        "name": "PaymentIntent",
+        "purpose": "Core intent/state machine for a customer payment, tenant-scoped."
+      },
+      {
+        "name": "PaymentAttempt",
+        "purpose": "Provider-specific attempt/capture/confirm state, tenant-scoped."
+      },
+      {
+        "name": "ProviderEvent",
+        "purpose": "Durable store of verified provider webhook events for dedupe + replay; append-only."
+      },
+      {
+        "name": "Refund",
+        "purpose": "Refund command/state, tenant-scoped, idempotent."
+      },
+      {
+        "name": "IdempotencyKey",
+        "purpose": "Optional explicit resource to enforce request replay safety across commands."
+      }
+    ],
+    "required_identities": [
+      {
+        "identity": [
+          "provider",
+          "provider_account_ref",
+          "provider_event_id"
+        ],
+        "resource": "ProviderEvent",
+        "why": "Deduplicate replayed webhook deliveries across multiple provider integration accounts (tenant-scoped by org_id)."
+      },
+      {
+        "identity": [
+          "provider",
+          "provider_reference_id"
+        ],
+        "resource": "PaymentAttempt",
+        "why": "Prevent provider ref collisions and enable reconciliation joins."
+      }
+    ],
+    "required_indexes": [
+      {
+        "index": [
+          "org_id",
+          "provider",
+          "provider_account_ref",
+          "provider_event_id"
+        ],
+        "resource": "ProviderEvent",
+        "uniqueness": "unique",
+        "why": "Tenant-safe dedupe enforcement per TEN-1: org_id-first unique constraint prevents cross-tenant collisions."
+      },
+      {
+        "index": [
+          "provider",
+          "correlation_hash"
+        ],
+        "resource": "ProviderEvent",
+        "uniqueness": "non_unique_selective",
+        "why": "Non-unique selective lookup support for reconciliation. MUST be verified with amount_minor+currency+provider_event_id before applying side-effects."
+      },
+      {
+        "index": [
+          "processing_state",
+          "next_retry_at_utc"
+        ],
+        "resource": "ProviderEvent",
+        "uniqueness": "non_unique",
+        "why": "Supports efficient sweeper queries and retry scheduling without scanning the full provider_events table."
+      }
+    ],
+    "required_relationships": [
+      {
+        "description": "Every ProviderEvent MUST link to the PaymentAttempt it affects.",
+        "kind": "belongs_to",
+        "nullable": false,
+        "relationship": "payment_attempt",
+        "resource": "ProviderEvent",
+        "target_resource": "PaymentAttempt"
+      }
+    ]
+  },
+  "crypto_primitives": {
+    "asymmetric_signing": {
+      "algorithm": "Ed25519",
+      "conformance_vectors": [
+        {
+          "algorithm": "Ed25519",
+          "encoding": "base64url_no_pad",
+          "excluded_json_pointer": "/signature",
+          "expected_canonical_json": "{\"manifest_id\":\"018f2f5c-7c6a-7bb7-8f1a-000000000001\",\"org_id\":\"org_00000000000000000000000001\",\"payload\":{\"a\":1,\"b\":2},\"schema_id\":\"SEC-1.CONFORMANCE_PAYLOAD.v1\"}",
+          "expected_message_sha256_hex": "f9e4306d8bd3d5b639a1fefb8578932ae4b2c0ec917789c170b8a68af3b8c7c8",
+          "expected_signature_b64url": "_WCDxOWnOI5mrU3EM4mOhJQnTMWD7O-06E4xUIq0jQJLMjSGF0tabnMfBPprojHH0HcVhL7RWTb5azdPYK1PDg",
+          "id": "ED25519-JCS-EXCLUDE-0001",
+          "message_object_no_signature": {
+            "manifest_id": "018f2f5c-7c6a-7bb7-8f1a-000000000001",
+            "org_id": "org_00000000000000000000000001",
+            "payload": {
+              "a": 1,
+              "b": 2
+            },
+            "schema_id": "SEC-1.CONFORMANCE_PAYLOAD.v1"
+          },
+          "notes": "This vector is for byte-for-byte interoperability across services/languages. Production keys MUST NOT reuse this seed.",
+          "private_key_seed_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
+          "public_key_b64url": "A6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg",
+          "signing_rule": "Sign UTF-8 bytes of expected_canonical_json (JCS) of the message object with the excluded field removed."
+        }
+      ],
+      "public_key_bytes": 32,
+      "rfc": "RFC 8032",
+      "signature_bytes": 64
+    },
+    "canonical_json": {
+      "conformance": {
+        "active_enforcement_required": true,
+        "evidence_required": true,
+        "evidence_schema_version": "sec1-conformance-evidence/2.0",
+        "runner_tool_id": "SEC1-CONFORMANCE-RUNNER",
+        "runner_tool_version": "1.2.0"
+      },
+      "conformance_vectors": [
+        {
+          "expected_canonical_json": "{\"a\":1,\"b\":2}",
+          "expected_sha256_hex": "43258cff783fe7036d8a43033f830adfc60ec037382473548ac742b888292777",
+          "expected_utf8_bytes_b64url": "eyJhIjoxLCJiIjoyfQ",
+          "id": "JCS-0001",
+          "input_json_text": "{ \"b\":2, \"a\":1 }",
+          "notes": "Basic object key sorting + whitespace stripping."
+        },
+        {
+          "expected_canonical_json": "{\"a\":\"line\\nfeed\",\"backslash\":\"\\\\\",\"quote\":\"\\\"hi\\\"\",\"slash\":\"/\"}",
+          "expected_sha256_hex": "350ac4e91db1d05cb51f80fb9c675dbe4a2da225b1fb1e7ff5af543c2c42ad04",
+          "expected_utf8_bytes_b64url": "eyJhIjoibGluZVxuZmVlZCIsImJhY2tzbGFzaCI6IlxcIiwicXVvdGUiOiJcImhpXCIiLCJzbGFzaCI6Ii8ifQ",
+          "id": "JCS-0002",
+          "input_json_text": "{\n  \"a\": \"line\\nfeed\", \"quote\": \"\\\"hi\\\"\", \"backslash\":\"\\\\\", \"slash\":\"/\"\n}",
+          "notes": "String escaping per JSON.stringify (no escaping of forward slash)."
+        },
+        {
+          "expected_canonical_json": "{\"arr\":[3,2,1,{\"y\":1,\"z\":0}]}",
+          "expected_sha256_hex": "04194bb977b84ad551d30695569099d479602d9d30d69d2aff36800836c88236",
+          "expected_utf8_bytes_b64url": "eyJhcnIiOlszLDIsMSx7InkiOjEsInoiOjB9XX0",
+          "id": "JCS-0003",
+          "input_json_text": "{\"arr\":[3,2,1, {\"z\":0,\"y\":1} ]}",
+          "notes": "Array order preserved; nested object sorted."
+        },
+        {
+          "expected_canonical_json": "{\"obj\":{\"a\":false,\"b\":null,\"c\":true}}",
+          "expected_sha256_hex": "56db357bd20b3c978679aad6e00e537cf8fa6ec40deba332a34d62cbccb8ba5a",
+          "expected_utf8_bytes_b64url": "eyJvYmoiOnsiYSI6ZmFsc2UsImIiOm51bGwsImMiOnRydWV9fQ",
+          "id": "JCS-0004",
+          "input_json_text": "{\"obj\":{\"c\":true,\"b\":null,\"a\":false}}",
+          "notes": "Literal serialization + nested sorting."
+        },
+        {
+          "expected_canonical_json": "{\"A\":1,\"a\":2,\"Å\":3}",
+          "expected_sha256_hex": "842811364f977dd5859db12ff80d7dd1eb6255bc277131d371fc4298ae250dbd",
+          "expected_utf8_bytes_b64url": "eyJBIjoxLCJhIjoyLCLDhSI6M30",
+          "id": "JCS-0005",
+          "input_json_text": "{\"A\":1,\"a\":2,\"\\u00c5\":3}",
+          "notes": "Property order is lexicographic by UTF-16 code units (A < a < Å)."
+        },
+        {
+          "expected_canonical_json": "{\"𝄞\":1,\"💩\":2}",
+          "expected_sha256_hex": "3b13710b078f88d2e6bce46927c021acb37450081ca411511b3c1a2fbaadf6aa",
+          "expected_utf8_bytes_b64url": "eyLwnYSeIjoxLCLwn5KpIjoyfQ",
+          "id": "JCS-0006",
+          "input_json_text": "{\"\\ud834\\udd1e\":1,\"\\ud83d\\udca9\":2}",
+          "notes": "Surrogate pair keys; UTF-16 code-unit sorting places U+D834... before U+D83D...."
+        },
+        {
+          "expected_canonical_json": "{\"n\":0}",
+          "expected_sha256_hex": "f3013f933b9fb80ab6d995e7ad9da36f683837ba1d81e950c943d40111eac2f0",
+          "expected_utf8_bytes_b64url": "eyJuIjowfQ",
+          "id": "JCS-0007",
+          "input_json_text": "{\"n\":-0}",
+          "notes": "ECMAScript JSON number serialization: -0 MUST serialize as 0."
+        },
+        {
+          "expected_canonical_json": "{\"n\":5e-324}",
+          "expected_sha256_hex": "cf4df7d2834198d284947133d3ec7a66f3d94e8d447cac6a0783324211b36d43",
+          "expected_utf8_bytes_b64url": "eyJuIjo1ZS0zMjR9",
+          "id": "JCS-0008",
+          "input_json_text": "{\"n\":5e-324}",
+          "notes": "Min positive subnormal number representation sample (RFC 8785 Appendix B)."
+        },
+        {
+          "expected_canonical_json": "{\"n\":1e+23}",
+          "expected_sha256_hex": "f8acd93b4d43262e8d22f393b3fc172b2608154644f68bd2295239d62451edef",
+          "expected_utf8_bytes_b64url": "eyJuIjoxZSsyM30",
+          "id": "JCS-0009",
+          "input_json_text": "{\"n\":1e+23}",
+          "notes": "Scientific notation and exponent sign per ECMAScript serializer (RFC 8785 Appendix B)."
+        },
+        {
+          "expected_canonical_json": "{\"n\":9007199254740992}",
+          "expected_sha256_hex": "66c87d9cb3014e05a11baa97df62282d89d425f22ee15816577c84534e2ef1bb",
+          "expected_utf8_bytes_b64url": "eyJuIjo5MDA3MTk5MjU0NzQwOTkyfQ",
+          "id": "JCS-0010",
+          "input_json_text": "{\"n\":9007199254740992}",
+          "notes": "Max safe integer + 1 sample (RFC 8785 Appendix B)."
+        }
+      ],
+      "rfc": "RFC 8785",
+      "standard": "JCS"
+    },
+    "encoding": {
+      "base64url": {
+        "padding": "none",
+        "standard": "RFC 4648",
+        "variant": "base64url"
+      }
+    },
+    "notes": [
+      "These primitives are suite-wide pins for offline-verifiable artifacts.",
+      "Implementations MUST NOT substitute algorithms or encodings without a coordinated suite upgrade."
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.5",
+      "reason": "Explainable denials / operational error subcodes."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.1",
+      "reason": "Occurrence-level scan policy bounds (staleness + authority) referenced by SEC-1."
+    },
+    {
+      "doc_id": "SCAN-1",
+      "edge_type": "requires",
+      "min_version": "1.4.1",
+      "reason": "Hydration/verifier consumption of SEC-1 distributions; occurrence-scoped scanning alignment."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.1",
+      "reason": "Multi-tenancy (org-scoped) semantics."
+    },
+    {
+      "doc_id": "TKT-1",
+      "edge_type": "requires",
+      "min_version": "1.5.2",
+      "reason": "Ticket credential signature semantics and supersession rules referenced by SEC-1."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.0",
+      "reason": "V42 invariants and canonical types."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.4",
+      "reason": "Webhook processing is async; relies on OBQC-1 queue + retry semantics."
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "requires",
+      "min_version": "3.0.1",
+      "reason": "ProviderEvent resource MUST include provider_account_ref and composite identity; RP-0 defines resource/identity patterns."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.3",
+      "reason": "Access-control primitives + actor classification referenced by SEC-1 (offline hydration + signature verification access paths)."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4"
+  },
+  "doc_id": "SEC-1",
+  "domain_invariants": {
+    "err1_primary_code_canonical": true,
+    "provider_account_ref_required_when_verified": true,
+    "provider_event_dedupe_is_tenant_scoped": true
+  },
+  "emits_events": false,
+  "enforcement_tooling": {
+    "sec1_conformance_runner": {
+      "challenge_mode": {
+        "default_challenge_count": 50,
+        "deterministic_seed_default": "sec1_contract_sha256",
+        "supported": true
+      },
+      "evidence_artifact_filename_pattern": "SEC1-CONF-EVIDENCE-{sec1_contract_sha256}.json",
+      "evidence_schema_version": "sec1-conformance-evidence/3.0",
+      "evidence_v3_requirements": {
+        "attestation_object_required_fields": [
+          "service_id",
+          "attestation_profile",
+          "signature_b64url",
+          "public_key_b64"
+        ],
+        "attestation_profiles": {
+          "cloud_kms_key_id": {
+            "description": "Cloud-resident services MUST attest using a KMS/HSM key identity; CI roles MUST NOT have Sign permission.",
+            "pin_kind": "kms_key_id",
+            "required_fields": [
+              "kms_key_id"
+            ]
+          },
+          "edge_hw_key": {
+            "description": "Offline/edge devices MUST attest using a device-held hardware key (TPM/Secure Element) or pinned leaf certificate.",
+            "pin_kind": "device_key_fingerprint_or_leaf_cert",
+            "required_fields": [
+              "device_key_fingerprint"
+            ]
+          }
+        },
+        "signature_rule": {
+          "algorithm": "ed25519",
+          "encoding": "base64url_nopad",
+          "message": "sha256(stable_json(signed_payload))"
+        },
+        "signed_payload_must_include": [
+          "context",
+          "challenge_nonce_b64url",
+          "sec1_contract_sha256",
+          "runner_sha256",
+          "transcript_sha256",
+          "result"
+        ]
+      },
+      "protocol": "SEC1_CONFORMANCE_BATCH_v1",
+      "runner_file": "ci_sec1_conformance_runner_v1.3.0.py",
+      "runner_sha256": "96193006c4fdef455a144eaf61706ab172a4fb36a60aa5989b7867fce88118da",
+      "tool_id": "SEC1-CONFORMANCE-RUNNER",
+      "tool_version": "1.3.0",
+      "tools_zip_sha256": "1626396f9c8213f78dba34560a8b7c26b813a45c54c03211e662c8bfb536d4ee"
+    }
+  },
+  "error_mappings": {
+    "TEN_TENANT_CONTEXT_MISSING": {
+      "err1_code": "ERR_FORBIDDEN",
+      "retryable": false
+    }
+  },
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "idempotency_rules": {
+    "conflict_behavior": {
+      "client_guidance": "Parameters changed; increment attempt_count and use new idempotency key.",
+      "error_subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH",
+      "smart_retry_detection": {
+        "changed_params_same_key_behavior": {
+          "client_guidance": "Parameters changed; increment attempt_count.",
+          "error_subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH",
+          "suggested_action": "increment_attempt_count"
+        },
+        "description": "Server distinguishes identical-param retries from new intents.",
+        "enabled": true,
+        "identical_params_behavior": "return_cached_result"
+      }
+    },
+    "idempotency_sdk_patterns": {
+      "forbidden_patterns": [
+        "per_request_random_key_without_context",
+        "sequential_small_integers"
+      ],
+      "recommended_derivation": "hmac_sha256(order_id || \":\" || attempt_count || \":\" || org_id, secret)"
+    },
+    "key_requirements": {
+      "description": "Keys MUST be context-derived and MUST be reused for retries.",
+      "deterministic_for_operation": true,
+      "entropy": "opaque_string_128bit_min",
+      "max_len": 255,
+      "min_entropy_bits": 128,
+      "money_type": "amount_minor_integer",
+      "parameter_consistency_required": true,
+      "recommended_format": "hmac_sha256(payment_intent_id || ':' || attempt_count || ':' || org_id, client_secret)",
+      "ttl_min_hours": 24
+    }
+  },
+  "invariants": {
+    "err1_primary_code_canonical": true,
+    "idempotency_everywhere": true,
+    "key_rotation_overlap_gt_max_offline_age": true,
+    "kid_format_strict": true,
+    "money_correctness_over_latency": true,
+    "no_enumeration_vectors": true,
+    "no_pan_no_cvv": true,
+    "offline_crypto_primitives_pinned": true,
+    "offline_hydration_manifest_root_in_sec": true,
+    "offline_hydration_ttl_bound_to_evt2": true,
+    "org_id_first_unique_dedupe_index": true,
+    "parameter_consistent_idempotency": true,
+    "provider_account_scoped_webhook_dedupe": true,
+    "reconciliation_authoritative": true,
+    "tenant_routing_deterministic": true,
+    "webhook_replay_safe_verification": true,
+    "webhook_verify_required": true
+  },
+  "key_lifecycle": {
+    "rotation_policy": {
+      "grace_overlap_rule": "grace_period_seconds MUST be > EVT-2.Occurrence.scan_max_offline_age_seconds",
+      "max_offline_age_seconds_source": "EVT-2.Occurrence.scan_max_offline_age_seconds"
+    },
+    "states": [
+      "active",
+      "grace",
+      "revoked"
+    ],
+    "trust_anchor_policy": {
+      "notes": [
+        "Scanner devices MUST store trusted hydration_snapshot_signing public keys in a tamper-resistant keystore.",
+        "Trust anchor updates MUST be authenticated (signed by a previously trusted key or a strongly authenticated enrollment flow)."
+      ]
+    }
+  },
+  "kid_format": {
+    "example": "kid_018f3c2a-1d2e-7abc-9def-1234567890ab",
+    "regex": "^kid_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  },
+  "last_updated_utc": "2026-02-08T16:55:10Z",
+  "ledger_validation": {
+    "block_fulfillment_beyond_tolerance": true,
+    "block_fulfillment_within_tolerance": false,
+    "confirm_or_capture_response": {
+      "must_include_provider_fees": true,
+      "provider_fees_type": "map"
+    },
+    "fee_variance_signal": {
+      "comparison_source": "PriceSnapshot",
+      "emitter": "core_domain",
+      "event_name": "payment.fee_variance_detected.v1",
+      "rounding_tolerance_source": "PRICE-1"
+    },
+    "rounding_variance_monitor": {
+      "aggregation_window": "monthly",
+      "alert_event": "finance.rounding_variance_exceeded.v1",
+      "delegated_to": [
+        "LED-1",
+        "OBS-1"
+      ],
+      "description": "Two-tier monitoring: realtime (1hr/$50) + monthly aggregate.",
+      "dimension": "org_id",
+      "max_variance_amount": "CONFIGURED_PER_ORG_MINOR_UNITS",
+      "monitoring_tiers": {
+        "tier_1_realtime": {
+          "alert_event": "finance.rounding_variance_realtime_threshold.v1",
+          "description": "Alert if cumulative variance exceeds configured per-org minor-unit threshold within 1 hour.",
+          "threshold_amount": "CONFIGURED_PER_ORG_MINOR_UNITS",
+          "window": "1_hour"
+        },
+        "tier_2_aggregate": {
+          "alert_event": "finance.rounding_variance_exceeded.v1",
+          "description": "Alert if monthly cumulative variance exceeds limit.",
+          "threshold_amount": "CONFIGURED_PER_ORG",
+          "window": "monthly"
+        }
+      }
+    },
+    "within_tolerance_behavior": "detect_and_report_only"
+  },
+  "normative_source": "json",
+  "observability": {
+    "tracer": {
+      "span_attributes": [
+        "pay1.provider_account_ref"
+      ]
+    }
+  },
+  "offline_hydration_manifest": {
+    "canonicalization": {
+      "method": "JCS",
+      "rfc": "RFC 8785"
+    },
+    "ordering": {
+      "arrays_must_be_sorted_by": "lexicographic_ASC",
+      "sort_keys": [
+        "active_public_keys[].kid",
+        "grace_public_keys[].kid",
+        "revoked_kids[]",
+        "revoked_ticket_credential_ids[]",
+        "superseded_ticket_credential_ids[]",
+        "active_allow_list_actor_ids[]",
+        "active_dispute_ticket_credential_ids[]"
+      ]
+    },
+    "schema_id": "SEC-1.HYDRATION_MANIFEST.v1",
+    "signature": {
+      "algorithm": "Ed25519",
+      "encoding": "base64url_no_pad",
+      "kid_field": "signature.kid",
+      "sig_field": "signature.sig_b64url"
+    },
+    "slots": {
+      "allow_lists": {
+        "fields": [
+          "active_allow_list_actor_ids"
+        ],
+        "source_contract": "IAM-1"
+      },
+      "dispute_flags": {
+        "fields": [
+          "active_dispute_ticket_credential_ids"
+        ],
+        "optional": true,
+        "source_contract": "SCAN-1"
+      },
+      "keys_snapshot": {
+        "entity": "KeyDistributionSnapshotV1",
+        "source_contract": "SEC-1"
+      },
+      "ticket_revocations": {
+        "fields": [
+          "revoked_ticket_credential_ids",
+          "superseded_ticket_credential_ids"
+        ],
+        "source_contract": "TKT-1"
+      }
+    },
+    "ttl": {
+      "generator_rule": "snapshot_valid_until_utc MUST be <= now_utc + EVT-2.Occurrence.scan_max_offline_age_seconds at generation time.",
+      "max_offline_age_seconds_source": "EVT-2.Occurrence.scan_max_offline_age_seconds",
+      "rule": "snapshot_valid_until_utc MUST be <= snapshot_at_utc + EVT-2.Occurrence.scan_max_offline_age_seconds",
+      "scanner_rule": "scanner_now_utc MUST be <= snapshot_valid_until_utc for acceptance; scanners SHOULD allow a small configured clock_skew_seconds to avoid false rejects."
+    }
+  },
+  "operational_flags": {
+    "required": [
+      "PAYOUT_FREEZE",
+      "DEGRADED_MONEY_MODE"
+    ]
+  },
+  "outbox_events": [],
+  "policies": {
+    "kubernetes_gatekeeper": {
+      "constraints_required_for_production": [
+        "pay1-namespaces-restricted",
+        "pay1-resource-limits",
+        "pay1-no-privileged-psp-pods",
+        "pay1-approved-secrets-only"
+      ],
+      "required": true
+    }
+  },
+  "providers": {
+    "capability_profile": {
+      "must": [
+        "3ds_or_sca_support",
+        "signed_webhooks_with_replay_safe_verification",
+        "dispute_chargeback_events"
+      ]
+    },
+    "extensible": true,
+    "initial_supported": [
+      "stripe",
+      "paystack"
+    ]
+  },
+  "reconciliation": {
+    "archival_policy_ref": "ARCH-1",
+    "authoritative": true,
+    "idempotent": true,
+    "queue": "ops"
+  },
+  "redaction_policy": {
+    "raw_payload_storage": {
+      "allowed_fields": [
+        "provider",
+        "provider_event_id",
+        "event_type",
+        "created_at",
+        "livemode",
+        "object_id",
+        "object_type",
+        "amount_minor",
+        "currency",
+        "fee_minor",
+        "status",
+        "reason",
+        "error_code",
+        "error_message",
+        "metadata"
+      ],
+      "attribute": "raw_payload",
+      "description": "Explicit allow-list with mask-by-default to prevent PAN/CVV storage. Unknown fields are masked unless explicitly allowed.",
+      "mask_by_default_unknown_fields": true,
+      "pci_forbidden_fields": [
+        "pan",
+        "card_number",
+        "card_number_full",
+        "primary_account_number",
+        "cvv",
+        "cvc",
+        "csc",
+        "expiry",
+        "expiry_date",
+        "expiration_date",
+        "pin"
+      ],
+      "resource": "ProviderEvent",
+      "strategy": "allow_list"
+    },
+    "unknown_field_alert": {
+      "delegated_to": "OBS-1",
+      "description": "Emit max one signal per provider per hour with sample field names.",
+      "max_signals_per_window": 1,
+      "per_provider": true,
+      "sample_unknown_keys_max": 10,
+      "signal_event": "payment.unknown_payload_fields_detected.v1",
+      "threshold_unknown_fields": 3,
+      "window_seconds": 3600
+    }
+  },
+  "references": [
+    {
+      "kind": "psp_docs",
+      "note": "Stripe may deliver the same event more than once; core must dedupe by event ID + object.",
+      "provider": "stripe",
+      "topic": "webhook_duplicates"
+    },
+    {
+      "kind": "psp_docs",
+      "note": "Idempotency keys must be collision-resistant and parameter-consistent.",
+      "provider": "stripe",
+      "topic": "idempotency_keys"
+    },
+    {
+      "doc_id": "ORD-1",
+      "kind": "contract",
+      "note": "Non-normative integration reference only (removed from dependencies to prevent PAY↔ORD cycle)."
+    }
+  ],
+  "rules": [
+    {
+      "applies_to": [
+        "ProviderEvent"
+      ],
+      "category": "evidence",
+      "rationale": "Prevents evidence loss and enables audit trails.",
+      "rule_id": "SEC-PSP-PATCH-001",
+      "severity": "P0",
+      "text": "ProviderEvent MUST persist PCI-safe raw_payload and belong_to PaymentAttempt."
+    },
+    {
+      "applies_to": [
+        "adapter_interface"
+      ],
+      "category": "correlation",
+      "rationale": "Enables bit-for-bit correlation from PSP to orders/ledger.",
+      "rule_id": "SEC-PSP-PATCH-004",
+      "severity": "P0",
+      "text": "Every outbound PSP request MUST include v42_correlation_id in provider metadata."
+    },
+    {
+      "applies_to": [
+        "adapter_interface"
+      ],
+      "category": "correlation",
+      "rationale": "Respects data-minimization and PCI/PII boundaries.",
+      "rule_id": "SEC-PSP-PATCH-004B",
+      "severity": "P0",
+      "text": "For external PSPs, correlation ID MUST be opaque hash, not raw UUIDs."
+    },
+    {
+      "applies_to": [
+        "ProviderEvent"
+      ],
+      "category": "correlation",
+      "rationale": "Prevents audit gaps from bank-provided hashes.",
+      "rule_id": "SEC-PSP-PATCH-004C",
+      "severity": "P0",
+      "text": "ProviderEvent MUST persist correlation_hash with indexed (provider, correlation_hash) identity."
+    },
+    {
+      "applies_to": [
+        "IdempotencyKey"
+      ],
+      "category": "idempotency",
+      "rationale": "Aligns idempotency mismatch signaling with ERR-1 registry to avoid unregistered subcodes.",
+      "rule_id": "SEC-PSP-PATCH-006",
+      "severity": "P1",
+      "text": "On idempotency mismatch (same key, different parameters), return ERR_CONFLICT with subcode LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH and actionable client guidance."
+    },
+    {
+      "applies_to": [
+        "IdempotencyKey"
+      ],
+      "category": "idempotency",
+      "rationale": "Reduces collision and enumeration risk; keeps key format implementation-agnostic.",
+      "rule_id": "SEC-PSP-PATCH-006B",
+      "severity": "P2",
+      "text": "Idempotency keys MUST be opaque strings with ≥128-bit effective security (e.g., UUIDv7-equivalent entropy)."
+    },
+    {
+      "applies_to": [
+        "telemetry"
+      ],
+      "category": "observability",
+      "rationale": "Enables provider-specific SRE signals.",
+      "rule_id": "SEC-PSP-PATCH-008",
+      "severity": "P1",
+      "text": "Metrics MUST be labelled with provider_id under bounded cardinality."
+    },
+    {
+      "applies_to": [
+        "telemetry"
+      ],
+      "category": "observability",
+      "rationale": "Zero-cost compile-time redaction.",
+      "rule_id": "SEC-PSP-PATCH-009",
+      "severity": "P1",
+      "text": "Payment structs MUST derive Inspect using :only/:except."
+    },
+    {
+      "applies_to": [
+        "ledger_validation"
+      ],
+      "category": "finance",
+      "rationale": "Ledger-grade financial truth.",
+      "rule_id": "SEC-PSP-PATCH-010",
+      "severity": "P0",
+      "text": "confirm_or_capture MUST surface provider_fees and emit variance event."
+    },
+    {
+      "applies_to": [
+        "ledger_validation"
+      ],
+      "category": "finance",
+      "rationale": "Balances CX and ledger accuracy.",
+      "rule_id": "SEC-PSP-PATCH-011",
+      "severity": "P0",
+      "text": "Within-tolerance variances auto-post; out-of-tolerance MUST block."
+    },
+    {
+      "applies_to": [
+        "redaction_policy"
+      ],
+      "category": "evidence",
+      "rationale": "Prevents alert fatigue while preserving evidence monitoring.",
+      "rule_id": "SEC-PSP-PATCH-012",
+      "severity": "P1",
+      "text": "Emit unknown-field alert max once per provider per hour with sample keys."
+    },
+    {
+      "applies_to": [
+        "ledger_validation"
+      ],
+      "category": "finance",
+      "rationale": "Prevents aggregated leakage.",
+      "rule_id": "SEC-PSP-PATCH-013",
+      "severity": "P1",
+      "text": "Monitor cumulative monthly variance per org_id; emit alert when exceeded."
+    },
+    {
+      "applies_to": [
+        "IdempotencyKey"
+      ],
+      "category": "idempotency",
+      "rationale": "Ensures retry determinism.",
+      "rule_id": "SEC-PSP-PATCH-014",
+      "severity": "P1",
+      "text": "Keys MUST be context-derived and MUST be reused for retries."
+    },
+    {
+      "applies_to": [
+        "ProviderEvent"
+      ],
+      "category": "correlation",
+      "rationale": "Prevents wrong-order reconciliation from hash collisions.",
+      "rule_id": "SEC-PSP-PATCH-015",
+      "severity": "P0",
+      "text": "After correlation_hash lookup, MUST verify amount/currency before finalizing."
+    },
+    {
+      "applies_to": [
+        "ledger_validation"
+      ],
+      "category": "finance",
+      "rationale": "Prevents detection lag.",
+      "rule_id": "SEC-PSP-PATCH-016",
+      "severity": "P1",
+      "text": "Implement two-tier variance monitoring: real-time (1hr/$50) and monthly."
+    },
+    {
+      "applies_to": [
+        "IdempotencyKey"
+      ],
+      "category": "idempotency",
+      "rationale": "Guides clients to correct retry behavior.",
+      "rule_id": "SEC-PSP-PATCH-017",
+      "severity": "P1",
+      "text": "On conflict, suggest attempt_count increment; identical params return cache."
+    },
+    {
+      "applies_to": [
+        "telemetry"
+      ],
+      "category": "observability",
+      "rationale": "Prevents maintenance-driven log leaks.",
+      "rule_id": "SEC-PSP-PATCH-018",
+      "severity": "P1",
+      "text": "CI MUST fail if new sensitive field added without Inspect exclusion."
+    },
+    {
+      "rationale": "UUIDv7 is for entity identity; idempotency keys are security-sensitive opaque tokens.",
+      "rule_id": "PAY-1-UUID7-001",
+      "severity": "P0",
+      "text": "Entity IDs MUST be UUIDv7. Idempotency keys MUST be opaque strings with ≥128-bit effective security; MAY be deterministic HMAC-derived; MUST NOT be UUIDv4 or guessable tokens."
+    },
+    {
+      "rule_id": "PAY-1-REFUND-001",
+      "severity": "P0",
+      "text": "Refund idempotency via (org_id, refund_correlation_hash)"
+    },
+    {
+      "rule_id": "PAY-1-COLL-001",
+      "severity": "P0",
+      "text": "Hash collision → fail_and_alert OBS-1 event"
+    },
+    {
+      "applies_to": [
+        "adapter_interface.verify_payment_reference"
+      ],
+      "category": "money_state",
+      "rationale": "Prevents ambiguous payment finality and downstream ticket issuance drift.",
+      "rule_id": "SEC-PSP-PATCH-CANONICAL-MONEY-CONFIRMED",
+      "severity": "P0",
+      "text": "If money_state == paid_confirmed then verified_payment_attempt_id and paid_confirmed_at_utc MUST be non-null and emitted exclusively by verify_payment_reference; no other operation may produce paid_confirmed."
+    },
+    {
+      "applies_to": [
+        "AdapterInterface.verify_payment_reference"
+      ],
+      "category": "evidence",
+      "rationale": "Prevents 'paid_confirmed' without immutable proof pointer; blocks spoofing and supports auditability.",
+      "rule_id": "SEC-PSP-PATCH-VERIFY-REF-EVIDENCE-DIGEST",
+      "severity": "P0",
+      "text": "When verify_payment_reference returns money_state == \"paid_confirmed\", evidence_digest_sha256 MUST be non-null and MUST identify immutable payment proof bytes stored by the platform (e.g., provider receipt JSON / PSP signed artifact). The digest MUST be stable for the same provider + provider_reference_id."
+    },
+    {
+      "details": "money_state MUST be one of: paid_confirmed, pending, failed, awaiting_manual_verification, payment_plan_active, on_hold. Only paid_confirmed MAY be treated as sufficient to issue tickets (TKT-1) or admit (SCAN-1). awaiting_manual_verification is used for manual EFT/cash flows pending operator attestation. payment_plan_active is used when installments are accepted but the order MUST NOT be finalized as paid until the plan completes. on_hold is used when a provider authorization/chargeback/compliance hold prevents settlement.",
+      "id": "PAY-1-RULE-MONEY-STATE-VOCAB",
+      "priority": "P0",
+      "rule": "PAY-1 money_state vocabulary is authoritative across the suite."
+    },
+    {
+      "details": "payment_reference_c14n MUST be computed as: 'payref_c14n/v1:' + provider + ':' + sha256_hex(provider_reference_id). payment_reference_c14n MUST NOT include the raw provider_reference_id. Systems MAY log payment_reference_c14n and MUST NOT log raw provider_reference_id unless required for support with explicit access controls.",
+      "id": "PAY-1-RULE-PAYREF-C14N",
+      "priority": "P1",
+      "rule": "PAY-1 defines payment_reference_c14n for safe correlation in logs and signatures."
+    },
+    {
+      "applies_to": [
+        "ProviderEvent"
+      ],
+      "category": "webhooks",
+      "rationale": "Prevents silent loss when upstream stops retrying after receiving 2xx, and ensures forward progress under crashes.",
+      "rule_id": "SEC-1-WEBHOOK-STATE-001",
+      "severity": "P0",
+      "text": "Webhook deduplication MUST be state-aware. On unique-key conflict, the system MUST load the existing ProviderEvent and: (a) if processing_state=='processed' return 2xx idempotently; (b) otherwise ensure the async job is enqueued (or eligible for sweeper) and return 2xx. Creating a new ProviderEvent row for the same (provider, provider_event_id) is FORBIDDEN."
+    },
+    {
+      "applies_to": [
+        "webhook_receiver"
+      ],
+      "category": "webhooks",
+      "rationale": "Makes 2xx acknowledgement safe under worker crashes and transient enqueue failures.",
+      "rule_id": "SEC-1-WEBHOOK-STATE-002",
+      "severity": "P0",
+      "text": "Webhook receivers MUST NOT return 2xx until ProviderEvent is durably ingested AND either the processing job is enqueued in the same DB transaction OR a sweeper mechanism exists that will enqueue the job within the configured stale window."
+    },
+    {
+      "applies_to": [
+        "ProviderEvent"
+      ],
+      "category": "webhooks",
+      "rationale": "Allows recovery from partial failures without violating dedupe identities.",
+      "rule_id": "SEC-1-WEBHOOK-STATE-003",
+      "severity": "P0",
+      "text": "ProviderEvent MUST persist processing_state, attempt_count, and timestamps (first_received_at_utc, last_received_at_utc, last_attempt_at_utc) to support deterministic replay, stuck detection, and auditability."
+    },
+    {
+      "applies_to": [
+        "recovery_sweeper"
+      ],
+      "category": "webhooks",
+      "rationale": "Guarantees forward progress during high-load or crash loops without manual operations.",
+      "rule_id": "SEC-1-WEBHOOK-STATE-004",
+      "severity": "P0",
+      "text": "A recovery sweeper MUST periodically re-enqueue ProviderEvents that are stuck in 'received' or 'processing' beyond configured thresholds. Sweeper queries MUST be supported by an index on (processing_state, next_retry_at_utc) or equivalent."
+    },
+    {
+      "applies_to": [
+        "ops_runbook"
+      ],
+      "category": "webhooks",
+      "rationale": "Enables safe remediation while preserving dedupe identities and evidence.",
+      "rule_id": "SEC-1-WEBHOOK-STATE-005",
+      "severity": "P1",
+      "text": "Manual replay MUST requeue the existing ProviderEvent row (no row duplication) and MUST record operator identity + reason in an audit log."
+    },
+    {
+      "applies_to": [
+        "KeyDistributionSnapshotV1",
+        "OfflineHydrationManifestV1"
+      ],
+      "category": "offline",
+      "rationale": "Prevents split-brain verification and signature drift across languages and services.",
+      "rule_id": "SEC-KEY-CRYPTO-PRIMITIVES-PINNED",
+      "severity": "P0",
+      "text": "All offline-verifiable artifacts MUST use JCS canonicalization (RFC 8785), Ed25519 signing (RFC 8032), and Base64URL without padding (RFC 4648)."
+    },
+    {
+      "applies_to": [
+        "OfflineHydrationManifestV1"
+      ],
+      "category": "offline",
+      "rationale": "Prevents scanners from accepting stale data beyond the globally legislated offline window.",
+      "rule_id": "SEC-KEY-HYDRATION-TTL-BOUND",
+      "severity": "P0",
+      "text": "snapshot_valid_until_utc MUST be <= snapshot_at_utc + EVT-2.Occurrence.scan_max_offline_age_seconds. Scanners MUST reject manifests that violate this."
+    },
+    {
+      "applies_to": [
+        "KeyEpoch",
+        "PublicKey"
+      ],
+      "category": "keys",
+      "rationale": "Guarantees offline verification continuity during key rotation.",
+      "rule_id": "SEC-KEY-ROTATION-OVERLAP",
+      "severity": "P0",
+      "text": "Rotation grace overlap for hydration_snapshot_signing keys MUST be strictly greater than EVT-2.Occurrence.scan_max_offline_age_seconds."
+    },
+    {
+      "applies_to": [
+        "PublicKey",
+        "KeyDistributionSnapshotV1",
+        "OfflineHydrationManifestV1"
+      ],
+      "category": "keys",
+      "rationale": "Prevents implementation-dependent kid parsing and ensures consistent interop.",
+      "rule_id": "SEC-KEY-KID-FORMAT",
+      "severity": "P1",
+      "text": "All kid values MUST match kid_format.regex exactly."
+    },
+    {
+      "applies_to": [
+        "OfflineHydrationManifestV1"
+      ],
+      "category": "offline",
+      "rationale": "Prevents hash mismatches caused by non-deterministic array ordering.",
+      "rule_id": "SEC-KEY-DETERMINISTIC-ORDERING",
+      "severity": "P0",
+      "text": "All array fields in offline hydration payloads MUST be deterministically sorted as defined in offline_hydration_manifest.ordering.sort_keys."
+    },
+    {
+      "applies_to": [
+        "crypto_primitives.canonical_json",
+        "OfflineHydrationManifestV1",
+        "TKT-1",
+        "SCAN-1",
+        "PAY-*"
+      ],
+      "category": "crypto",
+      "rationale": "Prevents cross-language / cross-library canonicalization drift causing signature verification split-brain.",
+      "rule_id": "SEC-JCS-CONFORMANCE-VECTORS",
+      "severity": "P0",
+      "text": "SEC-1 MUST define JCS (RFC 8785) conformance vectors (crypto_primitives.canonical_json.conformance_vectors). Any service that canonicalizes JSON for signing or verification MUST execute these vectors in CI and MUST match expected_canonical_json bytes and expected_sha256_hex exactly."
+    },
+    {
+      "applies_to": [
+        "crypto_primitives.asymmetric_signing",
+        "OfflineHydrationManifestV1",
+        "TKT-1",
+        "SCAN-1"
+      ],
+      "category": "crypto",
+      "rationale": "Locks byte-level interoperability of signing/verification for offline hydration and ticket credentials.",
+      "rule_id": "SEC-ED25519-CONFORMANCE-VECTORS",
+      "severity": "P0",
+      "text": "SEC-1 MUST define Ed25519 signing conformance vectors for the 'sign JCS bytes excluding signature field' rule. Any signer/verifier MUST execute these vectors in CI and MUST match expected_signature_b64url exactly for the given expected_canonical_json bytes."
+    },
+    {
+      "applies_to": [
+        "all_network_surfaces"
+      ],
+      "category": "transport",
+      "rationale": "Prevents unprofiled endpoints and plaintext drift; enables PQC rollout by configuration.",
+      "rule_id": "SEC-TRANSPORT-001",
+      "severity": "P0",
+      "text": "Every network-accessible surface (HTTP APIs, webhooks, scanner ingress, admin UIs) MUST declare transport_security_profile_ref referencing SEC-1.security_requirements.transport_security.profiles[].profile_id. Surfaces MUST NOT define ad-hoc TLS parameters outside a referenced profile."
+    },
+    {
+      "applies_to": [
+        "transport_profiles"
+      ],
+      "category": "transport",
+      "rationale": "Eliminates downgrade and legacy protocol risks.",
+      "rule_id": "SEC-TRANSPORT-002",
+      "severity": "P0",
+      "text": "All production transport profiles MUST require TLS 1.3 minimum and MUST forbid TLS 1.0–1.2 downgrade/fallback."
+    },
+    {
+      "applies_to": [
+        "pqc"
+      ],
+      "category": "transport",
+      "rationale": "Provides quantum-readiness without breaking client compatibility.",
+      "rule_id": "SEC-TRANSPORT-003",
+      "severity": "P1",
+      "text": "If PQC hybrid is enabled, it MUST be deployed as hybrid key establishment (classical + ML-KEM) and MUST remain compatible with non-PQC clients unless an explicit, versioned breaking-change policy is activated."
+    },
+    {
+      "rule_id": "SEC-TRANSPORT-004",
+      "severity": "P0",
+      "text": "Each transport security profile MUST declare negotiation_policy as one of {FAIL_OPEN, FAIL_SAFE} and MUST declare allowed_surface_classes. Profiles MUST be deterministic and ordered to preserve stable JSON pointers for gates."
+    },
+    {
+      "rule_id": "SEC-TRANSPORT-005",
+      "severity": "P0",
+      "text": "Profiles with negotiation_policy=FAIL_SAFE SHALL be restricted to allowed_surface_classes=['trusted_origin'] and MUST NOT be referenced by public surfaces."
+    },
+    {
+      "rule_id": "SEC-TRANSPORT-006",
+      "severity": "P0",
+      "text": "Every network-accessible surface MUST declare surface_class and transport_security_profile_ref. surface_class MUST be one of SEC-1.security_requirements.transport_security.endpoint_policy.surface_classes_allowed. transport_security_profile_ref MUST point to an active/planned profile_id declared in SEC-1.security_requirements.transport_security.profiles[].profile_id."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "sections": [
+    {
+      "body": [
+        "SEC-1 defines **org-scoped** signing/verification key management required for offline-capable ticket admission. ",
+        "It provides **key epochs**, **key states**, and a deterministic **public key distribution** model so SCAN-1 can verify TKT-1 credentials without interpretation drift."
+      ],
+      "id": "overview",
+      "title": "Overview"
+    },
+    {
+      "body": [
+        "**SEC-1-INV-001 (Org scope):** All keys, epochs, and distributions MUST be scoped by `org_id`.",
+        "**SEC-1-INV-002 (Private keys never leave secure boundary):** Private keys MUST NOT be stored in general application databases or emitted in any API; they MUST reside in an HSM/KMS or equivalent.",
+        "**SEC-1-INV-003 (Deterministic verification):** Verifiers MUST be able to verify credentials using `kid` + published public keys without online lookups.",
+        "**SEC-1-INV-004 (Rotation safety):** Routine rotation MUST NOT invalidate valid credentials during the event lifecycle; grace keys MUST be supported.",
+        "**SEC-1-INV-005 (Compromise response):** Compromise MUST be treated differently from routine rotation and MUST support forced reissue and revocation of affected keys.",
+        "**SEC-1-INV-006 (Append-only audit):** Key lifecycle events MUST be append-only and auditable."
+      ],
+      "id": "invariants",
+      "title": "Invariants"
+    },
+    {
+      "body": [
+        "SEC-1 defines a monotonic `key_epoch` per org and key purpose. A change that affects verifiers MUST advance the epoch.",
+        "Epoch changes MUST be represented as append-only events and MUST be reproducible from the event log."
+      ],
+      "entities": [
+        {
+          "fields": [
+            {
+              "name": "org_id",
+              "required": true,
+              "type": "uuid"
+            },
+            {
+              "name": "key_purpose",
+              "required": true,
+              "type": "enum",
+              "values": [
+                "ticket_credential_signing",
+                "hydration_snapshot_signing"
+              ]
+            },
+            {
+              "constraints": [
+                ">=1",
+                "monotonic"
+              ],
+              "name": "epoch",
+              "required": true,
+              "type": "integer"
+            },
+            {
+              "name": "activated_at_utc",
+              "required": true,
+              "type": "utc_datetime_usec"
+            }
+          ],
+          "name": "KeyEpoch",
+          "rules": [
+            "A new epoch MUST be created on (a) routine rotation cutover, (b) compromise response, or (c) verifier policy change that affects acceptance.",
+            "An epoch MUST NOT decrease or be reused."
+          ]
+        }
+      ],
+      "id": "key_epoch_model",
+      "title": "Key epoch model"
+    },
+    {
+      "body": [
+        "Keys for a given purpose MUST be in exactly one state: `active`, `grace`, or `revoked`.",
+        "`active` keys MAY sign and MUST verify. `grace` keys MUST verify and MUST NOT sign. `revoked` keys MUST NOT verify and MUST NOT sign."
+      ],
+      "entities": [
+        {
+          "fields": [
+            {
+              "name": "org_id",
+              "required": true,
+              "type": "uuid"
+            },
+            {
+              "constraints": [
+                "non_empty",
+                "stable"
+              ],
+              "name": "kid",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "key_purpose",
+              "required": true,
+              "type": "enum",
+              "values": [
+                "ticket_credential_signing",
+                "hydration_snapshot_signing"
+              ]
+            },
+            {
+              "name": "state",
+              "required": true,
+              "type": "enum",
+              "values": [
+                "active",
+                "grace",
+                "revoked"
+              ]
+            },
+            {
+              "name": "public_key",
+              "required": true,
+              "text": "The Ed25519 public key encoded as Base64URL (RFC 4648) without padding.",
+              "type": "base64url_no_pad"
+            },
+            {
+              "name": "not_before_utc",
+              "required": true,
+              "type": "utc_datetime_usec"
+            },
+            {
+              "name": "not_after_utc",
+              "required": false,
+              "type": "utc_datetime_usec"
+            },
+            {
+              "name": "epoch",
+              "required": true,
+              "type": "integer"
+            },
+            {
+              "name": "revoked_at_utc",
+              "required": false,
+              "type": "utc_datetime_usec"
+            },
+            {
+              "name": "revocation_reason_subcode",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "name": "PublicKey",
+          "rules": [
+            "A key MUST NOT transition from `revoked` to any other state.",
+            "A key in `grace` state MUST have been previously `active` for the same purpose."
+          ]
+        }
+      ],
+      "id": "key_states",
+      "title": "Key states"
+    },
+    {
+      "body": [
+        "SEC-1 defines a deterministic distribution payload for verifiers. The payload MUST be signed and versioned.",
+        "SCAN-1 hydration MUST consume SEC-1 distributions and MUST enforce max age bounds per EVT-2 scan policy."
+      ],
+      "entities": [
+        {
+          "fields": [
+            {
+              "name": "org_id",
+              "required": true,
+              "type": "uuid"
+            },
+            {
+              "name": "key_purpose",
+              "required": true,
+              "type": "enum",
+              "values": [
+                "ticket_credential_signing"
+              ]
+            },
+            {
+              "name": "epoch",
+              "required": true,
+              "type": "integer"
+            },
+            {
+              "name": "generated_at_utc",
+              "required": true,
+              "type": "utc_datetime_usec"
+            },
+            {
+              "name": "valid_until_utc",
+              "required": true,
+              "type": "utc_datetime_usec"
+            },
+            {
+              "items": "PublicKeySummary",
+              "name": "active_keys",
+              "required": true,
+              "type": "array"
+            },
+            {
+              "items": "PublicKeySummary",
+              "name": "grace_keys",
+              "required": true,
+              "type": "array"
+            },
+            {
+              "items": "string",
+              "name": "revoked_kids",
+              "required": true,
+              "type": "array"
+            },
+            {
+              "name": "signature_kid",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "signature",
+              "required": true,
+              "type": "base64"
+            }
+          ],
+          "name": "KeyDistributionSnapshot",
+          "rules": [
+            "The snapshot MUST be signed using `hydration_snapshot_signing` keys (separate from ticket signing).",
+            "The snapshot MUST NOT include private key material."
+          ]
+        }
+      ],
+      "id": "distribution",
+      "title": "Public key distribution"
+    },
+    {
+      "body": [
+        "Compromise response MUST revoke the compromised `kid` immediately and advance epoch.",
+        "Affected credentials MUST be reissued and prior credentials MUST be revoked/superseded (see TKT-1)."
+      ],
+      "id": "compromise",
+      "rules": [
+        "Compromise response MUST be an explicit admin/security authority path; automated authorities MUST NOT declare compromise without an audited override."
+      ],
+      "title": "Compromise response"
+    },
+    {
+      "entities": [
+        {
+          "fields": [
+            {
+              "name": "schema_id",
+              "required": true,
+              "text": "Must equal offline_hydration_manifest.schema_id.",
+              "type": "string"
+            },
+            {
+              "name": "manifest_id",
+              "required": true,
+              "text": "Unique identifier for this manifest for debugging/auditing.",
+              "type": "uuid_v7"
+            },
+            {
+              "name": "org_id",
+              "required": true,
+              "text": "Tenant org_id.",
+              "type": "org_id"
+            },
+            {
+              "name": "occurrence_id",
+              "required": true,
+              "text": "Occurrence scope for this hydration snapshot.",
+              "type": "occurrence_id"
+            },
+            {
+              "name": "snapshot_at_utc",
+              "required": true,
+              "text": "UTC time when the backend generated the snapshot.",
+              "type": "utc_datetime_usec"
+            },
+            {
+              "name": "snapshot_valid_until_utc",
+              "required": true,
+              "text": "UTC expiry time. Must satisfy offline_hydration_manifest.ttl rules.",
+              "type": "utc_datetime_usec"
+            },
+            {
+              "name": "payload",
+              "required": true,
+              "text": "Hydration payload slots.",
+              "type": "OfflineHydrationPayloadV1"
+            },
+            {
+              "name": "signature",
+              "required": true,
+              "text": "Ed25519 signature over JCS-canonical bytes of the manifest excluding this signature field.",
+              "type": "OfflineHydrationSignatureV1"
+            }
+          ],
+          "name": "OfflineHydrationManifestV1",
+          "notes": [
+            "The manifest MUST be canonicalized with JCS (RFC 8785) prior to signing.",
+            "All binary fields MUST use Base64URL without padding (RFC 4648)."
+          ],
+          "summary": "Root hydration manifest signed by hydration_snapshot_signing keys."
+        },
+        {
+          "fields": [
+            {
+              "name": "keys_snapshot",
+              "required": true,
+              "text": "SEC-1 key distribution snapshot (active/grace keys + revocations).",
+              "type": "KeyDistributionSnapshotV1"
+            },
+            {
+              "name": "revoked_ticket_credential_ids",
+              "required": true,
+              "text": "TKT-1 revoked ticket_credential_id values.",
+              "type": "array(string)"
+            },
+            {
+              "name": "superseded_ticket_credential_ids",
+              "required": true,
+              "text": "TKT-1 superseded ticket_credential_id values.",
+              "type": "array(string)"
+            },
+            {
+              "name": "active_allow_list_actor_ids",
+              "required": true,
+              "text": "IAM-1 allow-list actor ids permitted to scan/administer.",
+              "type": "array(actor_id)"
+            },
+            {
+              "name": "active_dispute_ticket_credential_ids",
+              "required": false,
+              "text": "SCAN-1 optional dispute flags that force manual review.",
+              "type": "array(string)"
+            }
+          ],
+          "name": "OfflineHydrationPayloadV1",
+          "notes": [
+            "All arrays MUST be sorted deterministically per offline_hydration_manifest.ordering.sort_keys."
+          ],
+          "summary": "Hydration slots owned by multiple contracts but assembled as one signed artifact by the backend."
+        },
+        {
+          "fields": [
+            {
+              "name": "kid",
+              "required": true,
+              "text": "Signing key id. Must match kid_format.regex.",
+              "type": "string"
+            },
+            {
+              "name": "alg",
+              "required": true,
+              "text": "Must equal 'Ed25519'.",
+              "type": "string"
+            },
+            {
+              "name": "sig_b64url",
+              "required": true,
+              "text": "Ed25519 signature bytes encoded as Base64URL without padding.",
+              "type": "base64url_no_pad"
+            }
+          ],
+          "name": "OfflineHydrationSignatureV1",
+          "summary": "Signature wrapper for OfflineHydrationManifestV1."
+        }
+      ],
+      "name": "Offline Hydration Manifest",
+      "summary": "Composite, signed artifact that hydrates scanners for offline operation: keys + revocations + allow-lists (+ optional dispute flags)."
+    }
+  ],
+  "security_requirements": {
+    "pci_scope": {
+      "hosted_payment_pages_preferred": true,
+      "no_pan_no_cvv": true,
+      "token_only": true
+    },
+    "secrets": {
+      "no_plaintext_in_logs": true,
+      "rotation_required": true,
+      "store": "vault_or_kms"
+    },
+    "transport_security": {
+      "algorithm_agility": {
+        "deprecation_process": {
+          "emergency_disable_supported": true,
+          "review_cadence_days": 90,
+          "sunset_notice_min_days": 180
+        },
+        "pqc_negotiation": {
+          "definitions": {
+            "FAIL_OPEN": "Server advertises hybrid support but MUST accept classical TLS 1.3 key exchange if the client/path cannot negotiate the hybrid group.",
+            "FAIL_SAFE": "Server MUST require the hybrid PQC group; clients/paths that cannot negotiate it are rejected."
+          },
+          "policies_allowed": [
+            "FAIL_OPEN",
+            "FAIL_SAFE"
+          ],
+          "selection_rules": [
+            "Public surfaces MUST use FAIL_OPEN profiles during the ecosystem migration window.",
+            "FAIL_SAFE profiles are permitted ONLY for trusted_origin surfaces where both ends are controlled and verified."
+          ]
+        },
+        "rule": "Transport profiles MUST support deprecation/rotation without changing business-domain semantics or event schemas."
+      },
+      "endpoint_policy": {
+        "default_profile_id": "TLS13_BASELINE_V1",
+        "pqc_rollout": {
+          "allowed_states": [
+            "off",
+            "optional",
+            "required"
+          ],
+          "initial_state": "optional",
+          "state_change_requires": "suite upgrade + audit log + SRE signoff"
+        },
+        "rule": "Every network-accessible surface MUST declare transport_security_profile_ref that points to one of SEC-1.security_requirements.transport_security.profiles[].profile_id.",
+        "surface_class_rule": "Every network-accessible surface MUST declare surface_class as one of security_requirements.transport_security.endpoint_policy.surface_classes_allowed. If omitted, surface_class SHALL be treated as 'public' for backwards compatibility; however, contracts updated after SEC-1@3.4.2 MUST explicitly declare surface_class.",
+        "surface_classes_allowed": [
+          "public",
+          "trusted_origin"
+        ],
+        "surface_classes_allowed_norm": "public,trusted_origin"
+      },
+      "profiles": [
+        {
+          "allowed_surface_classes": [
+            "public",
+            "trusted_origin"
+          ],
+          "allowed_surface_classes_norm": "public,trusted_origin",
+          "negotiation_policy": "FAIL_OPEN",
+          "pqc": {
+            "mode": "off",
+            "notes": [
+              "This profile is quantum-safe only to the extent of classical TLS 1.3; it is permitted as default until PQC rollout is enabled."
+            ]
+          },
+          "profile_id": "TLS13_BASELINE_V1",
+          "status": "active",
+          "summary": "Baseline production transport: TLS 1.3, strong AEAD, forward secrecy, strict cert validation.",
+          "tls": {
+            "allow_tls12_fallback": false,
+            "allowed_aeads": [
+              "AES_128_GCM",
+              "AES_256_GCM",
+              "CHACHA20_POLY1305"
+            ],
+            "alpn_required": true,
+            "forbid_compression": true,
+            "forbid_null_ciphers": true,
+            "min_version": "1.3"
+          }
+        },
+        {
+          "allowed_surface_classes": [
+            "public",
+            "trusted_origin"
+          ],
+          "allowed_surface_classes_norm": "public,trusted_origin",
+          "negotiation_policy": "FAIL_OPEN",
+          "pqc": {
+            "deployment_notes": [
+              "Primary enforcement point is edge/origin TLS termination (e.g., CDN/reverse-proxy).",
+              "Client compatibility MUST be preserved; PQC MAY be enabled for origin links first."
+            ],
+            "hybrid_groups_allowed": [
+              "x25519mlkem768"
+            ],
+            "kem_standard": "FIPS 203 (ML-KEM)",
+            "mode": "optional"
+          },
+          "profile_id": "TLS13_HYBRID_PQC_V1",
+          "status": "planned",
+          "summary": "Hybrid post-quantum-ready transport: TLS 1.3 with classical ECDHE plus ML-KEM hybrid groups when supported by edge/origin.",
+          "tls": {
+            "allow_tls12_fallback": false,
+            "allowed_aeads": [
+              "AES_128_GCM",
+              "AES_256_GCM",
+              "CHACHA20_POLY1305"
+            ],
+            "alpn_required": true,
+            "forbid_compression": true,
+            "forbid_null_ciphers": true,
+            "min_version": "1.3"
+          }
+        },
+        {
+          "allowed_surface_classes": [
+            "trusted_origin"
+          ],
+          "allowed_surface_classes_norm": "trusted_origin",
+          "negotiation_policy": "FAIL_SAFE",
+          "pqc": {
+            "deployment_notes": [
+              "Primary enforcement point is edge/origin TLS termination (e.g., CDN/reverse-proxy).",
+              "Client compatibility MUST be preserved; PQC MAY be enabled for origin links first.",
+              "This profile is intentionally FAIL_SAFE and MUST NOT be used for public client connections.",
+              "Only permitted for trusted_origin links (e.g., CDN->origin, service-to-service) where both ends are PQC-capable and verified."
+            ],
+            "hybrid_groups_allowed": [
+              "x25519mlkem768"
+            ],
+            "kem_standard": "FIPS 203 (ML-KEM)",
+            "mode": "required"
+          },
+          "profile_id": "TLS13_HYBRID_PQC_ORIGIN_ONLY_V1",
+          "status": "planned",
+          "summary": "Origin-only hard PQC transport: TLS 1.3 hybrid groups REQUIRED (FAIL_SAFE). Use ONLY for trusted_origin surfaces where both ends of the wire are controlled.",
+          "tls": {
+            "allow_tls12_fallback": false,
+            "allowed_aeads": [
+              "AES_128_GCM",
+              "AES_256_GCM",
+              "CHACHA20_POLY1305"
+            ],
+            "alpn_required": true,
+            "forbid_compression": true,
+            "forbid_null_ciphers": true,
+            "min_version": "1.3"
+          }
+        }
+      ]
+    },
+    "webhook_verification": {
+      "constant_time_compare_required": true
+    }
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines key epochs, key states, and distribution semantics for offline-capable credential verification.",
+  "summary_detail": {
+    "non_goals": [
+      "Defining the internal finance ledger double-entry model (see LED-1).",
+      "Defining the full external/public API surface (see API-0 / EXT-1).",
+      "PCI/PSP provider certification steps beyond invariants and boundaries."
+    ],
+    "one_liner": "Defines the hard boundary between the core payments domain and external PSP providers (Stripe/Paystack/PayFast/etc), including idempotency, webhook safety, tenancy isolation, and ledger separation.",
+    "problem": "Payments integrations fail in the denial paths: duplicate webhooks, replay attacks, cross-tenant routing mistakes, and accidental ledger coupling. Without a strict adapter contract, every PSP integration invents its own semantics.",
+    "solution": "A single PSP adapter interface with mandatory security, idempotency, and tenancy invariants; all PSP input is normalized into core domain resources/events; the adapter may never mutate core tables directly nor decide ledger postings. Additionally: webhook ingestion is state-aware and replay-safe; 2xx acknowledgement requires durable ingest plus guaranteed enqueue/sweeper recovery."
+  },
+  "telemetry": {
+    "logs": {
+      "custom_inspect_required": true,
+      "custom_inspect_resources": [
+        "PaymentIntent",
+        "PaymentAttempt",
+        "Refund"
+      ],
+      "examples_forbidden_fields": [
+        "pan",
+        "card_number",
+        "cvv",
+        "raw_psp_payload"
+      ],
+      "forbid_raw_struct_inspect_without_redaction": true,
+      "forbid_runtime_regex_redaction_in_inspect": true,
+      "forbid_secrets_in_logs": true,
+      "include_trace_ids": true,
+      "inspect_maintenance_requirements": {
+        "ci_gate_required": true,
+        "description": "CI fails if new field added to payment structs without Inspect exclusion.",
+        "new_field_policy": "fail_ci_if_sensitive_field_added_without_except_entry",
+        "sensitive_field_patterns": [
+          "card",
+          "cvv",
+          "pan",
+          "pin",
+          "password",
+          "secret",
+          "token",
+          "billing_postcode",
+          "phone_number"
+        ]
+      },
+      "inspect_strategy": "derive_only_or_except",
+      "structured": true
+    },
+    "metrics": {
+      "cardinality_rules": {
+        "forbid_user_identifiers_as_labels": true,
+        "max_label_values_per_dim": 64,
+        "max_label_values_per_dim_per_tenant": 64,
+        "provider_id_max_values": 32
+      },
+      "counters": [
+        "pay1.payment_attempts_total{provider, outcome}",
+        "pay1.webhook_events_total{provider, result}",
+        "pay1.idempotency_conflict_total{provider}"
+      ],
+      "histograms": [
+        "pay1.webhook_processing_duration_ms{provider}"
+      ],
+      "provider_label": "provider_id",
+      "required": true
+    },
+    "tracer": {
+      "actions_instrumented": [
+        "initialize_payment",
+        "confirm_or_capture",
+        "refund",
+        "webhook_ingest",
+        "reconciliation_import"
+      ],
+      "ash_tracer_module_required": true,
+      "required": true,
+      "span_attributes": [
+        "pay1.intent_id",
+        "pay1.attempt_id",
+        "pay1.provider",
+        "pay1.provider_id",
+        "pay1.org_id",
+        "pay1.amount",
+        "pay1.currency",
+        "pay1.idempotency_key",
+        "pay1.webhook_event_id",
+        "pay1.webhook_retry_count"
+      ]
+    }
+  },
+  "tier": 3,
+  "title": "Security Keys & Epochs",
+  "updated_at_utc": "2026-02-08T16:55:10Z",
+  "version": "3.5.0",
+  "webhooks": {
+    "anti_patterns": [
+      "Performing heavy work synchronously inside webhook handler before persisting to durable storage/queue.",
+      "Using 'ticket lookup' or 'transaction lookup' endpoints that allow enumeration of valid IDs.",
+      "Routing tenant by untrusted URL params without signature-bound metadata.",
+      "Treating 'HTTP 2xx returned' as proof that downstream processing completed.",
+      "Rejecting replayed webhook deliveries solely because (provider, provider_account_ref, provider_event_id) exists, without checking processing_state and requeueing when non-terminal."
+    ],
+    "dedupe_key": "provider + provider_account_ref + provider_event_id",
+    "process_async": true,
+    "processing_model": {
+      "ack_2xx_rule": "MUST durably ingest ProviderEvent and (enqueue processing job OR ensure sweeper will enqueue within stale windows) before returning any 2xx response.",
+      "enqueue_guarantee": "db_transactional_enqueue_or_sweeper",
+      "event_resource": "ProviderEvent",
+      "initial_state": "received",
+      "processing_job_semantics": {
+        "backoff_strategy": "exponential_jitter",
+        "dead_letter_after_attempts": 5,
+        "idempotency_rule": "Job MUST be safe to run multiple times; side-effects MUST be fenced by idempotency keys and/or optimistic updates on target resources.",
+        "max_attempts": 5,
+        "queue_ref": "OBQC-1"
+      },
+      "recovery_sweeper": {
+        "enabled": true,
+        "requeue_rules": [
+          "If processing_state=='received' and age_seconds > received_stale_after_seconds: enqueue job and set state='queued'.",
+          "If processing_state=='processing' and age_seconds > processing_stale_after_seconds: enqueue job and set state='queued' (stuck steal).",
+          "If processing_state in ['failed','dead_letter']: allow manual replay by requeueing existing row (no new row)."
+        ],
+        "sweep_interval_seconds": 30
+      },
+      "state_field": "processing_state",
+      "states": [
+        "received",
+        "queued",
+        "processing",
+        "processed",
+        "failed",
+        "dead_letter"
+      ],
+      "terminal_states": [
+        "processed",
+        "dead_letter"
+      ]
+    },
+    "receiver_requirements": {
+      "ack_fast_process_async": true,
+      "backoff_strategy": "exponential_jitter",
+      "dead_letter_queue_required": true,
+      "dedupe_strategy": {
+        "expiration_window_days": 7,
+        "key_construction": "provider + provider_account_ref + provider_event_id",
+        "mode": "state_aware_requeue_existing",
+        "on_conflict": "MUST load existing ProviderEvent row and act by processing_state",
+        "processing_stale_after_seconds": 300,
+        "received_stale_after_seconds": 60,
+        "reject_states": [
+          "processed"
+        ],
+        "requeue_states": [
+          "received",
+          "queued",
+          "processing",
+          "failed",
+          "dead_letter"
+        ],
+        "tenant_scope_key": "org_id",
+        "tenant_scope_required": true
+      },
+      "dedupe_window_min_days": 7,
+      "dedupe_window_min_hours": 168,
+      "durable_enqueue_before_2xx": true,
+      "durable_ingest_before_2xx": true,
+      "hide_existence_response_uniform": true,
+      "max_retries": 5,
+      "reject_timestamp_out_of_window": true,
+      "reject_unsigned": true,
+      "routing_prefers_correlation_hash": true,
+      "stuck_sweeper_required": true
+    },
+    "tenant_routing_methods": [
+      "psp_metadata_correlation_hash"
+    ],
+    "verification": {
+      "paystack": {
+        "docs": "https://paystack.com/docs/payments/webhooks/",
+        "header": "x-paystack-signature"
+      },
+      "stripe": {
+        "docs": "https://docs.stripe.com/webhooks/signatures",
+        "header": "Stripe-Signature"
+      }
+    }
+  },
+  "approved_authority_corrections": {
+    "identity_security_boundary": "Authentication MUST resolve through a trusted provider to global AuthIdentity keyed by exact (issuer, provider_subject). Email equality MUST NOT merge principals. IAM MUST NOT access PII-1 subject_lookup_key_hash."
+  }
+}

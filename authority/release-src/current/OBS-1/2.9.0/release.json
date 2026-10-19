@@ -1,0 +1,13 @@
+{
+  "doc_id": "OBS-1",
+  "version": "2.9.0",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "release_status": "candidate",
+  "release_intent": "Review-only successor package for the frozen T0 authority snapshot, OBS-1@2.9.0.",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "cf611c4190414afecbe2188d51051f02ebe64b75f54a43d29a4b629bb4c4d7fe"
+  }
+}

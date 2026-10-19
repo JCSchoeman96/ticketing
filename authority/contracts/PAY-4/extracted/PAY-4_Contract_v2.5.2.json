@@ -1,0 +1,1572 @@
+{
+  "actions_and_workflows": {
+    "payouts": {
+      "execution": {
+        "ambiguity_handling": {
+          "max_attempts": 50,
+          "on_expiry_transition": "MANUAL_REVIEW_REQUIRED",
+          "pipeline": "pay4.payout_ambiguity_check.v1",
+          "required": true,
+          "ttl_hours_max": 48,
+          "worker": "OBQC-1"
+        },
+        "fencing": {
+          "notes": "All finalization writes must be fenced and idempotent under retries.",
+          "required_on": [
+            "finalize_payout",
+            "release_payout",
+            "mark_paid",
+            "apply_statement_batch"
+          ],
+          "via": "SM-0.cas_fencing"
+        },
+        "worker_model": {
+          "queue_governance": {
+            "bulkhead_pool": ":background",
+            "serialization": {
+              "key_template": "payout:{org_id}:{provider}:{provider_account_ref}",
+              "notes": "Ensures single-flight payout compute+execute per provider account.",
+              "via": "OBQC-1.serialized_queue"
+            }
+          }
+        }
+      },
+      "preconditions": [
+        "Latest reconciliation run for org_id/currency is MATCHED.",
+        "OrgPayoutPolicy.payout_freeze_enabled is false.",
+        "Payout.currency MUST equal TreasuryBalance.currency (no implicit FX).",
+        "TreasuryReservation MUST be created atomically before EXECUTING."
+      ]
+    },
+    "treasury": {
+      "availability_calculation": {
+        "definitions": {
+          "available_minor": "min(total_minor, cleared_minor) (never negative)",
+          "cleared_minor": "Net funds older than clearing_window_days (time eligible).",
+          "pending_minor": "Net of newer items (including late chargebacks/refunds) not yet cleared.",
+          "total_minor": "cleared_minor + pending_minor"
+        },
+        "requirements": [
+          "Any mutation to cleared_minor or pending_minor MUST recompute total_minor and available_minor in the same transaction.",
+          "available_minor MUST never exceed total_minor (liability cap)."
+        ]
+      }
+    }
+  },
+  "anti_patterns": {
+    "p0": [
+      {
+        "rule_id": "ATP-PAY4-010",
+        "text": "Running payout computation for the same (org_id, provider_account_ref) concurrently in multiple workers. Use OBQC serialized queues."
+      },
+      {
+        "rule_id": "ATP-PAY4-011",
+        "text": "Trusting provider_account_ref from incoming payload instead of deriving it from verified webhook credentials (PAY-1)."
+      },
+      {
+        "rule_id": "ATP-PAY4-012",
+        "text": "Emitting payout-finalization events outside the same transaction that commits the ledger postings/outbox record (non-atomic outbox)."
+      }
+    ]
+  },
+  "artifact_kind": "contract",
+  "artifact_name": "PAY-4_Contract_v2.5.2.json",
+  "ash_3x_model": {
+    "domains": [
+      {
+        "domain_module": "Ticketing.Payments",
+        "owns_resources": [
+          "Ticketing.Payments.OrgPayoutPolicy",
+          "Ticketing.Payments.Payout",
+          "Ticketing.Payments.TreasuryBalance",
+          "Ticketing.Payments.TreasuryReservation",
+          "Ticketing.Payments.SettlementStatement",
+          "Ticketing.Payments.SettlementLineItem",
+          "Ticketing.Payments.ProviderSettlementEvent",
+          "Ticketing.Payments.ReconciliationRun",
+          "Ticketing.Payments.IdempotencyRecord"
+        ],
+        "tenant_strategy": "Ash multi-tenancy using org_id; all actions MUST require tenant and set_tenant/2."
+      }
+    ],
+    "resources": {
+      "Ticketing.Payments.Payout": {
+        "actions": {
+          "create_payout": {
+            "idempotent_via": "IdempotencyRecord(operation=payout_create)",
+            "type": "create",
+            "writes": [
+              "scheduled_for_utc",
+              "provider",
+              "currency",
+              "amount_minor"
+            ]
+          },
+          "mark_failed": {
+            "immutable_effects": [
+              "release reservation"
+            ],
+            "preconditions": [
+              "non-ambiguous failure"
+            ],
+            "type": "update"
+          },
+          "mark_paid": {
+            "immutable_effects": [
+              "consume reservation"
+            ],
+            "preconditions": [
+              "provider confirmation OR ambiguity loop satisfied"
+            ],
+            "type": "update"
+          },
+          "transition_to_executing": {
+            "preconditions": [
+              "TreasuryReservation exists",
+              "OrgPayoutPolicy.payout_freeze_enabled == false",
+              "reconciliation latest == MATCHED"
+            ],
+            "transaction_boundary": "single DB transaction",
+            "type": "update"
+          }
+        },
+        "primary_key": "payout_id"
+      }
+    }
+  },
+  "canonical": false,
+  "change_log": [
+    {
+      "date_utc": "2026-02-03",
+      "summary": "Physics-aware payout hardening: provider_account_ref triple-key identity, OBQC serialized queues, session-affine locking, fenced finalization, and updated dependency floors.",
+      "version": "2.5.0"
+    },
+    {
+      "changes": [
+        "Atomic reservation, clearing windows, bounded inquiry loop requirement."
+      ],
+      "date_utc": "2026-01-05T00:00:00Z",
+      "version": "2.2.0"
+    },
+    {
+      "changes": [
+        "PAY-4-PATCH-005 liability cap",
+        "PAY-4-PATCH-006 inquiry TTL and max attempts",
+        "PAY-4-PATCH-007 auto-release reservation on FAILED"
+      ],
+      "date_utc": "2026-01-05T11:38:11Z",
+      "version": "2.3.0"
+    },
+    {
+      "changes": [
+        "DEPENDENCY ALIGNMENT: Upgraded TEN-1 min_version from 1.5.2 \u2192 1.6.8 (canonical org_id tenant key + fail-closed RLS semantics).",
+        "DEPENDENCY ALIGNMENT: Upgraded ERR-1 min_version from 1.3.13 \u2192 1.3.18.",
+        "DEPENDENCY ALIGNMENT: Upgraded LED-1 min_version from 2.1.5 \u2192 2.3.4 (org_id/RLS alignment).",
+        "DEPENDENCY ALIGNMENT: Upgraded PAY-1 min_version from 2.1.0 \u2192 2.6.0.",
+        "DEPENDENCY ALIGNMENT: Upgraded PAY-2 min_version from 2.0.2 \u2192 2.7.0 (org_id normalization).",
+        "DEPENDENCY ALIGNMENT: Upgraded PAY-3 min_version from 2.0.2 \u2192 2.7.1.",
+        "BUNDLE NAMING ALIGNMENT: Manifest filename normalized to bundle_PAY-4.manifest.json per CS-0 bundle naming convention."
+      ],
+      "date_utc": "2026-01-06T05:12:00Z",
+      "version": "2.3.1"
+    },
+    {
+      "changes": [
+        "Add PayoutBlocker entity + enums for auditable payout holds.",
+        "Define P0 rule: active dispute risk blocks payout and reserve/clearing releases unless explicit PAY-3 override exists.",
+        "Bump dependencies: PAY-3 >= 2.8.0 and ERR-1 >= 1.4.3.",
+        "Add integration notes for consuming pay.dispute_risk_flag_changed."
+      ],
+      "date_utc": "2026-01-25T10:08:44.972901Z",
+      "summary": "Enterprise-safe payout blocking: treat active dispute as risk flag that fails closed for payouts and reserve releases (audited via PayoutBlocker).",
+      "type": "minor",
+      "version": "2.4.0"
+    },
+    {
+      "changes": [
+        "Reconciliation now explicitly scoped by org, provider, provider account, currency, and settlement period.",
+        "Payouts blocked when disputes, provisional offline scans, or manual-review refunds exist.",
+        "Dependency floors aligned to patched SCAN-1, REFUND-1, EVT-2, ERR-1."
+      ],
+      "date_utc": "2026-01-25T20:24:08Z",
+      "summary": "Lock reconciliation scope and payout hold conditions to prevent offline/dispute leakage."
+    }
+  ],
+  "data_model": {
+    "entities": {
+      "IdempotencyRecord": {
+        "fields": {
+          "created_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "expires_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "idempotency_record_id": {
+            "pattern": "^idem_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid_v7",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "request_hash": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "response_fingerprint": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "reserved",
+              "succeeded",
+              "failed",
+              "expired"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "id_prefix": "idem_",
+        "required": [
+          "org_id",
+          "idempotency_record_id",
+          "operation",
+          "key",
+          "request_hash",
+          "status",
+          "response_fingerprint",
+          "expires_at_utc",
+          "created_at_utc",
+          "version"
+        ],
+        "rules": [
+          {
+            "id": "PAY4-IDEMP-01",
+            "text": "IdempotencyRecord MUST be enforced via a DB unique constraint (org_id, operation, key). Replays with different request_hash MUST return ERR_CONFLICT with subcode LOCKS_IDEMPOTENCY_KEY_REUSE."
+          }
+        ],
+        "uniqueness_constraints": [
+          {
+            "fields": [
+              "org_id",
+              "operation",
+              "key"
+            ]
+          }
+        ]
+      },
+      "OrgPayoutPolicy": {
+        "fields": {
+          "clearing_window_days": {
+            "default": 3,
+            "max": 30,
+            "min": 0,
+            "type": "integer"
+          },
+          "created_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid_v7",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "org_payout_policy_id": {
+            "pattern": "^opp_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "payout_freeze_enabled": {
+            "default": false,
+            "type": "boolean"
+          },
+          "updated_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          }
+        },
+        "id_prefix": "opp_",
+        "required": [
+          "org_payout_policy_id",
+          "org_id",
+          "clearing_window_days",
+          "payout_freeze_enabled",
+          "created_at_utc",
+          "updated_at_utc"
+        ],
+        "rules": [
+          {
+            "id": "PAY4-OPP-01",
+            "text": "If an OrgPayoutPolicy exists for org_id, clearing_window_days MUST be explicitly configured. If no OrgPayoutPolicy exists, effective clearing_window_days MUST default to 3 (days)."
+          },
+          {
+            "id": "PAY4-OPP-02",
+            "text": "payout_freeze_enabled MUST block transitions to EXECUTING and MUST be re-checked by inquiry/finalization before marking PAID."
+          }
+        ],
+        "uniqueness_constraints": [
+          {
+            "fields": [
+              "org_id"
+            ],
+            "name": "org_payout_policy_unique"
+          }
+        ]
+      },
+      "Payout": {
+        "fields": {
+          "ambiguity_probe_attempts": {
+            "default": 0,
+            "min": 0,
+            "type": "integer"
+          },
+          "ambiguity_probe_last_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "amount_minor": {
+            "min": 1,
+            "type": "integer"
+          },
+          "blocked_by_payout_blocker_id": {
+            "required": false,
+            "type": "uuid_v7"
+          },
+          "blocked_reason_subcode": {
+            "description": "If payout is blocked, indicates the primary ERR-1 reason_subcode used for denial/hold.",
+            "required": false,
+            "type": "err_subcode"
+          },
+          "created_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "type": "string"
+          },
+          "idempotency_key": {
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid_v7",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "payout_id": {
+            "pattern": "^po_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "provider": {
+            "enum": [
+              "stripe",
+              "paystack",
+              "peach_payments",
+              "payfast",
+              "yoco"
+            ],
+            "type": "string"
+          },
+          "provider_account_ref": {
+            "constraints": {
+              "max_length": 128,
+              "min_length": 3,
+              "pattern": "^[a-zA-Z0-9:_\\-\\.]+$"
+            },
+            "notes": "Provider account reference derived from verified webhook credentials (PAY-1); MUST NOT be trusted from payload.",
+            "type": "string"
+          },
+          "provider_failure_code": {
+            "nullable": true,
+            "type": "string"
+          },
+          "provider_failure_message": {
+            "nullable": true,
+            "type": "string"
+          },
+          "provider_payout_id": {
+            "nullable": true,
+            "type": "string"
+          },
+          "reconciliation_run_id": {
+            "nullable": true,
+            "type": "string"
+          },
+          "scheduled_for_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "status": {
+            "enum": "PayoutStatus",
+            "type": "string"
+          },
+          "treasury_reservation_id": {
+            "nullable": true,
+            "type": "string"
+          },
+          "updated_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "version": {
+            "min": 1,
+            "type": "integer"
+          }
+        },
+        "id_prefix": "po_",
+        "required": [
+          "payout_id",
+          "org_id",
+          "provider",
+          "currency",
+          "amount_minor",
+          "status",
+          "scheduled_for_utc",
+          "idempotency_key",
+          "created_at_utc",
+          "updated_at_utc",
+          "provider_account_ref"
+        ],
+        "uniqueness_constraints": [
+          {
+            "fields": [
+              "payout_id"
+            ],
+            "name": "payout_pk"
+          },
+          {
+            "fields": [
+              "org_id",
+              "currency",
+              "idempotency_key"
+            ],
+            "name": "payout_idempotency_unique"
+          },
+          {
+            "fields": [
+              "provider",
+              "provider_account_ref",
+              "provider_payout_id"
+            ],
+            "id": "UC_PROVIDER_PAYOUT_ID",
+            "notes": "Prevents duplicate provider payouts across accounts; provider_account_ref is mandatory scope.",
+            "where": "provider_payout_id IS NOT NULL"
+          }
+        ]
+      },
+      "PayoutBlocker": {
+        "description": "Auditable payout blocker used to fail-closed on enterprise risk flags (e.g., active disputes) and on explicit administrative holds.",
+        "fields": {
+          "authority": {
+            "enum": "PayoutBlockerAuthority",
+            "required": true,
+            "type": "enum"
+          },
+          "blocker_kind": {
+            "enum": "PayoutBlockerKind",
+            "required": true,
+            "type": "enum"
+          },
+          "created_at_utc": {
+            "required": true,
+            "type": "utc_datetime_usec"
+          },
+          "notes": {
+            "max_bytes": 2048,
+            "required": false,
+            "type": "string"
+          },
+          "org_id": {
+            "required": true,
+            "type": "uuid_v7"
+          },
+          "payout_blocker_id": {
+            "required": true,
+            "type": "uuid_v7"
+          },
+          "reason_subcode": {
+            "description": "MUST reference ERR-1 registry.",
+            "required": true,
+            "type": "err_subcode"
+          },
+          "release_reason_subcode": {
+            "required": false,
+            "type": "err_subcode"
+          },
+          "released_at_utc": {
+            "required": false,
+            "type": "utc_datetime_usec"
+          },
+          "released_by_actor_id": {
+            "required": false,
+            "type": "uuid_v7"
+          },
+          "scope_ref_id": {
+            "required": false,
+            "type": "uuid_v7"
+          },
+          "scope_type": {
+            "enum": "PayoutBlockerScopeType",
+            "required": true,
+            "type": "enum"
+          }
+        },
+        "id_prefix": "pbl_",
+        "invariants": [
+          "PayoutBlocker records MUST be auditable. Creation is append-only; release marks released_at_utc but MUST NOT delete history.",
+          "blocker_kind=dispute_active MUST be created by system on pay.dispute_risk_flag_changed active=true for the relevant scope.",
+          "Automated authorities MUST NOT create manual_hold blockers; only explicit admin actions may do so."
+        ]
+      },
+      "ProviderSettlementEvent": {
+        "fields": {
+          "created_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "dedupe_key": {
+            "type": "string"
+          },
+          "event_source": {
+            "enum": [
+              "webhook",
+              "file_upload",
+              "api_poll",
+              "manual"
+            ],
+            "type": "string"
+          },
+          "occurred_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid_v7",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "payload_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "provider": {
+            "enum": [
+              "stripe",
+              "paystack",
+              "peach_payments",
+              "payfast",
+              "yoco"
+            ],
+            "type": "string"
+          },
+          "provider_account_ref": {
+            "constraints": {
+              "max_length": 128,
+              "min_length": 3,
+              "pattern": "^[a-zA-Z0-9:_\\-\\.]+$"
+            },
+            "notes": "Provider account reference derived from verified webhook credentials (PAY-1); MUST NOT be trusted from payload.",
+            "type": "string"
+          },
+          "provider_event_id": {
+            "type": "string"
+          },
+          "provider_settlement_event_id": {
+            "pattern": "^pse_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "received_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "id_prefix": "pse_",
+        "required": [
+          "org_id",
+          "provider_settlement_event_id",
+          "provider",
+          "event_source",
+          "provider_event_id",
+          "received_at_utc",
+          "payload_sha256",
+          "dedupe_key",
+          "created_at_utc",
+          "version",
+          "provider_account_ref"
+        ],
+        "rules": [
+          {
+            "id": "PAY4-PSE-01",
+            "text": "ProviderSettlementEvent MUST be append-only and deduplicated by (org_id, provider, provider_event_id) and/or dedupe_key."
+          }
+        ],
+        "uniqueness_constraints": [
+          {
+            "fields": [
+              "org_id",
+              "provider",
+              "provider_account_ref",
+              "provider_event_id"
+            ]
+          },
+          {
+            "fields": [
+              "org_id",
+              "dedupe_key"
+            ]
+          }
+        ]
+      },
+      "ReconciliationRun": {
+        "fields": {
+          "created_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "ended_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid_v7",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "provider": {
+            "enum": [
+              "stripe",
+              "paystack",
+              "peach_payments",
+              "payfast",
+              "yoco"
+            ],
+            "type": "string"
+          },
+          "reconciliation_run_id": {
+            "pattern": "^recon_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "result_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "started_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "running",
+              "succeeded",
+              "failed"
+            ],
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "id_prefix": "recon_",
+        "required": [
+          "org_id",
+          "reconciliation_run_id",
+          "provider",
+          "status",
+          "started_at_utc",
+          "created_at_utc",
+          "version"
+        ],
+        "rules": [
+          {
+            "id": "PAY4-RR-01",
+            "text": "ReconciliationRun MUST be immutable after completion; status transitions allowed only running->succeeded|failed."
+          },
+          {
+            "id": "PAY4-RR-02",
+            "text": "Payout release MUST be gated on the latest completed ReconciliationRun status == succeeded (MATCHED) for (org_id, currency) as defined in invariants.reconciliation."
+          }
+        ],
+        "uniqueness_constraints": [
+          {
+            "fields": [
+              "org_id",
+              "provider",
+              "started_at_utc"
+            ]
+          }
+        ]
+      },
+      "SettlementLineItem": {
+        "fields": {
+          "amount_minor": {
+            "type": "integer"
+          },
+          "created_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "charge",
+              "fee",
+              "refund",
+              "adjustment",
+              "payout",
+              "transfer",
+              "unknown"
+            ],
+            "type": "string"
+          },
+          "occurred_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid_v7",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "provider": {
+            "enum": [
+              "stripe",
+              "paystack",
+              "peach_payments",
+              "payfast",
+              "yoco"
+            ],
+            "type": "string"
+          },
+          "provider_line_item_id": {
+            "type": "string"
+          },
+          "raw_item_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "settlement_line_item_id": {
+            "pattern": "^sli_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "settlement_statement_id": {
+            "pattern": "^stl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "id_prefix": "sli_",
+        "required": [
+          "org_id",
+          "settlement_line_item_id",
+          "settlement_statement_id",
+          "provider",
+          "amount_minor",
+          "currency",
+          "created_at_utc",
+          "version"
+        ],
+        "rules": [
+          {
+            "id": "PAY4-SLI-01",
+            "text": "SettlementLineItem records MUST be append-only; updates are forbidden. Corrections MUST be expressed as additional line items or ledger postings."
+          }
+        ],
+        "uniqueness_constraints": [
+          {
+            "fields": [
+              "org_id",
+              "provider",
+              "provider_line_item_id"
+            ]
+          }
+        ]
+      },
+      "SettlementStatement": {
+        "fields": {
+          "created_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid_v7",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "payload_format": {
+            "enum": [
+              "json",
+              "csv",
+              "pdf",
+              "unknown"
+            ],
+            "type": "string"
+          },
+          "payload_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "payload_storage_ref": {
+            "type": "string"
+          },
+          "period_end_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "period_start_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "provider": {
+            "enum": [
+              "stripe",
+              "paystack",
+              "peach_payments",
+              "payfast",
+              "yoco"
+            ],
+            "type": "string"
+          },
+          "provider_account_ref": {
+            "constraints": {
+              "max_length": 128,
+              "min_length": 3,
+              "pattern": "^[a-zA-Z0-9:_\\-\\.]+$"
+            },
+            "notes": "Provider account reference derived from verified webhook credentials (PAY-1); MUST NOT be trusted from payload.",
+            "type": "string"
+          },
+          "provider_statement_id": {
+            "type": "string"
+          },
+          "received_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "settlement_statement_id": {
+            "pattern": "^stl_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "version": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "id_prefix": "stl_",
+        "required": [
+          "org_id",
+          "settlement_statement_id",
+          "provider",
+          "provider_statement_id",
+          "received_at_utc",
+          "payload_sha256",
+          "created_at_utc",
+          "version",
+          "provider_account_ref"
+        ],
+        "rules": [
+          {
+            "id": "PAY4-SS-01",
+            "text": "SettlementStatement MUST be immutable after creation except for version increment on canonicalization metadata additions that do not alter payload_sha256."
+          },
+          {
+            "id": "PAY4-SS-02",
+            "text": "payload_sha256 MUST be computed over the exact persisted payload bytes; payload_storage_ref MUST point to an immutable blob (no overwrite)."
+          }
+        ],
+        "uniqueness_constraints": [
+          {
+            "fields": [
+              "org_id",
+              "provider",
+              "provider_account_ref",
+              "provider_statement_id"
+            ]
+          }
+        ]
+      },
+      "TreasuryBalance": {
+        "fields": {
+          "as_of_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "available_minor": {
+            "type": "integer"
+          },
+          "cleared_cutoff_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "cleared_minor": {
+            "type": "integer"
+          },
+          "created_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid_v7",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "pending_minor": {
+            "type": "integer"
+          },
+          "total_minor": {
+            "type": "integer"
+          },
+          "treasury_balance_id": {
+            "pattern": "^tbal_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "updated_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "version": {
+            "min": 1,
+            "type": "integer"
+          }
+        },
+        "id_prefix": "tbal_",
+        "required": [
+          "treasury_balance_id",
+          "org_id",
+          "currency",
+          "available_minor",
+          "pending_minor",
+          "cleared_minor",
+          "total_minor",
+          "as_of_utc",
+          "created_at_utc",
+          "updated_at_utc"
+        ],
+        "rules": [
+          {
+            "id": "PAY4-TRE-01",
+            "text": "available_minor MUST NOT be negative."
+          },
+          {
+            "id": "PAY4-TRE-02",
+            "text": "Reserve/release operations MUST be concurrency safe and MUST NOT use check-then-act reads."
+          },
+          {
+            "id": "PAY4-TRE-03",
+            "text": "cleared_minor MUST represent funds eligible by time (occurred_at_utc < now()-clearing_window_days)."
+          },
+          {
+            "id": "PAY4-TRE-04",
+            "text": "total_minor MUST equal cleared_minor + pending_minor."
+          },
+          {
+            "id": "PAY4-TRE-05",
+            "text": "available_minor MUST equal min(total_minor, cleared_minor) (liability cap)."
+          }
+        ],
+        "uniqueness_constraints": [
+          {
+            "fields": [
+              "org_id",
+              "currency"
+            ],
+            "name": "treasury_bucket_unique"
+          }
+        ]
+      },
+      "TreasuryReservation": {
+        "fields": {
+          "amount_minor": {
+            "min": 1,
+            "type": "integer"
+          },
+          "created_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "currency": {
+            "pattern": "^[A-Z]{3}$",
+            "type": "string"
+          },
+          "org_id": {
+            "format": "uuid_v7",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "payout_id": {
+            "pattern": "^po_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "status": {
+            "enum": "ReservationStatus",
+            "type": "string"
+          },
+          "treasury_reservation_id": {
+            "pattern": "^tres_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "updated_at_utc": {
+            "format": "utc_datetime_usec",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "type": "string"
+          },
+          "version": {
+            "min": 1,
+            "type": "integer"
+          }
+        },
+        "id_prefix": "tres_",
+        "required": [
+          "treasury_reservation_id",
+          "org_id",
+          "currency",
+          "payout_id",
+          "amount_minor",
+          "status",
+          "created_at_utc",
+          "updated_at_utc"
+        ],
+        "rules": [
+          {
+            "id": "PAY4-TRES-01",
+            "text": "A TreasuryReservation MUST be created before a Payout may transition to EXECUTING."
+          },
+          {
+            "id": "PAY4-TRES-02",
+            "text": "Reservation create MUST atomically decrement TreasuryBalance.cleared_minor (and adjust available_minor as a DB-derived value) with predicate cleared_minor >= amount_minor AND (cleared_minor + pending_minor) >= amount_minor (liability cap). If available_minor is used, it MUST be a DB-generated column computed from authoritative components."
+          },
+          {
+            "id": "PAY4-TRES-03",
+            "text": "If payout transitions to FAILED (non-ambiguous) before provider submission, reservation MUST be RELEASED and TreasuryBalance MUST be credited back atomically in the same transaction."
+          },
+          {
+            "id": "PAY4-TRES-04",
+            "text": "If payout transitions to PAID, reservation MUST be CONSUMED atomically (no further releases)."
+          }
+        ],
+        "uniqueness_constraints": [
+          {
+            "fields": [
+              "treasury_reservation_id"
+            ],
+            "name": "reservation_pk"
+          },
+          {
+            "fields": [
+              "org_id",
+              "payout_id"
+            ],
+            "name": "reservation_payout_unique"
+          }
+        ]
+      }
+    },
+    "identifiers": {
+      "id_prefixes": {
+        "IdempotencyRecord": "idem_",
+        "OrgPayoutPolicy": "opp_",
+        "Payout": "po_",
+        "ProviderSettlementEvent": "pse_",
+        "ReconciliationRun": "recon_",
+        "SettlementLineItem": "sli_",
+        "SettlementStatement": "stl_",
+        "TreasuryBalance": "tbal_",
+        "TreasuryReservation": "tres_"
+      }
+    }
+  },
+  "dependencies": [
+    {
+      "doc_id": "V42-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.5.1",
+      "reason": "Constitutional invariants for finance correctness, tenancy isolation, and incident modes."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.4",
+      "reason": "Tenant isolation + canonical org_id tenant key, fail-closed RLS posture, hide-existence semantics."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.10",
+      "reason": "Canonical error envelope + stable subcodes for payout denial paths (latest canon alignment)."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "reason": "Concurrency primitives, lock ordering, idempotency record semantics, retry mapping."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "4.2.0",
+      "reason": "Ledger authoritative truth for postings; reconciliation compares provider statements vs ledger truth with org_id/RLS alignment."
+    },
+    {
+      "doc_id": "PAY-1",
+      "edge_type": "requires",
+      "min_version": "2.9.0",
+      "reason": "Provider adapter boundary aligned to org_id semantics; settlement ingestion originates from provider integrations."
+    },
+    {
+      "doc_id": "PAY-2",
+      "edge_type": "requires",
+      "min_version": "2.7.0",
+      "reason": "Provider routing and ProviderAccount mapping aligned to org_id tenant key; trusted tenant binding + correlation."
+    },
+    {
+      "doc_id": "PAY-3",
+      "edge_type": "requires",
+      "min_version": "2.10.0",
+      "reason": "Refunds/disputes adjust net settlement and affect payout eligibility; aligned to org_id + updated canon."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.1",
+      "reason": "Test gate standard for P0/P1 negative tests and assertion-style gates."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.4",
+      "reason": "Background worker quality controls; payout inquiry loop and queue hygiene."
+    },
+    {
+      "doc_id": "DP-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "reason": "Bulkhead pools required for payout compute vs critical path."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.1",
+      "reason": "Schema token normalization contract (Phase 5)."
+    }
+  ],
+  "dependency_pins": {
+    "DP-1": {
+      "floor_version": "2.1.0",
+      "why": "Route heavy payout computations to background bulkhead to protect checkout/payment pools."
+    },
+    "ERR-1": {
+      "min_version": "1.4.3",
+      "reason": "payout + override dispute-risk subcodes required"
+    },
+    "EVT-1": {
+      "floor_version": "2.7.0",
+      "why": "All emitted payout events must be registered + governed."
+    },
+    "LOCKS-1": {
+      "floor_version": "2.1.0",
+      "why": "Ban split-connection lock/write; use xact-scoped locks inside same Repo.transaction."
+    },
+    "OBQC-1": {
+      "floor_version": "2.1.4",
+      "why": "Payout compute/execution must be serialized per (provider, provider_account_ref, org_id)."
+    },
+    "PAY-1": {
+      "floor_version": "2.9.0",
+      "why": "provider_account_ref must be derived from verified secret/headers, not payload."
+    },
+    "PAY-3": {
+      "floor_version": "2.10.0",
+      "why": "Variance and dispute policy alignment for payout release/holds."
+    },
+    "SM-0": {
+      "floor_version": "1.2.0",
+      "why": "Payout finalize and idempotent retries must be fenced (CAS token)."
+    }
+  },
+  "doc_id": "PAY-4",
+  "emits_events": false,
+  "enums": {
+    "IdempotencyStatus": [
+      "IN_PROGRESS",
+      "COMPLETED",
+      "FAILED"
+    ],
+    "PayoutBlockerAuthority": [
+      "system",
+      "admin"
+    ],
+    "PayoutBlockerKind": [
+      "dispute_active",
+      "manual_hold",
+      "risk_review",
+      "compliance_freeze"
+    ],
+    "PayoutBlockerScopeType": [
+      "org",
+      "provider_account",
+      "order",
+      "payout"
+    ],
+    "PayoutStatus": [
+      "SCHEDULED",
+      "EXECUTING",
+      "SUBMITTED",
+      "PAID",
+      "FAILED",
+      "REVERSED",
+      "CANCELED",
+      "MANUAL_REVIEW_REQUIRED"
+    ],
+    "ReservationStatus": [
+      "HELD",
+      "RELEASED",
+      "CONSUMED"
+    ]
+  },
+  "errors": {
+    "envelope_contract": {
+      "doc_id": "ERR-1",
+      "min_version": "1.3.18"
+    },
+    "subcodes": [
+      "PAY_RESERVATION_FAILED",
+      "PAY_INQUIRY_TTL_EXCEEDED",
+      "PAY_LIABILITY_CAP_EXCEEDED",
+      "PAY_CURRENCY_MISMATCH",
+      "PAY_INSUFFICIENT_FUNDS"
+    ]
+  },
+  "generated_at_utc": "2026-02-07T05:29:25Z",
+  "integration": {
+    "consumes_events": [
+      {
+        "behavior": [
+          "If active=true, create or ensure an open PayoutBlocker(kind=dispute_active) for the relevant scope with reason_subcode PAY_PAYOUT_BLOCKED_DISPUTE_ACTIVE.",
+          "If active=false and no other risk blockers remain, release the dispute_active blocker (set released_at_utc and release_reason_subcode)."
+        ],
+        "event_name": "pay.dispute_risk_flag_changed",
+        "source": "PAY-3"
+      }
+    ]
+  },
+  "invariants": {
+    "ambiguity_handling": {
+      "active_inquiry_loop_required": true,
+      "block_terminal_on_ambiguity": true,
+      "inquiry_max_age_minutes_default": 5,
+      "inquiry_max_attempts": 50,
+      "inquiry_ttl_hours_max": 48,
+      "terminal_state_on_inquiry_expiry": "MANUAL_REVIEW_REQUIRED"
+    },
+    "idempotency": {
+      "dedupe_provider_events": true,
+      "idempotency_ttl_hours_min": 24,
+      "parameter_consistent": true,
+      "payout_execute_idempotent": true,
+      "statement_ingest_idempotent": true
+    },
+    "immutability": {
+      "line_items_append_only": true,
+      "statement_ingest_append_only": true,
+      "statement_payload_immutable": true,
+      "statement_payload_sha256_required": true
+    },
+    "p0": [
+      {
+        "rule_id": "PAY-4-INV-020",
+        "text": "Advisory locks guarding payout mutations MUST be acquired and held in the same DB session/transaction as the protected write (LOCKS-1 session affinity)."
+      },
+      {
+        "rule_id": "PAY-4-INV-021",
+        "text": "Payout computation and execution MUST be serialized per (org_id, provider, provider_account_ref) using OBQC-1 serialized queues to prevent parallel balance calculation or double release."
+      },
+      {
+        "rule_id": "PAY-4-INV-022",
+        "text": "Provider settlement identities MUST use the triple-key: provider + provider_account_ref + provider_event_id/provider_statement_id. provider_account_ref MUST be derived from verified credentials (PAY-1), never trusted from payload."
+      },
+      {
+        "rule_id": "PAY-4-INV-023",
+        "text": "Finalize/release operations MUST be fenced (SM-0 CAS token) and idempotent under retries to prevent double payout."
+      }
+    ],
+    "payout_failure_reversal": {
+      "clawback_supported": true,
+      "failed_payout_must_release_reservation_atomically": true,
+      "reversal_must_be_provider_driven_or_admin_approved": true,
+      "reversal_supported": true
+    },
+    "payout_hold_conditions": "Payout eligibility MUST be blocked when any of the following exist within the settlement scope: unresolved dispute/chargeback, unresolved offline provisional scans, or RefundRequest in manual_review status.",
+    "reconciliation": {
+      "late_statement_triggers_reconcile": true,
+      "mismatch_blocks_payout": true,
+      "out_of_order_statement_safe": true,
+      "provider_truth_checked_before_terminal": true
+    },
+    "reconciliation_scope": "Reconciliation MUST be scoped by org_id, payment_provider, provider_account_id, settlement_currency, and settlement_period. Payouts MUST NOT aggregate across providers, provider accounts, or currencies.",
+    "treasury": {
+      "atomic_reservation_required": true,
+      "available_balance_formula": "available_minor = min(total_minor, cleared_minor) and available_minor >= 0",
+      "available_balance_is_cleared_funds_only": true,
+      "balance_updates_must_be_concurrency_safe": true,
+      "clearing_window_days_default": 3,
+      "currency_must_match_balance_bucket": true,
+      "forbid_check_then_act_balance_reads": true,
+      "liability_capping_required": true,
+      "no_overdraft": true,
+      "same_currency_payout_only": true,
+      "total_balance_formula": "total_minor = cleared_minor + pending_minor"
+    }
+  },
+  "last_updated_utc": "2026-02-07T05:29:25Z",
+  "normative_source": "json",
+  "observability_signals": {
+    "event_bus": "EVT-1",
+    "events": [
+      {
+        "governance": {
+          "doc_id": "OBS-1"
+        },
+        "name": "pay4.treasury.liability_cap_applied",
+        "payload_required_keys": [
+          "org_id",
+          "currency",
+          "total_minor",
+          "cleared_minor",
+          "available_minor",
+          "occurred_at_utc"
+        ]
+      },
+      {
+        "governance": {
+          "doc_id": "OBS-1"
+        },
+        "name": "pay4.payout.manual_review_required",
+        "payload_required_keys": [
+          "org_id",
+          "payout_id",
+          "provider",
+          "reason",
+          "occurred_at_utc"
+        ]
+      }
+    ],
+    "governance": {
+      "event_registry": "EVT-1",
+      "notes": "All payout/settlement events emitted by PAY-4 MUST be registered in EVT-1 with required_data_keys; schema drift is treated as P0.",
+      "require_registration": true
+    }
+  },
+  "outbox_events": [],
+  "purpose_and_boundaries": {
+    "never_owns": [
+      "Payment initiation, authorization, capture, or customer payment UX (PAY-1/PAY-2).",
+      "Refund/dispute case lifecycle and evidence management (PAY-3).",
+      "Double-entry accounting model details (LED-1).",
+      "Secrets management primitives (SEC-1).",
+      "Tenant RLS policy definition (TEN-1).",
+      "FX conversion/trading (future FX-1)."
+    ],
+    "out_of_scope": [
+      "Tax calculation.",
+      "Financial reporting/BI rollups.",
+      "KYC/AML policy; only enforcement hooks where relevant."
+    ],
+    "owns": [
+      "Provider settlement statement ingestion (webhook/file/manual), durable dedupe, and immutable storage.",
+      "Normalization of statement line items into append-only records.",
+      "Per-tenant per-currency treasury balances split into cleared, pending, and total with liability-capped availability.",
+      "Atomic treasury reservations for payouts (reserve/release/consume lifecycle).",
+      "Payout request lifecycle, execution orchestration, and bounded ambiguity inquiry loop.",
+      "Reconciliation gating for payout release (MATCHED required; MISMATCHED blocks).",
+      "SettlementStatement (immutable) and SettlementLineItem (append-only) resources for provider statement ingestion and normalization.",
+      "ProviderSettlementEvent (append-only) resource for webhook/file ingest tracking + dedupe.",
+      "ReconciliationRun (immutable) resource for deterministic reconciliation gating.",
+      "IdempotencyRecord resource aligned to LOCKS-1 idempotency_record definition."
+    ]
+  },
+  "references": [
+    {
+      "kind": "oban",
+      "ref": "https://hexdocs.pm/oban/Oban.Worker.html",
+      "why": "max_attempts and retry/backoff behavior for bounded polling workers."
+    },
+    {
+      "kind": "oban",
+      "ref": "https://hexdocs.pm/oban/error_handling.html",
+      "why": "discarding after max_attempts and retry semantics."
+    },
+    {
+      "kind": "planned_dependency",
+      "ref": "planned:SM-0@>=1.1.0",
+      "why": "Planned dependency; not bundled/pinned yet. MUST be introduced before lock."
+    },
+    {
+      "kind": "planned_dependency",
+      "ref": "planned:EVT-1@>=2.2.0",
+      "why": "Planned dependency; not bundled/pinned yet. MUST be introduced before lock."
+    }
+  ],
+  "rules": [
+    {
+      "category": "clearing",
+      "rationale": "Prevents negative float after chargebacks.",
+      "rule_id": "PAY-4-P0-009",
+      "severity": "P0",
+      "text": "TreasuryBalance.available_minor MUST be liability-capped: available_minor MUST equal min(total_minor, cleared_minor) and MUST NOT exceed total_minor."
+    },
+    {
+      "category": "ops",
+      "rationale": "Prevents infinite polling loops.",
+      "rule_id": "PAY-4-P1-005",
+      "severity": "P1",
+      "text": "Ambiguity inquiry MUST be bounded: after ttl_hours_max or max_attempts, payout MUST transition to MANUAL_REVIEW_REQUIRED and MUST stop polling."
+    },
+    {
+      "category": "treasury",
+      "rationale": "Prevents stranded reservations.",
+      "rule_id": "PAY-4-P0-010",
+      "severity": "P0",
+      "text": "If payout transitions to FAILED before provider submission, TreasuryReservation MUST be RELEASED and TreasuryBalance MUST be credited back atomically in the same transaction."
+    },
+    {
+      "rule_id": "PAY4-TIME-001",
+      "severity": "P0",
+      "text": "All UTC timestamps MUST be utc_datetime_usec: RFC3339 with mandatory trailing 'Z' and exactly 6 fractional digits (microseconds). No generic date-time formats are permitted."
+    },
+    {
+      "rule_id": "PAY4-ID-001",
+      "severity": "P0",
+      "text": "All identifiers MUST be enforced as schema-constrained UUIDv7. org_id MUST be bare uuid_v7; all internal IDs MUST be lowercase <prefix> + uuid_v7 (see data_model.identifiers.id_prefixes)."
+    },
+    {
+      "rule_id": "PAY4-LED-001",
+      "severity": "P0",
+      "text": "TreasuryBalance MUST be a recomputable projection derived from LED-1 postings and immutable settlement line items; it MUST NOT be manually mutated outside defined Ash actions (reserve/release/consume/recompute). Any correction MUST be expressed via LED-1 postings and/or append-only adjustment records, never direct edits."
+    },
+    {
+      "rule_id": "PAY4-TRES-ASH-001",
+      "severity": "P0",
+      "text": "Atomic reservation UPDATE predicate Ash 3.x"
+    },
+    {
+      "errors": [
+        {
+          "reason_subcode": "PAY_PAYOUT_BLOCKED_DISPUTE_ACTIVE",
+          "top_level": "ERR_CONFLICT"
+        },
+        {
+          "reason_subcode": "PAY_PAYOUT_RELEASE_BLOCKED_DISPUTE_ACTIVE",
+          "top_level": "ERR_CONFLICT"
+        }
+      ],
+      "priority": "P0",
+      "rationale": "Enterprise-safe posture: avoid paying out funds while liability is disputed; prevents chargeback arbitrage and reduces settlement risk.",
+      "rule_id": "PAY4_P0_ACTIVE_DISPUTE_BLOCKS_PAYOUT",
+      "text": "While any active_dispute_risk flag exists for an org/provider_account/order (per PAY-3), PAY-4 MUST fail-closed: it MUST NOT execute payouts and MUST NOT release reserves/clearing outflows unless an explicit PAY-3 DisputeRiskOverride exists for scope payout_execute."
+    },
+    {
+      "errors": [
+        {
+          "reason_subcode": "LED_APPEND_ONLY_REQUIRED",
+          "top_level": "ERR_PRECONDITION"
+        }
+      ],
+      "priority": "P0",
+      "rationale": "Makes payout stops auditable and explainable in support and finance operations.",
+      "rule_id": "PAY4_P0_BLOCKERS_ARE_AUDITABLE",
+      "text": "Payout blocks MUST be represented as PayoutBlocker records with ERR-1 reason_subcode and authority. Blockers MUST be released explicitly (released_at_utc set) and history MUST be retained."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "Governs provider settlement ingestion, reconciliation, treasury availability, and payout orchestration with atomic reservations, liability-capped clearing (available=min(total,cleared)), bounded ambiguity inquiry, and strict multi-tenant isolation.",
+  "tags": [
+    "payments",
+    "payouts",
+    "settlement",
+    "treasury",
+    "reconciliation",
+    "clearing",
+    "liability-cap",
+    "bounded-inquiry",
+    "ash-3.x"
+  ],
+  "tenancy_model": {
+    "injection": {
+      "allowed_methods": [
+        "Ash.Query.set_tenant/2",
+        "Ash.Changeset.set_tenant/2",
+        "tenant: option passed to Ash calls"
+      ],
+      "forbidden_methods": [
+        "Process dictionary/global tenant context",
+        "Untrusted request parameters for tenant binding"
+      ],
+      "required": true
+    },
+    "rls_expectations": [
+      "All in-scope Postgres tables MUST be protected by TEN-1 RLS policies.",
+      "All reads/writes MUST fail closed when tenant context is missing.",
+      "Cross-tenant reads MUST be hidden as ERR_NOT_FOUND, not filtered silently."
+    ],
+    "strategy": "attribute",
+    "tenant_key": "org_id"
+  },
+  "tier": 3,
+  "title": "Payments \u2014 Payout Safety, Clearing & Settlement Contract (JSON-only)",
+  "updated_at_utc": "2026-02-03T00:00:00Z",
+  "version": "2.5.2"
+}

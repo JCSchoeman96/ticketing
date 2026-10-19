@@ -1,0 +1,905 @@
+{
+  "artifact_kind": "contract",
+  "banned_anti_patterns": {
+    "V42-AP-001": {
+      "ban": "PubSub-as-truth is forbidden; persist first and publish as a side effect.",
+      "severity": "P0"
+    },
+    "V42-AP-002": {
+      "ban": "GenServer locks as correctness truth are forbidden (no global mutex-as-truth).",
+      "severity": "P0"
+    },
+    "V42-AP-003": {
+      "ban": "Cross-tenant OLTP reporting/aggregation is forbidden.",
+      "severity": "P0"
+    },
+    "V42-AP-004": {
+      "ban": "authorize?: false shortcuts outside audited system flows are forbidden.",
+      "severity": "P0"
+    },
+    "V42-AP-005": {
+      "consequence": "Account takeover risk; violates IAM-3 invariants.",
+      "description": "Treating SMS or email OTP as step-up assurance (AAL2) is forbidden. Only strong possession factors (TOTP, WebAuthn hardware keys) may satisfy requires_strong_assurance: aal2_strong.",
+      "severity": "P0",
+      "title": "AAL2 via SMS/Email OTP"
+    },
+    "V42-AP-006": {
+      "consequence": "DB leak becomes total auth bypass.",
+      "description": "Persisting TOTP seeds, recovery codes, or any MFA secret material in plaintext is forbidden.",
+      "severity": "P0",
+      "title": "Plaintext MFA secrets"
+    },
+    "V42-AP-007": {
+      "consequence": "Replay across sessions; privilege escalation.",
+      "description": "Issuing step-up proof not structurally bound to (actor_id, session_id) is forbidden. Grants must not be reusable across sessions.",
+      "severity": "P0",
+      "title": "Unbound StepUpGrant"
+    },
+    "V42-AP-008": {
+      "consequence": "Online brute force of 6-digit TOTP becomes feasible.",
+      "description": "Allowing infinite retries for TOTP/WebAuthn verification is forbidden. Rate limits and lockouts are mandatory.",
+      "severity": "P0",
+      "title": "Unlimited MFA retries"
+    }
+  },
+  "canonical": false,
+  "change_log": [
+    {
+      "changes": [
+        "CI strict compliance patch: schema/gate/manifest drift fixes."
+      ],
+      "date_utc": "2026-01-06T08:25:00.000000Z",
+      "version": "1.5.3"
+    },
+    {
+      "at_utc": "2026-01-06T07:59:20.000000Z",
+      "summary": "Dependency hygiene: move not-yet-canon-pinned contracts to planned_contracts; bump version; regenerate manifest.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "CRITICAL: Fixed V42-900 gate—removed unsupported 'acceptance_criteria' assertion type; gate is now properly marked as mode:manual (P1 advisory checklist).",
+        "ADDED: V42-INV-001 constitutional invariant declaring SEAT-1 as authoritative seat inventory truth source with hold/allocate/release semantics.",
+        "ADDED: V42-PRC-001 constitutional invariant for immutable order price snapshots at checkout (delegated to PRICE-1/ORD-1).",
+        "ADDED: V42-FIN-003 constitutional invariant requiring ledger-to-snapshot reconciliation before payout release.",
+        "FIXED: Normalized all owns_domains entries from kebab-case to snake_case (e.g., deployment-safety → deployment_safety) per constitutional snake_case discipline.",
+        "CLARIFIED: Added explicit NAMING EXEMPTION note documenting that invariant/anti-pattern/contract ID keys (V42-FIN-001, etc.) use dash-separated format as stable governance identifiers.",
+        "FIXED: All timestamps now use microsecond precision (utc_datetime_usec) per V42 constitutional requirement."
+      ],
+      "date_utc": "2026-01-09T05:10:00.000000Z",
+      "version": "1.6.0"
+    },
+    {
+      "changes": [
+        "ADD: IAM constitutional invariants for assurance_level, step-up binding, secret hygiene, verify-first activation, and rate limits.",
+        "ADD: Banned anti-patterns covering SMS/email step-up, plaintext secrets, unbound grants, and infinite retries.",
+        "UPDATE: governed_subsystems + ownership map include IAM-1/2/3, TRK-1, BI-1, PII-1, CONSENT-1, DSAR-1.",
+        "UPDATE: dependencies add IAM/TRK/BI/PII/CONSENT/DSAR minimum versions."
+      ],
+      "date_utc": "2026-02-02T16:07:46Z",
+      "version": "1.7.0"
+    },
+    {
+      "type": "patch",
+      "version": "1.8.2",
+      "date_utc": "2026-10-09T00:00:00Z",
+      "changes": [
+        "Migrate the overloaded foundation dependency edges to requires, governance_floor, and foundation_floor according to their ratified meanings.",
+        "Raise the direct CS-0 dependency minimum and suite_schema to CS-0@3.0.1.",
+        "Keep the candidate canonical marker false until a separate validated CANON pinset selects a release.",
+        "Migrate two manual_checklist assertions to the CS-0 v3 negative_tests and acceptance_criteria assertion types while preserving their checklist text."
+      ]
+    }
+  ],
+  "compliance_definition": {
+    "claim_label": "V42 compliant",
+    "claim_rule": "An implementation MUST NOT claim V42 compliance unless every required governed subsystem contract is present at or above minimum versions and the enforcement hooks defined herein are satisfied.",
+    "fail_closed": true,
+    "interpretation_rules": {
+      "feature_specifics_must_live_in_governed_contracts": true,
+      "missing_detail_means_not_implemented": true,
+      "v42_is_not_a_feature_spec_dump": true
+    }
+  },
+  "contract_ownership_map": {
+    "BI-1": {
+      "owns": [
+        "dashboard definitions",
+        "metric truth sources",
+        "aggregation budgets",
+        "privacy thresholds"
+      ]
+    },
+    "CONSENT-1": {
+      "owns": [
+        "consent records",
+        "purpose binding",
+        "revocation semantics"
+      ]
+    },
+    "DMSC-1": {
+      "owns": [
+        "migration rules",
+        "partitioning safety",
+        "backfills"
+      ]
+    },
+    "DSAR-1": {
+      "owns": [
+        "export/delete requests",
+        "verification requirements",
+        "timelines & auditability"
+      ]
+    },
+    "ERR-1": {
+      "owns": [
+        "canonical error envelope",
+        "stable error codes",
+        "retry taxonomy",
+        "HTTP/webhook mapping"
+      ]
+    },
+    "FR-1": {
+      "owns": [
+        "deferred scope tracking",
+        "feature declarations",
+        "ownership declarations"
+      ]
+    },
+    "IAM-1": {
+      "owns": [
+        "actor kinds",
+        "roles",
+        "capabilities",
+        "auth_context shape",
+        "assurance policy slots"
+      ]
+    },
+    "IAM-2": {
+      "owns": [
+        "invite lifecycle",
+        "magic link tokens",
+        "idempotent consumption",
+        "bootstrap recovery paths"
+      ]
+    },
+    "IAM-3": {
+      "owns": [
+        "MFA factor lifecycle",
+        "step-up grant issuance/expiry",
+        "rate limits/lockouts",
+        "secret hygiene"
+      ]
+    },
+    "LED-1": {
+      "owns": [
+        "ledger model",
+        "payout gating details",
+        "reserve policy details",
+        "refund/dispute accounting"
+      ]
+    },
+    "OBQC-1": {
+      "owns": [
+        "job processing patterns",
+        "queue budgets",
+        "retry matrices",
+        "backpressure"
+      ]
+    },
+    "OBS-1": {
+      "owns": [
+        "SLOs",
+        "alerts",
+        "payout blockers",
+        "runbooks"
+      ]
+    },
+    "ORD-1": {
+      "owns": [
+        "order lifecycle",
+        "idempotency",
+        "payment boundaries"
+      ]
+    },
+    "PII-1": {
+      "owns": [
+        "data classification model",
+        "PII minimization rules",
+        "export redaction tiers"
+      ]
+    },
+    "PRICE-1": {
+      "owns": [
+        "pricing rules",
+        "snapshots",
+        "fees/promotions"
+      ]
+    },
+    "PSC-1": {
+      "owns": [
+        "waiting room design",
+        "admission budgets",
+        "degradation modes"
+      ]
+    },
+    "SEAT-1": {
+      "owns": [
+        "seat holds",
+        "anti-oversell rules",
+        "seatmap payload budgets"
+      ]
+    },
+    "TEN-1": {
+      "owns": [
+        "tenant injection mechanics",
+        "RLS posture",
+        "global resource exceptions",
+        "tenant-safe aggregation boundaries"
+      ]
+    },
+    "TRK-1": {
+      "owns": [
+        "tracking event schema",
+        "event provenance",
+        "behavioral metrics sources"
+      ]
+    },
+    "V42-0": {
+      "does_not_own": [
+        "subsystem feature specifications",
+        "implementation details",
+        "domain-level state machines"
+      ],
+      "owns": [
+        "constitutional invariants",
+        "compliance definition",
+        "governed subsystem registry",
+        "ownership boundaries",
+        "constitutional anti-pattern bans",
+        "minimum enforcement hooks"
+      ]
+    }
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.1",
+      "reason": "Suite schemas and envelopes."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "Test gate taxonomy and minimum gate expectations."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "Strict CI contract gating requirements."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.1",
+      "reason": "Governance rules and change-control discipline."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.1",
+      "reason": "Machine-enforced anti-drift lints (Ash 3.x posture)."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.0.0",
+      "reason": "Tenancy mechanics (tenant injection, RLS, global exceptions)."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.0.0",
+      "reason": "Canonical errors and retry taxonomy."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.0.0",
+      "reason": "Ledger truth, payouts, reserves, disputes."
+    },
+    {
+      "doc_id": "SEAT-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.0.0",
+      "reason": "Seating/holds/anti-oversell."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.0.0",
+      "reason": "Pricing/snapshots/fees/promos/tax posture."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.0.0",
+      "reason": "Orders/idempotency/payment boundaries/fulfillment."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.0.0",
+      "reason": "Performance + admission control (waiting room) budgets."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "foundation_floor",
+      "min_version": "3.3.0",
+      "reason": "Canonical roles/capabilities + auth_context shape for enforcement and auditability."
+    },
+    {
+      "doc_id": "IAM-2",
+      "edge_type": "foundation_floor",
+      "min_version": "1.2.0",
+      "reason": "Bootstrap access (invites/magic links) separated from MFA to reduce blast radius."
+    },
+    {
+      "doc_id": "IAM-3",
+      "edge_type": "foundation_floor",
+      "min_version": "1.0.0",
+      "reason": "Step-up assurance (AAL) and MFA factor lifecycle for high-risk operations."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.0.6",
+      "reason": "Data classification requirements for drill-down and exports."
+    },
+    {
+      "doc_id": "CONSENT-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.1.0",
+      "reason": "Consent gating for analytics/marketing tracking where applicable."
+    },
+    {
+      "doc_id": "DSAR-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.1.4",
+      "reason": "DSAR export/delete workflows depend on assurance and PII policies."
+    },
+    {
+      "doc_id": "TRK-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.3.1",
+      "reason": "Behavioral tracking is allowed but MUST remain segregated from financial truth."
+    },
+    {
+      "doc_id": "BI-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.0.0",
+      "reason": "Dashboards and aggregation must cite ORD/LED as truth sources."
+    }
+  ],
+  "dependency_floors": {
+    "CS-0": "3.0.1"
+  },
+  "doc_id": "V42-0",
+  "emits_events": false,
+  "enforcement": {
+    "change_control": {
+      "required_steps": [
+        "update_contract",
+        "update_related_governed_contracts_if_delegated",
+        "update_test_gates",
+        "update_canon_index_if_applicable"
+      ],
+      "rule": "No change MUST NOT weaken a P0 invariant without an explicit governance exception and matching test gate updates."
+    },
+    "required_ci_checks": {
+      "ash_governance_lints": "LINT-0",
+      "bundle_integrity_gate": "CG-0",
+      "dependency_validation_gate": "CG-0"
+    },
+    "required_runtime_assertions": {
+      "audit_required_for_privileged_flows": true,
+      "deny_untenanted_db_ops_by_default": true,
+      "tenant_must_be_set_per_request": true
+    },
+    "required_suite_standards": {
+      "CG-0": "2.2.0",
+      "CS-0": "2.2.0",
+      "GOV-0": "2.0.1",
+      "LINT-0": "2.0.1",
+      "TG-0": "2.2.0"
+    }
+  },
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "governed_subsystems": {
+    "BI-1": "Business Intelligence (privacy-safe aggregation; finance truth from ORD/LED)",
+    "CONSENT-1": "Consent capture & enforcement (marketing, analytics, legal)",
+    "DMSC-1": {
+      "min_version": "1.0.0",
+      "owns_domains": [
+        "migrations",
+        "partitioning",
+        "deployment_safety",
+        "backfills"
+      ],
+      "required": true
+    },
+    "DSAR-1": "Data Subject Access Requests (export/delete workflows)",
+    "ERR-1": {
+      "min_version": "1.0.0",
+      "owns_domains": [
+        "error_envelope",
+        "error_codes",
+        "retry_taxonomy"
+      ],
+      "required": true
+    },
+    "FR-1": {
+      "min_version": "1.0.0",
+      "owns_domains": [
+        "feature_registry",
+        "deferred_scope",
+        "ownership_declarations"
+      ],
+      "required": true
+    },
+    "IAM-1": "Identity & Authorization Model (roles, capabilities, auth context)",
+    "IAM-2": "Invites & Magic Links (bootstrap access and token lifecycle)",
+    "IAM-3": "Assurance & Step-Up (MFA factors, grants, rate limits, secret hygiene)",
+    "LED-1": {
+      "min_version": "1.0.0",
+      "owns_domains": [
+        "ledger",
+        "payouts",
+        "reserves",
+        "refunds",
+        "chargebacks",
+        "disputes"
+      ],
+      "required": true
+    },
+    "OBQC-1": {
+      "min_version": "1.0.0",
+      "owns_domains": [
+        "background_capacity",
+        "backpressure",
+        "retry_matrices",
+        "shedding"
+      ],
+      "required": true
+    },
+    "OBS-1": {
+      "min_version": "1.0.0",
+      "owns_domains": [
+        "observability",
+        "slos",
+        "alerts",
+        "payout_blockers",
+        "runbooks"
+      ],
+      "required": true
+    },
+    "ORD-1": {
+      "min_version": "1.0.0",
+      "owns_domains": [
+        "orders",
+        "idempotency",
+        "payment_boundaries",
+        "fulfillment"
+      ],
+      "required": true
+    },
+    "PII-1": "PII classification & handling (C0..C4)",
+    "PRICE-1": {
+      "min_version": "1.0.0",
+      "owns_domains": [
+        "pricing",
+        "fees",
+        "discounts",
+        "price_snapshots",
+        "tax_vat_posture"
+      ],
+      "required": true
+    },
+    "PSC-1": {
+      "min_version": "1.0.0",
+      "owns_domains": [
+        "performance_budgets",
+        "admission_control",
+        "waiting_room"
+      ],
+      "required": true
+    },
+    "SEAT-1": {
+      "min_version": "1.0.0",
+      "owns_domains": [
+        "seating",
+        "holds",
+        "oversell_prevention"
+      ],
+      "required": true
+    },
+    "TEN-1": {
+      "min_version": "1.0.0",
+      "owns_domains": [
+        "tenant_injection",
+        "rls",
+        "global_exceptions",
+        "tenant_safe_aggregation"
+      ],
+      "required": true
+    },
+    "TRK-1": "Tracking Events (behavioral signals; never financial truth)"
+  },
+  "invariants": {
+    "V42-FIN-001": {
+      "assertion": "Platform is Merchant of Record; organizers receive payouts derived from immutable ledger entries.",
+      "delegated_to": [
+        "LED-1"
+      ],
+      "domain": "finance",
+      "enforcement": {
+        "process": [
+          "finance design review gate"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-FIN-002": {
+      "assertion": "All money movement MUST be represented in a ledger-grade, immutable, double-entry model.",
+      "delegated_to": [
+        "LED-1"
+      ],
+      "domain": "finance",
+      "enforcement": {
+        "tests": [
+          "property sum(debits)=sum(credits) per journal"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-FIN-003": {
+      "assertion": "Ledger postings MUST reconcile to order price snapshot totals; discrepancies block payout release.",
+      "delegated_to": [
+        "LED-1",
+        "ORD-1"
+      ],
+      "domain": "finance",
+      "enforcement": {
+        "runtime": [
+          "LED-1 atomic posting verifies snapshot reconciliation"
+        ],
+        "tests": [
+          "negative tests deny payout when ledger ≠ snapshot"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-GOV-001": {
+      "assertion": "Required governed subsystem contracts MUST be present at or above minimum versions for any V42 compliance claim.",
+      "delegated_to": [],
+      "domain": "governance",
+      "enforcement": {
+        "ci": [
+          "dependency validation"
+        ],
+        "test_gates": [
+          "V42-001",
+          "V42-020"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-GOV-002": {
+      "assertion": "V42 MUST remain constitutional; feature specifics live only in governed subsystem contracts; deferred scope MUST be tracked in FR-1 (no stealth features).",
+      "delegated_to": [
+        "FR-1"
+      ],
+      "domain": "governance",
+      "enforcement": {
+        "test_gates": [
+          "V42-020"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-IAM-001": {
+      "assertion": "All authorization decisions MUST evaluate an auth_context containing (actor_id, session_id, org_id?) and assurance_level (aal1|aal2_strong|aal3). Capability checks MUST enforce any min_assurance requirements for high-risk actions.",
+      "delegated_to": [
+        "IAM-1",
+        "IAM-3"
+      ],
+      "domain": "security",
+      "enforcement": {
+        "mechanisms": [
+          "policy checks",
+          "contract gates"
+        ],
+        "verification": [
+          "auth_context_shape in IAM-1 includes assurance_level",
+          "assurance policy table maps capabilities to min_assurance"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-IAM-002": {
+      "assertion": "MFA secrets MUST NEVER be stored in plaintext. TOTP seeds MUST be envelope-encrypted. Recovery codes MUST be stored as one-way hashes and MUST be single-use.",
+      "delegated_to": [
+        "IAM-3",
+        "PII-1"
+      ],
+      "domain": "security",
+      "enforcement": {
+        "mechanisms": [
+          "encryption at rest",
+          "hashing"
+        ],
+        "verification": [
+          "IAM-3 factor resources mark secret material as encrypted/hashed",
+          "no plaintext fields for seeds/codes"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-IAM-003": {
+      "assertion": "An MFA factor MUST NOT transition to active until a successful verification ceremony has completed (no zombie factors).",
+      "delegated_to": [
+        "IAM-3"
+      ],
+      "domain": "security",
+      "enforcement": {
+        "mechanisms": [
+          "state machine guards"
+        ],
+        "verification": [
+          "pending -> active requires verify action"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-IAM-004": {
+      "assertion": "Step-up proof MUST be session-bound. A StepUpGrant issued for (actor_id, session_id) MUST NOT satisfy assurance checks in any other session.",
+      "delegated_to": [
+        "IAM-3",
+        "IAM-1"
+      ],
+      "domain": "security",
+      "enforcement": {
+        "mechanisms": [
+          "grant binding constraints"
+        ],
+        "verification": [
+          "StepUpGrant includes actor_id + session_id and is checked on every privileged action"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-IAM-005": {
+      "assertion": "SMS and Email OTP are forbidden as AAL2 step-up factors. They may be used for notifications or AAL1 bootstrap only, but never to satisfy requires_strong_assurance: aal2_strong.",
+      "delegated_to": [
+        "IAM-3"
+      ],
+      "domain": "security",
+      "enforcement": {
+        "mechanisms": [
+          "factor allowlist"
+        ],
+        "verification": [
+          "IAM-3 allowed_factors excludes sms/email for step-up"
+        ]
+      },
+      "severity": "P0",
+      "text": " Consumer OTP (SMS/Email) MAY exist only as IAM-2 consumer_proof and MUST NOT satisfy strong assurance."
+    },
+    "V42-IAM-006": {
+      "assertion": "MFA verification endpoints MUST enforce attempt limits and lockouts (no infinite retries). Exceeding max_attempts MUST trigger lockout_duration and/or a hard lock until recovery.",
+      "delegated_to": [
+        "IAM-3"
+      ],
+      "domain": "security",
+      "enforcement": {
+        "mechanisms": [
+          "rate limiting",
+          "lockout state"
+        ],
+        "verification": [
+          "IAM-3 rate_limit_policy exists and is enforced on verify actions"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-IAM-010": {
+      "severity": "P0",
+      "text": "Assurance comparisons MUST NOT be written as ordered comparisons (e.g., '>= aal2'). Policies MUST use explicit, named checks: requires_strong_assurance: aal2_strong OR requires_consumer_proof: true."
+    },
+    "V42-IAM-011": {
+      "severity": "P0",
+      "text": "Factor Independence: If an identifier/channel (e.g., email inbox) is used as the sole AAL1 login channel, it MUST NOT be the sole recovery channel for IAM-3 strong assurance. Compromise of one channel MUST NOT collapse both AAL1 and aal2_strong."
+    },
+    "V42-IAM-012": {
+      "severity": "P0",
+      "text": "Passkey Ambiguity Guard: WebAuthn passkeys enrolled via IAM-2 (consumer convenience) MUST NOT mint IAM-3 step-up grants and MUST NOT satisfy aal2_strong. Only IAM-3 enrolled admin-grade factors may satisfy requires_strong_assurance: aal2_strong."
+    },
+    "V42-INV-001": {
+      "assertion": "Seat inventory is the authoritative truth source. Hold, allocate, and release semantics are governed by SEAT-1 with exclusive locking, TTL expiration, and atomic state transitions enforced via RLS, unique constraints, and Ash action gates.",
+      "delegated_to": [
+        "SEAT-1"
+      ],
+      "domain": "inventory",
+      "enforcement": {
+        "ci": [
+          "SEAT-1 test gates enforce hold exclusivity"
+        ],
+        "runtime": [
+          "RLS policies prevent cross-tenant seat access",
+          "Unique constraints prevent double-allocation"
+        ],
+        "tests": [
+          "negative tests deny concurrent allocation of same seat"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-OPS-001": {
+      "assertion": "Admission control MUST exist for high-load scenarios and must degrade safely (waiting room or equivalent).",
+      "delegated_to": [
+        "PSC-1"
+      ],
+      "domain": "ops",
+      "enforcement": {
+        "tests": [
+          "load scenarios must not overload critical paths"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-OPS-002": {
+      "assertion": "Background execution MUST use supported job patterns with explicit budgets; 'just retry' is forbidden as a correctness strategy.",
+      "delegated_to": [
+        "OBQC-1",
+        "ERR-1"
+      ],
+      "domain": "ops",
+      "enforcement": {
+        "tests": [
+          "bounded retries per class"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-PRC-001": {
+      "assertion": "Orders capture immutable price snapshots at checkout; pricing MUST NOT be recomputed after purchase. Snapshot signature_hash provides cryptographic binding; ledger postings MUST reconcile to snapshot totals.",
+      "delegated_to": [
+        "PRICE-1",
+        "ORD-1"
+      ],
+      "domain": "pricing",
+      "enforcement": {
+        "ci": [
+          "PRICE-1/ORD-1 gates enforce snapshot immutability"
+        ],
+        "runtime": [
+          "DB predicate verification of signature_hash during finalization"
+        ],
+        "tests": [
+          "negative tests reject client-supplied totals",
+          "negative tests reject expired snapshots"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-SEC-001": {
+      "assertion": "Authorization bypass is restricted to system-actor flows only with mandatory audit + justification; bypass shortcuts are forbidden elsewhere.",
+      "delegated_to": [
+        "GOV-0",
+        "ERR-1",
+        "OBS-1"
+      ],
+      "domain": "security",
+      "enforcement": {
+        "ci": [
+          "lints forbidding unsafe bypass"
+        ],
+        "tests": [
+          "negative bypass without audit"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-TEN-001": {
+      "assertion": "All tenant-owned operations MUST execute with an explicit tenant context; untenanted reads/writes are forbidden by default except explicit global resources.",
+      "delegated_to": [
+        "TEN-1"
+      ],
+      "domain": "tenancy",
+      "enforcement": {
+        "runtime": [
+          "tenant set per request"
+        ],
+        "tests": [
+          "negative cross-tenant access"
+        ]
+      },
+      "severity": "P0"
+    },
+    "V42-TEN-002": {
+      "assertion": "Tenant isolation MUST be fail-closed and cross-tenant OLTP aggregation is forbidden (rollups/read replicas only).",
+      "delegated_to": [
+        "TEN-1"
+      ],
+      "domain": "tenancy",
+      "enforcement": {
+        "tests": [
+          "negative cross-tenant aggregation"
+        ]
+      },
+      "severity": "P0"
+    }
+  },
+  "last_updated_utc": "2026-10-09T00:00:00Z",
+  "lock_state": "locked",
+  "normative_source": "json",
+  "notes": [
+    "This document is constitutional: feature specifics MUST live in governed subsystem contracts.",
+    "Strict CI dependency validation will fail until the required governed subsystem bundles exist in the suite.",
+    "NAMING EXEMPTION: Object keys for invariants, anti-patterns, and contract ownership maps use dash-separated IDs (e.g., V42-FIN-001) as stable identifiers per governance discipline. This is an explicit exemption from snake_case-everywhere doctrine for structural identifiers only."
+  ],
+  "outbox_events": [],
+  "planned_contracts": [
+    {
+      "doc_id": "OBS-1",
+      "min_version": "1.0.0",
+      "planned_state": "exists_not_yet_canon_pinned",
+      "promotion_rule": "MUST be moved to dependencies only when canon-pinned and gated",
+      "reason": "Observability/SLOs/runbooks/payout blockers."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "min_version": "1.0.0",
+      "planned_state": "exists_not_yet_canon_pinned",
+      "promotion_rule": "MUST be moved to dependencies only when canon-pinned and gated",
+      "reason": "Background execution capacity + backpressure budgets."
+    },
+    {
+      "doc_id": "DMSC-1",
+      "min_version": "1.0.0",
+      "planned_state": "exists_not_yet_canon_pinned",
+      "promotion_rule": "MUST be moved to dependencies only when canon-pinned and gated",
+      "reason": "Deployment + migration safety contract."
+    },
+    {
+      "doc_id": "FR-1",
+      "min_version": "1.0.0",
+      "planned_state": "exists_not_yet_canon_pinned",
+      "promotion_rule": "MUST be moved to dependencies only when canon-pinned and gated",
+      "reason": "Feature registry + deferred scope tracking (no stealth features)."
+    }
+  ],
+  "purpose": {
+    "one_liner": "Defines what 'V42 compliant' means and the minimum non-negotiable guardrails for tenancy, security, money, and ops.",
+    "scope_excluded": [
+      "Detailed subsystem feature specs (must be in SEAT-1/PRICE-1/ORD-1/etc.)",
+      "Implementation details"
+    ],
+    "scope_included": [
+      "Compliance definition and fail-closed posture",
+      "Governed subsystem registry + ownership split",
+      "Constitutional invariants (tenancy isolation, finance/ledger truth, ops safety, security posture)",
+      "Minimum enforcement hooks (CI, lints, runtime assertions)"
+    ]
+  },
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Constitutional baseline for an enterprise, multi-tenant ticketing platform: non-negotiable invariants, compliance definition, and delegation to governed subsystem contracts.",
+  "tier": 0,
+  "title": "Enterprise Ticketing Core Foundation (Constitutional Baseline)",
+  "updated_at_utc": "2026-10-09T00:00:00Z",
+  "version": "1.8.2"
+}

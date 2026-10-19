@@ -1,0 +1,292 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "CS-0",
+    "version": "3.0.1"
+  },
+  "doc_id": "CS-0-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "bundle": "bundle-manifest/1.0",
+              "contract": "contract-suite/1.0",
+              "gate": "test-gates/1.0"
+            },
+            "json_pointer": "/schema_families"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "CS-0 MUST preserve the canonical schema family mapping for contract, test_gates, and bundle_manifest artifacts.",
+      "failure_message": "Schema family mapping drifted; downstream bundle validation would become ambiguous.",
+      "id": "CS-0-P0-SCHEMA-FAMILIES-LOCKED",
+      "level": "P0",
+      "must": true,
+      "title": "Schema family identifiers remain locked"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "doc_id",
+              "min_version",
+              "edge_type"
+            ],
+            "json_pointer": "/schemas/contract/properties/dependencies/items/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "requires",
+              "foundation_floor",
+              "registry_floor",
+              "governance_floor",
+              "integration_floor",
+              "paired_contract"
+            ],
+            "json_pointer": "/schemas/contract/properties/dependencies/items/properties/edge_type/enum"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Current dependency declarations MUST use the locked edge_type enum. The overloaded legacy foundation value is not valid under CS-0 v3.",
+      "failure_message": "Dependency edge_type is missing, uses legacy foundation, or differs from the locked current enum.",
+      "id": "CS-0-P0-DEPENDENCY-EDGE-TYPE-ENUM",
+      "level": "P0",
+      "must": true,
+      "title": "Dependency edge_type enum is explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "edge_type": "requires",
+                "meaning": "A direct dependency required for the consuming contract's own structural, semantic, schema, or executable validity. Use this when the consumer cannot correctly satisfy its own contract without the target dependency. This does not merely establish a platform-wide minimum version.",
+                "does_not_imply": []
+              },
+              {
+                "edge_type": "governance_floor",
+                "meaning": "A minimum version of a governance, test, lint, change-control, or compliance contract that governs how the consuming contract or suite is validated and controlled. The target establishes governance constraints rather than domain/runtime functionality.",
+                "does_not_imply": []
+              },
+              {
+                "edge_type": "foundation_floor",
+                "meaning": "A minimum version of a governed platform/domain subsystem required by the constitutional/platform baseline. This establishes the minimum acceptable subsystem contract for suite/V42 compliance.",
+                "does_not_imply": [
+                  "direct runtime invocation",
+                  "implementation ownership",
+                  "a direct code dependency",
+                  "that the consuming contract implements the target subsystem"
+                ]
+              }
+            ],
+            "json_pointer": "/dependency_edge_type_semantics"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "requires",
+              "foundation_floor",
+              "registry_floor",
+              "governance_floor",
+              "integration_floor",
+              "paired_contract"
+            ],
+            "json_pointer": "/schemas/contract/properties/dependencies/items/properties/edge_type/enum"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "The normative semantics of requires, governance_floor, and foundation_floor MUST remain distinct and locked. The generic legacy foundation edge is excluded from the current schema.",
+      "failure_message": "Dependency edge semantics or the current edge enum drifted from the ratified CS-0 rule.",
+      "id": "CS-0-P0-DEPENDENCY-EDGE-SEMANTICS",
+      "level": "P0",
+      "must": true,
+      "title": "Dependency edge semantics remain distinct and locked"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "object",
+            "json_pointer": "/schemas/contract/properties/lineage/type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "doc_id",
+              "version"
+            ],
+            "json_pointer": "/schemas/contract/properties/lineage/properties/supersedes/items/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "doc_id",
+              "min_version",
+              "reason"
+            ],
+            "json_pointer": "/schemas/contract/properties/lineage/properties/foundation_refs/items/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contracts MUST be able to declare deterministic supersession and foundation reference lineage without relying on prose-only descriptions.",
+      "failure_message": "Contract lineage support drifted or was removed from the schema.",
+      "id": "CS-0-P0-LINEAGE-SUPPORT-LOCKED",
+      "level": "P0",
+      "must": true,
+      "title": "Lineage support exists in contract schema"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "acceptance_criteria",
+              "canon_artifact_sha_match",
+              "canon_bundle_sha_match",
+              "dependency_min_version_satisfied",
+              "forbid_regex_in_artifact",
+              "json_pointer_equals",
+              "negative_tests",
+              "property_tests",
+              "registry_error_codes_defined",
+              "registry_events_defined",
+              "require_bundle_files_match_manifest",
+              "require_bundle_manifest_filename",
+              "suite_schema_matches",
+              "telemetry_signal_emitted",
+              "trace_span_relationship",
+              "attribute_presence_assert",
+              "error_envelope_correlation",
+              "sampling_decision"
+            ],
+            "json_pointer": "/schemas/test_gates/properties/gates/items/properties/assertions/items/properties/type/enum"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "CS-0 MUST allow test-gate declarations for future runtime-harness checks without collapsing those checks into the canonical bundle itself.",
+      "failure_message": "Dynamic/runtime assertion declaration types are missing from the test-gate schema.",
+      "id": "CS-0-P0-GATE-SCHEMA-RUNTIME-ASSERTIONS-DECLARED",
+      "level": "P0",
+      "must": true,
+      "title": "Test-gate assertion enum includes runtime harness declarations"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 1,
+            "json_pointer": "/schemas/test_gates/properties/gates/items/properties/title/minLength"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 1,
+            "json_pointer": "/schemas/test_gates/properties/gates/items/properties/failure_message/minLength"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Gate items MUST support explicit title and failure_message fields so blueprint-level gates stay readable and enforceable.",
+      "failure_message": "Gate item schema no longer allows title and failure_message.",
+      "id": "CS-0-P0-GATE-PROPS-TITLE-FAILURE-MESSAGE",
+      "level": "P0",
+      "must": true,
+      "title": "Gate items support title and failure_message"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^.+\\.json$",
+            "json_pointer": "/schemas/bundle_manifest/properties/files/items/properties/path/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "bundle.manifest.json MUST list JSON artifacts only; non-JSON sidecars are outside the canonical bundle model.",
+      "failure_message": "Manifest path schema no longer constrains file entries to JSON artifacts.",
+      "id": "CS-0-P0-MANIFEST-PATHS-ARE-JSON",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest path entries are JSON artifacts only"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "CS-0 MUST remain an explicit non-producer with emits_events=false and outbox_events=[].",
+      "failure_message": "CS-0 drifted into producer behavior.",
+      "id": "CS-0-P1-ASSERT-NON-PRODUCER",
+      "level": "P1",
+      "must": true,
+      "title": "CS-0 remains a non-producer contract"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "last_updated_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "CS-0 Test Gates v3.0.1",
+  "version": "3.0.1"
+}

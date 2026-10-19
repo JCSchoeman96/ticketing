@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "IAM-2",
+    "bundle_version": "1.5.0"
+  },
+  "doc_id": "IAM-2",
+  "files": [
+    {
+      "bytes": 40644,
+      "path": "IAM-2_Contract_v1.5.0.json",
+      "sha256": "6d27b56a5cf3e5575a4d31e09b013c9ef76a025510970facd9c36c56abb9b6f1"
+    },
+    {
+      "bytes": 23678,
+      "path": "IAM-2_Test_Gates_v1.5.0.json",
+      "sha256": "6958886d1c61dae0291496dfb9ee4482cb815d752d53967f7ef086dc5d29f5ff"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T20:30:06Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.5.0"
+}

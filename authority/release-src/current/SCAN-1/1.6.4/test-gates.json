@@ -1,0 +1,331 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "SCAN-1",
+    "version": "1.6.4"
+  },
+  "doc_id": "SCAN-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST match the CS version used by CI.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SCAN-1-GATE-010",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json filename and manifest contents MUST match the bundle JSON artifacts.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SCAN-1-GATE-020",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCAN-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.6.4",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCAN-1_Contract_v1.6.4.json",
+            "json_pointer": "/artifact_name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "SCAN-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.6.4",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "SCAN-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.6.4",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract and gates metadata MUST be version-coherent.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SCAN-1-GATE-030",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.5.3",
+            "json_pointer": "/dependency_floors/EVT-2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.4.2",
+            "json_pointer": "/dependency_floors/SEC-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.7.11",
+            "json_pointer": "/dependency_floors/TEN-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.offer.key_rotated.v1",
+            "json_pointer": "/events/consumes/0/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Declared dependency floors and event consumption MUST match the cleanup release baseline.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SCAN-1-GATE-040",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "SCAN-1_Contract_v1\\.5\\.3\\.json",
+              "v1\\.2\\.2",
+              "\"scanner_device_id\"",
+              "\"scan_event_id\"",
+              "\"scanned_at_utc\"",
+              "uuid lexical",
+              "parent_sovereignty_behavior",
+              "RevocationList snapshot"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "forbid_regex": [
+              "SCAN-1_bundle\\.manifest\\.json",
+              "\"doc_version\"\\s*:",
+              "\"severity\"\\s*:"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Cleanup release MUST not retain stale metadata or obsolete conflict-resolution wording.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SCAN-1-GATE-050",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/outbox_events/0/required_keys/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "operator_actor_id",
+            "json_pointer": "/outbox_events/0/required_keys/6"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/outbox_events/1/required_keys/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/outbox_events/2/required_keys/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "operator_actor_id",
+            "json_pointer": "/data_model/resources/0/required_attributes/6/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Outbox payloads MUST carry tenant context, and scan evidence MUST require operator accountability.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SCAN-1-GATE-060",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/mobile_conformance_layer/required_for_gate_scanner_clients"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "scan_mobile_conformance_lint_v1.0.0.py",
+            "json_pointer": "/mobile_conformance_layer/bundle_companion_files/static_lint_script"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "scan_mobile_conformance_harness_v1.0.0.md",
+            "json_pointer": "/mobile_conformance_layer/bundle_companion_files/runtime_harness_guide"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Mobile conformance companion tooling MUST be declared in the contract.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SCAN-1-GATE-070",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/conformance_requirements/sec1_byte_truth/required_in_bundle"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/conformance_requirements/sec1_byte_truth/required_for_release_gate"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "SEC-1 byte-truth evidence MUST NOT be falsely claimed as bundled in SCAN-1.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SCAN-1-GATE-080",
+      "level": "P1",
+      "must": true
+    }
+  ],
+  "generated_at_utc": "2026-03-09T19:48:20Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "SCAN-1 Test Gates",
+  "version": "1.6.4"
+}

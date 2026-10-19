@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/BI-1_bundle_v1.0.1_refactored.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/BI-1_bundle_v1.0.1_refactored.zip",
+  "source_zip_sha256": "423adce56c3de7cf961752014ac22c15f2ff0dedbb7e60a2798019c9e7a561d3",
+  "source_zip_bytes": 8557,
+  "source_version": "1.0.1",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "BI-1_bundle_v1.0.1/BI-1_Contract_v1.0.1.json",
+      "sha256": "4dc933dfbaf0e2edad0308d6272968ee53fe45a674f515c0b8c6c382908d758b",
+      "bytes": 30240
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "BI-1_bundle_v1.0.1/BI-1_Test_Gates_v1.0.1.json",
+      "sha256": "1ef297662966a7d1f547ce4428ec709ba0c26bd990b25a561cf987c9beacecf5",
+      "bytes": 14370
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "BI-1_bundle_v1.0.1/BI-1_Contract_v1.0.1.json",
+      "sha256": "d52cfff608023c821da78c4c5f696bea7a4d776bf093a880871e25265067af77",
+      "bytes": 30199
+    },
+    {
+      "source_member_path": "BI-1_bundle_v1.0.1/BI-1_Test_Gates_v1.0.1.json",
+      "sha256": "baa88e537ff3ee745116b41b98607d1fbef92a782bff25f937539a0152bd5a4a",
+      "bytes": 14369
+    }
+  ]
+}

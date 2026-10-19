@@ -1,0 +1,13 @@
+{
+  "doc_id": "ERR-1",
+  "version": "2.0.0",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "release_status": "candidate",
+  "release_intent": "Review-only successor package for the frozen T0 authority snapshot, ERR-1@2.0.0.",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "5e0bda4f6d68007be8aaee77de1bb64e30012c78c10acabf8f749cdf6c3c360c"
+  }
+}

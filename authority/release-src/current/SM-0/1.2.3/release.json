@@ -1,0 +1,13 @@
+{
+  "doc_id": "SM-0",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_intent": "Patch release corrects the SM-0-GATE-001 suite-schema description while preserving domain semantics.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "60b4e09f6c6f03286670291eae6d4373013a719984270f2c2ff05cf1e26c862b"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.2.3"
+}

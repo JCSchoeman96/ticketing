@@ -1,0 +1,37 @@
+{
+  "bootstrap_commit": "9607ba7328878dfa2bebc8e14e93492eeea30377",
+  "candidate_preparation_base_commit": "9607ba7328878dfa2bebc8e14e93492eeea30377",
+  "origin_members": [
+    {
+      "bytes": 6746,
+      "role": "test_gates",
+      "sha256": "9c3b9a4ab366034efd07ec93350856231a8022f01e6c3e53a729b65368b0fee3",
+      "source_member_path": "LINT-0_bundle_v2.1.0/LINT-0-GATE_TestGates_v2.1.0.json"
+    },
+    {
+      "bytes": 9832,
+      "role": "contract",
+      "sha256": "cdb48202366c7a6057613bb5dbbe2f1fa9e6e94159b6865a630884b58726c937",
+      "source_member_path": "LINT-0_bundle_v2.1.0/LINT-0_Contract_v2.1.0.json"
+    }
+  ],
+  "provenance_statement": "Successor release source bootstrapped from the exact source bundle recorded here. Editable files preserve the source semantics except the documented release identity/schema correction. This is not original authoring source.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/LINT-0_bundle_v2.1.0_refactored.zip",
+  "source_members": [
+    {
+      "bytes": 10075,
+      "sha256": "0bbb41276c02428ca7a6340b5da94c97bded997a58e8c8a38f8a823f613ce380",
+      "source_member_path": "LINT-0_bundle_v2.1.0/LINT-0_Contract_v2.1.0.json",
+      "tracked_source_path": "contract.json"
+    },
+    {
+      "bytes": 6746,
+      "sha256": "feb4b68337effe59e39f0489470c0a069a3eaff9b3515742cebf5158b58250c4",
+      "source_member_path": "LINT-0_bundle_v2.1.0/LINT-0-GATE_TestGates_v2.1.0.json",
+      "tracked_source_path": "test-gates.json"
+    }
+  ],
+  "source_version": "2.1.0",
+  "source_zip_bytes": 5283,
+  "source_zip_sha256": "62e577798385e832e7f62fa94984373c5a06e706c1cb76a7f37af9b02ccce22f"
+}

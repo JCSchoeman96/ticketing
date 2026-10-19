@@ -1,0 +1,661 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "PSC-1-GATE_TestGates_v1.8.3.json",
+  "contract_ref": {
+    "doc_id": "PSC-1",
+    "version": "1.8.3"
+  },
+  "doc_id": "PSC-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST match the CS bundle used by CI.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "PSC-1-GATE-010",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "Bundle MUST contain bundle.manifest.json at the canonical path.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "PSC-1-GATE-020",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Manifest MUST match bundle files (sha256 + bytes) for all JSON artifacts.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "PSC-1-GATE-030",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PSC-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.8.3",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "PSC-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "1.8.3",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "PSC-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "1.8.3",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Doc IDs and versions MUST match across contract and gates.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "PSC-1-GATE-040",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bTODO\\b",
+              "\\bTBD\\b",
+              "\\bFIXME\\b",
+              "\\bto be decided\\b",
+              "\\bshould\\b"
+            ],
+            "json_pointers": [
+              "/summary",
+              "/hot_path_latency_budgets",
+              "/load_profiles",
+              "/admission_control",
+              "/connection_leasing",
+              "/multi_tenant_performance_isolation",
+              "/ash_3x_compliance",
+              "/rules"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No unresolved placeholders or non-binding language allowed in core PSC sections.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "PSC-1-GATE-050",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\"operation_id\":\\s*\"(?!ticketing\\.)"
+            ],
+            "json_pointers": [
+              "/hot_path_latency_budgets"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "All operation_ids in hot_path_latency_budgets MUST be fully namespaced with 'ticketing.' prefix.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "PSC-1-GATE-060",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\[:v42,"
+            ],
+            "json_pointers": [
+              "/ash_3x_compliance/telemetry",
+              "/rules"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Custom telemetry events MUST use [:ticketing, ...] namespace, NOT [:v42, ...].",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "PSC-1-GATE-061",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 5,
+            "json_pointer": "/privacy_analytics_controls/anonymization_threshold/min_population_size"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/privacy_analytics_controls/anonymization_threshold/complementary_suppression_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Anonymization threshold privacy invariant MUST be locked in PSC: min_population_size=5 and complementary suppression required.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "PSC-1-GATE-120",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "STANDARD",
+            "json_pointer": "/latency_profile_registry/default_profile_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "STANDARD",
+            "json_pointer": "/latency_profile_registry/profiles/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "HEAVY",
+            "json_pointer": "/latency_profile_registry/profiles/1/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 0.2,
+            "json_pointer": "/latency_profile_registry/heavy_quota_fraction_default"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "per-domain",
+            "json_pointer": "/latency_profile_registry/quota_scope"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PSC-1 MUST define latency_profile_registry with STANDARD default and HEAVY profile in stable order.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "PSC-1-LATPROF-REGISTRY-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "flow": "Join waiting room / mint queue ticket",
+                "notes": "DB-backed ticket + Redis accel",
+                "operation_id": "ticketing.queue.join",
+                "p50_ms": 80,
+                "p95_ms": 150,
+                "p99_ms": 400,
+                "profile": "HOT_SALE"
+              },
+              {
+                "flow": "Queue status / heartbeat",
+                "notes": "Cache-first; DB only on cache miss",
+                "operation_id": "ticketing.queue.heartbeat",
+                "p50_ms": 20,
+                "p95_ms": 50,
+                "p99_ms": 150,
+                "profile": "HOT_SALE"
+              },
+              {
+                "flow": "Admit (queue → buying session)",
+                "notes": "No backwards movement allowed",
+                "operation_id": "ticketing.queue.admit",
+                "p50_ms": 60,
+                "p95_ms": 100,
+                "p99_ms": 250,
+                "profile": "HOT_SALE"
+              },
+              {
+                "flow": "Seatmap bootstrap (initial payload)",
+                "notes": "Snapshot + deltas",
+                "operation_id": "ticketing.seatmap.bootstrap",
+                "p50_ms": 120,
+                "p95_ms": 250,
+                "p99_ms": 700,
+                "profile": "HOT_SALE"
+              },
+              {
+                "flow": "Reserve seats (hold)",
+                "notes": "DB transaction + constraint",
+                "operation_id": "ticketing.holds.create",
+                "p50_ms": 80,
+                "p95_ms": 150,
+                "p99_ms": 450,
+                "profile": "HOT_SALE"
+              },
+              {
+                "flow": "Extend/refresh hold",
+                "notes": "Fast path, minimal writes",
+                "operation_id": "ticketing.holds.extend",
+                "p50_ms": 40,
+                "p95_ms": 80,
+                "p99_ms": 250,
+                "profile": "HOT_SALE"
+              },
+              {
+                "flow": "Create checkout (order intent)",
+                "notes": "Avoid heavy joins",
+                "operation_id": "ticketing.checkout.create_intent",
+                "p50_ms": 120,
+                "p95_ms": 300,
+                "p99_ms": 900,
+                "profile": "HOT_SALE"
+              },
+              {
+                "flow": "Webhook acknowledge",
+                "notes": "Ack fast, process async",
+                "operation_id": "ticketing.webhook.ack",
+                "p50_ms": 20,
+                "p95_ms": 50,
+                "p99_ms": 150,
+                "profile": "WEBHOOK_STORM"
+              },
+              {
+                "flow": "Scan decision (validate ticket)",
+                "notes": "Online path; offline supported",
+                "operation_id": "ticketing.scan.decision",
+                "p50_ms": 70,
+                "p95_ms": 120,
+                "p99_ms": 350,
+                "profile": "SCANNING_PEAK"
+              },
+              {
+                "flow": "Fetch platform fees for checkout intent",
+                "notes": "Cache-first; single FeeSchedule lookup; no per-line DB fanout",
+                "operation_id": "ticketing.fees.fetch_platform_fees",
+                "p50_ms": 20,
+                "p95_ms": 50,
+                "p99_ms": 150,
+                "profile": "HOT_SALE"
+              },
+              {
+                "flow": "Fetch platform fees for checkout intent",
+                "notes": "Cache-first; bounded queries on cache miss",
+                "operation_id": "ticketing.fees.fetch_platform_fees",
+                "p50_ms": 30,
+                "p95_ms": 80,
+                "p99_ms": 250,
+                "profile": "NORMAL"
+              },
+              {
+                "flow": "Finalize checkout (server-truth fees, order snapshot, payment intent)",
+                "notes": "Atomic; MUST recompute fees server-side and validate holds; avoid heavy joins",
+                "operation_id": "ticketing.checkout.finalize",
+                "p50_ms": 250,
+                "p95_ms": 600,
+                "p99_ms": 1500,
+                "profile": "HOT_SALE"
+              },
+              {
+                "flow": "Finalize checkout (server-truth fees, order snapshot, payment intent)",
+                "notes": "Atomic; MUST recompute fees server-side and validate holds",
+                "operation_id": "ticketing.checkout.finalize",
+                "p50_ms": 150,
+                "p95_ms": 350,
+                "p99_ms": 900,
+                "profile": "NORMAL"
+              }
+            ],
+            "json_pointer": "/hot_path_latency_budgets"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Hot-path latency budgets MUST remain explicit and drift-controlled (change requires PSC-1 version bump).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "PSC-1-GATE-130",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Asserts PSC-1 declares emits_events=false and has an explicit empty outbox_events list. Prevents CI theatre on empty producer surfaces.",
+      "failure_message": "PSC-1 non-producer declaration drifted.",
+      "id": "PSC-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "PSC-1 MUST be an explicit non-producer"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1",
+            "json_pointer": "/flash_sale_physics/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "HOT_SALE",
+            "json_pointer": "/flash_sale_physics/applies_to_profiles/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/flash_sale_physics/virtual_waiting_room/enabled"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Flash sale physics contract surface must remain present and pinned.",
+      "failure_message": "PSC-1-GATE-140-FLASH-SALE-PHYSICS drifted from the pinned PSC-1 contract values.",
+      "id": "PSC-1-GATE-140-FLASH-SALE-PHYSICS",
+      "level": "P0",
+      "must": true,
+      "title": "Flash sale physics present & pinned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1",
+            "json_pointer": "/query_governance/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 3000,
+            "json_pointer": "/query_governance/database_timeouts/statement_timeout_ms_max_public_pool"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/query_governance/pagination/public_reads_must_use_keyset_pagination"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 10,
+            "json_pointer": "/query_governance/pagination/offset_pagination_forbidden_after_page"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Query governance timeouts and pagination policy must remain pinned.",
+      "failure_message": "PSC-1-GATE-141-QUERY-GOVERNANCE drifted from the pinned PSC-1 contract values.",
+      "id": "PSC-1-GATE-141-QUERY-GOVERNANCE",
+      "level": "P0",
+      "must": true,
+      "title": "Query governance timeouts & pagination pinned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1",
+            "json_pointer": "/bulkhead_pattern/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "primary",
+            "json_pointer": "/bulkhead_pattern/pools/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "read_replica",
+            "json_pointer": "/bulkhead_pattern/pools/1/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "background",
+            "json_pointer": "/bulkhead_pattern/pools/2/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Bulkhead pool contract must remain pinned.",
+      "failure_message": "PSC-1-GATE-142-BULKHEAD-PATTERN drifted from the pinned PSC-1 contract values.",
+      "id": "PSC-1-GATE-142-BULKHEAD-PATTERN",
+      "level": "P0",
+      "must": true,
+      "title": "Bulkhead pools pinned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1",
+            "json_pointer": "/ash_concurrency_limits/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "public_write_hot",
+            "json_pointer": "/ash_concurrency_limits/groups/2/group_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Ash concurrency limit group contract must remain pinned.",
+      "failure_message": "PSC-1-GATE-143-ASH-CONCURRENCY-LIMITS drifted from the pinned PSC-1 contract values.",
+      "id": "PSC-1-GATE-143-ASH-CONCURRENCY-LIMITS",
+      "level": "P1",
+      "must": true,
+      "title": "Ash concurrency limits pinned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "X-Ticketing-Admission",
+            "json_pointer": "/flash_sale_physics/virtual_waiting_room/token_transport_header"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_UNAVAILABLE",
+            "json_pointer": "/flash_sale_physics/virtual_waiting_room/missing_token_response/err1_top_level_code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PROD_QUEUE_OVERLOADED",
+            "json_pointer": "/flash_sale_physics/virtual_waiting_room/missing_token_response/err1_subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Virtual waiting room transport header and overload mapping must remain aligned to PSC-1 pinned values.",
+      "failure_message": "Virtual waiting room API-0 alignment drifted.",
+      "id": "PSC-1-GATE-VWR-API0-ALIGN-001",
+      "level": "P0",
+      "must": true,
+      "title": "Virtual waiting room API-0 alignment pinned"
+    }
+  ],
+  "generated_at_utc": "2026-02-08T05:01:21.634749Z",
+  "last_updated_utc": "2026-02-08T05:01:21.634749Z",
+  "references": [
+    {
+      "kind": "ash_docs",
+      "ref": "Ash Monitoring & Instrumentation",
+      "url": "https://hexdocs.pm/ash/monitoring.html"
+    },
+    {
+      "kind": "ash_docs",
+      "ref": "Ash Error Handling",
+      "url": "https://hexdocs.pm/ash/error-handling.html"
+    },
+    {
+      "kind": "sre_book",
+      "ref": "Google SRE Workbook - Alerting on SLOs",
+      "url": "https://sre.google/workbook/alerts/"
+    }
+  ],
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "PSC-1 Test Gates",
+  "version": "1.8.3"
+}

@@ -1,0 +1,940 @@
+{
+  "artifact_kind": "contract",
+  "canonical": true,
+  "change_log": [
+    {
+      "changes": [
+        "Index isolation (org_id-first composite PK/unique) and tenant-scoped sequencing were introduced as P0 invariants.",
+        "Strict fail-closed tenant execution mandated (raise TenantRequired)."
+      ],
+      "date_utc": "2026-01-05T00:00:00Z",
+      "version": "1.6.0"
+    },
+    {
+      "changes": [
+        "Added P1 rule requiring composite foreign keys (org_id + id) for tenant-scoped relationships.",
+        "Added P1 rule banning TenantSequence allocation for internal IDs/log streams (use non-ordered identifiers).",
+        "No new P0 gates; bundle remains additive and lockable."
+      ],
+      "date_utc": "2026-01-05T12:13:44Z",
+      "version": "1.6.1"
+    },
+    {
+      "changes": [
+        "Aligned tenant key naming with V42: org_id (was orgid).",
+        "Pinned Postgres RLS session variable name to app.current_org_id (was app.current_org_id).",
+        "Added stable rule ids TEN-1-RULE-### for deterministic referencing and gates.",
+        "Repacked bundle to CI-compliant single top-level directory naming."
+      ],
+      "date_utc": "2026-01-05",
+      "version": "1.6.2"
+    },
+    {
+      "changes": [
+        "Added explicit Global Resource Boundary with deny-by-default allowlist semantics under tenancy.global_resources.",
+        "Rewrote TEN-1-RULE-001 to remove ambiguous 'explicitly global' language and point to the allowlist.",
+        "Added P0 global resource constraints to prevent cross-tenant OLTP joins and tenant-private data leakage."
+      ],
+      "date_utc": "2026-01-05T12:15:15Z",
+      "version": "1.6.3"
+    },
+    {
+      "changes": [
+        "Corrected tenant RLS session variable name references in rule text to app.current_org_id to match pinned gates and tenancy.postgresrls.session_variable.name.",
+        "No behavioral change: canonical name alignment only."
+      ],
+      "date_utc": "2026-01-05T12:24:32Z",
+      "version": "1.6.4"
+    },
+    {
+      "at_utc": "2026-01-05T12:50:44Z",
+      "summary": "Lock Ash multitenancy strategy constants; fix bundle.manifest bundle_version/bundle_id mismatch; bump to v1.6.5.",
+      "type": "patch"
+    },
+    {
+      "at_utc": "2026-01-05T12:54:32Z",
+      "summary": "Fix test-gate assertion shape: add required `mode` fields; bump to v1.6.6.",
+      "type": "patch"
+    },
+    {
+      "at_utc": "2026-01-05T12:55:46Z",
+      "summary": "Gate metadata fix: add required level/enforced_by fields for new gate; bump to v1.6.7.",
+      "type": "patch"
+    },
+    {
+      "at_utc": "2026-01-05T12:59:33Z",
+      "summary": "Harden tenant resolution: forbid trusting unvalidated client-supplied org_id via headers/path; require membership validation before setting tenant.",
+      "type": "patch"
+    },
+    {
+      "date_utc": "2026-01-08",
+      "summary": "Add explicit non-DB tenancy isolation for PubSub topics + rate limiting; harden cache/job boundary formats (org_id-first, ticketing namespace).",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "CI strict compliance patch: schema/gate/manifest drift fixes."
+      ],
+      "date_utc": "2026-01-06T08:25:00Z",
+      "version": "1.6.9"
+    },
+    {
+      "changes": [
+        "Packaging fix: regenerated bundle.manifest.json with correct sha256/bytes and aligned filenames.",
+        "No semantic changes to tenancy invariants."
+      ],
+      "date_utc": "2026-01-08T06:25:20Z",
+      "version": "1.6.11"
+    },
+    {
+      "changes": [
+        "CRITICAL: Fixed hide_existence policy—tenant_mismatch and rls_denied now return ERR_NOT_FOUND (was ERR_FORBIDDEN), preventing cross-tenant existence leakage.",
+        "CRITICAL: Session variable type explicitly set to uuid_v7 (was ambiguous 'uuid') per V42 constitutional requirement.",
+        "ADDED: IAM-1 dependency; membership validation semantics now normatively reference IAM-1.",
+        "TIGHTENED: subdomain_mapping.public_clients_allowed set to false (secure default); membership validation required for all subdomain-based tenant resolution.",
+        "STRENGTHENED: TEN-1-GATE-100 now locks transaction_required and type for RLS session variable (critical for pooled connection safety).",
+        "ADDED: TEN-1-GATE-150 to enforce hide_existence ERR_NOT_FOUND policy at CI.",
+        "ADDED: TEN-1-HIDE-001 rule codifying hide_existence error mapping discipline.",
+        "CLARIFIED: TenantSequence resource fully namespaced as Ticketing.Tenancy.TenantSequence."
+      ],
+      "date_utc": "2026-01-08T21:30:00Z",
+      "version": "1.7.0"
+    },
+    {
+      "changes": [
+        "ADDED: Public tenant resolution via opaque public_object_key with deterministic resolver profiles (internal_default vs public_surface).",
+        "CRITICAL: Public/unlisted surfaces may resolve tenant via public_object_key even when actor_claim is present; prevents forcing logout to browse other orgs' public pages.",
+        "LOCKED: Slug segments are SEO-only and MUST NOT influence tenant/resource resolution; canonical redirects allowed.",
+        "NO CHANGE: Header/subdomain/path org_id sources remain forbidden for public clients."
+      ],
+      "date_utc": "2026-01-19T00:00:00Z",
+      "version": "1.7.1"
+    },
+    {
+      "date_utc": "2026-01-21",
+      "summary": "Align tenancy invariants with DSAR/PII/IAM updates: tenant-scoped subject identity, platform-wide DSAR orchestration exception (no tenant until per-org execution), and PII vault org_id sealing."
+    },
+    {
+      "changes": [
+        "Align dependency floors to GOV-0@2.0.13 and ERR-1@1.4.8; normalize IAM-1 floor to 3.0.1.",
+        "Remove stray non-object entry from forbidden_tenant_setting_methods.",
+        "Document err_subcodes_used for tenancy enforcement.",
+        "Normalize wording to Ticketing (avoid V42 naming in tenancy notes)."
+      ],
+      "date_utc": "2026-01-26T06:49:44Z",
+      "summary": "Tenancy error classification alignment + drift-prevention hygiene."
+    },
+    {
+      "at_utc": "2026-01-27T07:49:22Z",
+      "summary": "Define authoritative tenant_scope model (org vs global_ops) to eliminate cross-contract drift; tighten orchestrator tenant-unset semantics; bump ERR/IAM dependency floors.",
+      "type": "patch",
+      "version": "1.7.5"
+    },
+    {
+      "at_utc": "2026-01-29T07:29:00Z",
+      "summary": "Bundle-manifest schema hygiene: add artifact_kind + regenerate manifest; no semantic tenancy changes.",
+      "type": "patch",
+      "version": "1.7.6"
+    },
+    {
+      "changes": [
+        "Added P0 invariant for tenant-spanning correlation identifiers (checkout_group_id, provider refs) to prevent cross-tenant access via shared group IDs.",
+        "Declared http_api boundary policy for tenant_spanning_correlation_ids with enforceable booleans and examples.",
+        "Bumped ERR-1 dependency floor to 1.4.16; adjusted GOV-0 dependency floor to 2.0.10 for suite parity."
+      ],
+      "date_utc": "2026-01-29T16:25:09Z",
+      "version": "1.7.7"
+    },
+    {
+      "changes": [
+        "GC-030 boundary-hardening: unify hide_existence mapping so missing tenant context is also externalized as ERR_NOT_FOUND (404) for tenant-scoped operations.",
+        "Declared enforceable http_surface_uniformity policy: hide_existence responses MUST omit 'subcode' in problem-details to prevent tenant existence leakage.",
+        "Added P0 rules for uniform hidden-not-found behavior and subcode omission on HTTP; added dependencies on SEC-1/OBS-1 and bumped IAM/PII/DSAR floors for suite alignment."
+      ],
+      "date_utc": "2026-01-30T10:11:10Z",
+      "version": "1.7.8"
+    },
+    {
+      "changes": [
+        "Hardening: specified 'detail' redaction/constancy for hide_existence ERR_NOT_FOUND responses to prevent error-message-based tenant enumeration.",
+        "Dependency floor updated to SEC-1 >= 3.0.10 for matching tenant_safe_boundary profile."
+      ],
+      "date_utc": "2026-01-30T10:11:10Z",
+      "version": "1.7.9"
+    },
+    {
+      "changes": [
+        "Hardening: added header uniformity requirements for hide_existence ERR_NOT_FOUND responses (no WWW-Authenticate / tenant/policy headers) to prevent header-based enumeration."
+      ],
+      "date_utc": "2026-01-30T10:11:10Z",
+      "version": "1.7.10"
+    },
+    {
+      "changes": [
+        "Alignment: bumped SEC-1 dependency floor to >= 3.0.11 for tenant_safe_boundary header/detail policy parity."
+      ],
+      "date_utc": "2026-01-30T10:11:10Z",
+      "version": "1.7.11"
+    }
+  ],
+  "contract_ref": {
+    "doc_id": "TEN-1",
+    "version": "1.7.7"
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Suite schema and artifact envelopes."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Test gate standard."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.16",
+      "reason": "Canonical error envelope and tenancy subcodes."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "requires",
+      "min_version": "1.6.0",
+      "reason": "Constitutional definitions."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "requires",
+      "min_version": "2.0.10",
+      "reason": "Governance invariants."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "requires",
+      "min_version": "2.0.11",
+      "reason": "Static enforcement of banned tenancy anti-patterns."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.2.0",
+      "reason": "Defines actor kinds, org_owner/org_support/org_admin role-to-capability mapping, and platform support scopes used by tenancy boundary enforcement."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "Defines the PII vault boundary and requires org_id sealing and tenant-scoped subject identity mapping."
+    },
+    {
+      "doc_id": "DSAR-1",
+      "edge_type": "requires",
+      "min_version": "1.2.1",
+      "reason": "Defines DSAR org-scoped processing and platform-wide orchestration semantics that must preserve tenant isolation."
+    },
+    {
+      "doc_id": "IAM-2",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "(auto-added) alignment"
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.0.11",
+      "reason": "(auto-added) alignment"
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.16",
+      "reason": "(auto-added) alignment"
+    }
+  ],
+  "dependency_floors": {},
+  "doc_id": "TEN-1",
+  "emits_events": false,
+  "err_subcodes_used": [
+    "TEN_CROSS_TENANT_HIDDEN",
+    "TEN_RLS_DENIED",
+    "TEN_SUPPORT_MODE_UNAUTHORIZED",
+    "TEN_TENANT_CONTEXT_MISSING",
+    "TEN_TENANT_MISMATCH"
+  ],
+  "generated_at_utc": "2026-01-30T10:11:10Z",
+  "last_updated_utc": "2026-01-30T10:11:10Z",
+  "normative_source": "json",
+  "outbox_events": [],
+  "references": [
+    {
+      "kind": "postgres_docs",
+      "ref": "https://www.postgresql.org/docs/current/ddl-rowsecurity.html",
+      "why": "RLS limitations and covert-channel warning via integrity checks."
+    },
+    {
+      "kind": "ash_docs",
+      "ref": "https://hexdocs.pm/ash/multitenancy.html",
+      "why": "Ash multitenancy model and tenant propagation."
+    },
+    {
+      "kind": "ecto_docs",
+      "ref": "https://hexdocs.pm/ecto/multi-tenancy-with-foreign-keys.html",
+      "why": "Composite foreign key pattern for tenant safety."
+    }
+  ],
+  "rules": [
+    {
+      "applies_to": "All tenant-scoped Ash resources and actions",
+      "category": "tenancy_context",
+      "id": "TEN-1-RULE-001",
+      "rationale": "Fail-closed tenancy is the primary defense against cross-tenant leakage. Allowlisting global resources makes the only exception explicit, reviewable, and gateable.",
+      "rule_id": "TEN-1-CTX-001",
+      "severity": "P0",
+      "text": "All tenant-scoped operations MUST execute with tenant set (fail-closed). Untenanted reads/writes are forbidden. The ONLY exception is an explicitly global resource allowlisted under /tenancy/global_resources/allowed_resources."
+    },
+    {
+      "applies_to": "All tenant-scoped Ash queries/actions",
+      "category": "tenancy_context",
+      "id": "TEN-1-RULE-002",
+      "rationale": "Eliminates 'god mode by accident' and forces missing-tenant to be an explicit, testable failure.",
+      "rule_id": "TEN-1-CTX-004",
+      "severity": "P0",
+      "text": "Any tenant-scoped Ash query/action executed without resolved tenant MUST raise Ash.Error.Invalid.TenantRequired; returning an empty set is forbidden."
+    },
+    {
+      "applies_to": "All tenant-scoped Postgres tables",
+      "category": "postgres_rls",
+      "id": "TEN-1-RULE-003",
+      "rationale": "RLS is the hard guardrail preventing accidental cross-tenant reads/writes.",
+      "rule_id": "TEN-1-DB-001",
+      "severity": "P0",
+      "text": "Tenant-scoped tables MUST have RLS enabled and forced, and policies MUST restrict access to the tenant session variable app.current_org_id."
+    },
+    {
+      "applies_to": "All app-role DB sessions for tenant-scoped operations",
+      "category": "postgres_rls",
+      "id": "TEN-1-RULE-004",
+      "rationale": "SET LOCAL prevents tenant leakage across pooled connections and ensures scoping to the transaction.",
+      "rule_id": "TEN-1-DB-002",
+      "severity": "P0",
+      "text": "Tenant session variable name is locked to app.current_org_id and MUST be set using SET LOCAL inside a transaction."
+    },
+    {
+      "applies_to": "All tenant-scoped tables and their indexes",
+      "category": "index_isolation",
+      "id": "TEN-1-RULE-005",
+      "rationale": "Prevents cross-tenant existence leakage via constraint violations and other integrity-check side channels.",
+      "rule_id": "TEN-1-DB-004",
+      "severity": "P0",
+      "text": "Tenant-scoped resources MUST NOT use globally-unique constraints/indexes on tenant-controlled or tenant-observable identifiers. All PRIMARY KEY and UNIQUE constraints for tenant-scoped tables MUST include org_id as the first column unless an explicit exception is granted."
+    },
+    {
+      "applies_to": "Tenant-visible sequential numbering fields (e.g., ledger entry_seq)",
+      "category": "sequencing",
+      "id": "TEN-1-RULE-006",
+      "rationale": "Prevents cross-tenant volume metadata leakage and enforces per-tenant deterministic sequencing.",
+      "rule_id": "TEN-1-DB-005",
+      "severity": "P0",
+      "text": "Global Postgres sequences MUST NOT be used to generate tenant-visible sequential numbers for tenant-scoped resources. Sequential numbering MUST be tenant-scoped (per org_id) and generated atomically under row lock (or equivalent) within the consuming transaction."
+    },
+    {
+      "applies_to": "All tenant-scoped parent/child relationships",
+      "category": "foreign_keys",
+      "id": "TEN-1-RULE-007",
+      "rationale": "Prevents cross-tenant references (confused deputy) and preserves tenant-partitioned join plans.",
+      "rule_id": "TEN-1-DATA-001",
+      "severity": "P1",
+      "text": "Tenant-scoped relationships MUST use composite foreign key semantics including org_id (e.g., FOREIGN KEY (org_id, parent_id) REFERENCES parent (org_id, id))."
+    },
+    {
+      "applies_to": "Non-audit, high-volume tables and internal IDs",
+      "category": "sequencing",
+      "id": "TEN-1-RULE-008",
+      "rationale": "Avoids per-tenant hot-row lock contention while keeping strict sequencing for audit-critical, tenant-visible numbers.",
+      "rule_id": "TEN-1-DATA-002",
+      "severity": "P1",
+      "text": "TenantSequence (row-lock allocator) MUST NOT be used for internal identifiers or high-volume log/telemetry/event tables where gaps are acceptable; use non-ordered identifiers (e.g., UUIDs) instead."
+    },
+    {
+      "applies_to": "All resources and boundaries",
+      "category": "global_resources",
+      "id": "TEN-1-RULE-009",
+      "rationale": "Eliminates ambiguous 'global' exceptions that become security holes over time.",
+      "rule_id": "TEN-1-GLOBAL-001",
+      "severity": "P0",
+      "text": "A resource SHALL be considered global ONLY if it is listed in /tenancy/global_resources/allowed_resources. Absent an allowlist entry, the resource MUST be treated as tenant-scoped and MUST require org_id tenant context."
+    },
+    {
+      "applies_to": "All allowlisted global resources",
+      "category": "global_resources",
+      "id": "TEN-1-RULE-010",
+      "rationale": "Prevents global resources from becoming covert cross-tenant side channels.",
+      "rule_id": "TEN-1-GLOBAL-002",
+      "severity": "P0",
+      "text": "Global resources MUST NOT read, join, or aggregate tenant-scoped OLTP data. They MUST NOT contain org_id, tenant keys, or tenant-private fields, and MUST NOT provide query capabilities that can infer tenant existence or activity."
+    },
+    {
+      "applies_to": "Caching, jobs, and background processing",
+      "category": "global_resources",
+      "id": "TEN-1-RULE-011",
+      "rationale": "Stops accidental tenant data leakage via shared caches and async workers.",
+      "rule_id": "TEN-1-GLOBAL-003",
+      "severity": "P1",
+      "text": "Any caching for global resources MUST be tenant-agnostic: cache keys and payloads MUST NOT include org_id or tenant-private data. Background jobs processing global resources MUST run without tenant context and MUST NOT touch tenant-scoped tables."
+    },
+    {
+      "applies_to": "Phoenix PubSub topics and broadcast events used by Ticketing",
+      "category": "pubsub_topics",
+      "id": "TEN-1-RULE-012",
+      "rationale": "PubSub is a common accidental cross-tenant leak vector. Canonical topic partitioning also prevents real-time fanout storms by forcing event-scoped subscriptions for high-volume flows.",
+      "rule_id": "TEN-1-RT-001",
+      "severity": "P0",
+      "text": "All PubSub topics MUST be tenant-scoped by org_id and MUST follow the canonical Ticketing topic namespace patterns (org-scoped and event-scoped)."
+    },
+    {
+      "applies_to": "Rate limiting / throttling keys (Redis, ETS, DB-backed limiters) in Ticketing",
+      "category": "rate_limiting",
+      "id": "TEN-1-RULE-013",
+      "rationale": "Without tenant-partitioned limiters, one org can degrade another by exhausting shared buckets or counters.",
+      "rule_id": "TEN-1-RL-001",
+      "severity": "P1",
+      "text": "All rate limit keys MUST be partitioned by org_id and MUST be namespaced under Ticketing to prevent cross-tenant interference."
+    },
+    {
+      "applies_to": "All HTTP/GraphQL/public boundaries",
+      "category": "error_mapping",
+      "id": "TEN-1-RULE-014",
+      "rationale": "Returning ERR_FORBIDDEN for tenant mismatch leaks existence of resources in other tenants. ERR_NOT_FOUND is the only safe response.",
+      "rule_id": "TEN-1-HIDE-001",
+      "severity": "P0",
+      "text": "Tenant mismatch (TEN_TENANT_MISMATCH) and RLS denial (TEN_RLS_DENIED) MUST return ERR_NOT_FOUND at the top level to hide existence. API boundaries MUST NOT leak tenant isolation failures via FORBIDDEN semantics."
+    },
+    {
+      "applies_to": "Tenant resolution (routing, hostnames, public keys)",
+      "category": "tenant_resolution",
+      "id": "TEN-1-RULE-210",
+      "rationale": [
+        "Prevents cross-tenant existence leakage and tampering by guessing/altering org identifiers.",
+        "Enables SEO slugs and WordPress-like flexible pages while keeping tenant isolation constitutional."
+      ],
+      "rule_id": "TEN-1-RES-001",
+      "severity": "P1",
+      "text": "Public/unlisted HTTP surfaces MUST resolve org_id via a server-generated opaque public_object_key. Client-supplied org_id via path/header/subdomain MUST NOT be accepted for public clients."
+    },
+    {
+      "applies_to": "Platform-wide DSAR orchestration and any multi-org control-plane operations",
+      "category": "platform_wide_orchestration",
+      "id": "TEN-1-RULE-211",
+      "rationale": "A platform control-plane needs to coordinate multi-org workflows (e.g., verified platform-wide DSAR) without granting blanket cross-tenant data access. This rule allows orchestration while preserving fail-closed tenant isolation for actual data access.",
+      "rule_id": "TEN-1-DSAR-ORCH-001",
+      "severity": "P0",
+      "text": "A platform orchestrator MAY execute in tenant_scope=\"global_ops\" with tenant unset ONLY for orchestration/control-plane work (e.g., scheduling per-org jobs, fleet coordination, capability/registry reads). It MUST NOT directly read or write org-scoped business resources unless it switches into an explicit tenant_scope=\"org\" execution context for a single org_id (typically via per-org jobs). All global_ops execution MUST be capability-gated and fully audited."
+    },
+    {
+      "applies_to": "Subject identifiers and link keys used across domains (PII vault, DSAR cases, tracking pseudonyms)",
+      "category": "subject_identity_scope",
+      "id": "TEN-1-RULE-212",
+      "rationale": "Prevent silent cross-tenant linkage and enforce privacy boundaries (no PII in tracking, deterministic DSAR, and cryptoshred) without weakening tenancy isolation.",
+      "rule_id": "TEN-1-SUBJECT-SCOPE-001",
+      "severity": "P0",
+      "text": "Subject identifiers (subject_key and aliases) MUST be org_id-scoped. Cross-tenant subject linkage is forbidden by default. Any platform-wide subject processing MUST be explicitly scoped to a multi_org_scope list and MUST NOT rely on implicit global identifiers."
+    },
+    {
+      "applies_to": "Any API/action that accepts correlation/group IDs that may span multiple orgs (e.g., checkout_group_id, provider_* ids)",
+      "category": "tenant_spanning_identifiers",
+      "id": "TEN-1-RULE-213",
+      "rationale": "Prevents correlation identifiers from becoming an accidental cross-tenant authorization boundary (common source of leakage when multi-org checkout creates multiple org-scoped orders linked by a shared checkout_group_id).",
+      "rule_id": "TEN-1-CORR-001",
+      "severity": "P0",
+      "text": "Tenant-spanning correlation identifiers (including checkout_group_id and payment/provider references) MUST NOT be used as an authorization boundary or as the sole query predicate for tenant-scoped resources. Any operation that accepts such identifiers MUST also enforce org_id tenancy (RLS) and actor capabilities; returned results MUST be filtered to the actor's authorized org_id scope."
+    },
+    {
+      "rule_id": "TEN-1-BOUNDARY-UNIFORM-404",
+      "severity": "P0",
+      "text": "For any HTTP/API surface operating on tenant-scoped resources with hide_existence enabled, the boundary response for unauthorized, cross-tenant, RLS-denied, tenant-mismatch, and missing-tenant MUST be indistinguishable from a genuine not-found: HTTP 404 with top-level code ERR_NOT_FOUND. Header sets MUST also be uniform for these outcomes (no WWW-Authenticate or tenant/policy headers)."
+    },
+    {
+      "rule_id": "TEN-1-BOUNDARY-OMIT-SUBCODE",
+      "severity": "P0",
+      "text": "When returning ERR_NOT_FOUND due to hide_existence, HTTP problem-details responses MUST NOT include the optional 'subcode' extension (ERR-1), and MUST NOT vary any response fields based on the hidden reason. If 'detail' is present, it MUST be a constant generic string (or omitted) for all ERR_NOT_FOUND outcomes."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Constitutional tenancy rules for a multi-tenant Ash 3.x platform: explicit tenant propagation, strict fail-closed execution, Postgres RLS with transaction-scoped tenant session state, index isolation to prevent cross-tenant existence leaks via integrity checks, and tenant-scoped sequencing for tenant-visible ordered numbers.",
+  "tenancy": {
+    "ash_3x": {
+      "allowed_tenant_setting_methods": [
+        {
+          "boundary": "all",
+          "method_id": "explicit_action_option",
+          "name": "tenant: option passed to Ash calls"
+        },
+        {
+          "boundary": "internal",
+          "method_id": "ash_query",
+          "name": "Ash.Query.set_tenant/2"
+        },
+        {
+          "boundary": "internal",
+          "method_id": "ash_changeset",
+          "name": "Ash.Changeset.set_tenant/2"
+        },
+        {
+          "boundary": "http",
+          "method_id": "plug_boundary",
+          "name": "Ash.PlugHelpers.set_tenant/2"
+        }
+      ],
+      "fail_closed_behavior": {
+        "ash_error": "Ash.Error.Invalid.TenantRequired",
+        "behavior": "raise",
+        "notes": "Any tenant-scoped Ash query/action executed without resolved tenant MUST raise TenantRequired; returning an empty set is forbidden.",
+        "required": true
+      },
+      "forbidden_tenant_setting_methods": [
+        {
+          "method_id": "process_dictionary",
+          "name": "Ash.set_tenant/1",
+          "reason": "Ambient/process-dictionary tenant context is forbidden."
+        }
+      ],
+      "tenant_required_for_tenant_resources": true
+    },
+    "ash_multitenancy": {
+      "attribute": "org_id",
+      "global_allowed": false,
+      "notes": [
+        "Tenant is REQUIRED for tenant-scoped resources. Do not set `global? true` on Ash resources unless explicitly permitted by TEN-1 global_resources allowlist.",
+        "For globally-unique identities across tenants, use Ash identity option `all_tenants?: true` and document the exception in TEN-1-RULE-005."
+      ],
+      "strategy": "attribute"
+    },
+    "boundaries": {
+      "background_jobs": {
+        "args_required": [
+          "org_id"
+        ],
+        "must_set": [
+          "tenant"
+        ],
+        "notes": "Jobs MUST carry org_id explicitly in args and set tenant at job start.",
+        "tenant_set_policy": "Jobs MUST set tenant context before calling any tenant-scoped domain_actions; tenant context MUST be org_id and MUST be fail-closed."
+      },
+      "cache": {
+        "key_prefix_format": "ticketing:org:{org_id}:{cache_kind}:{key}",
+        "must_partition_by": [
+          "tenant"
+        ],
+        "notes": "All tenant-varying cache keys MUST include org_id and MUST be namespaced under the Ticketing prefix to prevent cross-app collisions.",
+        "org_id_must_be_first_discriminator": true
+      },
+      "http_api": {
+        "exceptions": [
+          {
+            "allowed_use_cases": [
+              "dsar_platform_wide_orchestration"
+            ],
+            "constraints": [
+              "When tenant is unset, the orchestrator MUST NOT read or write tenant-scoped resources.",
+              "The orchestrator MUST spawn per-org execution jobs that set tenant to each org_id before any tenant-scoped access.",
+              "Platform-wide orchestration MUST include an explicit multi_org_scope list and MUST be capability-gated (see IAM-1) with strict verification evidence (see DSAR-1)."
+            ],
+            "exception_id": "TEN-1-HTTP-EXC-001-platform_orchestrator",
+            "tenant_may_be_unset": true
+          }
+        ],
+        "must_set": [
+          "actor",
+          "tenant"
+        ],
+        "tenant_spanning_correlation_ids": {
+          "definition": "Identifiers used only for correlation/grouping or external reconciliation and that may span multiple orgs.",
+          "examples": [
+            "checkout_group_id",
+            "provider_payment_intent_id",
+            "provider_refund_id",
+            "provider_dispute_id"
+          ],
+          "notes": [
+            "Example: checkout_group_id may link multiple org-scoped orders created from a single checkout session. It MUST NOT grant cross-org visibility; clients may only see orders they are authorized to read within each org_id."
+          ],
+          "rules": {
+            "must_also_enforce_org_id_and_actor": true,
+            "must_not_be_authorization_boundary": true,
+            "must_not_be_sole_query_predicate": true,
+            "results_must_be_filtered_by_org_id_and_actor_access": true
+          }
+        }
+      },
+      "object_storage": {
+        "must_partition_by": [
+          "tenant"
+        ],
+        "notes": "Paths/buckets/keys MUST include org_id."
+      },
+      "pubsub_topics": {
+        "notes": "Tier 2 event-scoped topics are REQUIRED for high-volume real-time flows (e.g. seating holds) to prevent org-wide fanout storms.",
+        "org_id_must_be_first_discriminator": true,
+        "patterns": {
+          "tier1_org_scoped": "ticketing:org:{org_id}:{domain}:{entity}:{action}",
+          "tier2_event_scoped": "ticketing:org:{org_id}:event:{event_id}:{domain}:{entity}:{action}"
+        },
+        "wildcards_forbidden": true
+      },
+      "rate_limiting": {
+        "key_prefix_format": "ticketing:org:{org_id}:rate_limit:{scope}:{key}",
+        "notes": "All throttling buckets MUST be tenant-isolated; a single org MUST NOT be able to exhaust another org's limiter capacity.",
+        "org_id_must_be_first_discriminator": true
+      },
+      "webhooks": {
+        "must_set": [
+          "tenant"
+        ]
+      }
+    },
+    "cross_tenant_oltp_aggregation": {
+      "allowed": false,
+      "reason": "Forbidden in OLTP; only audited offline analytics may aggregate."
+    },
+    "global_resources": {
+      "allowed_resources": [],
+      "constraints": {
+        "audit_required_for_writes": true,
+        "cache_policy": "global_cache_must_not_contain_org_id_or_tenant_private_fields",
+        "no_oltp_cross_tenant_joins": true,
+        "no_tenant_private_data": true,
+        "tenant_read_access": "read_only_if_publicly_non_sensitive",
+        "writes_scope": "system_internal_only_no_org_context"
+      },
+      "default_policy": "deny_by_default_allowlist_only",
+      "definition": "A resource is 'explicitly global' ONLY if it is listed in tenancy.global_resources.allowed_resources. If this allowlist is empty, then there are no global resources and all reads/writes are tenant-scoped and MUST be denied without org_id.",
+      "implementation_notes": [
+        "Prefer compile-time/static enumerations for truly global reference data (e.g., ISO codes).",
+        "If persisted, global resources MUST be schema-isolated and MUST NOT reference tenant tables via foreign keys."
+      ],
+      "sentinel": "TEN-1-GLOBAL-ALLOWLIST-v1"
+    },
+    "hide_existence": {
+      "default_policy": "hide_existence",
+      "http_surface_uniformity": {
+        "content_type": "application/problem+json",
+        "hidden_not_found": {
+          "constant_detail": "Not found.",
+          "detail_policy": "omit_or_constant",
+          "http_status": 404,
+          "must_not_include_headers": [
+            "www-authenticate",
+            "x-tenant-id",
+            "x-org-id",
+            "x-policy",
+            "x-error-class"
+          ],
+          "must_not_vary_by_hidden_reason": true,
+          "must_not_vary_headers_by_reason": true,
+          "must_omit_extensions": [
+            "subcode"
+          ],
+          "must_omit_fields": [
+            "detail"
+          ],
+          "notes": [
+            "This policy is about boundary safety. Internal diagnostics MAY retain stable tenancy subcodes for logs/jobs.",
+            "Any surface that uses hide_existence MUST return the same problem-details shape as a genuine not-found, without subcode, to prevent tenant enumeration."
+          ],
+          "top_level": "ERR_NOT_FOUND"
+        },
+        "missing_tenant": {
+          "constant_detail": "Not found.",
+          "detail_policy": "omit_or_constant",
+          "http_status": 404,
+          "must_not_include_headers": [
+            "www-authenticate",
+            "x-tenant-id",
+            "x-org-id",
+            "x-policy",
+            "x-error-class"
+          ],
+          "must_not_vary_headers_by_reason": true,
+          "must_omit_extensions": [
+            "subcode"
+          ],
+          "must_omit_fields": [
+            "detail"
+          ],
+          "notes": [
+            "For tenant-scoped resource operations, missing tenant context MUST be treated as existence-hidden at the boundary."
+          ],
+          "top_level": "ERR_NOT_FOUND"
+        }
+      },
+      "when_cross_tenant": {
+        "subcode": "TEN_CROSS_TENANT_HIDDEN",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      "when_missing_tenant": {
+        "subcode": "TEN_TENANT_CONTEXT_MISSING",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      "when_rls_denied": {
+        "subcode": "TEN_RLS_DENIED",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      "when_tenant_mismatch": {
+        "subcode": "TEN_TENANT_MISMATCH",
+        "top_level": "ERR_NOT_FOUND"
+      }
+    },
+    "index_isolation": {
+      "composite_primary_keys_required": true,
+      "composite_unique_indexes_required": true,
+      "exceptions": {
+        "allowed": true,
+        "allowed_only_when": [
+          "The unique field is an unguessable, server-generated identifier and is never client-supplied.",
+          "The unique constraint is not tenant-observable at any boundary (errors are masked and audited)."
+        ],
+        "must_be_explicit": true
+      },
+      "org_id_must_be_first_column": true,
+      "required": true
+    },
+    "postgresrls": {
+      "default_deny_when_unset": true,
+      "required": true,
+      "role_requirements": {
+        "app_role_must_not_be_superuser": true,
+        "app_role_must_not_have_bypassrls": true
+      },
+      "session_variable": {
+        "name": "app.current_org_id",
+        "notes": "Tenant context MUST be transaction-scoped to avoid leakage across pooled connections. The org_id type is UUIDv7 per Ticketing constitutional requirement for time-ordered, distributed identifiers.",
+        "set_method_required": "SET LOCAL",
+        "transaction_required": true,
+        "type": "uuid_v7"
+      },
+      "table_requirements": {
+        "must_enable_rls": true,
+        "must_force_rls": true,
+        "must_have_using_and_with_check": true,
+        "when_app_currentorg_id_is_null": "deny_all_rows_and_reject_writes"
+      }
+    },
+    "privacy_boundary": {
+      "pii_vault_sealing": {
+        "cross_tenant_aliasing_forbidden": true,
+        "notes": [
+          "PII vault mappings (subject_key<->identity aliases) MUST be keyed by org_id.",
+          "Cryptoshred MUST destroy aliases and link keys inside each org_id boundary without mutating immutable truth records."
+        ],
+        "org_id_required": true
+      },
+      "platform_wide_orchestration": {
+        "allowed_use_cases": [
+          "dsar_platform_wide_orchestration"
+        ],
+        "hard_constraints": [
+          "When tenant is unset, the orchestrator MUST NOT read or write tenant-scoped resources.",
+          "The orchestrator MUST spawn per-org execution jobs that set tenant to each org_id before any tenant-scoped access.",
+          "Platform-wide orchestration MUST include an explicit multi_org_scope list and MUST be capability-gated (see IAM-1) with strict verification evidence (see DSAR-1)."
+        ],
+        "tenant_unset_orchestration_allowed": true
+      },
+      "subject_scope": {
+        "notes": [
+          "subject_key is a pseudonymous subject identifier that MUST be interpreted within an org_id boundary.",
+          "Cross-tenant linkage of a subject is forbidden unless explicitly orchestrated as a platform-wide DSAR with an explicit multi_org_scope list."
+        ],
+        "platform_wide_subject_processing_requires_explicit_multi_org_scope": true,
+        "subject_key_is_tenant_scoped": true,
+        "subject_key_reuse_across_tenants_forbidden": true
+      }
+    },
+    "sequencing": {
+      "ban_global_postgres_sequences_for_tenant_visible_numbers": true,
+      "recommended_implementation": {
+        "atomic_update_sql": "UPDATE tenant_sequences SET next_val = next_val + 1 WHERE org_id = $1 AND sequence_name = $2 RETURNING next_val",
+        "notes": "Sequence allocation MUST occur inside the same transaction as the write that consumes the number.",
+        "pattern": "tenant_sequence_row_lock",
+        "resource": "Ticketing.Tenancy.TenantSequence"
+      },
+      "required": true,
+      "tenant_scoped_sequence_required_for": [
+        "ledger.entry_seq",
+        "tenant-visible invoice numbering"
+      ]
+    },
+    "tenant_display_name": "org_id",
+    "tenant_key": "org_id",
+    "tenant_resolution": {
+      "conflict_handling": {
+        "public_surface_override": {
+          "behavior": "public_object_key_overrides_actor_claim",
+          "notes": [
+            "When profile_id=public_surface, ignore actor_claim for tenant selection. Authorization is still enforced by resource visibility checks and IAM policies where applicable."
+          ]
+        },
+        "when_multiple_sources_present_and_disagree": {
+          "notes": "Treat as authorization boundary failure; do not leak which tenant is correct.",
+          "subcode": "TEN_TENANT_MISMATCH",
+          "top_level": "ERR_FORBIDDEN"
+        }
+      },
+      "membership_validation": {
+        "enforced_before_setting_tenant": true,
+        "failure_mode": "deny_with_error",
+        "notes": [
+          "Tenant MUST NOT be set until the actor is proven to be a member of that org (or is a system-internal caller explicitly permitted by policy). Membership validation semantics are defined in IAM-1."
+        ],
+        "required": true
+      },
+      "principle": "single_source_of_truth_with_explicit_precedence",
+      "profiles": [
+        {
+          "boundary": "authenticated_internal",
+          "notes": [
+            "Default profile for authenticated admin/backoffice and service-to-service calls."
+          ],
+          "profile_id": "internal_default",
+          "sources_in_precedence_order": [
+            "explicit_ash_option",
+            "actor_claim",
+            "http_header",
+            "public_object_key",
+            "subdomain_mapping",
+            "request_path_param"
+          ]
+        },
+        {
+          "boundary": "unauthenticated_public",
+          "notes": [
+            "Public/unlisted event browsing and checkout initiation MUST resolve tenant only via public_object_key.",
+            "actor_claim MUST NOT be used to select tenant for public surfaces; do not force users to log out to browse other orgs' public pages."
+          ],
+          "profile_id": "public_surface",
+          "sources_in_precedence_order": [
+            "public_object_key"
+          ]
+        }
+      ],
+      "source_constraints": {
+        "actor_claim": {
+          "notes": [
+            "Preferred tenant source: the authenticated actor's org_id claim."
+          ],
+          "trust_level": "authoritative"
+        },
+        "http_header": {
+          "notes": [
+            "Do not accept tenant headers from browsers/mobile apps.",
+            "Headers may be used only in internal service-to-service traffic or behind a trusted gateway that authenticates the actor and injects the correct org_id."
+          ],
+          "public_clients_allowed": false,
+          "requires_trusted_gateway": true
+        },
+        "public_object_key": {
+          "allowed_boundaries": [
+            "public_event_browse",
+            "public_event_detail",
+            "public_checkout_initiation"
+          ],
+          "key_requirements": {
+            "allowed_formats": [
+              "uuid_v7",
+              "base62_uuid"
+            ],
+            "min_entropy_bits": 128,
+            "must_be_opaque": true,
+            "must_be_revocable": true,
+            "must_be_server_generated": true,
+            "must_not_encode_pii": true,
+            "must_not_equal_org_id": true,
+            "must_support_rotation": true
+          },
+          "notes": [
+            "Public/unlisted surfaces MUST resolve tenant via an opaque public key, not via org_id in URL/subdomain/header.",
+            "Slug segments are SEO-only and MUST NEVER influence tenant or resource resolution; mismatch triggers canonical redirect only.",
+            "If an authenticated actor is present, public_object_key resolution MAY override actor_claim ONLY for public/unlisted read or checkout initiation boundaries."
+          ],
+          "public_clients_allowed": true,
+          "requires_membership_validation": false,
+          "resolution_requirements": {
+            "if_visibility_private_then_deny_as_not_found": true,
+            "must_resolve_to": [
+              "org_id",
+              "resource_kind",
+              "resource_id",
+              "visibility"
+            ],
+            "slug_must_not_be_used_for_resolution": true,
+            "tenant_must_be_set_transaction_scoped": true,
+            "visibility_must_be_validated_before_authorizing": true
+          },
+          "resolver_kind": "public_object_key_resolver"
+        },
+        "request_path_param": {
+          "notes": [
+            "Path parameters may be used only in backoffice/admin routing where membership/role is verified before tenant is set."
+          ],
+          "public_clients_allowed": false,
+          "requires_membership_validation": true
+        },
+        "subdomain_mapping": {
+          "notes": [
+            "Subdomain routing MUST NOT be used for unauthenticated public access. Membership validation is required for all subdomain-based tenant resolution."
+          ],
+          "public_clients_allowed": false,
+          "requires_membership_validation": true
+        }
+      },
+      "sources_in_precedence_order": [
+        "explicit_ash_option",
+        "actor_claim",
+        "http_header",
+        "public_object_key",
+        "subdomain_mapping",
+        "request_path_param"
+      ]
+    },
+    "tenant_scope_model": {
+      "authoritative": true,
+      "definitions": [
+        {
+          "description": "Org-scoped execution. org_id MUST be present and MUST be the active tenant for all data access, pricing, inventory, ledgers, and policy evaluation.",
+          "forbid_tenant_unset": true,
+          "scope": "org",
+          "tenant_required": true
+        },
+        {
+          "description": "Platform/global operational execution (orchestration only). MUST NOT read/write org-scoped business resources without switching into an explicit org scope; MUST be capability-gated and auditable.",
+          "require_tenant_unset": true,
+          "scope": "global_ops",
+          "tenant_required": false
+        }
+      ],
+      "determinism_rules": [
+        "Entry points MUST explicitly declare tenant_scope for every request/job/action context; implicit or ambient scope MUST NOT be assumed.",
+        "If tenant_scope == \"org\": org_id MUST be present and tenant resolution MUST succeed; failures MUST be treated as access denial (fail-closed).",
+        "If tenant_scope == \"global_ops\": org_id MUST NOT be present in the request context, and the active tenant MUST be unset. Any per-org work MUST be executed by spawning org-scoped jobs with explicit org_id."
+      ],
+      "scope_enum": [
+        "org",
+        "global_ops"
+      ],
+      "security_notes": [
+        "global_ops MUST NOT leak tenant existence; error mapping MUST follow TEN-1 leakage posture (uniform not-found/forbidden patterns).",
+        "global_ops is NOT a license for cross-tenant reads; it exists only for orchestration/ops control planes."
+      ]
+    }
+  },
+  "tier": "enterprise",
+  "title": "TEN-1 — Tenancy Isolation, RLS, Index Isolation, and Sequencing (v1.7.7)",
+  "updated_at": "2026-01-30T10:11:10Z",
+  "updated_at_utc": "2026-01-30T10:11:10Z",
+  "version": "1.7.13"
+}

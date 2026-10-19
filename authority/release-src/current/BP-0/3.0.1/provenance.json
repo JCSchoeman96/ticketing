@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "c5570abca0fa02193ecacdc35253ad91b7a933b0",
+  "candidate_preparation_base_commit": "79a1ad98703bb694c8e25df1df48ae47ac0a940b",
+  "provenance_statement": "Successor source candidate derived from the tracked ratification snapshot, whose original member bytes were bootstrapped from the identified staging ZIP. This is not original authoring source and is not a released or canonical bundle. Candidate edits update BP-0 identity and CS-0 schema references only.",
+  "source_bundle_path": ".staging/raw/CS-0_and_BP-0/BP-0_bundle_v3.0.0.zip",
+  "source_zip_sha256": "ad745bf7deb9bfa6ea3ffdd0deb1ffa433dc35651b40cef6e474549df9970f68",
+  "source_zip_bytes": 5701,
+  "source_version": "3.0.0",
+  "source_members": [
+    {
+      "source_member_path": "BP-0_bundle_v3.0.0/BP-0_Contract_v3.0.0.json",
+      "tracked_source_path": "contract.json",
+      "sha256": "4518698864d7d5ae6010d5b882f19d473e06449057e5ef954c3e02f7ef3f4fa5",
+      "bytes": 8810
+    },
+    {
+      "source_member_path": "BP-0_bundle_v3.0.0/BP-0_Test_Gates_v3.0.0.json",
+      "tracked_source_path": "test-gates.json",
+      "sha256": "72e87962acd32ecf11e08ee0205608e2908aec82e30cd8e68c43e72c905e9447",
+      "bytes": 9896
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "BP-0_bundle_v3.0.0/BP-0_Contract_v3.0.0.json",
+      "sha256": "0855faa9d9a8107f982fd536c5e0464dd777542d8d2e37353948d8e6c3bb7b17",
+      "bytes": 8810
+    },
+    {
+      "source_member_path": "BP-0_bundle_v3.0.0/BP-0_Test_Gates_v3.0.0.json",
+      "sha256": "fdfa130467286804fc7979c4be025c8bcb630dc2183987a83b788d1f0ec52d7a",
+      "bytes": 9896
+    }
+  ]
+}

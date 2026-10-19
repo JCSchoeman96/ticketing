@@ -1,0 +1,833 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "TAX-1",
+    "version": "3.0.1"
+  },
+  "doc_id": "TAX-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "Suite schema CS-0@3.0.1 compliance.",
+      "failure_message": "suite_schema must equal CS-0@3.0.1 across all artifacts.",
+      "id": "TAX-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "Suite schema must match CS-0 v3.0.0"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle manifest must exist, be named correctly, and match bundle contents.",
+      "failure_message": "bundle manifest filename or manifest file list does not match the bundle contents.",
+      "id": "TAX-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest filename and file list must be correct"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "PRE_CALCULATED_SHA_PLACEHOLDER|\\bTBD\\b|\\bTODO\\b|\\bFIXME\\b|\\bPLACEHOLDER\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "bundle_manifest",
+            "forbid_regex": [
+              "PRE_CALCULATED_SHA_PLACEHOLDER|\\bTBD\\b|\\bTODO\\b|\\bFIXME\\b|\\bPLACEHOLDER\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Ban placeholders and TODO markers in artifacts.",
+      "failure_message": "contract artifacts contain placeholder or TODO markers.",
+      "id": "TAX-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "Artifacts must not contain placeholders"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TAX-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.0.1",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "TAX-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "3.0.1",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "TAX-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "3.0.1",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Identity pointers must align across contract and gates (doc_id/version).",
+      "failure_message": "doc_id/version pointers are not aligned across contract and test gates.",
+      "id": "TAX-1-GATE-040",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle identity pointers must align"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "inclusive",
+            "json_pointer": "/tax_defaults/default_inclusion_mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Default tax posture MUST be inclusive pricing (conversion protection).",
+      "failure_message": "TAX-1-GATE-050 failed.",
+      "id": "TAX-1-GATE-050",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-050"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "event_location",
+            "json_pointer": "/tax_defaults/default_tax_basis"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Default tax basis MUST be event_location.",
+      "failure_message": "TAX-1-GATE-060 failed.",
+      "id": "TAX-1-GATE-060",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-060"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tax_defaults/require_checkout_tax_line_item"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Checkout MUST show a tax line item (inclusive or exclusive).",
+      "failure_message": "TAX-1-GATE-070 failed.",
+      "id": "TAX-1-GATE-070",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-070"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/tenancy/tenant_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "app.current_org_id",
+            "json_pointer": "/tenancy/rls_session_var"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenant key MUST be org_id (TEN-1 aligned).",
+      "failure_message": "TAX-1-GATE-080 failed.",
+      "id": "TAX-1-GATE-080",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-080"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TaxRate",
+            "json_pointer": "/resource_model/resources/1/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/resource_model/resources/1/tenant_scoped"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "effective_from_utc",
+            "json_pointer": "/resource_model/resources/1/attributes/4/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "TaxRate resource MUST be platform-scoped and effective-dated.",
+      "failure_message": "TAX-1-GATE-090 failed.",
+      "id": "TAX-1-GATE-090",
+      "level": "P1",
+      "must": true,
+      "title": "TAX-1-GATE-090"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OrderTaxRecord",
+            "json_pointer": "/resource_model/resources/2/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/resource_model/resources/2/tenant_scoped"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "OrderTaxRecord resource MUST exist and be tenant-scoped.",
+      "failure_message": "TAX-1-GATE-100 failed.",
+      "id": "TAX-1-GATE-100",
+      "level": "P1",
+      "must": true,
+      "title": "TAX-1-GATE-100"
+    },
+    {
+      "acceptance_criteria": [
+        "Contract MUST define tax_policy_locking invariant (no drift after sale).",
+        "{\"details\": {\"artifact_kind\": \"contract\", \"json_pointer\": \"/invariants/tax_policy_locking\"}, \"mode\": \"automated\", \"type\": \"json_pointer_exists\"}"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "criterion": "Contract MUST define tax_policy_locking invariant (no drift after sale)."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Contract MUST define tax_policy_locking invariant (no drift after sale).",
+      "failure_message": "TAX-1-GATE-120 failed.",
+      "id": "TAX-1-GATE-120",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-120"
+    },
+    {
+      "acceptance_criteria": [
+        "Contract MUST define single_context_per_snapshot invariant.",
+        "{\"details\": {\"artifact_kind\": \"contract\", \"json_pointer\": \"/invariants/single_context_per_snapshot\"}, \"mode\": \"automated\", \"type\": \"json_pointer_exists\"}"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "criterion": "Contract MUST define single_context_per_snapshot invariant."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Contract MUST define single_context_per_snapshot invariant.",
+      "failure_message": "TAX-1-GATE-130 failed.",
+      "id": "TAX-1-GATE-130",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-130"
+    },
+    {
+      "acceptance_criteria": [
+        "TaxProfile.default_tax_basis MUST include customer_location in one_of and MUST NOT contain an enum key.",
+        "TAX-1 schema drift: default_tax_basis missing customer_location or contains conflicting enum."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "criterion": "TaxProfile.default_tax_basis MUST include customer_location in one_of and MUST NOT contain an enum key."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "TaxProfile.default_tax_basis MUST include customer_location in one_of and MUST NOT contain an enum key.",
+      "failure_message": "TAX-1 schema drift: default_tax_basis missing customer_location or contains conflicting enum.",
+      "id": "TAX-SEM-DEFAULT-TAX-BASIS-CONSISTENT",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-SEM-DEFAULT-TAX-BASIS-CONSISTENT"
+    },
+    {
+      "acceptance_criteria": [
+        "TAX-1 MUST define canonical TaxableLineInput.item_ref_type values including ticket_type and platform_fee; unknown types MUST be rejected.",
+        "TAX-1 missing canonical item_ref_type registry or fail-closed enforcement."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "criterion": "TAX-1 MUST define canonical TaxableLineInput.item_ref_type values including ticket_type and platform_fee; unknown types MUST be rejected."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "TAX-1 MUST define canonical TaxableLineInput.item_ref_type values including ticket_type and platform_fee; unknown types MUST be rejected.",
+      "failure_message": "TAX-1 missing canonical item_ref_type registry or fail-closed enforcement.",
+      "id": "TAX-SEM-CANON-ITEM-REF-TYPE",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-SEM-CANON-ITEM-REF-TYPE"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "ticket_type",
+              "addon",
+              "platform_fee"
+            ],
+            "json_pointer": "/resource_model/structs/TaxableLineInput/item_ref_type/enum"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "ticket_type",
+              "addon",
+              "platform_fee"
+            ],
+            "json_pointer": "/invariants/canon_item_ref_type_for_tax/canonical_values"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tax input registry MUST allow platform_fee as a taxable line type and MUST not include legacy/ambiguous fee aliases.",
+      "failure_message": "TAX-1-GATE-PLATFORM-FEE-010 failed.",
+      "id": "TAX-1-GATE-PLATFORM-FEE-010",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-PLATFORM-FEE-010"
+    },
+    {
+      "acceptance_criteria": [
+        "Prevent CI theatre: this contract MUST remain a non-producer (no outbox events).",
+        "Fail build: non-producer contract gained an outbox surface.",
+        "{\"op\": \"equals\", \"path\": \"/emits_events\", \"value\": false}",
+        "{\"op\": \"equals\", \"path\": \"/outbox_events\", \"value\": []}"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Prevent CI theatre: this contract MUST remain a non-producer (no outbox events).",
+      "failure_message": "Fail build: non-producer contract gained an outbox surface.",
+      "id": "TAX-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-ASSERT-NON-PRODUCER"
+    },
+    {
+      "acceptance_criteria": [
+        "Credit note compliance invariants must be present (anti time-travel drift).",
+        "{\"details\": {\"pointer\": \"/invariants/credit_note_compliance/id\"}, \"mode\": \"automated\", \"type\": \"json_pointer_exists\"}",
+        "{\"details\": {\"pointer\": \"/invariants/tax_context_digest/test_vectors_TAXCTX_V2\"}, \"mode\": \"automated\", \"type\": \"json_pointer_exists\"}"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "criterion": "Credit note compliance invariants must be present (anti time-travel drift)."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Credit note compliance invariants must be present (anti time-travel drift).",
+      "failure_message": "TAX-1-GATE-115 failed.",
+      "id": "TAX-1-GATE-115",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-115"
+    },
+    {
+      "acceptance_criteria": [
+        "TAX-1 is missing TAXCTX-V2 / PITIC / jurisdiction evidence anchors. This enables shadow mutation, cross-tenant digest replay, or audit ghosting.",
+        "{\"op\": \"exists\", \"path\": \"$.invariants.TAX-1-INVARIANT-IMMUTABLE-PITIC-001\"}",
+        "{\"op\": \"exists\", \"path\": \"$.invariants.TAX-1-INVARIANT-TAXCTX-V2-TENANCY-SALT-001\"}",
+        "{\"op\": \"exists\", \"path\": \"$.invariants.TAX-1-INVARIANT-JURISDICTION-EVIDENCE-HASH-001\"}",
+        "{\"op\": \"min_items\", \"path\": \"$.conformance_vectors.TAXCTX_V2.vectors\", \"value\": 3}",
+        "{\"op\": \"exists\", \"path\": \"$.resource_model.resources[?(@.name=='OrderTaxRecord')].attributes[?(@.name=='tax_law_config_digest_sha256')]\"}",
+        "{\"op\": \"exists\", \"path\": \"$.resource_model.resources[?(@.name=='OrderTaxRecord')].attributes[?(@.name=='credit_note_reporting_profile_digest_sha256')]\"}",
+        "{\"op\": \"exists\", \"path\": \"$.resource_model.resources[?(@.name=='OrderTaxRecord')].attributes[?(@.name=='jurisdiction_evidence_sha256')]\"}",
+        "{\"op\": \"exists\", \"path\": \"$.resource_model.resources[?(@.name=='OrderTaxRecord')].attributes[?(@.name=='tax_context_digest_version')]\"}",
+        "OFFER passes each exact ProductRevision.tax_profile_id to the TAX resolver, whose tenant check returns the same pinned profile without substitution.",
+        "{\"op\": \"min_items\", \"path\": \"$.invariants.tax_context_digest.test_vectors_TAXCTX_V2\", \"value\": 3}",
+        "General arithmetic uses the exact resolved TAXCTX-V2 rounding_mode. The half-even default does not prohibit half-up."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "criterion": "TAX-1 is missing TAXCTX-V2 / PITIC / jurisdiction evidence anchors. This enables shadow mutation, cross-tenant digest replay, or audit ghosting."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/0/inputs/5/name",
+            "equals": "tax_profile_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/0/outputs/10/name",
+            "equals": "inclusion_mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/0/outputs/11/name",
+            "equals": "tax_basis"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/0/outputs/12/name",
+            "equals": "tax_point_strategy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/0/outputs/13/name",
+            "equals": "evaluated_at_utc"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/0/outputs/14/name",
+            "equals": "digest_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/0/outputs/15/name",
+            "equals": "digest_sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "criterion": "OFFER passes each exact ProductRevision.tax_profile_id to the TAX resolver, whose tenant check returns the same pinned profile without substitution."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/0/inputs/5/name",
+            "equals": "tax_profile_id"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/0/inputs/5/description",
+            "equals": "Exact tax_profile_id pinned by ProductRevision; no profile substitution is permitted."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/1/errors/0/code",
+            "equals": "ERR_VALIDATION"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/2/errors/0/code",
+            "equals": "ERR_CONFLICT"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_taxctx_v2_has_one_exact_transcript_and_verified_vectors"
+          }
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "half_even_minor_units",
+              "half_up_minor_units"
+            ],
+            "json_pointer": "/domain_actions/0/outputs/7/enum"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "half_even_minor_units",
+              "half_up_minor_units"
+            ],
+            "json_pointer": "/domain_actions/1/inputs/7/enum"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "half_even_minor_units",
+            "json_pointer": "/tax_defaults/rounding_mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Rounding mode MUST be the resolved TAXCTX-V2 rounding_mode at minor-unit precision and MUST be one of half_even_minor_units or half_up_minor_units. tax_defaults.rounding_mode=half_even_minor_units is the default and does not prohibit an explicitly resolved half_up_minor_units context.",
+            "json_pointer": "/invariants/rounding/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Exclusive mode: net_total_minor is canonical; tax_amount_minor is computed by rounding (net_total_minor * rate_basis_points / 10000) to minor-unit precision using the resolved TAXCTX-V2 rounding_mode. gross_total_minor MUST equal net_total_minor + tax_amount_minor.",
+            "json_pointer": "/invariants/calculation_arithmetic/2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "half_up_minor_units",
+            "json_pointer": "/invariants/tax_context_digest/test_vectors_TAXCTX_V2/1/context/rounding_mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_canonical_enablement_contracts.py::test_installed_tax_rounding_modes_drive_arithmetic_and_keep_t0_lock"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ],
+      "description": "General TAX rounding supports exactly the resolved half-even and half-up TAXCTX-V2 modes. Calculations use that resolved mode; the half-even default does not narrow support.",
+      "failure_message": "TAX-1-P0-TAXCTX-V2-PITIC-001 failed: TAX rounding authority or its executable regression is inconsistent.",
+      "id": "TAX-1-P0-TAXCTX-V2-PITIC-001",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1 MUST define TAXCTX-V2 tenancy-salted digest + PITIC digests + jurisdiction evidence hash"
+    },
+    {
+      "acceptance_criteria": [
+        "TAX-1 MUST expose origin tax point and credit note reporting anchors needed for legally reproducible credit notes.",
+        "{\"contains_all\": [\"required\", \"immutable\"], \"path\": \"$.resource_model.resources[?(@.name=='OrderTaxRecord')].attributes[?(@.name=='tax_point_at_utc')].constraints\"}",
+        "{\"equals\": \"uuid_v7\", \"path\": \"$.resource_model.resources[?(@.name=='OrderTaxRecord')].attributes[?(@.name=='credit_note_template_version_id')].type\"}",
+        "{\"contains_all\": [\"tenant_scoped_sequential\", \"fiscal_year_prefixed_sequential\", \"fiscal_month_prefixed_sequential\", \"global_uuid_v7\"], \"path\": \"$.resource_model.resources[?(@.name=='OrderTaxRecord')].attributes[?(@.name=='credit_note_sequence_strategy')].enum\"}",
+        "{\"equals\": \"utc_datetime_usec\", \"path\": \"$.resource_model.structs.CreditNoteSpec.fields[?(@.name=='origin_tax_point_at_utc')].type\"}",
+        "{\"contains\": \"credit_note_reporting_profile_digest_sha256 MUST cover (at minimum) sequence_strategy and template_version_id so that both numbering rules and document format remain legally reproducible.\", \"path\": \"$.invariants.credit_note_compliance.MUST\"}"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "criterion": "TAX-1 MUST expose origin tax point and credit note reporting anchors needed for legally reproducible credit notes."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "TAX-1 MUST expose origin tax point and credit note reporting anchors needed for legally reproducible credit notes.",
+      "failure_message": "TAX-1-GATE-CREDIT-NOTE-LIFECYCLE-0001 failed.",
+      "id": "TAX-1-GATE-CREDIT-NOTE-LIFECYCLE-0001",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-CREDIT-NOTE-LIFECYCLE-0001"
+    },
+    {
+      "acceptance_criteria": [
+        "TAX-1 MUST define a tenant-scoped CreditNote resource with origin_tax_point_at_utc + issuance_at_utc and must mandate issuance_at_utc >= origin_tax_point_at_utc."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "criterion": "TAX-1 MUST define a tenant-scoped CreditNote resource with origin_tax_point_at_utc + issuance_at_utc and must mandate issuance_at_utc >= origin_tax_point_at_utc."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Refactored legacy gate preserved for CS-0 v3 alignment.",
+      "failure_message": "TAX-1 MUST define a tenant-scoped CreditNote resource with origin_tax_point_at_utc + issuance_at_utc and must mandate issuance_at_utc >= origin_tax_point_at_utc.",
+      "id": "TAX-1-GATE-CREDITNOTE-RESOURCE-001",
+      "level": "P0",
+      "must": true,
+      "title": "CreditNote durable resource present and dual-date chronology mandated"
+    },
+    {
+      "acceptance_criteria": [
+        "Ensures CreditNote includes legal_status and ledger_posting_id and finalization invariants exist.",
+        "{\"expected\": \"legal_status\", \"pointer\": \"/resource_model/resources/3/attributes/7/name\", \"type\": \"json_pointer_equals\"}",
+        "{\"expected\": \"ledger_posting_id\", \"pointer\": \"/resource_model/resources/3/attributes/8/name\", \"type\": \"json_pointer_equals\"}",
+        "{\"expected\": \"A CreditNote is NOT legally valid until it is finalized with a non-null ledger_posting_id referencing a successful LED-1 LedgerPosting.\", \"pointer\": \"/invariants/credit_note_finalization/0\", \"type\": \"json_pointer_equals\"}",
+        "{\"expected\": true, \"pointer\": \"/invariants/period_lock/strict\", \"type\": \"json_pointer_equals\"}"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "criterion": "Ensures CreditNote includes legal_status and ledger_posting_id and finalization invariants exist."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Ensures CreditNote includes legal_status and ledger_posting_id and finalization invariants exist.",
+      "failure_message": "TAX-1-GATE-CREDITNOTE-BIDIRECTIONAL-LEDGER-0001 failed.",
+      "id": "TAX-1-GATE-CREDITNOTE-BIDIRECTIONAL-LEDGER-0001",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-CREDITNOTE-BIDIRECTIONAL-LEDGER-0001"
+    },
+    {
+      "acceptance_criteria": [
+        "{\"details\": {\"pointer\": \"/invariants/period_lock/strict\"}, \"expected\": true, \"type\": \"json_pointer_equals\"}"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "criterion": "{\"details\": {\"pointer\": \"/invariants/period_lock/strict\"}, \"expected\": true, \"type\": \"json_pointer_equals\"}"
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Refactored legacy gate preserved for CS-0 v3 alignment.",
+      "failure_message": "TAX-1-GATE-CREDITNOTE-SEMANTICS failed.",
+      "id": "TAX-1-GATE-CREDITNOTE-SEMANTICS",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1-GATE-CREDITNOTE-SEMANTICS"
+    },
+    {
+      "id": "TAX-1.GATE.T0.001",
+      "title": "TAX-1.GATE.T0.001",
+      "description": "Global platform TaxRate is allowed only under TEN-1 explicit allowlist and isolation constraints. Tenant-specific tax truth stays tenant-scoped.",
+      "level": "P0",
+      "must": true,
+      "failure_message": "TAX-1.GATE.T0.001 failed.",
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "criterion": "Global platform TaxRate is allowed only under TEN-1 explicit allowlist and isolation constraints. Tenant-specific tax truth stays tenant-scoped."
+          }
+        }
+      ]
+    },
+    {
+      "id": "TAX-1.GATE.T0.002",
+      "title": "TAX-1.GATE.T0.002",
+      "description": "TaxProfile and platform TaxRate provisioning actions use tax.profile.create, tax.profile.activate, and platform.tax_rate.create as separately scoped capabilities.",
+      "level": "P0",
+      "must": true,
+      "failure_message": "TAX-1.GATE.T0.002 failed.",
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "criterion": "TaxProfile and platform TaxRate provisioning actions use tax.profile.create, tax.profile.activate, and platform.tax_rate.create as separately scoped capabilities."
+          }
+        }
+      ]
+    },
+    {
+      "id": "TAX-1.GATE.T0.003",
+      "title": "TAX-1.GATE.T0.003",
+      "description": "TAXCTX-V2 resolves immutable quote values and opaque PII evidence references without a persisted TaxContext resource. PII-1 owns direct evidence.",
+      "level": "P0",
+      "must": true,
+      "failure_message": "TAX-1.GATE.T0.003 failed.",
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "criterion": "TAXCTX-V2 resolves immutable quote values and opaque PII evidence references without a persisted TaxContext resource. PII-1 owns direct evidence."
+          }
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-10-18T10:43:12Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Enforce CS-0 mechanical alignment and baseline constitutional defaults for TAX-1. | v2.2.6 adds CreditNote resource dual-date bridge",
+  "title": "TAX-1 Test Gates",
+  "version": "3.0.1"
+}

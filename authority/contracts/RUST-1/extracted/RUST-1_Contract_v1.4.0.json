@@ -1,0 +1,1149 @@
+{
+  "adoption_control_model": {
+    "activation_evidence_requirements": [
+      "Downstream contract patch merged and versioned.",
+      "Benchmark artifact proves the chosen tier is justified.",
+      "Runtime harness covers telemetry and error-correlation signals.",
+      "ERR-1 registration or explicit error-mapping approval exists.",
+      "Kill switch, rollout owner, and fallback mode are declared."
+    ],
+    "activation_without_contract_patch_allowed": false,
+    "adoption_record_requirements": [
+      "capability_id",
+      "owner_contract_doc_id",
+      "authoritative_acceptance_surface",
+      "allowed_execution_tier",
+      "fallback_mode",
+      "kill_switch_name",
+      "benchmark_artifact_ref",
+      "runtime_harness_ref",
+      "err1_mapping_ref"
+    ],
+    "authority_transfer_by_implementation_choice_allowed": false,
+    "classification": "NEW: proposed invariant",
+    "default_capability_status": "eligible_but_forbidden_until_downstream_adoption",
+    "direct_repo_activation_without_downstream_contract": false,
+    "downstream_contract_must_explicitly_adopt_capability": true,
+    "downstream_owner_contract_must_name_authoritative_acceptance_surface": true,
+    "eligible_status_is_not_enablement": true,
+    "implementation_existence_is_not_adoption": true
+  },
+  "android_edge_and_jni_rules": {
+    "abi_support_must_be_reviewed_per_scanner_release": true,
+    "allowed_primary_entrypoints": [
+      "verify_ticket",
+      "parse_qr_envelope",
+      "validate_signature",
+      "classify_verification_failure"
+    ],
+    "android_keystore_private_key_usage_allowed_for": [
+      "device_attestation",
+      "device_local_sealing",
+      "device_identity_proof"
+    ],
+    "android_keystore_usage_for_master_ticket_signing_allowed": false,
+    "android_native_symbols_must_be_archived_per_supported_abi": true,
+    "business_workflow_logic_in_jni_allowed": false,
+    "chatty_micro_calls_allowed": false,
+    "classification": "NEW: proposed invariant",
+    "cross_language_async_workflow_default": "forbidden",
+    "jni_bridge_location_rule": "single_governed_bridge_layer",
+    "jni_call_style": "coarse_grained_request_response_only",
+    "jni_surface_must_be_minimal": true,
+    "jni_thread_attach_detach_must_be_governed": true,
+    "legacy_32bit_support_requires_exception": true,
+    "minimum_recommended_production_abi": "arm64-v8a",
+    "network_calls_in_jni_allowed": false,
+    "release_manifest_must_declare_supported_abis": true,
+    "required_android_abis": [
+      "arm64-v8a",
+      "armeabi-v7a",
+      "x86_64"
+    ],
+    "rust_to_java_callbacks_default": "forbidden"
+  },
+  "artifact_kind": "contract",
+  "authority_model": {
+    "establishes": [
+      "Native acceleration is an implementation boundary, never a sovereignty transfer.",
+      "Any native path that cannot prove scheduler safety, deterministic behavior, and fail-closed semantics MUST leave the BEAM boundary."
+    ]
+  },
+  "capability_adoption_matrix": [
+    {
+      "allowed_execution_tiers": [
+        "normal_nif",
+        "dirty_cpu_nif"
+      ],
+      "android_edge_allowed": true,
+      "authoritative_acceptor_contract_required": true,
+      "benchmark_artifact_required": true,
+      "candidate_owner_contracts": [
+        "SCAN-1",
+        "TKT-1",
+        "ORD-1",
+        "PRICE-1"
+      ],
+      "capability_id": "EDGE_PUBLIC_KEY_VERIFY",
+      "default_status": "eligible_but_forbidden_until_adopted",
+      "err1_registration_required": true,
+      "native_may_be_authoritative": false,
+      "notes": "Best initial adoption target for offline scanner and signed artifact verification; TKT-1 eligibility is limited to TKT-CRED-V1 credential-envelope verification and native result remains subordinate until accepted by the owning contract.",
+      "owning_contract_remains_authoritative": true,
+      "preferred_execution_tier": "normal_nif",
+      "pure_elixir_fallback_required": false,
+      "release_block_if_owner_contract_missing": true,
+      "runtime_harness_required": true,
+      "tkt_scope": "TKT-CRED-V1 public-key signature verification only; no admission, issuance, payment, inventory, transfer, or revocation authority."
+    },
+    {
+      "allowed_execution_tiers": [
+        "normal_nif",
+        "dirty_cpu_nif"
+      ],
+      "android_edge_allowed": true,
+      "authoritative_acceptor_contract_required": true,
+      "benchmark_artifact_required": true,
+      "candidate_owner_contracts": [
+        "SCAN-1",
+        "TKT-1",
+        "PAY-1",
+        "PAY-2",
+        "PAY-3",
+        "PAY-4",
+        "IAM-1"
+      ],
+      "capability_id": "CONSTANT_TIME_COMPARE_AND_SIGNATURE_VERIFY",
+      "default_status": "eligible_but_forbidden_until_adopted",
+      "err1_registration_required": true,
+      "native_may_be_authoritative": false,
+      "notes": "Suitable for bounded verification primitives only; TKT-1 eligibility is limited to constant-time credential signature/hash/fingerprint checks; IAM adoption does not authorize native password KDF work without amendment.",
+      "owning_contract_remains_authoritative": true,
+      "preferred_execution_tier": "normal_nif",
+      "pure_elixir_fallback_required": false,
+      "release_block_if_owner_contract_missing": true,
+      "runtime_harness_required": true,
+      "tkt_scope": "TKT-CRED-V1 signature, hash, and fingerprint comparison only."
+    },
+    {
+      "allowed_execution_tiers": [
+        "normal_nif",
+        "dirty_cpu_nif"
+      ],
+      "android_edge_allowed": true,
+      "android_edge_scope": "Only for adopted TKT-CRED-V1 edge verification canonicalization; ORD-1, PRICE-1, and LOCKS-1 acceptance remains backend-owned unless their contracts separately adopt edge use.",
+      "authoritative_acceptor_contract_required": true,
+      "benchmark_artifact_required": true,
+      "candidate_owner_contracts": [
+        "TKT-1",
+        "LOCKS-1",
+        "ORD-1",
+        "PRICE-1"
+      ],
+      "capability_id": "CANONICAL_PREIMAGE_AND_HASH",
+      "default_status": "eligible_but_forbidden_until_adopted",
+      "err1_registration_required": true,
+      "native_may_be_authoritative": false,
+      "notes": "All adoption paths MUST preserve raw 16-byte UUID ordering and keep the owning contract authoritative for acceptance and tie-break semantics; TKT-1 may adopt this for credential payload preimage/fingerprint work.",
+      "owning_contract_remains_authoritative": true,
+      "preferred_execution_tier": "normal_nif",
+      "pure_elixir_fallback_required": true,
+      "release_block_if_owner_contract_missing": true,
+      "runtime_harness_required": true,
+      "tkt_scope": "TKT-CRED-V1 JCS/canonical preimage and payload_fingerprint_sha256 only."
+    },
+    {
+      "allowed_execution_tiers": [
+        "normal_nif",
+        "dirty_cpu_nif"
+      ],
+      "android_edge_allowed": false,
+      "authoritative_acceptor_contract_required": true,
+      "benchmark_artifact_required": true,
+      "candidate_owner_contracts": [
+        "LOCKS-1",
+        "PRICE-1"
+      ],
+      "capability_id": "BOUNDED_DETERMINISTIC_MATH",
+      "default_status": "eligible_but_forbidden_until_adopted",
+      "err1_registration_required": true,
+      "native_may_be_authoritative": false,
+      "notes": "Useful only where benchmark evidence justifies native acceleration; pricing-rule authority remains in PRICE-1.",
+      "owning_contract_remains_authoritative": true,
+      "preferred_execution_tier": "normal_nif",
+      "pure_elixir_fallback_required": true,
+      "release_block_if_owner_contract_missing": true,
+      "runtime_harness_required": true
+    },
+    {
+      "allowed_execution_tiers": [
+        "normal_nif",
+        "external_worker"
+      ],
+      "android_edge_allowed": true,
+      "authoritative_acceptor_contract_required": true,
+      "benchmark_artifact_required": true,
+      "candidate_owner_contracts": [
+        "SCAN-1",
+        "TKT-1",
+        "PAY-1",
+        "PAY-2",
+        "PAY-3",
+        "PAY-4"
+      ],
+      "capability_id": "HOSTILE_BINARY_PARSE",
+      "default_status": "eligible_but_forbidden_until_adopted",
+      "err1_registration_required": true,
+      "native_may_be_authoritative": false,
+      "notes": "Parse success never implies business acceptance; domain validation and policy remain in the owning contract. TKT-1 eligibility is limited to QR/wallet credential envelope parsing.",
+      "owning_contract_remains_authoritative": true,
+      "preferred_execution_tier": "normal_nif",
+      "pure_elixir_fallback_required": false,
+      "release_block_if_owner_contract_missing": true,
+      "runtime_harness_required": true,
+      "tkt_scope": "TKT-CRED-V1 QR/wallet envelope parse only; parse success is not scan acceptance."
+    },
+    {
+      "allowed_execution_tiers": [
+        "dirty_cpu_nif",
+        "external_worker"
+      ],
+      "android_edge_allowed": false,
+      "authoritative_acceptor_contract_required": true,
+      "benchmark_artifact_required": true,
+      "candidate_owner_contracts": [
+        "IAM-1"
+      ],
+      "capability_id": "PASSWORD_KDF_OR_CRYPTO_WORKER",
+      "default_status": "forbidden_until_amended",
+      "err1_registration_required": true,
+      "native_may_be_authoritative": false,
+      "notes": "Authentication KDF and broader crypto-worker authority require a separate constitutional amendment before activation.",
+      "owning_contract_remains_authoritative": true,
+      "preferred_execution_tier": "external_worker",
+      "pure_elixir_fallback_required": false,
+      "release_block_if_owner_contract_missing": true,
+      "runtime_harness_required": true
+    },
+    {
+      "allowed_execution_tiers": [
+        "external_worker"
+      ],
+      "android_edge_allowed": false,
+      "authoritative_acceptor_contract_required": true,
+      "benchmark_artifact_required": true,
+      "candidate_owner_contracts": [],
+      "capability_id": "PRIVATE_KEY_SIGNING_INSIDE_NATIVE_BOUNDARY",
+      "default_status": "forbidden_until_amended",
+      "err1_registration_required": true,
+      "native_may_be_authoritative": false,
+      "notes": "Private-key signing remains forbidden inside the native boundary unless separately amended with vault/HSM review.",
+      "owning_contract_remains_authoritative": true,
+      "preferred_execution_tier": "external_worker",
+      "pure_elixir_fallback_required": false,
+      "release_block_if_owner_contract_missing": true,
+      "runtime_harness_required": true
+    }
+  ],
+  "capability_adoption_matrix_rules": {
+    "classification": "NEW: proposed invariant",
+    "matrix_entries_must_block_release_when_owner_contract_missing": true,
+    "matrix_entries_must_name_owner_authority_fields": true,
+    "matrix_entries_must_name_preferred_execution_tier": true,
+    "notes": "Capability matrix entries are not descriptive only; they are release-governance fields that prevent accidental native sprawl.",
+    "tkt_candidate_scope_rule": "TKT-1 candidate ownership is limited to credential-envelope computation. It SHALL NOT transfer admission, issuance, payment, inventory, transfer, refund, or revocation authority to native code."
+  },
+  "capability_budget_binding": {
+    "classification": "NEW: proposed invariant",
+    "downstream_budget_fields_required": [
+      "capability_id",
+      "owner_contract_doc_id",
+      "execution_tier",
+      "p95_ms",
+      "p99_ms",
+      "max_input_bytes",
+      "max_output_bytes",
+      "fallback_mode",
+      "kill_switch_name"
+    ],
+    "downstream_budget_may_exceed_rust1_ceiling": false,
+    "downstream_budget_must_name_keyset_version_policy_when_edge_verification_used": true,
+    "downstream_budget_must_name_supported_abi_manifest_when_android_edge_used": true,
+    "downstream_capability_budget_required_before_enablement": true,
+    "enablement_without_downstream_budget_allowed": false,
+    "global_ceilings_are_enablement_only": true,
+    "notes": "RUST-1 defines hard ceilings only; every adopted capability MUST carry a tighter owner-specific budget in the adopting contract.",
+    "release_block_if_capability_budget_fields_missing": true,
+    "rust1_budget_role": "global_hard_ceiling_and_enablement_floor"
+  },
+  "capability_classes": {
+    "allowed": [
+      {
+        "authority_limit": "Verification result is advisory until accepted by the owning core contract and domain action.",
+        "classification": "NEW: proposed invariant",
+        "description": "Verify signed offline scanner payloads or signed ticket credential artifacts using public keys only.",
+        "execution_class": "Normal_or_DirtyCpu_or_ExternalWorker",
+        "id": "EDGE_PUBLIC_KEY_VERIFY"
+      },
+      {
+        "authority_limit": "MUST NOT mint business authority on its own; caller remains responsible for policy and state checks.",
+        "classification": "NEW: proposed invariant",
+        "description": "Perform constant-time equality checks, HMAC verification, or signature verification using approved algorithms and pinned libraries.",
+        "execution_class": "Normal_or_DirtyCpu",
+        "id": "CONSTANT_TIME_COMPARE_AND_SIGNATURE_VERIFY"
+      },
+      {
+        "authority_limit": "MUST preserve suite ordering rules, including raw 16-byte UUID sorting when UUID lists participate.",
+        "classification": "NEW: proposed invariant",
+        "description": "Build canonical byte preimages and compute hashes or MAC inputs for signed artifacts, deterministic proofs, and adopted ticket credential fingerprints.",
+        "execution_class": "Normal_or_DirtyCpu",
+        "id": "CANONICAL_PREIMAGE_AND_HASH"
+      },
+      {
+        "authority_limit": "Caller MUST validate resulting state transitions in the core domain.",
+        "classification": "NEW: proposed invariant",
+        "description": "Perform bounded deterministic math that is expensive enough to justify native acceleration but does not own business truth.",
+        "execution_class": "Normal_or_DirtyCpu",
+        "id": "BOUNDED_DETERMINISTIC_MATH"
+      },
+      {
+        "authority_limit": "Parse success MUST NOT imply business acceptance; domain validation remains mandatory.",
+        "classification": "NEW: proposed invariant",
+        "description": "Parse hostile or highly structured binary payloads, including adopted ticket credential envelopes, into bounded, validated, fixed-shape values.",
+        "execution_class": "Normal_or_DirtyCpu_or_ExternalWorker",
+        "id": "HOSTILE_BINARY_PARSE"
+      }
+    ],
+    "prohibited": [
+      "TENANT_AUTHORIZATION_OR_POLICY_DECISION",
+      "ORDER_FINALIZATION_OR_PAYMENT_STATE_AUTHORITY",
+      "PRICE_RULE_EVALUATION_AUTHORITY",
+      "SEAT_HOLD_OR_ALLOCATION_TRUTH",
+      "LEDGER_POSTING_OR_BALANCE_AUTHORITY",
+      "REFUND_APPROVAL_OR_PAYOUT_RELEASE_AUTHORITY",
+      "WAITING_ROOM_OR_QUEUE_POSITION_AUTHORITY",
+      "FINAL_RISK_BAN_OR_ACCOUNT_ENFORCEMENT_AUTHORITY",
+      "EDGE_PRIVATE_KEY_SIGNING",
+      "DIRECT_DATABASE_OR_PROVIDER_SIDE_EFFECT_ORCHESTRATION"
+    ],
+    "requires_separate_amendment": [
+      {
+        "classification": "NEW: proposed invariant",
+        "default_status": "forbidden_until_amended",
+        "id": "PASSWORD_KDF_OR_CRYPTO_WORKER",
+        "reason": "Authentication KDF policy is broader than the initial ticketing-native boundary and requires explicit amendment before activation."
+      },
+      {
+        "classification": "NEW: proposed invariant",
+        "default_status": "forbidden_until_amended",
+        "id": "PRIVATE_KEY_SIGNING_INSIDE_NATIVE_BOUNDARY",
+        "reason": "Any signing operation with authoritative private keys requires separate constitutional review, HSM/vault integration review, and explicit approval."
+      }
+    ]
+  },
+  "change_log": [
+    "v1.4.0 adds TKT-1 as an eligible downstream owner for ticket credential envelope parse, canonicalization, fingerprinting, and public-key verification only.",
+    "v1.4.0 adds an explicit TKT native credential boundary: native outputs are fixed-shape verification classifications and MUST NOT imply admission, payment validity, inventory validity, transfer approval, revocation authority, or issuance authority.",
+    "v1.4.0 allows Android-edge canonicalization only for adopted TKT-CRED-V1 verification paths and keeps owning contracts authoritative for acceptance.",
+    "v1.3.0 clarifies capability-authority terminology by replacing ambiguous matrix language with explicit owning-contract authority and native non-authority fields.",
+    "v1.3.0 tightens selected capability-to-tier combinations, expands JNI and Android packaging discipline, and adds release-manifest ABI governance.",
+    "v1.3.0 adds verification keyset anti-rollback, signed remote update, provenance, and emergency revocation requirements for offline trust.",
+    "v1.3.0 expands runtime activation blockers, repo-lint hooks, native error codes, loader semantics, and rollout/testing requirements so activation is blocked by missing operational proof, not just missing text.",
+    "v1.2.0 converts native capability classes from implicit approval into explicit eligibility only; downstream owner contracts MUST adopt and budget a capability before it may be enabled.",
+    "v1.2.0 adds capability adoption matrix, ERR-1 registration discipline, and downstream budget binding so Rust remains an execution boundary rather than a stealth authority transfer.",
+    "v1.2.0 adds governance-floor dependencies for LINT-0 and GOV-0 to align repo-level native-boundary lint and waiver controls with the contract.",
+    "v1.1.0 hardening pass expands native-state bans, loader/fallback semantics, Android/JNI governance, verification keyset lifecycle, native-specific error surfaces, repo lint hooks, and runtime-harness declarations.",
+    "v1.1.0 narrows initial native allowlist by moving password KDF work out of default allowed scope and into a separate-amendment track.",
+    "v1.1.0 adds bounded input/output and parser/memory rules plus fuzz/property test requirements for hostile-parser surfaces.",
+    "v1.0.0 established the initial legislative boundary for native compute, Rustler, and external native worker boundaries under CS-0@3.0.0."
+  ],
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "CS-0 defines the schema families and artifact contracts this bundle MUST satisfy."
+    },
+    {
+      "doc_id": "BP-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "BP-0 defines the canonical three-artifact bundle blueprint and gate discipline."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "requires",
+      "min_version": "1.8.1",
+      "reason": "V42-0 is the constitutional source of truth for money, inventory, order snapshot, tenancy, and observability invariants that native code MUST NOT weaken."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.12",
+      "reason": "Native acceleration MUST NOT bypass tenant isolation, org_id propagation, or transaction-local RLS discipline."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.7.0",
+      "reason": "Order finalization and immutable price-capture authority remain in core order workflows, not in native code."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.5.4",
+      "reason": "Native code MAY verify signed pricing artifacts but MUST NOT become pricing-rule or quote authority."
+    },
+    {
+      "doc_id": "SEAT-1",
+      "edge_type": "requires",
+      "min_version": "3.1.5",
+      "reason": "Seat holds, allocation truth, and first-commit-wins conflict arbitration remain authoritative in the seating contract."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "4.4.4",
+      "reason": "Ledger posting, reversals, and financial immutability remain authoritative in finance workflows, not native code."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.10",
+      "reason": "Native failures MUST map into canonical error envelopes and fail-closed semantics."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.6",
+      "reason": "Native capabilities MUST be observable with kill-switches, latency histograms, fallback metrics, and incident visibility."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.4",
+      "reason": "Native work MUST respect queue capacity and MUST NOT create unbounded backpressure inside the BEAM."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "requires",
+      "min_version": "1.7.0",
+      "reason": "Native acceleration is allowed only when benchmarked against explicit performance budgets and latency envelopes."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.1",
+      "reason": "Any native helper that participates in hash/signature preimages or contention-sensitive computation MUST preserve deterministic lock and ordering rules; it MUST NOT invent alternate arbitration."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.6",
+      "reason": "Authentication, authorization, step-up, and privileged action control remain in governed identity flows, not native code."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "RUST-1 gates MUST remain deterministic, machine-checkable where possible, and explicit about any runtime declarations."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.11",
+      "reason": "Native-boundary anti-patterns, waivers, and repo scanning discipline MUST be enforced through governed lint rules rather than convention."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.10",
+      "reason": "Native-boundary exceptions and waivers MUST remain compatible with suite governance review discipline."
+    }
+  ],
+  "doc_id": "RUST-1",
+  "economic_defense_policy": {
+    "adaptive_pow_allowed": true,
+    "adaptive_pow_authenticated_good_standing_default": false,
+    "adaptive_pow_default_mode": "off",
+    "adaptive_pow_forbidden_flows": [
+      "authenticated_good_standing_checkout",
+      "accessibility_critical_flow",
+      "operator_emergency_actions",
+      "scanner_admission_hot_path"
+    ],
+    "adaptive_pow_must_be_risk_scored": true,
+    "classification": "NEW: proposed invariant",
+    "governance_scope_note": "RUST-1 governs only the native-boundary constraints for adaptive friction; broader anti-abuse and economic-defense policy belongs in a dedicated contract.",
+    "native_pow_implementation_must_remain_subordinate_to_primary_controls": true,
+    "primary_controls_before_pow": [
+      "rate_limits",
+      "session_and_device_budgets",
+      "seat_hold_caps",
+      "queueing_and_waiting_room",
+      "override_tokens",
+      "anomaly_scoring",
+      "device_registration",
+      "idempotency"
+    ]
+  },
+  "edge_key_management": {
+    "backend_master_signing_key_location": "backend_vault_only",
+    "classification": "NEW: proposed invariant",
+    "edge_private_signing_keys_allowed": false,
+    "edge_verification_mode": "public_key_verify_only",
+    "key_compromise_response": [
+      "Revoke affected key material",
+      "Rotate verification set",
+      "Require resync before further offline trust where policy demands",
+      "Audit all impacted verification windows"
+    ],
+    "offline_verify_allowed": true,
+    "scanner_key_rotation_source": "backend_managed_distribution"
+  },
+  "err1_integration_requirements": {
+    "classification": "NEW: proposed invariant",
+    "deployment_block_if_err1_mapping_missing": true,
+    "downstream_contract_must_declare_error_mapping_before_enablement": true,
+    "local_native_code_prefix": "NATIVE_",
+    "native_code_must_not_emit_unregistered_err1_codes_in_prod": true,
+    "native_err1_subcode_registration_required_before_suite_use": true,
+    "notes": "RUST-1 may describe local native error codes, but downstream contracts MUST NOT rely on ERR-1-native subcodes until ERR-1 registry membership exists.",
+    "required_err1_mapping_fields": [
+      "safe_message",
+      "retryable",
+      "severity",
+      "correlation_id"
+    ],
+    "runtime_harness_must_cover_err1_correlation_before_enablement": true,
+    "unknown_err1_subcode_usage_allowed": false
+  },
+  "error_and_fallback_policy": {
+    "classification": "NEW: proposed invariant",
+    "fallback_must_emit_audit_when_privileged": true,
+    "fallback_must_emit_metric": true,
+    "fallback_must_preserve_security_posture": true,
+    "panic_must_emit_structured_error_and_metric": true,
+    "panic_must_map_to_explicit_error": true,
+    "panic_must_not_log_raw_input": true,
+    "performance_only_native_failure_mode": "fallback_to_core_implementation_if_defined",
+    "security_critical_native_failure_mode": "fail_closed",
+    "silent_success_on_native_failure_allowed": false
+  },
+  "execution_tiers": {
+    "dirty_cpu_nif": {
+      "allowed_only_when": [
+        "The work is CPU-bound and bounded.",
+        "Benchmark evidence proves the capability materially benefits the platform or the edge verifier.",
+        "The call remains kill-switchable and observable.",
+        "The work cannot be cleanly split into smaller scheduler-safe chunks without destroying correctness or practicality.",
+        "DirtyCpu usage is explicitly justified in benchmark evidence rather than used as a default escape hatch."
+      ],
+      "blocking_external_io_allowed": false,
+      "classification": "NEW: proposed invariant",
+      "cpu_bound_only": true,
+      "db_network_io_allowed": false,
+      "deterministic_required": true,
+      "scheduler": "DirtyCpu",
+      "side_effects_allowed": false
+    },
+    "external_worker": {
+      "classification": "NEW: proposed invariant",
+      "inside_beam": false,
+      "local_only_default": true,
+      "network_reachability_default": "forbidden_unless_explicitly_allowed_by_capability_amendment",
+      "required_when": [
+        "The work is blocking, unbounded, or operationally risky inside the VM.",
+        "The work requires network, filesystem, HSM, large memory spikes, or third-party foreign runtimes.",
+        "Scheduler-safe proof cannot be produced."
+      ],
+      "transport_requirements": [
+        "Explicit request and response schema",
+        "Timeout budget",
+        "Authenticated local IPC or controlled network boundary",
+        "Versioned protocol",
+        "Kill switch and circuit breaker"
+      ]
+    },
+    "normal_nif": {
+      "allowed_only_when": [
+        "The function is demonstrably scheduler-safe under hot-path load.",
+        "The work is small enough that NIF overhead does not dominate.",
+        "A pure Elixir or existing OTP primitive is not already sufficient."
+      ],
+      "blocking_external_io_allowed": false,
+      "classification": "NEW: proposed invariant",
+      "db_network_io_allowed": false,
+      "deterministic_required": true,
+      "maximum_hot_path_p99_ms": 1,
+      "must_split_or_leave_beam_if_unbounded": true,
+      "scheduler": "Normal",
+      "side_effects_allowed": false,
+      "yielding_or_chunking_preferred_over_dirty": true
+    }
+  },
+  "fallback_and_loader_rules": {
+    "boot_may_continue_when_native_missing_only_if": [
+      "The capability is feature-flagged off or optional.",
+      "A governed fallback path exists and is selected.",
+      "The missing native binary does not weaken a security-critical control."
+    ],
+    "boot_must_fail_when": [
+      "A configured security-critical native capability has no governed fallback.",
+      "Required verification behavior would be silently bypassed.",
+      "ABI mismatch or native load failure would leave the platform in an ambiguous mixed-authority state."
+    ],
+    "classification": "NEW: proposed invariant",
+    "every_exported_native_entrypoint_must_have_loader_stub": true,
+    "every_security_critical_native_entrypoint_must_have_explicit_failure_contract": true,
+    "fallback_path_must_emit_metric": true,
+    "fallback_path_must_emit_structured_error_or_notice": true,
+    "fallback_path_must_not_change_business_authority": true,
+    "fallback_selection_must_be_deterministic": true,
+    "loader_failure_must_emit_metric_and_alert_when_security_critical": true,
+    "loader_failure_must_not_silently_select_insecure_fallback": true,
+    "pure_elixir_fallback_required_for_performance_only_capabilities": true,
+    "release_notes_required_when_supported_abi_set_changes": true,
+    "security_critical_native_capabilities_must_declare_boot_classification": true
+  },
+  "ffi_surface_rules": {
+    "ash_policy_bypass_allowed": false,
+    "classification": "NEW: proposed invariant",
+    "cross_boundary_call_style": "coarse_grained_request_response_only",
+    "db_network_io_inside_nif_allowed": false,
+    "fallback_bypass_allowed": false,
+    "input_output_forms_allowed": [
+      "binary",
+      "integer",
+      "boolean",
+      "fixed_shape_map",
+      "fixed_shape_tuple",
+      "explicit_list_with_bound"
+    ],
+    "opaque_business_structs_cross_boundary_allowed": false,
+    "opaque_error_blob_allowed": false,
+    "panic_as_business_control_flow_allowed": false,
+    "repo_calls_from_native_allowed": false,
+    "rust_to_host_callbacks_default": "forbidden",
+    "secret_material_logging_allowed": false,
+    "thread_attachment_rules_must_be_explicit_when_jni_used": true
+  },
+  "generated_at_utc": "2026-04-24T06:00:14Z",
+  "id_surface_and_uuid_rules": {
+    "classification": "NEW: proposed invariant",
+    "db_primary_key_rule": "UUIDv7 stored as Postgres uuid.",
+    "native_id_generation_allowed": false,
+    "polyglot_id_surfaces": {
+      "customer_reference": "short_ref_from_core_domain_only",
+      "external_api_and_logs": "prefixed_ids_from_core_domain_only",
+      "internal": "UUIDv7"
+    },
+    "uuid_preimage_sort": {
+      "applies_to": [
+        "hash_preimages",
+        "signature_preimages",
+        "tie_break_selection",
+        "apportionment_lists"
+      ],
+      "normalization": "raw_16_byte",
+      "sort_order": "unsigned_lexicographic_raw_16_byte_ascending",
+      "string_sort_allowed": false
+    }
+  },
+  "invariants": {
+    "RUST-1-INV-BOUNDARY-001": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P0",
+      "text": "Native code MUST NOT become the authoritative source of truth for tenant authorization, inventory truth, pricing authority, order finalization, refund approval, payout eligibility, ledger posting, or admission truth.",
+      "why": "These capabilities are constitutional invariants owned by governed core contracts."
+    },
+    "RUST-1-INV-BOUNDARY-002": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P0",
+      "text": "Any Rustler NIF that cannot prove scheduler-safe bounded execution on the selected tier MUST be moved to an external worker boundary.",
+      "why": "The BEAM must remain responsive under attack and under load."
+    },
+    "RUST-1-INV-BOUNDARY-003": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P0",
+      "text": "Native code MUST NOT perform direct Repo access, Ash action invocation, or provider-side orchestration.",
+      "why": "Bypassing governed Elixir boundaries would destroy auditability and policy guarantees."
+    },
+    "RUST-1-INV-BOUNDARY-004": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P0",
+      "text": "Edge and scanner native code MAY verify only with public keys; private signing keys and master signing keys MUST remain backend-vault-only.",
+      "why": "Occasionally connected devices must verify, not sign."
+    },
+    "RUST-1-INV-BOUNDARY-005": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P0",
+      "text": "Whenever UUID lists participate in native hashing, signing, or apportionment tie-break logic, the implementation MUST normalize to raw 16-byte form and sort by unsigned lexicographic byte order ascending; string sorting is forbidden.",
+      "why": "Crypto and tie-break determinism must match the platform constitution exactly."
+    },
+    "RUST-1-INV-BOUNDARY-006": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P1",
+      "text": "Proof-of-work MAY be used only as adaptive friction after primary controls are in place and risk scoring has escalated; it MUST NOT become the default for good-standing authenticated user flows.",
+      "why": "Security cost-shifting must not become self-inflicted UX damage."
+    },
+    "RUST-1-INV-BOUNDARY-007": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P1",
+      "text": "Native capability changes MUST ship with benchmark evidence, threat model, owner assignment, feature flag, and kill switch.",
+      "why": "Native acceleration without rollback and evidence is uncontrolled blast radius."
+    },
+    "RUST-1-INV-BOUNDARY-008": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P0",
+      "text": "Mutable global native state, request-derived runtime caches, shared verifier pools, and static mut patterns are forbidden in v1 native boundaries.",
+      "why": "Native acceleration must remain stateless and must not create cross-request or cross-tenant ambiguity."
+    },
+    "RUST-1-INV-BOUNDARY-009": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P0",
+      "text": "Security-critical native capability load failure MUST fail closed or fail boot; it MUST NOT silently degrade into bypassed verification.",
+      "why": "Missing native binaries cannot be allowed to erase security controls through accidental fallback."
+    },
+    "RUST-1-INV-BOUNDARY-010": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P0",
+      "text": "Android and scanner-native integrations MUST use a minimal governed JNI bridge and MUST NOT embed business workflow logic, network orchestration, or master signing authority.",
+      "why": "Edge-native code is for bounded verification and parsing, not for growing a second application core."
+    },
+    "RUST-1-INV-BOUNDARY-011": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P1",
+      "text": "Verification keysets used by the edge MUST be versioned, kid-addressable, time-bounded, and revocation-aware; stale keysets MUST warn and then fail closed on the configured schedule.",
+      "why": "Offline verification only remains defensible when key lifecycle is explicit and governed."
+    },
+    "RUST-1-INV-BOUNDARY-012": {
+      "classification": "NEW: proposed invariant",
+      "severity": "P1",
+      "text": "Hostile parser, canonicalization, and verification surfaces MUST ship with fuzzing, property tests, golden vectors, and runtime telemetry assertions before enablement.",
+      "why": "Static document freezes alone do not prove native behavior under hostile input or degraded rollout."
+    }
+  },
+  "last_updated_utc": "2026-04-24T06:00:14Z",
+  "lineage": {
+    "foundation_refs": [
+      {
+        "doc_id": "V42-0",
+        "min_version": "1.8.1",
+        "reason": "RUST-1 exists to preserve V42 constitutional invariants while allowing bounded native acceleration."
+      }
+    ],
+    "supersedes": [
+      {
+        "doc_id": "RUST-1",
+        "reason": "Adds TKT-1 ticket credential envelope eligibility while preserving native non-authority rules.",
+        "version": "1.3.0"
+      },
+      {
+        "doc_id": "RUST-1",
+        "reason": "Hardens the native boundary by requiring explicit downstream adoption, ERR-1 registration discipline, and downstream budget binding before enablement.",
+        "version": "1.1.0"
+      },
+      {
+        "doc_id": "RUST-1",
+        "reason": "Supersedes the initial legislative boundary with tighter downstream adoption and governance controls.",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "native_error_surface": {
+    "classification": "NEW: proposed invariant",
+    "error_prefix": "NATIVE_",
+    "panic_log_shape_required_fields": [
+      "correlation_id",
+      "capability_id",
+      "function_name",
+      "execution_tier",
+      "input_hash",
+      "input_class",
+      "payload_size_bytes",
+      "owner_contract_doc_id",
+      "feature_flag_state"
+    ],
+    "raw_payload_logging_allowed_on_panic": false,
+    "registered_in_err1_before_production_use_required": true,
+    "required_codes": [
+      {
+        "code": "NATIVE_UNAVAILABLE",
+        "retryable": false,
+        "safe_message": "Native capability unavailable.",
+        "severity": "P1"
+      },
+      {
+        "code": "NATIVE_TIMEOUT",
+        "retryable": true,
+        "safe_message": "Native operation timed out.",
+        "severity": "P1"
+      },
+      {
+        "code": "NATIVE_PANIC",
+        "retryable": false,
+        "safe_message": "Native operation failed unexpectedly.",
+        "severity": "P0"
+      },
+      {
+        "code": "NATIVE_INPUT_TOO_LARGE",
+        "retryable": false,
+        "safe_message": "Input exceeds native boundary limits.",
+        "severity": "P1"
+      },
+      {
+        "code": "NATIVE_VERIFY_FAILED",
+        "retryable": false,
+        "safe_message": "Verification failed.",
+        "severity": "P1"
+      },
+      {
+        "code": "NATIVE_KEYSET_STALE",
+        "retryable": false,
+        "safe_message": "Verification keyset is stale.",
+        "severity": "P1"
+      },
+      {
+        "code": "NATIVE_FALLBACK_ACTIVE",
+        "retryable": false,
+        "safe_message": "Fallback path active.",
+        "severity": "P2"
+      },
+      {
+        "code": "NATIVE_LOADER_FAILED",
+        "retryable": false,
+        "safe_message": "Native library failed to load.",
+        "severity": "P0"
+      },
+      {
+        "code": "NATIVE_BUDGET_EXCEEDED",
+        "retryable": false,
+        "safe_message": "Native boundary budget exceeded.",
+        "severity": "P1"
+      },
+      {
+        "code": "NATIVE_KEYSET_ROLLBACK_BLOCKED",
+        "retryable": false,
+        "safe_message": "Verification keyset rollback blocked.",
+        "severity": "P1"
+      },
+      {
+        "code": "NATIVE_JNI_BRIDGE_VIOLATION",
+        "retryable": false,
+        "safe_message": "JNI boundary violation detected.",
+        "severity": "P0"
+      }
+    ],
+    "secret_material_logging_allowed_on_panic": false
+  },
+  "native_state_rules": {
+    "allowed_immutable_state_examples": [
+      "compile_time_constants",
+      "embedded_immutable_lookup_tables",
+      "versioned_public_key_material_loaded_as_immutable_data"
+    ],
+    "classification": "NEW: proposed invariant",
+    "exception_rule": "Any mutable native state requires explicit contract amendment, threat model update, and new gates; v1 forbids it.",
+    "mutable_global_native_state_allowed": false,
+    "once_cell_or_lazy_runtime_cache_allowed_in_v1": false,
+    "request_or_tenant_derived_cache_allowed_in_v1": false,
+    "shared_verifier_pool_allowed_in_v1": false,
+    "static_mut_allowed": false
+  },
+  "observability_requirements": {
+    "classification": "NEW: proposed invariant",
+    "incident_rule": "Any native path that materially affects security verification and begins failing MUST enter visible incident handling; it MUST NOT auto-bypass verification.",
+    "required_controls": [
+      "feature_flag",
+      "kill_switch",
+      "canary_rollout",
+      "benchmark_artifact_link",
+      "owner_assignment",
+      "runtime_harness",
+      "supported_abi_manifest_ref"
+    ],
+    "required_dimensions": [
+      "capability_id",
+      "execution_tier",
+      "result",
+      "feature_flag_state",
+      "org_risk_profile_when_applicable",
+      "fallback_selected",
+      "owner_contract_doc_id"
+    ],
+    "required_metrics": [
+      "native_calls_total",
+      "native_failures_total",
+      "native_panics_total",
+      "native_latency_ms_histogram",
+      "native_fallback_total",
+      "native_input_bytes_histogram",
+      "native_output_bytes_histogram",
+      "native_kill_switch_activations_total",
+      "native_loader_failures_total",
+      "native_keyset_stale_total",
+      "native_budget_rejections_total",
+      "native_keyset_rollback_blocked_total",
+      "native_jni_bridge_violations_total"
+    ]
+  },
+  "purpose_and_boundaries": {
+    "contract_role": "Law for native compute boundaries, Rustler usage, and external native worker isolation inside Ticketing.",
+    "explicit_non_goals": [
+      "Feature UI design",
+      "Replacing Ash policies with native code",
+      "Moving core order, seating, finance, or tenancy orchestration into Rust",
+      "Inventing custom cryptographic algorithms",
+      "Using obscurity alone as a security control"
+    ],
+    "governed_surfaces": [
+      "Rustler NIF entrypoints called from Ticketing Elixir code",
+      "External native workers or Ports used for isolated long-running compute",
+      "Offline scanner public-key verification helpers",
+      "Deterministic cryptographic verification and constant-time comparison helpers",
+      "Deterministic canonicalization, hashing, and bounded math helpers",
+      "Hostile binary parsing and normalization helpers",
+      "Android JNI bridge layer and scanner-native packaging boundary"
+    ],
+    "native_truth_rule": "Native code MAY accelerate and verify; it MUST NOT become authoritative for tenant authorization, policy evaluation, inventory truth, price authority, order finalization, ledger posting, refund approval, payout eligibility, or admission truth."
+  },
+  "references": {
+    "blueprint_refs": [
+      {
+        "doc_id": "BP-0",
+        "min_version": "3.0.0",
+        "reason": "RUST-1 bundle structure, naming, and gate discipline derive from BP-0."
+      }
+    ],
+    "constitutional_refs": [
+      "V42-0",
+      "TEN-1",
+      "ORD-1",
+      "PRICE-1",
+      "SEAT-1",
+      "LED-1",
+      "ERR-1",
+      "OBS-1",
+      "OBQC-1",
+      "PSC-1"
+    ],
+    "external_normative_refs": [
+      "Erlang/OTP erl_nif guidance for scheduler-safe execution, splitting, dirty NIF discipline, and fallback stubs",
+      "Rustler scheduler flags and panic-handling guidance",
+      "Android JNI guidance for minimal, non-chatty cross-language interfaces",
+      "Android Keystore guidance for non-exportable device key material and scoped device trust",
+      "Android application binary interface guidance for explicit supported-ABI declaration and controlled legacy compatibility decisions"
+    ],
+    "governance_refs": [
+      "TG-0",
+      "LINT-0",
+      "GOV-0"
+    ]
+  },
+  "repo_lint_enforcement": {
+    "classification": "NEW: proposed invariant",
+    "governance_lint_required": true,
+    "required_rule_ids": [
+      "RUST_NO_REPO_CALLS_IN_NATIVE",
+      "RUST_NO_NETWORK_CLIENTS_IN_NIF_CRATE",
+      "RUST_NO_MUTABLE_GLOBAL_NATIVE_STATE",
+      "RUST_NO_RAW_SECRET_LOGGING",
+      "RUST_NO_UNAPPROVED_UNSAFE",
+      "RUST_NO_JNI_SPRAWL_OUTSIDE_BRIDGE",
+      "RUST_NO_FALLBACK_BYPASS",
+      "RUST_NO_ERR1_BYPASS",
+      "RUST_NO_NATIVE_AUTHORITY_TRANSFER",
+      "RUST_NO_KEYSET_ROLLBACK_BYPASS"
+    ],
+    "waiver_default": "forbidden_except_explicit_security_reviewed_exception"
+  },
+  "resource_budget_and_parser_rules": {
+    "budget_exceeded_must_fail_closed_for_security_critical": true,
+    "classification": "NEW: proposed invariant",
+    "dirty_cpu_nif_max_input_bytes": 4194304,
+    "dirty_cpu_nif_max_output_bytes": 4194304,
+    "edge_verifier_max_payload_bytes_must_be_declared_per_adoption": true,
+    "external_worker_default_max_request_bytes": 16777216,
+    "external_worker_max_output_bytes": 16777216,
+    "max_parser_nesting_depth": 64,
+    "normal_nif_max_input_bytes": 65536,
+    "normal_nif_max_output_bytes": 65536,
+    "panic_or_oom_must_not_emit_raw_input": true,
+    "parser_recursion_allowed_by_default": false,
+    "runtime_budget_rejection_required": true,
+    "secret_zeroization_required_when_secret_material_present": true,
+    "streaming_or_chunking_required_above_normal_nif_max_input_bytes": true,
+    "unbounded_allocation_allowed": false
+  },
+  "review_and_rollout_requirements": {
+    "benchmark_evidence_required": true,
+    "canary_first_required": true,
+    "classification": "NEW: proposed invariant",
+    "fallback_plan_required": true,
+    "jni_review_required_when_android_edge_used": true,
+    "key_rotation_plan_required_when_edge_verification_used": true,
+    "keyset_rollback_drill_required_when_edge_verification_used": true,
+    "kill_switch_required": true,
+    "owner_assignment_required": true,
+    "runtime_harness_required": true,
+    "security_review_required": true,
+    "signed_keyset_distribution_review_required_when_remote_updates_used": true,
+    "supported_abi_change_review_required": true,
+    "threat_model_required": true,
+    "two_person_review_required": true
+  },
+  "runtime_harness_requirements": {
+    "activation_blockers": [
+      "native_loader_failed_without_governed_outcome",
+      "missing_err1_mapping",
+      "missing_downstream_budget",
+      "missing_benchmark_artifact",
+      "missing_runtime_harness_ref"
+    ],
+    "benchmark_artifact_required_before_enablement": true,
+    "classification": "NEW: proposed invariant",
+    "must_cover_events": [
+      "native_call_started",
+      "native_call_completed",
+      "native_call_failed",
+      "native_fallback_selected",
+      "native_kill_switch_activated",
+      "native_loader_failed",
+      "native_budget_rejected",
+      "native_keyset_rollback_blocked"
+    ],
+    "required_dynamic_assertions": [
+      "telemetry_signal_emitted",
+      "trace_span_relationship",
+      "attribute_presence_assert",
+      "error_envelope_correlation",
+      "sampling_decision"
+    ],
+    "runtime_activation_without_declared_harness_allowed": false,
+    "runtime_harness_required": true
+  },
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "Governs bounded Rust/Rustler/JNI native execution for Ticketing, including explicit TKT-1 credential-envelope eligibility, while preserving V42 authority in owning contracts. Native code MAY parse, canonicalize, and verify credential artifacts only after downstream adoption; it MUST NOT own business authority.",
+  "supply_chain_policy": {
+    "build_network_access_allowed": false,
+    "cargo_deny_or_equivalent_required": true,
+    "cargo_lock_committed_required": true,
+    "cargo_lock_required": true,
+    "classification": "NEW: proposed invariant",
+    "dependency_review_required": true,
+    "git_dependencies_in_production_allowed": false,
+    "license_allowlist_required": true,
+    "native_artifact_checksum_verification_required": true,
+    "precompiled_artifact_provenance_required": true,
+    "reproducible_build_target_required": true,
+    "sbom_required": true,
+    "supported_target_allowlist_required": true,
+    "toolchain_pin_required": true,
+    "unsafe_rust_default": "forbidden",
+    "unsafe_rust_exception_rule": "Two-person review, explicit justification, bounded scope, and security sign-off required."
+  },
+  "testing_requirements": {
+    "abi_matrix_test_required": true,
+    "abi_smoke_tests_required": true,
+    "anti_rollback_tests_required": true,
+    "classification": "NEW: proposed invariant",
+    "cross_runtime_compatibility_tests_required": true,
+    "fuzzing_required_for_hostile_parser_surfaces": true,
+    "golden_vectors_required_for_signature_and_envelope_verification": true,
+    "jni_bridge_contract_tests_required": true,
+    "loader_failure_mode_tests_required": true,
+    "minimum_test_matrix": [
+      "elixir_fallback_vs_native_equivalence",
+      "android_edge_vs_backend_verification_equivalence",
+      "panic_mapping_to_canonical_error",
+      "fallback_activation_observable",
+      "input_ceiling_enforced",
+      "keyset_rollback_blocked",
+      "jni_bridge_contract_enforced",
+      "loader_failure_fails_closed_or_fails_boot"
+    ],
+    "property_tests_required_for_canonicalization_and_uuid_ordering": true
+  },
+  "title": "RUST-1 Native Compute, Rustler, JNI, and Ticket Credential Boundary Contract (Ticketing / Ash 3.x)",
+  "tkt_native_credential_boundary": {
+    "activation_preconditions": [
+      "TKT-1 MUST explicitly adopt the exact capability IDs.",
+      "ERR-1 MUST register the mapped TKT_NATIVE/TKT_CREDENTIAL subcodes before suite lock.",
+      "OBS-1 MUST declare native TKT verification metrics and alerting.",
+      "PSC-1 MUST declare capability-specific latency and payload budgets.",
+      "Runtime harness MUST exercise success, malformed, invalid signature, unsupported kid, stale keyset, and budget-exceeded paths.",
+      "Feature flag and kill-switch MUST fail closed for security-critical edge verification."
+    ],
+    "allowed_capability_ids": [
+      "EDGE_PUBLIC_KEY_VERIFY",
+      "CONSTANT_TIME_COMPARE_AND_SIGNATURE_VERIFY",
+      "CANONICAL_PREIMAGE_AND_HASH",
+      "HOSTILE_BINARY_PARSE"
+    ],
+    "allowed_native_result_codes": [
+      "valid_signature",
+      "invalid_signature",
+      "malformed_envelope",
+      "unsupported_kid",
+      "expired_claims",
+      "not_yet_valid",
+      "unsupported_format",
+      "native_unavailable",
+      "budget_exceeded"
+    ],
+    "classification": "NEW: proposed invariant",
+    "owner_authority_rules": {
+      "ORD-1": "Order finalization and paid issuance trigger remains authoritative.",
+      "PRICE-1": "Price snapshot and price-line authority remains authoritative.",
+      "SCAN-1": "Admission/redemption acceptance remains authoritative.",
+      "SEAT-1": "Inventory and seat allocation truth remains authoritative.",
+      "TKT-1": "Credential lifecycle and envelope law remains authoritative."
+    },
+    "private_key_signing_inside_native_boundary": "forbidden_until_separate_amendment",
+    "rust_must_not_own": [
+      "ticket_issuance_authority",
+      "payment_validity_or_order_finalization",
+      "inventory_or_seat_truth",
+      "admission_or_redemption_acceptance",
+      "revocation_or_supersession_business_decision",
+      "transfer_approval",
+      "refund_or_chargeback_outcome"
+    ],
+    "scope": "TKT-1 MAY adopt eligible native capabilities only for TKT-CRED-V1 QR/wallet credential envelope parsing, canonical preimage/fingerprint generation, constant-time comparison, and public-key verification."
+  },
+  "updated_at": "2026-04-24T06:00:14Z",
+  "verification_keyset_lifecycle": {
+    "anti_rollback_required": true,
+    "audit_required_for_keyset_activation": true,
+    "classification": "NEW: proposed invariant",
+    "compromise_or_revocation_requires_resync": true,
+    "emergency_revocation_mode_required": true,
+    "keyset_provenance_hash_required": true,
+    "keyset_version_required": true,
+    "kid_required": true,
+    "monotonic_version_required": true,
+    "offline_verification_after_hard_fail_allowed": false,
+    "post_compromise_resync_required_before_offline_trust": true,
+    "required_key_fields": [
+      "kid",
+      "algorithm",
+      "public_key",
+      "valid_from",
+      "valid_until",
+      "revoked",
+      "keyset_version",
+      "provenance_hash"
+    ],
+    "revoked_key_hard_fail_required": true,
+    "rollback_to_older_trusted_keyset_allowed_without_exception": false,
+    "rotation_overlap_minimum_hours": 24,
+    "rotation_overlap_required": true,
+    "signed_keyset_bundle_required_for_remote_update": true,
+    "stale_keyset_hard_fail_after_hours": 168,
+    "stale_keyset_warning_after_hours": 24
+  },
+  "version": "1.4.0"
+}

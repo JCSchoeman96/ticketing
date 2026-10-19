@@ -1,0 +1,730 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "DATA-1-GATE_TestGates_v2.0.3.json",
+  "contract_ref": {
+    "doc_id": "DATA-1",
+    "version": "2.0.3"
+  },
+  "doc_id": "DATA-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "bundle_manifest",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@2.2.0 across contract, test_gates, and bundle_manifest. Set suite_schema to CS-0@2.2.0 in all artifacts.",
+      "id": "DATA-1-GATE-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {
+            "exclude": [
+              "bundle.manifest.json"
+            ]
+          },
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle MUST include required files and exact bundle.manifest.json filename. Ensure the zip contains exactly the 3 JSON artifacts.",
+      "id": "DATA-1-GATE-002",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "DATA-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "DATA-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "2.0.3",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "DATA-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.0.3",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract/Test Gates linkage MUST be exact (doc_id/version parity). Ensure contract_ref matches contract doc_id and version.",
+      "id": "DATA-1-GATE-003",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)\\bTODO\\b",
+              "(?i)\\bTBD\\b",
+              "(?i)\\bFIXME\\b",
+              "(?i)\\bREPLACE_ME\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "(?i)\\bTODO\\b",
+              "(?i)\\bTBD\\b",
+              "(?i)\\bFIXME\\b",
+              "(?i)\\bREPLACE_ME\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders (placeholder markers (to-do/to-be-decided/fix-me/replace-me)) allowed in active/locked artifacts. Remove all placeholder tokens.",
+      "id": "DATA-1-GATE-004",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(\\^|~|>=|<=|>|<|=)"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Dependency pin hygiene: min_version MUST be exact semver (no ranges like ^, ~, >=, <=).",
+      "id": "DATA-1-GATE-005",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/tenancy/tenant_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenant key MUST be org_id (not tenant_id or organization_id). Set /tenancy/tenant_key to org_id.",
+      "id": "DATA-1-GATE-006",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c0",
+            "json_pointer": "/classification/classes/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c1",
+            "json_pointer": "/classification/classes/1/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c2",
+            "json_pointer": "/classification/classes/2/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c3",
+            "json_pointer": "/classification/classes/3/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c4",
+            "json_pointer": "/classification/classes/4/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Classification classes MUST be exactly c0,c1,c2,c3,c4 in stable order.",
+      "id": "DATA-1-GATE-007",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "p0_public",
+            "json_pointer": "/retention/profiles/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "p1_operational",
+            "json_pointer": "/retention/profiles/1/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "p2_audit_evidence",
+            "json_pointer": "/retention/profiles/2/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "p3_attendee_pii",
+            "json_pointer": "/retention/profiles/3/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "p4_finance_records",
+            "json_pointer": "/retention/profiles/4/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Retention profile ids MUST be stable and exactly: p0_public,p1_operational,p2_audit_evidence,p3_attendee_pii,p4_finance_records.",
+      "id": "DATA-1-GATE-008",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "metadata",
+            "json_pointer": "/classification/labeling/mechanism/ash_attribute_metadata/namespace"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ci_ash_governance_lint_v1.2.0",
+            "json_pointer": "/classification/labeling/mechanism/ash_attribute_metadata/enforced_by"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Labeling mechanism MUST be deterministic: metadata.data_class + metadata.retention_profile enforced by ci_ash_governance_lint.",
+      "id": "DATA-1-GATE-009",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/retention/canonical_fields/expires_at_utc/type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "boolean",
+            "json_pointer": "/retention/canonical_fields/legal_hold/type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/retention/canonical_fields/legal_hold_set_at_utc/type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Retention canonical fields MUST be defined (expires_at_utc + legal_hold fields).",
+      "id": "DATA-1-GATE-010",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/access_control/export_controls/async_auth_recheck/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/access_control/export_controls/async_auth_recheck/must_abort_if_revoked"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/access_control/export_controls/async_auth_recheck/must_destroy_partial_artifacts_on_abort"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "job_perform_start",
+              "download_link_issue"
+            ],
+            "json_pointer": "/access_control/export_controls/async_auth_recheck/checkpoints"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.data.export.aborted_revoked",
+            "json_pointer": "/access_control/export_controls/async_auth_recheck/audit_event_on_abort"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.data.export.aborted_revoked",
+            "json_pointer": "/access_control/export_controls/audit_events/aborted_revoked/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "data.export",
+            "json_pointer": "/access_control/export_controls/capability_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "data.export",
+            "json_pointer": "/access_control/export_controls/capabilities/export_c2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "data.export.c3",
+            "json_pointer": "/access_control/export_controls/capabilities/export_c3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "data.export.c4",
+            "json_pointer": "/access_control/export_controls/capabilities/export_c4"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "pii.export",
+            "json_pointer": "/access_control/export_controls/capabilities/export_break_glass"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Async exports MUST re-check authorization at execution + download time, abort if revoked, destroy partial artifacts, and align export capabilities to IAM-1 tiered model (c2/c3/c4 + break-glass).",
+      "id": "DATA-1-GATE-900",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/access_control/export_controls/job_args_policy/args_must_be_ids_only"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/access_control/export_controls/job_args_policy/prohibit_embedding_actor_pii"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/access_control/export_controls/job_args_policy/prohibit_embedding_authz_snapshot"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Export job arguments MUST be IDs-only and MUST prohibit embedding PII/authz snapshots.",
+      "id": "DATA-1-GATE-910",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\b(ticketing\\.capability\\.export\\.c3_c4)\\b"
+            ],
+            "json_pointers": [
+              "/access_control/export_controls/capability_required",
+              "/access_control/export_controls/capabilities"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Contract MUST NOT contain deprecated export capability strings (ticketing.capability.export.c3_c4). Canonical is data.export, data.export.c3, data.export.c4, pii.export.",
+      "id": "DATA-1-GATE-920",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c2_standard",
+            "json_pointer": "/access_control/export_controls/default_export_profile_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c2_standard",
+            "json_pointer": "/access_control/export_controls/export_profiles/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c2",
+            "json_pointer": "/access_control/export_controls/export_profiles/0/max_data_class"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "data.export",
+            "json_pointer": "/access_control/export_controls/export_profiles/0/capability"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c3_attendee_pii",
+            "json_pointer": "/access_control/export_controls/export_profiles/1/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c3",
+            "json_pointer": "/access_control/export_controls/export_profiles/1/max_data_class"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "data.export.c3",
+            "json_pointer": "/access_control/export_controls/export_profiles/1/capability"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c4_regulated",
+            "json_pointer": "/access_control/export_controls/export_profiles/2/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "c4",
+            "json_pointer": "/access_control/export_controls/export_profiles/2/max_data_class"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "data.export.c4",
+            "json_pointer": "/access_control/export_controls/export_profiles/2/capability"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "break_glass_pii",
+            "json_pointer": "/access_control/export_controls/export_profiles/3/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "pii.export",
+            "json_pointer": "/access_control/export_controls/export_profiles/3/capability"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "DATA-1 MUST define export_profiles that enforce a hard separation between non-PII exports (<=c2) and PII/regulated exports (c3/c4), including a default profile.",
+      "id": "DATA-1-GATE-930",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Prevent CI theatre: this contract MUST remain a non-producer (no outbox events).",
+      "failure_message": "Fail build: non-producer contract gained an outbox surface.",
+      "id": "DATA-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "Non-producer contract invariants"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "dependency_floors.EVT-1 MUST equal pinned registry head 2.16.4.",
+      "id": "DATA-1-GATE-EVT-1-FLOOR-PIN",
+      "level": "P1",
+      "must": false,
+      "title": "EVT-1 registry floor pin"
+    },
+    {
+      "id": "DATA-1-P0-OPERATIONAL-RETENTION-MAX-90D",
+      "level": "P0",
+      "must": true,
+      "description": "The p1_operational retention profile caps raw operational data retention at 90 days, subject to legal hold.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "json_pointer": "/retention/profiles/1/max_retention_days",
+            "equals": 90
+          }
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-01-29T16:29:38Z",
+  "last_updated_utc": "2026-01-29T16:29:38Z",
+  "normative_source": "json",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "DATA-1 Test Gates",
+  "updated_at": "2026-01-28T11:00:14Z",
+  "version": "2.0.3"
+}

@@ -1,0 +1,174 @@
+{
+  "allowed_factor_types": [
+    "totp",
+    "webauthn"
+  ],
+  "artifact_kind": "contract",
+  "artifact_name": "IAM-3_Contract_v1.1.2.json",
+  "assurance_epoch": {
+    "binding": {
+      "epoch_mismatch_behavior": "invalidate_grant_and_force_reauth",
+      "epoch_mismatch_error_code": "IAM_ASSURANCE_EPOCH_MISMATCH",
+      "session_must_include_epoch": true,
+      "step_up_grant_must_include_epoch": true
+    },
+    "enabled": true,
+    "field_name": "actor_assurance_epoch",
+    "increment_triggers": [
+      "mfa_factor_revoked",
+      "mfa_factor_reset",
+      "recovery_code_used",
+      "critical_role_change"
+    ],
+    "initial_value": 0,
+    "type": "integer"
+  },
+  "assurance_semantics": {
+    "notes": "IAM-3 issues strong step-up evidence only. Consumer proofs (SMS/Email OTP, device passkeys) are IAM-2 and MUST NOT satisfy strong assurance checks.",
+    "strong_assurance_level_issued": "aal2_strong"
+  },
+  "banned_factor_types": [
+    "sms_otp",
+    "email_otp"
+  ],
+  "constitutional_invariants": [
+    "no_plaintext_secrets",
+    "verify_before_activation",
+    "session_bound_step_up",
+    "rate_limit_verification",
+    "hide_factor_existence",
+    "strong_factors_only",
+    "IAM-3-INV-AAL2-STRONG-ONLY: All IAM-3 step-up grants MUST map to strong assurance only (aal2_strong or aal3). IAM-3 MUST NOT mint consumer proof grants.",
+    "IAM-3-INV-ADMIN-SCOPE-ONLY: Step-up grants (strong assurance) MAY ONLY be issued for privileged actors (org-scoped or platform-scoped actor_kinds). Consumer-only actors MUST NOT be able to obtain IAM-3 grants.",
+    "IAM-3-INV-PASSKEY-NOT-STRONG-BY-DEFAULT: WebAuthn 'passkeys' enrolled via consumer flows (IAM-2) MUST NOT be treated as IAM-3 factors. Only explicitly enrolled admin-grade WebAuthn hardware keys (IAM-3) may mint strong grants.",
+    "IAM-3-INV-REVOCATION-EPOCH: An actor_assurance_epoch integer MUST be incremented on MFA factor revoke/reset, recovery-code use, and critical role changes. Sessions and step-up grants MUST carry the epoch at issuance; epoch mismatch MUST immediately invalidate grants and downgrade assurance.",
+    "IAM-3-INV-DELEGATED-RESET-TIMELOCK: Admin MFA resets MUST use a time-locked reset request (default 1 hour) with approval by another privileged actor at aal2_strong, preventing instant takeover during recovery."
+  ],
+  "dependencies": [
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "requires",
+      "min_version": "2.16.4",
+      "reason": "Phase-5 registry floor parity (no split-brain)."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.0",
+      "reason": "Schema-ref token authority parity (normalized schema_ref literal uses EVT-2 token)."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.1",
+      "reason": "IAM-1 is the session lifecycle producer IAM-3 semantics bind to."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0",
+    "IAM-1": "3.4.1"
+  },
+  "doc_id": "IAM-3",
+  "emits_events": false,
+  "factor_state_machine": {
+    "activation_requires_verification": true,
+    "states": [
+      "pending",
+      "active",
+      "revoked"
+    ]
+  },
+  "generated_at_utc": "2026-02-06T18:31:21Z",
+  "mfa_reset_request": {
+    "audit": {
+      "event_name": "ticketing.iam.mfa.reset_requested",
+      "immutable_log_required": true,
+      "must_emit_security_audit_event": true
+    },
+    "default_timelock_seconds": 3600,
+    "purpose": "Time-locked delegated reset workflow for org/platform admins who lost a factor.",
+    "requirements": {
+      "approver_min_assurance": "aal2_strong",
+      "approver_must_be_privileged_actor": true,
+      "no_grace_login_without_mfa": true,
+      "requester_must_be_privileged_actor": true
+    },
+    "status_state_machine": {
+      "states": [
+        "pending",
+        "approved",
+        "executable",
+        "executed",
+        "cancelled",
+        "expired"
+      ],
+      "transitions": [
+        {
+          "from": "pending",
+          "to": "approved"
+        },
+        {
+          "from": "approved",
+          "to": "executable"
+        },
+        {
+          "from": "executable",
+          "to": "executed"
+        },
+        {
+          "from": "pending",
+          "to": "cancelled"
+        },
+        {
+          "from": "approved",
+          "to": "cancelled"
+        },
+        {
+          "from": "pending",
+          "to": "expired"
+        },
+        {
+          "from": "approved",
+          "to": "expired"
+        }
+      ]
+    }
+  },
+  "outbox_events": [],
+  "schema_version": "contract-suite/1.0",
+  "scope": {
+    "does_not_own": [
+      "consumer_login",
+      "magic_links",
+      "sms_otp",
+      "email_otp",
+      "password_reset"
+    ],
+    "owns": [
+      "strong_mfa_factors",
+      "step_up_grants",
+      "admin_assurance_verification"
+    ]
+  },
+  "security_posture": {
+    "lockout_duration_seconds": 300,
+    "max_verification_attempts": 5,
+    "recovery_codes_hashed": true,
+    "totp_seed_encrypted": true
+  },
+  "status": "active",
+  "step_up_grant": {
+    "bound_fields": [
+      "session_id",
+      "actor_id"
+    ],
+    "requires_epoch_binding": true,
+    "strong_assurance_level_issued": "aal2_strong",
+    "ttl_seconds": 900
+  },
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "IAM-3 defines strong-assurance (admin/high-value) MFA factor semantics and step-up grants. Non-producer: no EVT bus emissions.",
+  "title": "Strong Assurance Vault (Admin & High-Value Only)",
+  "version": "1.1.2"
+}

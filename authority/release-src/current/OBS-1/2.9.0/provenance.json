@@ -1,0 +1,73 @@
+{
+  "bootstrap_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "candidate_preparation_base_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "provenance_statement": "Candidate OBS-1@2.9.0 uses the exact active OBS-1@2.8.0 ZIP as its installed baseline and replaces contract and test-gates content with the frozen authority-staging/t0-hardening/OBS-1 pair. Only release identity, version-bound assertion, and generated timestamp fields were mechanically normalized.",
+  "source_bundle_path": "contracts/OBS-1/OBS-1_bundle_v2.8.0.zip",
+  "source_zip_sha256": "cf611c4190414afecbe2188d51051f02ebe64b75f54a43d29a4b629bb4c4d7fe",
+  "source_zip_bytes": 19483,
+  "source_version": "2.8.0",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "authority-staging/t0-hardening/OBS-1/contract.json",
+      "sha256": "591fd3ec869f9202624a3813c0347bf1a3912aa50b71397682b86a1ac2e6c758",
+      "bytes": 70777,
+      "frozen_input_sha256": "2d39f1a8297effb5c02819054052dd5892179495feff612127b62006c97377df",
+      "frozen_input_bytes": 70777
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "authority-staging/t0-hardening/OBS-1/test-gates.json",
+      "sha256": "48f5b496e4a00f6eaf5a9b2250e80934cbc0db0060774ac78f435730acea9313",
+      "bytes": 31858,
+      "frozen_input_sha256": "40b1fe756ee73fffc66902376db60df4658b3d60f55e9880def13008b43ddf3f",
+      "frozen_input_bytes": 31858
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "OBS-1_bundle_v2.8.0/OBS-1_Contract_v2.8.0.json",
+      "sha256": "2fa2800f981476a2ef128e90e05a513d4c0f51927645d0eaa8a04f610b91fd4f",
+      "bytes": 64329
+    },
+    {
+      "source_member_path": "OBS-1_bundle_v2.8.0/OBS-1_Test_Gates_v2.8.0.json",
+      "sha256": "5cd99f7ee89a4b6087cc4baa6ce35b9a5f446715977e6a4a2b6ad69985a4abea",
+      "bytes": 29672
+    },
+    {
+      "source_member_path": "OBS-1_bundle_v2.8.0/bundle.manifest.json",
+      "sha256": "2669fe9355a3f2dba0c2e4a7da31e32cfd9436b3574f666a9f8e9d94008010a6",
+      "bytes": 622
+    }
+  ],
+  "frozen_authority_sources": [
+    {
+      "path": "authority-staging/t0-hardening/OBS-1/contract.json",
+      "sha256": "2d39f1a8297effb5c02819054052dd5892179495feff612127b62006c97377df",
+      "bytes": 70777
+    },
+    {
+      "path": "authority-staging/t0-hardening/OBS-1/test-gates.json",
+      "sha256": "40b1fe756ee73fffc66902376db60df4658b3d60f55e9880def13008b43ddf3f",
+      "bytes": 31858
+    }
+  ],
+  "mechanical_normalization": {
+    "suite_schema": "CS-0@3.0.1",
+    "target_version": "2.9.0",
+    "generated_at_utc": "2026-10-18T09:26:57Z",
+    "contract_json_pointers": [
+      "/generated_at_utc",
+      "/version"
+    ],
+    "test_gates_json_pointers": [
+      "/contract_ref/version",
+      "/gates/0/description",
+      "/gates/0/failure_message",
+      "/gates/3/assertions/4/details/equals",
+      "/generated_at_utc",
+      "/version"
+    ]
+  }
+}

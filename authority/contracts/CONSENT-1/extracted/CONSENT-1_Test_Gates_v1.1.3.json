@@ -1,0 +1,614 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "CONSENT-1",
+    "version": "1.1.3"
+  },
+  "doc_id": "CONSENT-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "type": "suite_schema_matches",
+          "mode": "automated",
+          "details": {
+            "expected": "CS-0@3.0.1"
+          }
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.0 for all artifacts in the bundle.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-010-SUITE-SCHEMA",
+      "level": "P0",
+      "must": true,
+      "title": "suite_schema MUST equal CS-0@2.2.0 for all artifacts in the bundle."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "equals": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json MUST exist and MUST match the bundle files (sha256 + bytes).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-020-MANIFEST-INTEGRITY",
+      "level": "P0",
+      "must": true,
+      "title": "bundle.manifest.json MUST exist and MUST match the bundle files (sha256 + bytes)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CONSENT-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.3",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "CONSENT-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.1.3",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "CONSENT-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.1.3",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "CONSENT-1",
+            "json_pointer": "/bundle/bundle_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "1.1.3",
+            "json_pointer": "/bundle/bundle_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Artifact linkage MUST be consistent (doc_id, version, contract_ref, manifest.bundle).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-030-ARTIFACT-LINKAGE",
+      "level": "P0",
+      "must": true,
+      "title": "Artifact linkage MUST be consistent (doc_id, version, contract_ref, manifest.bundle)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kinds": [
+              "contract",
+              "gates"
+            ],
+            "pattern": "\\b(TBD|TODO|WIP|FIXME)\\b"
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholder language is permitted (TBD/TODO/WIP/FIXME).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-040-NO-PLACEHOLDERS",
+      "level": "P0",
+      "must": true,
+      "title": "No placeholder language is permitted (TBD/TODO/WIP/FIXME)."
+    },
+    {
+      "assertions": [
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/dependencies",
+            "equals": [
+              {
+                "doc_id": "V42-0",
+                "min_version": "1.6.0",
+                "reason": "Constitutional invariants (multi-tenancy, immutability posture, reliability posture).",
+                "edge_type": "foundation_floor"
+              },
+              {
+                "doc_id": "TEN-1",
+                "min_version": "1.7.0",
+                "reason": "Tenant isolation invariants (org_id scoping, RLS posture, session GUC name).",
+                "edge_type": "foundation_floor"
+              },
+              {
+                "doc_id": "ERR-1",
+                "min_version": "1.3.26",
+                "reason": "Canonical error envelope + base codes.",
+                "edge_type": "foundation_floor"
+              },
+              {
+                "doc_id": "DP-1",
+                "min_version": "2.0.5",
+                "reason": "Outbox requirements for reliable, idempotent consent-change propagation (no direct side effects).",
+                "edge_type": "integration_floor"
+              },
+              {
+                "doc_id": "SEC-1",
+                "min_version": "3.4.2",
+                "reason": "SEC-1 crypto controls plus explicit RFC 8785 (JCS) semantics for deterministic proof hashing/signing.",
+                "edge_type": "requires"
+              },
+              {
+                "doc_id": "ARCH-1",
+                "min_version": "3.0.0",
+                "reason": "Retention, archival, and deletion semantics for proofs and derived state.",
+                "edge_type": "governance_floor"
+              },
+              {
+                "doc_id": "EVT-1",
+                "min_version": "2.16.4",
+                "reason": "Event Registry head pin for Phase 5 parity (consent events).",
+                "edge_type": "registry_floor"
+              },
+              {
+                "doc_id": "EVT-2",
+                "min_version": "2.4.0",
+                "reason": "Normalized schema_ref token authority for event envelope validation.",
+                "edge_type": "registry_floor"
+              },
+              {
+                "doc_id": "IAM-1",
+                "min_version": "3.4.1",
+                "reason": "Session/actor context dependency for consent policy evaluation.",
+                "edge_type": "integration_floor"
+              }
+            ]
+          }
+        }
+      ],
+      "description": "All normative dependencies MUST be declared with pinned minimum versions.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-050-DEPENDENCIES-LOCKED",
+      "level": "P0",
+      "must": true,
+      "title": "All normative dependencies MUST be declared with pinned minimum versions."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "category_id": "necessary",
+                "default_required": true,
+                "description": "Strictly necessary for core functionality and security (authentication, fraud prevention, transaction integrity).",
+                "purpose_id": "necessary"
+              },
+              {
+                "category_id": "analytics",
+                "default_required": false,
+                "description": "Measurement and product analytics that are not strictly necessary.",
+                "purpose_id": "analytics"
+              },
+              {
+                "category_id": "marketing",
+                "default_required": false,
+                "description": "Direct marketing and promotional outreach.",
+                "purpose_id": "marketing"
+              },
+              {
+                "category_id": "preferences",
+                "default_required": false,
+                "description": "Convenience features that store user preferences beyond core necessity.",
+                "purpose_id": "preferences"
+              }
+            ],
+            "json_pointer": "/consent_model/purpose_registry/minimum_set"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "purpose_registry.minimum_set MUST exist, be non-empty, and use stable snake_case purpose_id values.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-060-PURPOSE-REGISTRY-MINIMUM",
+      "level": "P0",
+      "must": true,
+      "title": "purpose_registry.minimum_set MUST exist, be non-empty, and use stable snake_case purpose_id values."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "most_restrictive_wins",
+            "json_pointer": "/consent_resolution/composition_rule"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "withdrawal",
+              "global_privacy_control",
+              "explicit_subject_choice",
+              "org_policy_overrides",
+              "region_profile_defaults"
+            ],
+            "json_pointer": "/consent_resolution/precedence_order"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Resolution algorithm MUST be deterministic and MUST use most_restrictive_wins with explicit precedence_order.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-070-RESOLUTION-DETERMINISTIC",
+      "level": "P0",
+      "must": true,
+      "title": "Resolution algorithm MUST be deterministic and MUST use most_restrictive_wins with explicit precedence_order."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/proof_model/append_only"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/proof_model/integrity/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/locked_decisions/proof_integrity_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Proofs MUST be append-only and proof integrity MUST be required.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-080-PROOF-APPEND-ONLY-AND-INTEGRITY",
+      "level": "P0",
+      "must": true,
+      "title": "Proofs MUST be append-only and proof integrity MUST be required."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/withdrawal/immediate_effect"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/withdrawal/propagate_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/events/emit_consent_changed_event"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/events/outbox_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.consent.changed.v1",
+            "json_pointer": "/events/outbox_events/0/event_name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Withdrawal MUST be immediate, MUST propagate, and consent-change events MUST be emitted via outbox.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-090-WITHDRAWAL-AND-EVENTS",
+      "level": "P0",
+      "must": true,
+      "title": "Withdrawal MUST be immediate, MUST propagate, and consent-change events MUST be emitted via outbox."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/org_id_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/tenancy/org_id_nullable"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "app.current_org_id",
+            "json_pointer": "/tenancy/rls_posture/session_guc_name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "org_id MUST be required (never null) and RLS posture MUST align to TEN-1.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-100-TENANCY-SEALING",
+      "level": "P0",
+      "must": true,
+      "title": "org_id MUST be required (never null) and RLS posture MUST align to TEN-1."
+    },
+    {
+      "id": "CONSENT-1-GATE-EVT-1-FLOOR-PIN",
+      "level": "P0",
+      "must": true,
+      "description": "Evt 1 Floor Pin",
+      "assertions": [
+        {
+          "details": {
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "type": "json_pointer_equals",
+          "mode": "automated"
+        }
+      ],
+      "title": "Evt 1 Floor Pin"
+    },
+    {
+      "id": "CONSENT-1-GATE-SCHEMA-REF-NORMALIZED-CHANGED",
+      "level": "P0",
+      "must": true,
+      "description": "Schema Ref Normalized Changed",
+      "assertions": [
+        {
+          "details": {
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/0/schema_ref"
+          },
+          "type": "json_pointer_equals",
+          "mode": "automated"
+        }
+      ],
+      "title": "Schema Ref Normalized Changed"
+    },
+    {
+      "id": "CONSENT-1-GATE-SCHEMA-REF-NORMALIZED-WITHDRAWN",
+      "level": "P0",
+      "must": true,
+      "description": "Schema Ref Normalized Withdrawn",
+      "assertions": [
+        {
+          "details": {
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/1/schema_ref"
+          },
+          "type": "json_pointer_equals",
+          "mode": "automated"
+        }
+      ],
+      "title": "Schema Ref Normalized Withdrawn"
+    },
+    {
+      "id": "CONSENT-1-GATE-OUTBOX-KEYLIST-PARITY-CHANGED",
+      "level": "P0",
+      "must": true,
+      "description": "Outbox Keylist Parity Changed",
+      "assertions": [
+        {
+          "details": {
+            "equals": [
+              "subject_id",
+              "mode",
+              "purposes_changed",
+              "source",
+              "version"
+            ],
+            "json_pointer": "/outbox_events/0/required_keys"
+          },
+          "type": "json_pointer_equals",
+          "mode": "automated"
+        }
+      ],
+      "title": "Outbox Keylist Parity Changed"
+    },
+    {
+      "id": "CONSENT-1-GATE-OUTBOX-KEYLIST-PARITY-WITHDRAWN",
+      "level": "P0",
+      "must": true,
+      "description": "Outbox Keylist Parity Withdrawn",
+      "assertions": [
+        {
+          "details": {
+            "equals": [
+              "subject_id",
+              "mode",
+              "purposes_withdrawn",
+              "source",
+              "version"
+            ],
+            "json_pointer": "/outbox_events/1/required_keys"
+          },
+          "type": "json_pointer_equals",
+          "mode": "automated"
+        }
+      ],
+      "title": "Outbox Keylist Parity Withdrawn"
+    },
+    {
+      "id": "CONSENT-1-GATE-NO-ENVELOPE-KEYS",
+      "level": "P0",
+      "must": true,
+      "description": "No Envelope Keys",
+      "assertions": [
+        {
+          "type": "forbid_regex_in_artifact",
+          "mode": "automated",
+          "details": {
+            "artifact_kinds": [
+              "contract"
+            ],
+            "pattern": "\"(org_id|trace_id|request_id|registry_version_sha)\""
+          }
+        }
+      ],
+      "title": "No Envelope Keys"
+    },
+    {
+      "id": "CONSENT-1-GATE-FORBID-QUALIFIED-SCHEMA-REF",
+      "level": "P0",
+      "must": true,
+      "description": "Forbid Qualified Schema Ref",
+      "assertions": [
+        {
+          "type": "forbid_regex_in_artifact",
+          "mode": "automated",
+          "details": {
+            "artifact_kinds": [
+              "contract"
+            ],
+            "pattern": "EVT-2:"
+          }
+        }
+      ],
+      "title": "Forbid Qualified Schema Ref"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "equals": "CONSENT-1-INV-SUBJECT-RESOLVABLE-001",
+            "json_pointer": "/domain_invariants/subject_resolvability/rule_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "CONSENT-1 MUST declare the subject resolvability invariant to prevent orphaned consent facts.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-360-SUBJECT-RESOLVABLE-INVARIANT-PRESENT",
+      "level": "P0",
+      "must": true,
+      "title": "CONSENT-1 MUST declare the subject resolvability invariant to prevent orphaned consent facts."
+    },
+    {
+      "assertions": [
+        {
+          "type": "forbid_regex_in_artifact",
+          "mode": "automated",
+          "details": {
+            "artifact_kinds": [
+              "contract"
+            ],
+            "pattern": "\"subject_key_hash\""
+          }
+        }
+      ],
+      "description": "CONSENT-1 outbox payload required_keys MUST NOT include subject_key_hash (hash-only schema forks are forbidden).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "CONSENT-1-GATE-365-FORBID-SUBJECT-KEY-HASH-IN-OUTBOX-PAYLOAD-KEYS",
+      "level": "P0",
+      "must": true,
+      "title": "CONSENT-1 outbox payload required_keys MUST NOT include subject_key_hash (hash-only schema forks are forbidden)."
+    }
+  ],
+  "generated_at_utc": "2026-02-06T18:46:41Z",
+  "last_updated_utc": "2026-02-06T19:15:10Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "CONSENT-1 Gate Pack",
+  "updated_at_utc": "2026-02-06T19:15:10Z",
+  "version": "1.1.3"
+}

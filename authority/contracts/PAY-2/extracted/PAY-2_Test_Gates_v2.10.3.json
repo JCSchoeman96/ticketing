@@ -1,0 +1,795 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "PAY-2_Test_Gates_v2.10.3.json",
+  "ci_tasks": [
+    {
+      "description": "Validate PAY-2 contract against CS-0@2.2.0 schema.",
+      "id": "verify_pay2_contract_schema",
+      "inputs": [
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify bundle manifest SHA256 hashes match actual file contents.",
+      "id": "verify_pay2_bundle_integrity",
+      "inputs": [
+        "bundle.manifest.json",
+        "PAY-2_Contract_v2.9.1.json",
+        "PAY-2_Test_Gates_v2.7.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Property tests: identical inputs + policy version always yield same provider.",
+      "id": "verify_pay2_deterministic_routing",
+      "inputs": [
+        "app_source/*",
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify tenant derived from signature-bound metadata only.",
+      "id": "verify_pay2_webhook_tenant_binding",
+      "inputs": [
+        "app_source/*",
+        "test/*"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Simulate ambiguous states: verify pending + truth check before failover.",
+      "id": "verify_pay2_failover_no_duplicates",
+      "inputs": [
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Same key + different inputs => ERRCONFLICT.",
+      "id": "verify_pay2_idempotency_parameter_consistency",
+      "inputs": [
+        "test/*"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Ensure RouteDecision persists v42_correlation_id and decision_hash.",
+      "id": "verify_pay2_correlation_and_hash",
+      "inputs": [
+        "app_source/*",
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify RouteDecision and RoutePolicy have only create+read actions.",
+      "id": "verify_pay2_immutable_resources",
+      "inputs": [
+        "app_source/*"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Property test: verify 4 circuit states (healthy, degraded, probationary_throttle, circuit_open) with traffic allocation (100%, 50%, 5%, 0%).",
+      "id": "verify_pay2_fractional_circuit_breaker",
+      "inputs": [
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed",
+      "negative_tests": [
+        "Degraded provider receives 50% traffic, not 0%.",
+        "Probationary_throttle provider receives exactly 5% traffic.",
+        "Circuit_open provider receives 0% traffic."
+      ]
+    },
+    {
+      "description": "Simulate all providers degrading simultaneously: verify proportional traffic distribution by health score, not total blackout.",
+      "id": "verify_pay2_cascade_prevention",
+      "inputs": [
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify routing queries OBS-1 provider health before decision.",
+      "id": "verify_pay2_obs1_health_integration",
+      "inputs": [
+        "app_source/*",
+        "test/*"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify HMAC-verified low-value webhooks processed optimistically without PSP fetch; high-value events (>$1000, refunds, disputes) trigger hard fetch.",
+      "id": "verify_pay2_optimistic_webhook_processing",
+      "inputs": [
+        "app_source/*",
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed",
+      "negative_tests": [
+        "Low-value authorization (<$100) with valid signature skips fetch.",
+        "High-value capture (>$1000) always triggers fetch.",
+        "Refund event always triggers fetch regardless of amount."
+      ]
+    },
+    {
+      "description": "Verify selective fetch logic: always fetch for refunds, disputes, chargebacks; skip for low-risk events.",
+      "id": "verify_pay2_selective_fetch_triggers",
+      "inputs": [
+        "app_source/*",
+        "test/*"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify reconciliation re-calculates decision_hash using independent clean-room implementation (not calling RouteDecision.compute_decision_hash).",
+      "id": "verify_pay2_independent_hash_verification",
+      "inputs": [
+        "app_source/*",
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed",
+      "negative_tests": [
+        "Reconciliation with hash mismatch blocks state change and emits payment.route_decision_hash_mismatch.v1."
+      ]
+    },
+    {
+      "description": "Verify hash computed as SHA256 with canonical field order and || separator per contract specification.",
+      "id": "verify_pay2_hash_algorithm_specification",
+      "inputs": [
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify webhooks failing tenant-binding are persisted in UnboundWebhookEvent with exponential backoff retry for 24 hours.",
+      "id": "verify_pay2_unbound_webhook_holding_pen",
+      "inputs": [
+        "app_source/*",
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed",
+      "negative_tests": [
+        "Webhook arriving before parent RouteDecision is persisted in UnboundWebhookEvent.",
+        "After 24-hour TTL, orphaned webhook triggers payment.orphaned_webhook_expired.v1 alert."
+      ]
+    },
+    {
+      "description": "Verify retry strategy: 10 max retries, 5s initial delay, 2× backoff multiplier, 300s max delay.",
+      "id": "verify_pay2_orphaned_webhook_retry_strategy",
+      "inputs": [
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Simulation: verify SEV2 alert fires when 5-minute failover rate exceeds 3× 24-hour baseline.",
+      "id": "verify_pay2_realtime_failover_spike_detection",
+      "inputs": [
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify HMAC-SHA256 with timestamp check; reject >300s old.",
+      "id": "verify_pay2_webhook_hmac_verification",
+      "inputs": [
+        "app_source/*",
+        "test/*"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Simulate replay storm: verify rate limit and throttling.",
+      "id": "verify_pay2_webhook_storm_detection",
+      "inputs": [
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify Ash.Tracer spans for routing actions.",
+      "id": "verify_pay2_telemetry_instrumentation",
+      "inputs": [
+        "app_source/*",
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify @derive Inspect with secret exclusions.",
+      "id": "verify_pay2_custom_inspect_redaction",
+      "inputs": [
+        "app_source/*"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "CI fails if new sensitive field added without Inspect exclusion.",
+      "id": "verify_pay2_inspect_field_coverage",
+      "inputs": [
+        "app_source/*"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify alert when provider share shifts >40% in 15 minutes.",
+      "id": "verify_pay2_routing_distribution_monitoring",
+      "inputs": [
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Simulate RouteDecision failing >3× in 60 min: verify poisoned marker and re-routing.",
+      "id": "verify_pay2_poison_decision_detection",
+      "inputs": [
+        "test/*",
+        "PAY-2_Contract_v2.9.1.json"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify metrics/logs include routing dimensions but NO PII or secrets.",
+      "id": "verify_pay2_observability_no_pii",
+      "inputs": [
+        "app_source/*",
+        "test/*"
+      ],
+      "kind": "ci_task_must_succeed"
+    },
+    {
+      "description": "Verify RoutePolicy changes create new version records.",
+      "id": "verify_pay2_route_policy_versioning",
+      "inputs": [
+        "app_source/*",
+        "test/*"
+      ],
+      "kind": "ci_task_must_succeed"
+    }
+  ],
+  "contract_ref": {
+    "doc_id": "PAY-2",
+    "version": "2.10.3"
+  },
+  "doc_id": "PAY-2-GATE",
+  "gates": [
+    {
+      "acceptance_criteria": [
+        "Contract declares err1_primary_code_canonical == true.",
+        "Artifacts MUST NOT contain ERR* alias codes without underscores (e.g., ERRBADREQUEST, ERRCONFLICT).",
+        "All referenced primary error codes MUST match ERR-1 top-level codes (ERR_*)."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/err1_primary_code_canonical"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bERR(?!_)[A-Z0-9]+\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "\\bERR(?!_)[A-Z0-9]+\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_FORBIDDEN",
+            "json_pointer": "/routing_model/selection/denial_semantics/insufficient_context"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_UNAVAILABLE",
+            "json_pointer": "/routing_model/selection/denial_semantics/provider_unavailable"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_BAD_REQUEST",
+            "json_pointer": "/routing_model/selection/denial_semantics/unsupported_currency_or_region"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_CONFLICT",
+            "json_pointer": "/idempotency_rules/conflict_behavior/smart_retry_detection/changed_params_same_key_behavior/error_code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_CONFLICT",
+            "json_pointer": "/reconciliation/decision_hash_verification/mismatch_behavior/error_code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ERR-1 primary error codes MUST be canonical underscore codes (ERR_*) on all public surfaces.",
+      "id": "PAY-2-P0-006",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "If any API response emits error.code using alias forms without underscores (e.g., ERRBADREQUEST), request MUST fail CI."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "For every resource marked tenant_scoped == true, org_id MUST be non-nullable in required_attributes."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/core_domain_contract/required_attributes/1/attributes/0/nullable"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/core_domain_contract/required_attributes/2/attributes/0/nullable"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenant-scoped resources MUST require non-null org_id (no implicit platform scope via nullable org_id).",
+      "id": "PAY-2-P0-007",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "If org_id is nullable on any tenant_scoped resource, gate MUST fail (cross-tenant config footgun)."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "verification_logic.canonicalization defines UUIDv7 + utc_datetime_usec encodings deterministically.",
+        "verification_logic.encoding.type == length_prefixed_utf8.",
+        "Delimiter-based concatenation (separator field) MUST NOT appear."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "length_prefixed_utf8",
+            "json_pointer": "/reconciliation/decision_hash_verification/verification_logic/encoding/type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "lowercase_rfc4122_string",
+            "json_pointer": "/reconciliation/decision_hash_verification/verification_logic/canonicalization/uuid_v7"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "rfc3339_utc_fixed_6_usec_trailing_z",
+            "json_pointer": "/reconciliation/decision_hash_verification/verification_logic/canonicalization/utc_datetime_usec"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\\"separator\\\"\\s*:"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Decision hash verification MUST specify canonical field encodings and use length-prefixed encoding (delimiter ambiguity forbidden).",
+      "id": "PAY-2-P0-008",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "If any implementation uses delimiter concatenation instead of length-prefixed encoding, mismatches may occur and gate MUST fail."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "RoutePolicy purpose MUST NOT mention platform scope.",
+        "If platform scope is ever introduced, it MUST be explicit (scope_type + governance + audit) and shipped as a separate contract revision."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Versioned routing rule set (tenant-scoped).",
+            "json_pointer": "/core_domain_contract/required_resources/1/purpose"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "platform[- ]scoped"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "RoutePolicy MUST be tenant-scoped only; platform-scoped wording is forbidden without an explicit platform security model.",
+      "id": "PAY-2-P0-009",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "If platform scope is implied via org_id nullable or wording, gate MUST fail."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "mismatch_behavior.error_code == ERR_CONFLICT.",
+        "mismatch_behavior.error_subcode == PAY_ROUTE_DECISION_HASH_MISMATCH."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_CONFLICT",
+            "json_pointer": "/reconciliation/decision_hash_verification/mismatch_behavior/error_code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PAY_ROUTE_DECISION_HASH_MISMATCH",
+            "json_pointer": "/reconciliation/decision_hash_verification/mismatch_behavior/error_subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Reconciliation mismatch behavior MUST use registered ERR-1 subcode PAY_ROUTE_DECISION_HASH_MISMATCH.",
+      "id": "PAY-2-P0-010",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "If subcode is unregistered or non-namespaced, gate MUST fail (ops/searchability drift)."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "Contract invariant money_confirmed_authority equals PAY-1.verify_payment_reference."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PAY-1.verify_payment_reference",
+            "json_pointer": "/invariants/money_confirmed_authority"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PAY-2 MUST declare the canonical money-confirmed authority as PAY-1.verify_payment_reference.",
+      "id": "PAY-2-P0-011",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "If PAY-2 claims to attest paid_confirmed or points money_confirmed_authority elsewhere, CI MUST fail."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "Contract invariant tentative_webhook_must_not_finalize equals true."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/tentative_webhook_must_not_finalize"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tentative (optimistic) webhook processing MUST NOT finalize or trigger fulfillment.",
+      "id": "PAY-2-P0-012",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "If optimistic processing can directly cause fulfillment or issuance without truth reconciliation, CI MUST fail."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "On successful route decision, metric pay2.route_decision_total is emitted.",
+        "Metric tags include org_id and provider_id."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "note": "Telemetry assertion converted to manual per CS-0 schema; validate signal emission in implementation/integration tests.",
+            "original_details": {
+              "metric_name": "pay2.route_decision_total",
+              "required_tags": [
+                "org_id",
+                "provider_id"
+              ],
+              "signal_type": "counter",
+              "trigger": {
+                "action": "decide",
+                "domain": "Ticketing.Payments",
+                "resource": "PaymentRouteDecision",
+                "type": "ash_action"
+              }
+            }
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Runtime: Payment routing/processing MUST emit a bounded metric with org_id for tenant-isolated auditability.",
+      "id": "PAY-2-P1-090",
+      "level": "P1",
+      "must": true,
+      "negative_tests": [
+        "If org_id is absent from emitted tags, gate MUST fail (tenant telemetry drift)."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "PAY-2 contract declares GC-001 invariants and reconciliation workflow.",
+        "dependency_pins.gc_001_chain pins ERR-1/ORD-1/PAY-1/PAY-3/SEAT-1 versions.",
+        "Compensation uses ERR-1 subcode PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/gc_001_pay1_verify_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/gc_001_ord_reconcile_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/gc_001_compensation_via_pay3_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED",
+            "json_pointer": "/invariants/gc_001_late_capture_error_subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED",
+            "json_pointer": "/reconciliation/gc_001/compensation/error_subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.4.15",
+            "json_pointer": "/dependency_pins/gc_001_chain/ERR-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.5.4",
+            "json_pointer": "/dependency_pins/gc_001_chain/ORD-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.7.7",
+            "json_pointer": "/dependency_pins/gc_001_chain/PAY-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.9.2",
+            "json_pointer": "/dependency_pins/gc_001_chain/PAY-3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.2.0",
+            "json_pointer": "/dependency_pins/gc_001_chain/SEAT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SD-043",
+            "json_pointer": "/gc_patch_register/GC-001/sd"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "GC-001 late-capture prevention MUST be enforced: verified finality → ORD reconcile; late capture → PAY-3 compensation with canonical ERR subcode.",
+      "id": "PAY-2-P0-013",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "If PAY-2 allows webhook-only money finality without PAY-1 verification, CI MUST fail.",
+        "If late capture does not require PAY-3 compensation and ERR subcode PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED, CI MUST fail."
+      ]
+    },
+    {
+      "acceptance_criteria": [
+        "Contract /webhooks/durability/dedupe/identity equals ['provider_id','provider_account_ref','provider_event_id']."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "provider_id",
+              "provider_account_ref",
+              "provider_event_id"
+            ],
+            "json_pointer": "/webhooks/durability/dedupe/identity"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Webhook dedupe uniqueness MUST be Triple-Key: provider_id + provider_account_ref + provider_event_id.",
+      "id": "PAY-2-P0-014",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "If dedupe identity omits provider_account_ref (double-key), CI MUST fail."
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Asserts PAY-2 declares emits_events=false and has an explicit empty outbox_events list. Prevents CI theatre on empty producer surfaces.",
+      "failure_message": "PAY-2 must explicitly declare emits_events=false and outbox_events=[] to preserve non-producer semantics.",
+      "id": "PAY-2-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "PAY-2 MUST be an explicit non-producer"
+    }
+  ],
+  "generated_at_utc": "2026-02-07T05:29:24Z",
+  "last_updated_utc": "2026-02-07T05:29:24Z",
+  "negative_tests": [
+    "Denial: Missing org_id context MUST fail with ERRFORBIDDEN (no ambient tenancy).",
+    "Denial: Cross-org_id access MUST be hidden with ERRNOTFOUND (TEN-1 hide-existence).",
+    "Denial: Idempotency-Key replay with differing parameters MUST fail with ERRCONFLICT."
+  ],
+  "normative_source": "json",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "PAY-2 — Provider Routing & Failover Test Gates",
+  "version": "2.10.3"
+}

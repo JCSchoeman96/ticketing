@@ -1,0 +1,456 @@
+{
+  "actions_and_workflows": {
+    "transition_action_template": {
+      "must": [
+        "Run deterministic guards/validations before transition.",
+        "Enforce concurrency safety.",
+        "Fence the write: transition UPDATE MUST include a CAS predicate on lock_version/state (optimistic locking is correctness; LOCKS-1 is efficiency).",
+        "Perform the state transition via AshStateMachine.transition_state/2 (or built-in transition changes).",
+        "Emit side effects via outbox-only patterns after durable state is persisted."
+      ],
+      "must_not_accept": [
+        ":state"
+      ]
+    }
+  },
+  "artifact_kind": "contract",
+  "banned_anti_patterns": {
+    "SM-0-ANTI-001": {
+      "ban": "accept [:state] :: Allows hidden state mutation from input.",
+      "severity": "P0"
+    },
+    "SM-0-ANTI-002": {
+      "ban": "change increment(:lock_version) together with change optimistic_lock(:lock_version) :: Double-increment bug; optimistic_lock already increments.",
+      "severity": "P0"
+    },
+    "SM-0-ANTI-003": {
+      "ban": "authorize?: false :: Authorization bypass is forbidden.",
+      "severity": "P0"
+    },
+    "SM-0-ANTI-004": {
+      "ban": "external side effects in action code :: Violates outbox-only rule; breaks atomicity and retry safety.",
+      "severity": "P0"
+    },
+    "SM-0-ANTI-005": {
+      "ban": "Blind updates that mutate state-machine-owned attributes without a CAS predicate (lock_version and/or current state) are FORBIDDEN. Examples: update_all/force_change_attribute without an UPDATE filter on lock_version/state.",
+      "severity": "P0"
+    }
+  },
+  "change_log": [
+    {
+      "version": "1.2.3",
+      "date": "2026-10-09",
+      "type": "patch",
+      "changes": [
+        "Corrected the SM-0-GATE-001 suite_schema description to agree with its CS-0@3.0.1 assertions. No domain semantics changed."
+      ]
+    },
+    {
+      "changes": [
+        "Zombie-worker hardening: advisory locks MAY be used for throughput, but MUST NOT be relied on for write safety.",
+        "Strengthen fencing requirement: transition writes MUST be guarded by optimistic lock (CAS) on lock_version/state.",
+        "Add SM-0-ANTI-005 banning blind updates without a CAS predicate (prevents zombie overwrites).",
+        "Update dependency min_version pins to current suite baselines (DP-1, RP-0, SEC-1, ERR-1, TEN-1, TG-0)."
+      ],
+      "date_utc": "2026-02-03T08:46:41.888090Z",
+      "type": "minor",
+      "version": "1.2.0"
+    },
+    {
+      "changes": [
+        "CRITICAL FIX: Changed status from 'locked' to 'active' (CS-0 schema compliance).",
+        "CRITICAL FIX: Upgraded suite_schema from CS-0@1.1.5 to CS-0@2.2.0.",
+        "CRITICAL FIX: Updated dependencies to exact semver (removed >= ranges).",
+        "CRITICAL FIX: Removed non-CANON dependencies; kept only pinned deps.",
+        "Updated legacy locks reference → LOCKS-1@2.0.13 (CANON-pinned version).",
+        "Regenerated manifest with correct byte-level SHA256 hashing."
+      ],
+      "date_utc": "2026-01-08T15:41:00.000000Z",
+      "type": "patch",
+      "version": "1.1.1"
+    },
+    {
+      "changes": [
+        "Fixed SM-0-GATE-004 forbid_regex_in_artifact assertion shape (use forbid_regex list; removed legacy regex field).",
+        "Fixed SM-0-GATE-006 dependency pin hygiene gate (removed invalid json_pointer_equals/pattern usage).",
+        "Removed non-schema gate-level negative_tests field from SM-0-GATE-NEG-001 (kept manual denial tests in assertion details).",
+        "Converted contract anti_patterns to CS-0-required banned_anti_patterns map and added BP-0 required structural sections without changing rule intent.",
+        "Regenerated bundle.manifest.json using byte-accurate SHA256/size from final written artifacts."
+      ],
+      "date_utc": "2026-01-08T17:34:53.777239Z",
+      "type": "patch",
+      "version": "1.1.2"
+    },
+    {
+      "changes": [
+        "Corrected the contract and test-gate filenames to match the release identity and aligned suite-schema metadata with CS-0@3.0.1. Domain semantics are unchanged."
+      ],
+      "date": "2026-10-09",
+      "version": "1.2.2"
+    }
+  ],
+  "data_model": {
+    "applies_to": [
+      "Any Ash.Resource using AshStateMachine"
+    ],
+    "constraints": [
+      "State attribute MUST be an enum with explicit allowed values.",
+      "Transition actions MUST enforce concurrency via optimistic_lock(:lock_version). LOCKS-1 primitives MAY be used in addition; exemptions MUST NOT disable optimistic fencing.",
+      "SM-0 consumers MUST declare a lock_version attribute (integer, non-null, default 1) for optimistic locking.",
+      "Stale update concurrency failures MUST map to ERR-1 subcode SM_STALE_RECORD."
+    ],
+    "identifiers": {
+      "id_type": "uuid_v7",
+      "timestamp_type": "utc_datetime_usec"
+    }
+  },
+  "dependencies": [
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "Strict CI bundle integrity validation."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "Schema envelopes for contract/test_gates/bundle_manifest artifacts."
+    },
+    {
+      "doc_id": "DP-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "reason": "Outbox contract required by SM-0-OUTBOX-001 for external side-effects + dedupe keys."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.10",
+      "reason": "Canonical error envelope and stable error codes/subcodes (incl PAY_* and SM_*)."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.0.13",
+      "reason": "Concurrency primitives and lock ordering for state transitions."
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "governance_floor",
+      "min_version": "3.1.0",
+      "reason": "Ash 3.x resource patterns and multitenancy discipline."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "governance_floor",
+      "min_version": "3.2.0",
+      "reason": "Security posture and authorization requirements."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "governance_floor",
+      "min_version": "1.7.4",
+      "reason": "Canonical org_id multitenancy and hide-existence semantics."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Gate authoring rules and CI enforcement posture."
+    }
+  ],
+  "dependency_floors": {},
+  "doc_id": "SM-0",
+  "emits_events": false,
+  "errors": {
+    "envelope_ref": "ERR-1",
+    "required_subcodes": [
+      "SM_TRANSITION_NOT_ALLOWED",
+      "SM_GUARD_FAILED",
+      "SM_INVALID_STATE",
+      "SM_STALE_RECORD"
+    ],
+    "subcode_conditions": [
+      {
+        "subcode": "SM_GUARD_FAILED",
+        "when": "A guard/validation denies a transition based on business predicates."
+      },
+      {
+        "subcode": "SM_TRANSITION_NOT_ALLOWED",
+        "when": "A requested transition is not permitted from the current state (including terminal-state immutability)."
+      },
+      {
+        "subcode": "SM_INVALID_STATE",
+        "when": "The record is in a state not recognized by the declared state enum."
+      },
+      {
+        "subcode": "SM_STALE_RECORD",
+        "when": "Optimistic locking detects a stale lock_version during transition attempt."
+      }
+    ]
+  },
+  "events_and_ordering": {
+    "ordering_guarantees": [
+      "Outbox events are written transactionally with the transition and processed asynchronously."
+    ],
+    "payload_value_shapes": {
+      "actor_id": {
+        "format": "uuid_v7",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "from_state": {
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "occurred_at_utc": {
+        "format": "utc_datetime_usec",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$"
+      },
+      "org_id": {
+        "format": "uuid_v7",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "request_id": {
+        "format": "uuid_v7",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "resource": {
+        "example": "ticketing.orders.order",
+        "pattern": "^ticketing\\.[a-z0-9_]+\\.[a-z0-9_]+$"
+      },
+      "resource_id": {
+        "format": "uuid_v7",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+      },
+      "to_state": {
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "trace_id": {
+        "pattern": "^[0-9a-f]{32}$"
+      },
+      "transition": {
+        "example": "confirm",
+        "pattern": "^[a-z0-9_]+$"
+      }
+    },
+    "replay_and_idempotency": [
+      "Transition side effects MUST be idempotent via deterministic dedupe keys to support retries."
+    ],
+    "required_event_payload_keys": [
+      "from_state",
+      "to_state",
+      "transition",
+      "resource",
+      "resource_id",
+      "org_id",
+      "actor_id",
+      "occurred_at_utc",
+      "trace_id",
+      "request_id"
+    ]
+  },
+  "generated_at_utc": "2026-02-03T08:46:41.888090Z",
+  "identity_standards": {
+    "id_type": "uuid_v7",
+    "timestamp_type": "utc_datetime_usec"
+  },
+  "invariants": {
+    "consistency_guarantees": [
+      "State changes occur only through explicit transition actions.",
+      "No external side effects inside state transitions; use outbox-only patterns."
+    ],
+    "constitution_mapping": [
+      "TEN-1: org_id tenant key and hide-existence semantics.",
+      "ERR-1: canonical error envelope and stable subcodes.",
+      "SEC-1: authorize-by-default posture."
+    ],
+    "immutability_rules": [
+      "Terminal states are treated as immutable for state transitions unless a documented no-op/idempotent policy exists."
+    ],
+    "terminal_state_model": {
+      "enforcement_locus": "resource_contracts + tests",
+      "requirement": "Resources claiming SM-0 compliance MUST declare terminal_states explicitly and MUST reject transitions from terminal states unless explicitly whitelisted as idempotent no-op."
+    }
+  },
+  "last_updated_utc": "2026-02-03T08:46:41.888090Z",
+  "migration_backward_compatibility": {
+    "compat_strategy": "Additive-only changes for patch/minor; breaking semantics require major bump.",
+    "data_backfills": [],
+    "rolling_deploy_safety": [
+      "During rolling deploys, transition actions MUST remain compatible with N and N-1 worker/job code paths."
+    ]
+  },
+  "normative_source": "json",
+  "observability_and_ops_gates": {
+    "release_blocks": [
+      "P0 gate failures MUST block release."
+    ],
+    "trace_id_propagation": {
+      "fields": [
+        "trace_id",
+        "request_id"
+      ],
+      "formats": {
+        "request_id": {
+          "format": "uuid_v7",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "trace_id": {
+          "description": "W3C Trace ID (32 lowercase hex).",
+          "pattern": "^[0-9a-f]{32}$"
+        }
+      },
+      "required": true,
+      "where": "Fields MUST be present in DP-1 outbox envelope and in logs/traces for every transition and outbox delivery attempt."
+    }
+  },
+  "outbox_events": [],
+  "project_namespace": {
+    "db_namespace": "ticketing",
+    "forbid_module_prefixes": [
+      "V42."
+    ],
+    "otp_app": ":ticketing",
+    "root_namespace": "Ticketing"
+  },
+  "purpose_and_boundaries": {
+    "never_owns": [
+      "Subsystem-specific state graphs, domain-specific validation rules, or business workflows."
+    ],
+    "out_of_scope": [
+      "Runtime performance benchmarking beyond declared budgets.",
+      "Authorization policy design beyond the forbid/require rules declared in this contract."
+    ],
+    "owns": [
+      "Normative, enforceable standard for modeling state transitions in Ash 3.x resources using AshStateMachine."
+    ]
+  },
+  "references": [
+    {
+      "kind": "ash_state_machine",
+      "ref": "https://hexdocs.pm/ash_state_machine/AshStateMachine.html"
+    },
+    {
+      "kind": "ash_state_machine",
+      "ref": "https://preview.hex.pm/preview/ash_state_machine/show/documentation/tutorials/getting-started-with-ash-state-machine.md"
+    },
+    {
+      "kind": "ash",
+      "ref": "https://hexdocs.pm/ash/Ash.Resource.Change.Builtins.html#optimistic_lock/1"
+    },
+    {
+      "kind": "ash",
+      "ref": "https://hexdocs.pm/ash/Ash.Resource.Change.OptimisticLock.html"
+    },
+    {
+      "kind": "ash",
+      "ref": "https://hexdocs.pm/ash/actors-and-authorization.html"
+    },
+    {
+      "kind": "ash",
+      "ref": "https://hexdocs.pm/ash/changes.html#atomic-changes"
+    },
+    {
+      "kind": "security",
+      "ref": "https://owasp.org/API-Security/editions/2023/en/0x11-t10/"
+    }
+  ],
+  "rules": [
+    {
+      "category": "governance",
+      "rationale": "Prevents drift and makes CI enforcement deterministic.",
+      "rule_id": "SM-0-META-001",
+      "severity": "P0",
+      "text": "SM-0 and SM-0-GATE MUST be JSON-only normative artifacts; repacks (_r1/_r2) are forbidden; metadata must match filenames and manifest pins."
+    },
+    {
+      "category": "state_machine",
+      "rationale": "Prevents hidden behavior and makes the graph auditable.",
+      "rule_id": "SM-0-TRANS-001",
+      "severity": "P0",
+      "text": "No wildcards. Every allowed transition MUST be explicitly declared (from → to) and implemented as exactly one Ash action per transition."
+    },
+    {
+      "category": "state_machine",
+      "rationale": "Guarantees invariants, auditability, and consistent error mapping.",
+      "rule_id": "SM-0-STATE-001",
+      "severity": "P0",
+      "text": "State changes MUST occur only via transition actions using AshStateMachine.transition_state/2 (or built-in state machine transition changes). Direct updates to the :state attribute are forbidden."
+    },
+    {
+      "category": "actions",
+      "rationale": "Stops user-controlled state mutation and makes transitions deterministic.",
+      "rule_id": "SM-0-ACT-001",
+      "severity": "P0",
+      "text": "Transition actions MUST NOT accept the :state attribute (accept [] for :state). This restriction applies only to attribute acceptance; it MUST NOT be interpreted as banning action arguments. Transition context MUST be passed via action arguments (e.g., for guard evaluation, audit metadata, and DP-1 outbox payload construction)."
+    },
+    {
+      "category": "guards",
+      "rationale": "Keeps logic centralized and machine-checkable.",
+      "rule_id": "SM-0-GUARD-001",
+      "severity": "P0",
+      "text": "Guards MUST be implemented as Ash-native validations/changes that add errors to the changeset. A guard failure MUST result in {:error, %Ash.Error{}} at the action boundary (no arbitrary tuples or maps). Boundary error mapping MUST emit ERR-1 subcode SM_GUARD_FAILED for guard denials, and SM_TRANSITION_NOT_ALLOWED for disallowed transitions."
+    },
+    {
+      "category": "concurrency",
+      "rationale": "Avoids double increment and preserves correct stale-record detection.",
+      "rule_id": "SM-0-LOCK-001",
+      "severity": "P0",
+      "text": "All state machine resources MUST include lock_version and MUST enable optimistic locking (optimistic_lock(:lock_version) or equivalent). Every transition write MUST be fenced by a Compare-And-Swap predicate (lock_version and/or current state) at the time of UPDATE. LOCKS-1 primitives (e.g., advisory locks) MAY be used for throughput and contention reduction, but MUST NOT replace optimistic fencing for correctness."
+    },
+    {
+      "category": "concurrency",
+      "rationale": "Prevents oversell/over-release and deadlocks under load.",
+      "rule_id": "SM-0-LOCK-002",
+      "severity": "P0",
+      "text": "When concurrency primitives are required (e.g., transition contention, counters, or cross-resource orchestration), implementations MUST follow LOCKS-1 canonical lock ordering, idempotency, and exemption rules. Only LOCKS-1 is a valid lock/concurrency contract reference for SM-0 consumers."
+    },
+    {
+      "category": "security",
+      "rationale": "Prevents accidental privilege escalation.",
+      "rule_id": "SM-0-AUTH-001",
+      "severity": "P0",
+      "text": "Authorization MUST always run for transition actions; authorize?: false is forbidden in production paths."
+    },
+    {
+      "category": "side_effects",
+      "rationale": "Enables retries and keeps transitions atomic.",
+      "rule_id": "SM-0-OUTBOX-001",
+      "severity": "P1",
+      "text": "External side-effects (notifications, integrations, projections, search indexing, email, webhooks) MUST be performed via DP-1 outbox only. Transition actions MUST persist durable state first, then enqueue DP-1 outbox records transactionally with deterministic dedupe keys. Direct side-effects inside transition actions are forbidden."
+    },
+    {
+      "category": "events",
+      "rationale": "Standardizes observability and downstream processing.",
+      "rule_id": "SM-0-EVT-001",
+      "severity": "P1",
+      "text": "Transition events MUST include the standard payload keys defined by this contract."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "security": {
+    "data_access_constraints": [
+      "authorize?: false is forbidden in production paths."
+    ],
+    "least_privilege": true,
+    "policy_boundary": "Ash.Policy.Authorizer"
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Canonical, enforceable standard for modeling state transitions in Ash 3.x using AshStateMachine. Ensures explicit transitions, deterministic guards, concurrency safety, auditability, and safe side-effects for an enterprise multi-tenant ticketing platform.",
+  "tenancy": {
+    "leakage_policy": "hide_existence",
+    "strategy": "ash_attribute",
+    "tenant_key": "org_id",
+    "tenant_required": true
+  },
+  "tenancy_model": {
+    "cross_tenant_hard_fail": true,
+    "injection_method": "ash_attribute",
+    "rls_expectations": "Fail-closed when tenant context is missing; hide-existence for cross-tenant reads.",
+    "tenant_identifier": "org_id"
+  },
+  "tier": 1,
+  "title": "State Machine Standard (Ash 3.x)",
+  "version": "1.2.3"
+}

@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "EXT-1",
+    "bundle_version": "2.1.7"
+  },
+  "doc_id": "EXT-1",
+  "files": [
+    {
+      "bytes": 26832,
+      "path": "EXT-1_Contract_v2.1.7.json",
+      "sha256": "9eab0ef0017c568fd330f8d38f26590bf805ec6adb2027736d3fc7a1de4a6914"
+    },
+    {
+      "bytes": 24306,
+      "path": "EXT-1_Test_Gates_v2.1.7.json",
+      "sha256": "ac446b406effd5eed0e129d7a268ea2f6b3ab82682dcd807572fdbe22d36b997"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.1.7"
+}

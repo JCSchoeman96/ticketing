@@ -1,0 +1,709 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "IAM-2",
+    "version": "1.4.0"
+  },
+  "doc_id": "IAM-2-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema parity",
+      "failure_message": "IAM-2-GATE-010 failed.",
+      "id": "IAM-2-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "suite_schema parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "manifest filename is canonical",
+      "failure_message": "IAM-2-GATE-020 failed.",
+      "id": "IAM-2-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "manifest filename is canonical"
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle files match manifest (sha256 + bytes)",
+      "failure_message": "IAM-2-GATE-030 failed.",
+      "id": "IAM-2-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "bundle files match manifest (sha256 + bytes)"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IAM-1",
+            "json_pointer": "/dependencies/0/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.4.0",
+            "json_pointer": "/dependencies/0/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN-1",
+            "json_pointer": "/dependencies/1/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.7.11",
+            "json_pointer": "/dependencies/1/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEC-1",
+            "json_pointer": "/dependencies/2/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.0.11",
+            "json_pointer": "/dependencies/2/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR-1",
+            "json_pointer": "/dependencies/3/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.4.10",
+            "json_pointer": "/dependencies/3/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OBQC-1",
+            "json_pointer": "/dependencies/4/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.1.7",
+            "json_pointer": "/dependencies/4/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "dependency pins enforce tenant-safe boundary posture (TEN-1 + SEC-1) and queue controls (OBQC-1)",
+      "failure_message": "IAM-2-GATE-040 failed.",
+      "id": "IAM-2-GATE-040",
+      "level": "P0",
+      "must": true,
+      "title": "dependency pins enforce tenant-safe boundary posture (TEN-1 + SEC-1) and queue controls (OBQC-1)"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/tenancy/tenant_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "tenant key is org_id",
+      "failure_message": "IAM-2-GATE-100 failed.",
+      "id": "IAM-2-GATE-100",
+      "level": "P0",
+      "must": true,
+      "title": "tenant key is org_id"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "hide_existence",
+            "json_pointer": "/tenancy/leakage_policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "leakage policy hides existence",
+      "failure_message": "IAM-2-GATE-110 failed.",
+      "id": "IAM-2-GATE-110",
+      "level": "P0",
+      "must": true,
+      "title": "leakage policy hides existence"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_NOT_FOUND",
+            "json_pointer": "/errors/required_error_codes/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_UNAUTHENTICATED",
+            "json_pointer": "/errors/required_error_codes/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_FORBIDDEN",
+            "json_pointer": "/errors/required_error_codes/2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_RATE_LIMITED",
+            "json_pointer": "/errors/required_error_codes/3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_VALIDATION",
+            "json_pointer": "/errors/required_error_codes/4"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "required error codes are ERR-1 top-level registry codes only",
+      "failure_message": "IAM-2-GATE-115 failed.",
+      "id": "IAM-2-GATE-115",
+      "level": "P0",
+      "must": true,
+      "title": "required error codes are ERR-1 top-level registry codes only"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/security/enumeration_hardening/enabled"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "enumeration hardening enabled",
+      "failure_message": "IAM-2-GATE-120 failed.",
+      "id": "IAM-2-GATE-120",
+      "level": "P0",
+      "must": true,
+      "title": "enumeration hardening enabled"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/security/enumeration_hardening/response_policy/hide_existence"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/security/enumeration_hardening/response_policy/uniform_error_envelope"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_NOT_FOUND",
+            "json_pointer": "/security/enumeration_hardening/response_policy/invalid_token_code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "uniform hide_existence responses are mandatory",
+      "failure_message": "IAM-2-GATE-130 failed.",
+      "id": "IAM-2-GATE-130",
+      "level": "P0",
+      "must": true,
+      "title": "uniform hide_existence responses are mandatory"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/security/proof_token_requirements/raw_token_never_persisted"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/security/proof_token_requirements/store_hashed_only"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 32,
+            "json_pointer": "/security/proof_token_requirements/token_format/bytes_min"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "proof tokens are hashed-only and never persisted in raw form",
+      "failure_message": "IAM-2-GATE-140 failed.",
+      "id": "IAM-2-GATE-140",
+      "level": "P0",
+      "must": true,
+      "title": "proof tokens are hashed-only and never persisted in raw form"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/security/proof_token_requirements/consumption_policy/single_use"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/security/proof_token_requirements/consumption_policy/consumption_is_idempotent"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "proof tokens are single-use and idempotently consumed",
+      "failure_message": "IAM-2-GATE-150 failed.",
+      "id": "IAM-2-GATE-150",
+      "level": "P0",
+      "must": true,
+      "title": "proof tokens are single-use and idempotently consumed"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/workflows/silent_link_invite_flow/idempotency/accept_is_idempotent"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "silent-link invite accept is idempotent",
+      "failure_message": "IAM-2-GATE-160 failed.",
+      "id": "IAM-2-GATE-160",
+      "level": "P0",
+      "must": true,
+      "title": "silent-link invite accept is idempotent"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ash_3x_mapping/side_effects_and_jobs/execution_time_auth_check/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "async jobs must re-check auth and status at execution time (GC-032 pattern)",
+      "failure_message": "IAM-2-GATE-170 failed.",
+      "id": "IAM-2-GATE-170",
+      "level": "P0",
+      "must": true,
+      "title": "async jobs must re-check auth and status at execution time (GC-032 pattern)"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bTODO\\b",
+              "\\bTBD\\b",
+              "\\bFIXME\\b",
+              "\\bREPLACEME\\b",
+              "\\bPLACEHOLDER\\b",
+              "\\bXXX\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "\\bTODO\\b",
+              "\\bTBD\\b",
+              "\\bFIXME\\b",
+              "\\bREPLACEME\\b",
+              "\\bPLACEHOLDER\\b",
+              "\\bXXX\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "placeholder language is forbidden in contract and gates",
+      "failure_message": "IAM-2-GATE-180 failed.",
+      "id": "IAM-2-GATE-180",
+      "level": "P0",
+      "must": true,
+      "title": "placeholder language is forbidden in contract and gates"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IAM-1",
+            "json_pointer": "/security/enumeration_hardening/inherits_from/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.4.0",
+            "json_pointer": "/security/enumeration_hardening/inherits_from/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IAM-1",
+            "json_pointer": "/dependencies/0/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.4.0",
+            "json_pointer": "/dependencies/0/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Pin IAM-1 inheritance + dependency min_version (no drift).",
+      "failure_message": "IAM-2-GATE-190 failed.",
+      "id": "IAM-2-GATE-190",
+      "level": "P0",
+      "must": true,
+      "title": "Pin IAM-1 inheritance + dependency min_version (no drift)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uniform_accepted_202",
+            "json_pointer": "/workflows/sign_up_flow/entrypoints/sign_up/response_policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uniform_success_or_invalid_token",
+            "json_pointer": "/workflows/sign_up_flow/entrypoints/sign_up_complete/response_policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Require non-enumerating sign-up workflow (GC-030).",
+      "failure_message": "IAM-2-GATE-200 failed.",
+      "id": "IAM-2-GATE-200",
+      "level": "P0",
+      "must": true,
+      "title": "Require non-enumerating sign-up workflow (GC-030)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "registration_intent",
+            "json_pointer": "/data_model/resources/3/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "pending",
+            "json_pointer": "/data_model/resources/3/status_enum/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Add registration_intent resource to support sign-up without enumeration.",
+      "failure_message": "IAM-2-GATE-210 failed.",
+      "id": "IAM-2-GATE-210",
+      "level": "P0",
+      "must": true,
+      "title": "Add registration_intent resource to support sign-up without enumeration."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "consumer_proof_grant",
+            "json_pointer": "/data_model/resources/5/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "consumer_proof_grant_id",
+            "json_pointer": "/data_model/resources/5/primary_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IAM-2 MUST define consumer_proof_grant as distinct from IAM-3 StepUpGrant (session-bound only).",
+      "failure_message": "IAM-2-GATE-121 failed.",
+      "id": "IAM-2-GATE-121",
+      "level": "P0",
+      "must": true,
+      "title": "IAM-2 MUST define consumer_proof_grant as distinct from IAM-3 StepUpGrant (session-bound only)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "request_consumer_otp(purpose, channel, destination)",
+            "json_pointer": "/workflows/consumer_otp_request_flow/entrypoints/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IAM-2 MUST include a consumer_otp_request_flow with anti-enumeration uniform responses.",
+      "failure_message": "IAM-2-GATE-122 failed.",
+      "id": "IAM-2-GATE-122",
+      "level": "P0",
+      "must": true,
+      "title": "IAM-2 MUST include a consumer_otp_request_flow with anti-enumeration uniform responses."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "verify_consumer_otp(otp_challenge_id, code, session_id, actor_id | nil)",
+            "json_pointer": "/workflows/consumer_otp_verify_flow/entrypoints/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IAM-2 MUST include a consumer_otp_verify_flow that issues a session-bound consumer_proof_grant.",
+      "failure_message": "IAM-2-GATE-123 failed.",
+      "id": "IAM-2-GATE-123",
+      "level": "P0",
+      "must": true,
+      "title": "IAM-2 MUST include a consumer_otp_verify_flow that issues a session-bound consumer_proof_grant."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 5,
+            "json_pointer": "/security/consumer_otp_controls/max_attempts"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Consumer OTP brute-force baseline must be explicit (max_attempts=5).",
+      "failure_message": "IAM-2-GATE-124 failed.",
+      "id": "IAM-2-GATE-124",
+      "level": "P0",
+      "must": true,
+      "title": "Consumer OTP brute-force baseline must be explicit (max_attempts=5)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "request_consumer_otp",
+            "json_pointer": "/security/enumeration_protection/must_be_generic/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Anti-enumeration controls MUST explicitly cover consumer OTP endpoints.",
+      "failure_message": "IAM-2-GATE-125 failed.",
+      "id": "IAM-2-GATE-125",
+      "level": "P0",
+      "must": true,
+      "title": "Anti-enumeration controls MUST explicitly cover consumer OTP endpoints."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Asserts IAM-2 is an explicit non-producer of EVT bus events (prevents CI theatre and EVT completeness false-positives).",
+      "failure_message": "IAM-2-GATE-ASSERT-NON-PRODUCER failed.",
+      "id": "IAM-2-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "Asserts IAM-2 is an explicit non-producer of EVT bus events (prevents CI theatre and EVT completeness false-positives)."
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "last_updated_utc": "2026-04-15T13:47:57Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "IAM-2 Test Gates",
+  "updated_at": "2026-04-15T13:47:57Z",
+  "version": "1.4.0",
+  "authority_review_gates": [
+    {
+      "id": "IAM-2-FPP-CORRECTION-REVIEW",
+      "level": "P0",
+      "must": true,
+      "mode": "manual",
+      "description": "Review the approved authority corrections in the paired versionless contract.json draft. Confirm the contract text contains no contradictory legacy lock for the corrected behavior.",
+      "failure_message": "Approved authority correction or legacy contradiction remains unresolved."
+    }
+  ]
+}

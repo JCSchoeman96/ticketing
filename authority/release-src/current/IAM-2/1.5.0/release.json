@@ -1,0 +1,14 @@
+{
+  "doc_id": "IAM-2",
+  "generated_at_utc": "2026-10-18T20:30:06Z",
+  "release_intent": "Authority successor introducing IAM-2@1.5.0 policy changes from the installed canonical IAM-2@1.4.0 baseline.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "installed-canonical-successor",
+    "path": "provenance.json",
+    "source_version": "1.4.0",
+    "source_zip_sha256": "559e07f6ebb1c1f90b64dd73fd7f082b5089a391ed7dd22a1ff3ed399621b16b"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.5.0"
+}

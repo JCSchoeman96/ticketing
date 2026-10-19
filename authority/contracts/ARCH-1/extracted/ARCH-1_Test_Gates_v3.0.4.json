@@ -1,0 +1,516 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "ARCH-1",
+    "version": "3.0.4"
+  },
+  "doc_id": "ARCH-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        },
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Suite schema and bundle manifest integrity (BP-0 baseline).",
+      "failure_message": "ARCH-1-GATE-010 failed.",
+      "id": "ARCH-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "Suite schema and bundle manifest integrity (BP-0 baseline)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 7,
+            "json_pointer": "/retention/defaults/financial_ledger/min_years"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 2,
+            "json_pointer": "/retention/defaults/identity_pii/max_years"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 90,
+            "json_pointer": "/retention/defaults/telemetry_hot/retention_days"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Retention targets are constitutionally fixed.",
+      "failure_message": "ARCH-1-GATE-020 failed.",
+      "id": "ARCH-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Retention targets are constitutionally fixed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bTODO\\b|\\bTBD\\b|\\bFIXME\\b|\\bREPLACE_?ME\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\btenant_id\\b|\\baccount_id\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "\\btenant_id\\b|\\baccount_id\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Banned tokens and banned tenancy keys are forbidden in all artifacts.",
+      "failure_message": "ARCH-1-GATE-030 failed.",
+      "id": "ARCH-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "Banned tokens and banned tenancy keys are forbidden in all artifacts."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ARCH-1-P0-001",
+            "json_pointer": "/domain_invariants/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/tenancy/tenant_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/leakage_policy/hide_existence"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenancy key and domain invariants are correctly configured.",
+      "failure_message": "ARCH-1-GATE-040 failed.",
+      "id": "ARCH-1-GATE-040",
+      "level": "P0",
+      "must": true,
+      "title": "Tenancy key and domain invariants are correctly configured."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\borg_id\\b"
+            ],
+            "json_pointers": [
+              "/observability/metrics"
+            ],
+            "remediation_hint": "Remove org_id from metric labels; use logs/traces for tenant drilldown."
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bexport_id\\b"
+            ],
+            "json_pointers": [
+              "/observability/metrics"
+            ],
+            "remediation_hint": "Remove per-export identifiers from metric labels to prevent cardinality explosion."
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Metrics MUST NOT use org_id or export_id labels (OBS-1 cardinality discipline).",
+      "failure_message": "ARCH-1-GATE-050 failed.",
+      "id": "ARCH-1-GATE-050",
+      "level": "P0",
+      "must": true,
+      "title": "Metrics MUST NOT use org_id or export_id labels (OBS-1 cardinality discipline)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "archive_only",
+            "json_pointer": "/retention/defaults/financial_ledger/purge_action"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Retention purge actions MUST be data-class constrained (no hard_delete on ledger).",
+      "failure_message": "ARCH-1-GATE-060 failed.",
+      "id": "ARCH-1-GATE-060",
+      "level": "P0",
+      "must": true,
+      "title": "Retention purge actions MUST be data-class constrained (no hard_delete on ledger)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\"topic\"\\s*:\\s*\"archival\\.[^{]"
+            ],
+            "json_pointers": [
+              "/outbox_events"
+            ],
+            "remediation_hint": "Topics must use tenant-scoped format: ticketing:org:{org_id}:archival:*"
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Event topics MUST be tenant-scoped per TEN-1 discipline.",
+      "failure_message": "ARCH-1-GATE-070 failed.",
+      "id": "ARCH-1-GATE-070",
+      "level": "P1",
+      "must": true,
+      "title": "Event topics MUST be tenant-scoped per TEN-1 discipline."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bERRCONFLICT\\b|\\bERRFORBIDDEN\\b|\\bERRNOTFOUND\\b"
+            ],
+            "json_pointers": [
+              "/errors"
+            ],
+            "remediation_hint": "Use ERR_CONFLICT, ERR_FORBIDDEN, ERR_NOT_FOUND (underscores, not concatenated)."
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Error codes MUST align to ERR-1 format (ERR_* top-level, ARCH_* subcodes).",
+      "failure_message": "ARCH-1-GATE-080 failed.",
+      "id": "ARCH-1-GATE-080",
+      "level": "P1",
+      "must": true,
+      "title": "Error codes MUST align to ERR-1 format (ERR_* top-level, ARCH_* subcodes)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.archival.export.finalized.v1",
+            "json_pointer": "/outbox_events/0/event_name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.org.{org_id}.archival.export",
+            "json_pointer": "/outbox_events/0/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.archival.retention.purge.executed.v1",
+            "json_pointer": "/outbox_events/1/event_name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.org.{org_id}.archival.retention",
+            "json_pointer": "/outbox_events/1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.archival.legalhold.changed.v1",
+            "json_pointer": "/outbox_events/2/event_name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.org.{org_id}.archival.legalhold",
+            "json_pointer": "/outbox_events/2/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/0/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "export_id",
+              "content_hash_sha256",
+              "retention_policy_id",
+              "occurred_at_utc",
+              "version"
+            ],
+            "json_pointer": "/outbox_events/0/required_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "artifact_id",
+              "purge_action",
+              "data_class",
+              "occurred_at_utc",
+              "version"
+            ],
+            "json_pointer": "/outbox_events/1/required_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/2/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "legal_hold_id",
+              "scope",
+              "active",
+              "occurred_at_utc",
+              "version"
+            ],
+            "json_pointer": "/outbox_events/2/required_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Outbox events MUST be EVT-1 registered and Phase-5 lawful (topic stable, schema_ref normalized, required_keys parity).",
+      "failure_message": "ARCH-1-GATE-200 failed.",
+      "id": "ARCH-1-GATE-200",
+      "level": "P0",
+      "must": true,
+      "title": "Outbox events MUST be EVT-1 registered and Phase-5 lawful (topic stable, schema_ref normalized, required_keys parity)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.4.0",
+            "json_pointer": "/dependency_floors/EVT-2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.4.1",
+            "json_pointer": "/dependency_floors/IAM-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\borg_id\\b",
+              "\\btrace_id\\b",
+              "\\brequest_id\\b",
+              "\\bregistry_version_sha\\b"
+            ],
+            "json_pointers": [
+              "/outbox_events"
+            ],
+            "remediation_hint": "Envelope keys belong to required_extensions in EVT-1, not payload required_keys in producer outbox."
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "EVT-2:"
+            ],
+            "json_pointers": [
+              "/outbox_events"
+            ],
+            "remediation_hint": "schema_ref MUST be literal \"EVT-2\" (no qualified tokens)."
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Phase-5 hardening: EVT-1 floor pinned to registry head and envelope keys forbidden in payload required_keys.",
+      "failure_message": "ARCH-1-GATE-210 failed.",
+      "id": "ARCH-1-GATE-210",
+      "level": "P0",
+      "must": true,
+      "title": "Phase-5 hardening: EVT-1 floor pinned to registry head and envelope keys forbidden in payload required_keys."
+    }
+  ],
+  "generated_at_utc": "2026-02-06T18:51:55Z",
+  "last_updated_utc": "2026-02-06T18:51:55Z",
+  "negative_tests": [
+    {
+      "expected_error": {
+        "code": "ERR_NOT_FOUND",
+        "subcode": "ARCH_CROSS_TENANT_HIDDEN"
+      },
+      "id": "ARCH-1-NEG-010",
+      "risk": "cross_org_enumeration",
+      "scenario": "Cross-tenant artifact lookup MUST return ERR_NOT_FOUND (ARCH_CROSS_TENANT_HIDDEN)."
+    },
+    {
+      "expected_error": {
+        "code": "ERR_CONFLICT",
+        "subcode": "ARCH_EXPORT_ALREADY_FINALIZED"
+      },
+      "id": "ARCH-1-NEG-020",
+      "risk": "immutability_violation",
+      "scenario": "Attempting to update an immutable finalized artifact MUST return ERR_CONFLICT (ARCH_EXPORT_ALREADY_FINALIZED)."
+    },
+    {
+      "expected_error": {
+        "code": "ERR_FORBIDDEN",
+        "subcode": "ARCH_LEGAL_HOLD_ACTIVE"
+      },
+      "id": "ARCH-1-NEG-030",
+      "risk": "compliance_violation",
+      "scenario": "Attempting purge while legal hold active MUST return ERR_FORBIDDEN (ARCH_LEGAL_HOLD_ACTIVE)."
+    },
+    {
+      "expected_error": {
+        "code": "ERR_FORBIDDEN",
+        "subcode": "ARCH_HARD_DELETE_LEDGER"
+      },
+      "id": "ARCH-1-NEG-040",
+      "risk": "audit_trail_destruction",
+      "scenario": "Hard delete on ledger-grade record before 7yr minimum MUST return ERR_FORBIDDEN (ARCH_HARD_DELETE_LEDGER)."
+    }
+  ],
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "ARCH-1 Test Gates",
+  "version": "3.0.4"
+}

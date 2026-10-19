@@ -1,0 +1,180 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "API-0",
+    "version": "1.2.0"
+  },
+  "doc_id": "API-0-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.1 across contract, gates, and manifest.",
+      "failure_message": "Bundle suite_schema drift detected; API-0 artifacts are not aligned to CS-0@3.0.1.",
+      "id": "API-0-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle suite schema parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json filename and manifest file inventory MUST match the actual bundle contents exactly.",
+      "failure_message": "Manifest filename or manifest file inventory does not match the actual bundle contents.",
+      "id": "API-0-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest filename and contents"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "API-0",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.2.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "The contract artifact MUST retain API-0 doc_id and version 1.2.0.",
+      "failure_message": "Contract doc_id or version drift detected.",
+      "id": "API-0-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "Contract identity parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "API-0-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.2.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "API-0",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.2.0",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "The test gates artifact MUST retain API-0-GATE doc_id, version 1.2.0, and contract_ref parity to API-0@1.2.0.",
+      "failure_message": "Gate doc_id, version, or contract_ref drift detected.",
+      "id": "API-0-GATE-040",
+      "level": "P0",
+      "must": true,
+      "title": "Gate identity and contract reference parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "forbid_regex": [
+              "API-0_Route_Registry_v1\\.1\\.1\\.json"
+            ],
+            "json_pointers": [
+              "/files"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "The API-0 canonical bundle MUST contain only contract, test gates, and manifest JSON artifacts; removed sidecars MUST not remain in the canonical bundle.",
+      "failure_message": "A removed sidecar artifact remains in the canonical API-0 bundle.",
+      "id": "API-0-GATE-050",
+      "level": "P0",
+      "must": true,
+      "title": "Canonical three-artifact discipline"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_final_locks.py::test_t0_http_idempotency_authority_excludes_ext1"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ],
+      "description": "API-0 owns the HTTP Idempotency-Key requirement, ERR-1 owns its error identifiers, and LOCKS-1 alone owns durable idempotency semantics; T0 does not delegate those semantics to EXT-1.",
+      "failure_message": "T0 idempotency authority is delegated to EXT-1 or conflicts with ERR-1/LOCKS-1.",
+      "id": "API-0-GATE-T0-IDEMPOTENCY-AUTHORITY-001",
+      "level": "P0",
+      "must": true,
+      "title": "T0 idempotency authority ownership"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "last_updated_utc": "2026-04-15T00:00:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "API-0 Test Gates",
+  "version": "1.2.0",
+  "authority_review_gates": [
+    {
+      "id": "API-0-FPP-CORRECTION-REVIEW",
+      "level": "P0",
+      "must": true,
+      "mode": "manual",
+      "description": "Review the approved authority corrections in the paired versionless contract.json draft. Confirm the contract text contains no contradictory legacy lock for the corrected behavior.",
+      "failure_message": "Approved authority correction or legacy contradiction remains unresolved."
+    }
+  ]
+}

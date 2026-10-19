@@ -1,0 +1,987 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "OBS-1",
+    "version": "2.8.0"
+  },
+  "doc_id": "OBS-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST match CS-0@2.3.0 across contract, gates, and manifest.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "suite_schema MUST match CS-0@2.3.0 across contract, gates, and manifest.",
+      "id": "OBS-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-010"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "Bundle MUST contain canonical bundle.manifest.json filename.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Bundle MUST contain canonical bundle.manifest.json filename.",
+      "id": "OBS-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-020"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "bundle_id": "OBS-1"
+          },
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle files MUST match manifest (sha256/bytes integrity).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Bundle files MUST match manifest (sha256/bytes integrity).",
+      "id": "OBS-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-030"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OBS-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "contract-suite/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "active",
+            "json_pointer": "/status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.8.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract identity metadata MUST be pinned (doc_id, version, status, suite_schema).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Contract identity metadata MUST be pinned (doc_id, version, status, suite_schema).",
+      "id": "OBS-1-GATE-040",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-040"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\\"min_version\\\"\\s*:\\s*\\\"[^\\\"]*[<>^~*]"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Contract MUST NOT contain dependency version operators (>=, <, ^, ~, *).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Contract MUST NOT contain dependency version operators (>=, <, ^, ~, *).",
+      "id": "OBS-1-GATE-050",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-050"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^\\[\\]$"
+            ],
+            "json_pointers": [
+              "/burn_rate_policies/policies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^\\[\\]$"
+            ],
+            "json_pointers": [
+              "/routing_registry/roles"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Burn-rate policies and routing roles MUST be non-empty (prevents hollow contracts).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Burn-rate policies and routing roles MUST be non-empty (prevents hollow contracts).",
+      "id": "OBS-1-GATE-060",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-060"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\b(TODO|TBD|FIXME)\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders (TODO/TBD/FIXME) allowed in normative artifacts.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "No placeholders (TODO/TBD/FIXME) allowed in normative artifacts.",
+      "id": "OBS-1-GATE-070",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-070"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\borg_id\\b)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/signal_standards/logs/required_fields"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\btrace_id\\b)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/signal_standards/logs/required_fields"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\brequest_id\\b)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/signal_standards/logs/required_fields"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Log required_fields array MUST contain critical observability keys for TEN-1 and OTel alignment.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Log required_fields array MUST contain critical observability keys for TEN-1 and OTel alignment.",
+      "id": "OBS-1-GATE-080",
+      "level": "P1",
+      "must": true,
+      "title": "OBS-1-GATE-080"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\borg_id\\b)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/signal_standards/metrics/cardinality_budget/forbidden_labels_default"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\bactor_id\\b)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/signal_standards/metrics/cardinality_budget/forbidden_labels_default"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Metrics cardinality budget MUST ban high-cardinality labels (org_id, actor_id) to prevent storage overload.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Metrics cardinality budget MUST ban high-cardinality labels (org_id, actor_id) to prevent storage overload.",
+      "id": "OBS-1-GATE-090",
+      "level": "P1",
+      "must": true,
+      "title": "OBS-1-GATE-090"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\borg_id\\b)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/signal_standards/traces/required_attributes"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\boperation_id\\b)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/signal_standards/traces/required_attributes"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Trace required_attributes MUST include tenant and operation context (org_id, operation_id).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Trace required_attributes MUST include tenant and operation context (org_id, operation_id).",
+      "id": "OBS-1-GATE-100",
+      "level": "P1",
+      "must": true,
+      "title": "OBS-1-GATE-100"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bSEV[0-9]+\\b"
+            ],
+            "json_pointers": [
+              "/alerting_standard/severities",
+              "/alert_classes",
+              "/burn_rate_policies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Severities MUST use snake_case (sev1/sev2/sev3) not uppercase SEV1/SEV2/SEV3 (constitutional requirement).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Severities MUST use snake_case (sev1/sev2/sev3) not uppercase SEV1/SEV2/SEV3 (constitutional requirement).",
+      "id": "OBS-1-GATE-110",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-110"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/privacy_observability/enabled"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 5,
+            "json_pointer": "/privacy_observability/k_anonymity/min_population_size"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/privacy_observability/dsar_monitoring/enabled"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/privacy_observability/pii_access_monitoring/enabled"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/privacy_observability/trk_pii_violation_monitoring/enabled"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/privacy_observability/anti_differencing_monitoring/enabled"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Privacy observability invariants MUST be present (k-anonymity threshold, DSAR monitoring, PII access monitoring, TRK PII violation monitoring).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Privacy observability invariants MUST be present (k-anonymity threshold, DSAR monitoring, PII access monitoring, TRK PII violation monitoring).",
+      "id": "OBS-1-GATE-120",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-120"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*OBS-1-GC-001-OBS-001)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/invariants"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "OBS-1 must include a GC-001 observability invariant rule.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "OBS-1 must include a GC-001 observability invariant rule.",
+      "id": "OBS-1-GATE-111",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-111"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\\"gotcha_id\\\":\\\"GC-001\\\")[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/edge_case_observability"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*pay\\\\.late_capture\\\\.after_hold_expiry\\\\.count)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/edge_case_observability"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "OBS-1 must carry an explicit GC-001 edge-case observability appendix.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "OBS-1 must carry an explicit GC-001 edge-case observability appendix.",
+      "id": "OBS-1-GATE-112",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-112"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\\"doc_id\\\":\\s*\\\"ERR-1\\\"[\\s\\S]*\\\"min_version\\\":\\s*\\\"1.4.15\\\")[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\\"doc_id\\\":\\s*\\\"ORD-1\\\"[\\s\\S]*\\\"min_version\\\":\\s*\\\"3.5.0\\\")[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\\"doc_id\\\":\\s*\\\"SEAT-1\\\"[\\s\\S]*\\\"min_version\\\":\\s*\\\"3.2.0\\\")[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\\"doc_id\\\":\\s*\\\"PAY-1\\\"[\\s\\S]*\\\"min_version\\\":\\s*\\\"2.7.5\\\")[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\\"doc_id\\\":\\s*\\\"PAY-2\\\"[\\s\\S]*\\\"min_version\\\":\\s*\\\"2.8.3\\\")[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\\"doc_id\\\":\\s*\\\"PAY-3\\\"[\\s\\S]*\\\"min_version\\\":\\s*\\\"2.9.2\\\")[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "OBS-1 dependencies must include patched ORD/SEAT/ERR and PAY contracts for GC-001 monitoring.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "OBS-1 dependencies must include patched ORD/SEAT/ERR and PAY contracts for GC-001 monitoring.",
+      "id": "OBS-1-GATE-113",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-113"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*late_capture_after_hold_expiry)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/alert_classes"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*sev1)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/alert_classes"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "OBS-1 must define an alert class for late capture after hold expiry.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "OBS-1 must define an alert class for late capture after hold expiry.",
+      "id": "OBS-1-GATE-114",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-114"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\"doc_id\":\\s*\"IAM-1\"[\\s\\S]*\"min_version\":\\s*\"3\\.2\\.0\")[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\"doc_id\":\\s*\"PII-1\"[\\s\\S]*\"min_version\":\\s*\"1\\.1\\.0\")[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\"doc_id\":\\s*\"DATA-1\"[\\s\\S]*\"min_version\":\\s*\"1\\.3\\.0\")[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\"doc_id\":\\s*\"DSAR-1\"[\\s\\S]*\"min_version\":\\s*\"1\\.2\\.0\")[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Dependencies MUST pin privacy + export contracts required for safe observability (IAM-1, PII-1, DATA-1, DSAR-1).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Dependencies MUST pin privacy + export contracts required for safe observability (IAM-1, PII-1, DATA-1, DSAR-1).",
+      "id": "OBS-1-GATE-121",
+      "level": "P0",
+      "must": true,
+      "title": "OBS-1-GATE-121"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/privacy_observability/data_export_monitoring/enabled"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\bdata\\.export\\.profile_mismatch\\.count\\b)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/privacy_observability/data_export_monitoring/must_emit_metrics"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\bdata\\.export\\.redaction_violation\\.count\\b)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/privacy_observability/data_export_monitoring/must_emit_metrics"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "DATA export monitoring MUST be enabled and list required metrics for profile mismatch and redaction violations.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "DATA export monitoring MUST be enabled and list required metrics for profile mismatch and redaction violations.",
+      "id": "OBS-1-GATE-122",
+      "level": "P1",
+      "must": true,
+      "title": "OBS-1-GATE-122"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\bdata\\.exports\\.request\\b)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/critical_operations/business_rest_mutations"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^(?![\\s\\S]*\\bdata\\.exports\\.execute\\b)[\\s\\S]*$"
+            ],
+            "json_pointers": [
+              "/critical_operations/business_rest_mutations"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Export operations MUST be registered as critical operations for observability coverage.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Export operations MUST be registered as critical operations for observability coverage.",
+      "id": "OBS-1-GATE-123",
+      "level": "P1",
+      "must": true,
+      "title": "OBS-1-GATE-123"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              ".+"
+            ],
+            "json_pointers": [
+              "/events/outbox_events"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "OBS-1 is a non-producer: emits_events MUST be false and outbox_events MUST be empty (no CI theatre).",
+      "failure_message": "OBS-1 is a non-producer: emits_events MUST be false and outbox_events MUST be empty (no CI theatre).",
+      "id": "OBS1-NONPROD-001",
+      "level": "P0",
+      "must": true,
+      "title": "OBS1-NONPROD-001"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sre_primary_security",
+            "json_pointer": "/routing_registry/expected_roles_keyspace/3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IR_INCIDENT_ACTIVE",
+            "json_pointer": "/observed_flags/2/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Security routing roles and observed incident flags MUST be present.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Security routing roles and observed incident flags MUST be present.",
+      "id": "OBS-1-GATE-130",
+      "level": "P1",
+      "must": true,
+      "title": "OBS-1-GATE-130"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "security.auth.login_velocity_anomaly",
+            "json_pointer": "/signal_standards/security_incident/required_signal_families/0/signal"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "security.degraded_alive_interactive_upgrade",
+            "json_pointer": "/incident_runtime_evidence_requirements/required_scenarios/0/simulation_label"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "OBS-1 MUST define security incident signal taxonomy and runtime evidence requirements.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "OBS-1 MUST define security incident signal taxonomy and runtime evidence requirements.",
+      "id": "OBS-1-GATE-140",
+      "level": "P1",
+      "must": true,
+      "title": "OBS-1-GATE-140"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Contain",
+            "json_pointer": "/runbook_requirements/must_include_sections/7"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Release",
+            "json_pointer": "/runbook_requirements/must_include_sections/8"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Post_Incident_Review",
+            "json_pointer": "/runbook_requirements/must_include_sections/9"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Runbook sections MUST include incident contain/release/post-review semantics.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "Runbook sections MUST include incident contain/release/post-review semantics.",
+      "id": "OBS-1-GATE-150",
+      "level": "P1",
+      "must": true,
+      "title": "OBS-1-GATE-150"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IR-001",
+            "json_pointer": "/edge_case_observability/ir_001/gotcha_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IR-005",
+            "json_pointer": "/edge_case_observability/ir_005/gotcha_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "OBS-1 MUST include edge-case observability for IR gotchas.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "failure_message": "OBS-1 MUST include edge-case observability for IR gotchas.",
+      "id": "OBS-1-GATE-160",
+      "level": "P1",
+      "must": true,
+      "title": "OBS-1-GATE-160"
+    },
+    {
+      "id": "OBS1-T0-OPERATION-IDS",
+      "title": "Canonical T0 operation IDs",
+      "description": "Each T0 operation ID equals canonical contract_id.action_id and remains stable across logs, traces, and metrics.",
+      "failure_message": "OBS-1 T0 operation ID binding failed.",
+      "level": "P0",
+      "must": true,
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "artifact_kind": "contract",
+            "expected": "Each T0 operation ID equals canonical contract_id.action_id and remains stable across logs, traces, and metrics."
+          }
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_obs_registry_includes_t0_checkout_operation"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_obs_registry_includes_t0_bucket_claim_operation"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_obs_registry_covers_t0_required_domain_actions"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/operation_registry/SEAT-1.claim_bucket_inventory",
+            "equals": {
+              "operation_id": "SEAT-1.claim_bucket_inventory",
+              "contract_id": "SEAT-1",
+              "action_id": "claim_bucket_inventory"
+            }
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/operation_id_binding/t0_operation_ids/6",
+            "equals": "SEAT-1.claim_bucket_inventory"
+          }
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-04-17T05:55:00Z",
+  "last_updated_utc": "2026-04-17T05:55:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "OBS-1 Test Gates — Observability Invariant Enforcement",
+  "version": "2.8.0"
+}

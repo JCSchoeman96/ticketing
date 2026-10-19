@@ -1,0 +1,121 @@
+{
+  "canonical_member_count": 56,
+  "format_version": 1,
+  "generated_release": {
+    "doc_id": "CANON-1",
+    "version": "2.0.11"
+  },
+  "generation_inputs": {
+    "active_manifest_sha256": "e47dd6bee01c222ef7613f703e2c94c80b9c1cf64914729ef29380ef45ad453a",
+    "base_canon_version": "2.0.10",
+    "base_canon_zip_sha256": "ad893d881413f3407b8b3c608ac7c75008e88c47c88941d61d6fbb80a4708cfe",
+    "candidate_releases": [
+      {
+        "doc_id": "API-0",
+        "sha256": "72daa231aa64358318050bcaf0bb82c0d36d6e8e38a9638e911e9464201a3113",
+        "version": "1.2.0"
+      },
+      {
+        "doc_id": "DP-1",
+        "sha256": "da9f704013786f1931659659d5a59f6d3986600e56ec584a1e43ac93d8c41c5b",
+        "version": "3.0.0"
+      },
+      {
+        "doc_id": "ERR-1",
+        "sha256": "4376f55bc7ad6b64ec84ce7af19c3f26d39cecc0cae5324dc58ec498c5da7bce",
+        "version": "2.0.0"
+      },
+      {
+        "doc_id": "EVT-1",
+        "sha256": "8bb2eb3eb506fdfcd15efce4c0e09420e17d51b19fb98c9bc20d5f4d9f41ecd3",
+        "version": "3.0.0"
+      },
+      {
+        "doc_id": "EVT-2",
+        "sha256": "61eddff7863a5e77d05ad45533a8b8dd6e19bf436fdc8a07ec2897c394e914eb",
+        "version": "3.0.0"
+      },
+      {
+        "doc_id": "IAM-1",
+        "sha256": "68cb1313d52214933cb6f4ba2277ccbc464c7393879b5078085cd3ba8aed57cf",
+        "version": "4.0.0"
+      },
+      {
+        "doc_id": "IAM-2",
+        "sha256": "559e07f6ebb1c1f90b64dd73fd7f082b5089a391ed7dd22a1ff3ed399621b16b",
+        "version": "1.4.0"
+      },
+      {
+        "doc_id": "LOCKS-1",
+        "sha256": "af9f4be1af16a9818634553f49d510f8d1c59af009213ba06214dc87991949a8",
+        "version": "3.0.0"
+      },
+      {
+        "doc_id": "OBS-1",
+        "sha256": "dbe74836e2f0a784cebea332efd74cb76d87ea2016637f8d1b55ad3a68eb5c06",
+        "version": "2.9.0"
+      },
+      {
+        "doc_id": "OFFER-1",
+        "sha256": "6cda1ebf017fbd412d3ab6a542d068b428e8074cf94d4de2653ecfa5d614cfd8",
+        "version": "2.0.0"
+      },
+      {
+        "doc_id": "ORD-1",
+        "sha256": "01124134e3bc69de16762eaa83e8d407be8dba3ff3720aec8db4b10df690f428",
+        "version": "4.0.0"
+      },
+      {
+        "doc_id": "PII-1",
+        "sha256": "d665e5a95bf42f8070a446d15f8ec4941b9929a980f04e786cf6a3499672d193",
+        "version": "2.0.0"
+      },
+      {
+        "doc_id": "PRICE-1",
+        "sha256": "f5363937b2c1e514a190bfdea72e54757df0894aee18a7170d0acf47fa1d39e4",
+        "version": "4.0.0"
+      },
+      {
+        "doc_id": "RP-0",
+        "sha256": "c54779b88cb6068485ba3ecf78bd162a4c1eb2b62408a95cb5363246b91303d5",
+        "version": "4.0.0"
+      },
+      {
+        "doc_id": "SEAT-1",
+        "sha256": "3ee42fbc6e43e1a58233abb9de8b1cf5b23037d62dcf4add256af750267b07cc",
+        "version": "4.0.0"
+      },
+      {
+        "doc_id": "SEC-1",
+        "sha256": "58bea9f2f27e41e763a4fe48063565ca69d8d8ed5300f5a3ef5c872e18d3a556",
+        "version": "3.5.0"
+      },
+      {
+        "doc_id": "SM-0",
+        "sha256": "3e03291058d1b83c61531c2f1b40d1f556cf2c2a6d9d6049fc6e1bdd58fabd60",
+        "version": "1.3.0"
+      },
+      {
+        "doc_id": "TAX-1",
+        "sha256": "8ebaa619e4af2574fdfc72401fa7ff01e90a43bd32e75e59323487df22230749",
+        "version": "3.0.0"
+      },
+      {
+        "doc_id": "TEN-1",
+        "sha256": "11db8e130cfe63d4f32cf0dfd61356f27a69232899b872b082f5d9dd2008d8c8",
+        "version": "2.0.0"
+      }
+    ],
+    "dependency_closure_sha256": "2a566a10e1dea355faeaafd48a17793e8bff1e35cd8827aa7413873e4055c261",
+    "generator_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+    "generator_version": "2.0.0",
+    "manifest_validation_status": "VALID",
+    "superseded_identity_defects": []
+  },
+  "generation_status": "BUILT_CANDIDATE_SOURCE",
+  "generator": "tools/generate_canon.py",
+  "generator_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "generator_version": "2.0.0",
+  "resolved_selection_path": "release-src/current/CANON-1/2.0.11/resolved-selection.json",
+  "resolved_selection_sha256": "78201e298c3e38943a908db4a94719bc83f62881eb883b5e24bf37e95bb285f8"
+}

@@ -1,0 +1,722 @@
+{
+  "artifact_kind": "contract",
+  "ash_3x_alignment": {
+    "domain_first_boundary": {
+      "forbidden_patterns": [
+        "Ash.Api",
+        "process-global tenant state"
+      ],
+      "notes": [
+        "Tenant and actor MUST be passed explicitly via opts to Ash calls.",
+        "Do not rely on global per-process tenant storage."
+      ],
+      "rule": "All external surface configuration MUST be domain-first (Ash.Domain). Ash 2.x Ash.Api patterns are forbidden."
+    }
+  },
+  "authn": {
+    "forbidden": [
+      {
+        "reason": "Not revocable per tenant/client; violates least privilege.",
+        "type": "shared_global_key"
+      }
+    ],
+    "requirements": [
+      "Every request MUST establish an actor (or explicitly be anonymous) and MUST establish an effective tenant for tenant-scoped routes.",
+      "Tokens/keys MUST be rotated and versioned; store only hashed secrets where feasible."
+    ],
+    "supported": [
+      {
+        "notes": "JWT or opaque token; must map to actor + tenant memberships.",
+        "type": "bearer_token"
+      },
+      {
+        "notes": "Server-to-server integrations; must be scoped, rotated, and logged.",
+        "type": "api_key"
+      }
+    ]
+  },
+  "authz": {
+    "property_level_controls": [
+      "Responses MUST be deny-by-default via explicit public projections or explicit allowlists.",
+      "Relationship expansions MUST be constrained and authorized."
+    ],
+    "rule": "All externally reachable actions MUST authorize via Ash.Policy.Authorizer; bypass is forbidden except audited system flows allowed by GOV-0/V42-0 posture."
+  },
+  "canonical": false,
+  "change_log": [
+    {
+      "changes": [
+        "Webhook envelope now requires producer field (breaking for consumers).",
+        "Added producer required fields and signing requirements.",
+        "Defined idempotency requirements for high-risk writes."
+      ],
+      "date": "2026-01-01",
+      "version": "2.0.0"
+    },
+    {
+      "changes": [
+        "Upgraded envelope and gating to CS-0@2.2.0 and BP-0 baseline gate structure.",
+        "Added Projection Mandatory (deny-by-default public serialization).",
+        "Added Filter allowlist policy and query complexity limits.",
+        "Added required response header reflection for X-Trace-Id and X-Request-Id.",
+        "Added cursor-only pagination policy for large datasets (offset thresholds).",
+        "Added webhook loop protection via X-ET-Source / X-ET-Worker-Instance."
+      ],
+      "date": "2026-01-06",
+      "version": "2.1.0"
+    },
+    {
+      "changes": [
+        "BREAKING (semantic): Fixed ERR-1 top-level code discipline violations - replaced all non-canonical codes (ERR_BAD_REQUEST → ERR_BAD_REQUEST, etc.) across all error mappings, subcode registry, and hide-existence rules.",
+        "Fixed idempotency TTL inconsistency: removed ambiguous key_ttl_seconds from high_risk_writes; aligned to single 86400s TTL for financial safety.",
+        "Removed non-deterministic API-0 references; allowlists must be code-maintained until API-0 is suite-canonical.",
+        "Added explicit constant-time signature comparison requirement for webhook signing (security hardening).",
+        "Updated test gates to enforce canonical ERR-1 spellings and forbid legacy codes."
+      ],
+      "date_utc": "2026-01-09T00:00:00Z",
+      "version": "2.1.5"
+    }
+  ],
+  "changelog": [
+    {
+      "changes": [
+        "P1: Declared explicit non-producer surface (emits_events=false, outbox_events=[]).",
+        "P1: Added registry floor parity dependency pin on EVT-1@2.16.4.",
+        "P1: Added ASSERT-NON-PRODUCER gate to prevent CI theatre."
+      ],
+      "date_utc": "2026-02-07T00:00:00.000000Z",
+      "type": "patch",
+      "version": "2.1.6"
+    }
+  ],
+  "compliance_definition": {
+    "claim_label": "EXT-1 compliant",
+    "claim_rule": "An implementation MUST NOT claim EXT-1 compliance unless it enforces: tenant hide-existence semantics, Ash.Policy-based authorization, deny-by-default public projections, filter allowlists, cursor pagination policy, idempotency for declared high-risk writes, webhook signing+retry, and edge correlation headers.",
+    "fail_closed": true,
+    "missing_detail_means_not_implemented": true
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "Suite schema and envelope validation."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.1",
+      "reason": "Test gate taxonomy and standard gate expectations."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "CI contract gate and bundle integrity enforcement expectations."
+    },
+    {
+      "doc_id": "BP-0",
+      "edge_type": "governance_floor",
+      "min_version": "1.0.2",
+      "reason": "Blueprint baseline gate set and bundle layout requirements."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.5.0",
+      "reason": "Constitutional invariants: tenancy, security, ops, and governance posture."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.4",
+      "reason": "Tenant isolation and hide-existence semantics."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.3.18",
+      "reason": "Canonical error envelope, top-level codes, retry taxonomy."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.7.0",
+      "reason": "Observability signals and SLO alignment for public edges and webhook delivery."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.3",
+      "reason": "Latency budgets, admission control, and performance invariants for public API."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.0.10",
+      "reason": "Concurrency, idempotency semantics, and lock ordering expectations."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.10",
+      "reason": "Ash 3.x only governance; domain-first architecture; explicit tenant passing."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.11",
+      "reason": "Static lints to block Ash 2.x patterns and enforce Ash 3.x governance."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Registry floor parity for Phase-5 Airlock."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4"
+  },
+  "doc_id": "EXT-1",
+  "emits_events": false,
+  "error_contract": {
+    "envelope_ref": "ERR-1",
+    "http_mapping_baseline": {
+      "ERR_BAD_REQUEST": 400,
+      "ERR_CONFLICT": 409,
+      "ERR_FORBIDDEN": 403,
+      "ERR_INTERNAL": 500,
+      "ERR_NOT_FOUND": 404,
+      "ERR_PRECONDITION": 412,
+      "ERR_RATE_LIMITED": 429,
+      "ERR_THIRD_PARTY": 502,
+      "ERR_TIMEOUT": 504,
+      "ERR_UNAUTHENTICATED": 401,
+      "ERR_UNAVAILABLE": 503
+    },
+    "rule": "All external responses MUST use ERR-1 top-level codes and stable subcodes. Do not invent new top-level codes or ad-hoc HTTP mappings.",
+    "subcode_registry": {
+      "EXTFILTERNOTALLOWED": {
+        "code": "ERR_BAD_REQUEST",
+        "notes": "Filter field/path not allowlisted for this endpoint."
+      },
+      "EXTIDEMPOTENCYKEYREQUIRED": {
+        "code": "ERR_BAD_REQUEST",
+        "notes": "Missing Idempotency-Key for a required operation."
+      },
+      "EXTIDEMPOTENCYREPLAY": {
+        "code": "ERR_CONFLICT",
+        "notes": "Idempotency-Key replay with a conflicting request."
+      },
+      "EXTOFFSETFORBIDDENUSECURSOR": {
+        "code": "ERR_BAD_REQUEST",
+        "notes": "Offset pagination forbidden for this resource; use cursor pagination."
+      },
+      "EXTRATELIMITED": {
+        "code": "ERR_RATE_LIMITED",
+        "notes": "Rate limit exceeded."
+      },
+      "EXTWEBHOOKLOOPDETECTED": {
+        "code": "ERR_RATE_LIMITED",
+        "notes": "Potential webhook echo loop detected; stricter rate limiting applied."
+      },
+      "EXTWEBHOOKPERMANENTFAILURE": {
+        "code": "ERR_BAD_REQUEST",
+        "notes": "Permanent webhook delivery failure."
+      },
+      "EXTWEBHOOKRETRYABLE": {
+        "code": "ERR_UNAVAILABLE",
+        "notes": "Retryable webhook delivery failure."
+      }
+    }
+  },
+  "errors": {
+    "hide_existence": {
+      "tenant_boundary_violation": {
+        "error_code": "ERR_NOT_FOUND",
+        "http_status": 404,
+        "rule": "Implementations MUST NOT leak resource existence across tenant boundaries; tenant-boundary violations MUST return ERR_NOT_FOUND (404) for public projections."
+      }
+    }
+  },
+  "external_surfaces": [
+    {
+      "enabled": true,
+      "notes": "Plain JSON endpoints when JSON:API is not used.",
+      "surface": "rest_json"
+    },
+    {
+      "enabled": true,
+      "implementation": "AshJsonApi",
+      "spec": "JSON:API",
+      "surface": "json_api"
+    },
+    {
+      "enabled": false,
+      "implementation": "AshGraphql",
+      "notes": "Optional; must comply with the same controls when enabled.",
+      "surface": "graphql"
+    },
+    {
+      "enabled": true,
+      "notes": "Outbound event delivery to tenant-managed endpoints.",
+      "surface": "webhooks"
+    }
+  ],
+  "filter_standards": {
+    "notes": [
+      "This contract defines the enforcement model.",
+      "Per-endpoint allowlists MUST be maintained in code and proven via integration tests.",
+      "Future: When API-0 (route registry) is adopted in-suite, allowlists will be centralized there."
+    ],
+    "policy": "explicit_allowlist",
+    "unlisted_filter_error": {
+      "code": "ERR_BAD_REQUEST",
+      "subcode": "EXTFILTERNOTALLOWED"
+    }
+  },
+  "gateway_security": {
+    "hsts": {
+      "header": "Strict-Transport-Security",
+      "include_subdomains_required": true,
+      "max_age_seconds_min": 31536000,
+      "preload_allowed": true,
+      "required": true,
+      "rule": "API gateway MUST set Strict-Transport-Security on all HTTPS responses with max-age >= max_age_seconds_min; includeSubDomains MUST be present."
+    }
+  },
+  "generated_at_utc": "2026-01-09T07:21:33Z",
+  "graphql": {
+    "if_enabled_requirements": [
+      "Depth limiting and complexity budgeting",
+      "Per-tenant+actor rate limits",
+      "Explicit allowlists for exposed types and fields",
+      "Same ERR-1 envelope mapping",
+      "Disable arbitrary nested filters; use explicit allowlists"
+    ],
+    "notes": "GraphQL is disabled by default. Enable only when query complexity controls are enforced."
+  },
+  "http_api": {
+    "base_path": "/v1",
+    "content_types": [
+      "application/json",
+      "application/vnd.api+json"
+    ],
+    "idempotency": {
+      "collision_error": {
+        "code": "ERR_CONFLICT",
+        "subcode": "EXTIDEMPOTENCYREPLAY"
+      },
+      "header": "X-Idempotency-Key",
+      "missing_error": {
+        "code": "ERR_BAD_REQUEST",
+        "subcode": "EXTIDEMPOTENCYKEYREQUIRED"
+      },
+      "replay_header": "X-Idempotency-Replayed",
+      "required_for": [
+        "checkout.finalize",
+        "payment.confirm",
+        "payment.capture",
+        "refund.create",
+        "seat_hold.create",
+        "seat_hold.extend"
+      ],
+      "rule": "For all state-changing endpoints in required_for, Idempotency-Key is mandatory. Replays MUST return the original outcome body and MUST include X-Idempotency-Replayed=true.",
+      "ttl_seconds": 86400
+    },
+    "input_controls": {
+      "max_body_bytes": 1048576,
+      "max_depth": 32,
+      "rule": "Reject over-sized or excessively nested inputs to prevent resource exhaustion (align with OWASP API4:2023)."
+    },
+    "internal_loop_protection": {
+      "internal_source_values": [
+        "platform-webhook-worker"
+      ],
+      "rule": "Inbound requests identified as internal webhook echo loops (via X-ET-Source) MUST be rate-limited more strictly than standard traffic and MUST surface EXTWEBHOOKLOOPDETECTED.",
+      "source_header": "X-ET-Source"
+    },
+    "pagination": {
+      "cursor": {
+        "default_limit": 25,
+        "max_limit": 100,
+        "rule": "Cursor pagination MUST be enforced on collection endpoints; unlimited collections are forbidden."
+      },
+      "default_style": "cursor",
+      "offset": {
+        "allowed_for_small_resources_only": true,
+        "exceeds_threshold_error": {
+          "code": "ERR_BAD_REQUEST",
+          "subcode": "EXTOFFSETFORBIDDENUSECURSOR"
+        },
+        "max_offset": 1000,
+        "max_rows_threshold": 10000
+      }
+    },
+    "query_standards": {
+      "filtering_and_sorting": {
+        "deny_nested_relationship_filters": true,
+        "max_filter_depth": 3,
+        "max_predicates": 25,
+        "policy": "explicit_allowlist",
+        "rule": "Only allowlisted filters and sorts may be used. Unlisted filters MUST return ERR_BAD_REQUEST/EXTFILTERNOTALLOWED."
+      }
+    },
+    "rate_limiting": {
+      "error": {
+        "code": "ERR_RATE_LIMITED",
+        "subcode": "EXTRATELIMITED"
+      },
+      "owasp_ref": "API4:2023 Unrestricted Resource Consumption",
+      "rule": "Rate limiting MUST be applied per tenant + actor + client/app key. High-risk flows MUST have tighter limits.",
+      "status_code": 429
+    },
+    "required_response_headers": {
+      "X-Request-Id": {
+        "must_be_present": "always",
+        "rule": "Reflect the request id used for logging/correlation; generate if absent."
+      },
+      "X-Trace-Id": {
+        "must_be_present": "always",
+        "rule": "Reflect the server-side OpenTelemetry trace id."
+      }
+    }
+  },
+  "idempotency": {
+    "high_risk_writes": {
+      "required": true,
+      "rule": "Idempotency keys for high-risk writes MUST have TTL matching http_api.idempotency.ttl_seconds (86400 seconds / 24 hours) to prevent double-charge, double-issuance, and double-holds under delayed retries or provider callback storms. Storage MUST be atomic with TTL set."
+    }
+  },
+  "last_updated_utc": "2026-01-09T07:21:33Z",
+  "limits_and_budgets": {
+    "rate_limits": {
+      "rule": "Rate limits MUST be enforced at the (org_id, actor_id) tuple level, not org_id alone, to prevent a single actor from degrading an entire tenant.",
+      "scope_tuple": [
+        "org_id",
+        "actor_id"
+      ]
+    }
+  },
+  "lineage": {
+    "foundation_refs": [
+      {
+        "doc_id": "BP-0",
+        "min_version": "3.0.1",
+        "reason": "Lineage records the BP-0 foundation schema used by this source release."
+      },
+      {
+        "doc_id": "CS-0",
+        "min_version": "3.0.1",
+        "reason": "Lineage records the CS-0 foundation schema used by this source release."
+      }
+    ],
+    "supersedes": [
+      {
+        "doc_id": "EXT-1",
+        "version": "2.1.5"
+      }
+    ]
+  },
+  "lock_state": "locked",
+  "normative_source": "json",
+  "observability": {
+    "alerts": {
+      "EXTWEBHOOKEXHAUSTED": {
+        "rule": "Alert MUST fire when webhook deliveries transition to permanent_failure due to max_attempts exhaustion.",
+        "severity": "P1"
+      }
+    },
+    "propagation": {
+      "request_id_generate_if_missing": true,
+      "request_id_inbound_header": "X-Request-Id",
+      "rule": "Edge MUST correlate public request id to internal trace id and reflect both in response headers.",
+      "trace_id_outbound_header": "X-Trace-Id"
+    }
+  },
+  "outbox_events": [],
+  "pagination_policy": {
+    "tier_3_list_actions": {
+      "cursor_required": true,
+      "mode": "keyset",
+      "offset_forbidden": true,
+      "rule": "Tier 3 list actions MUST use cursor-first keyset pagination; offset-based pagination MUST be rejected."
+    }
+  },
+  "public_projections": {
+    "error_handling": {
+      "rule": "Public projection modules MUST map tenant boundary authorization failures to NotFound (hide-existence).",
+      "tenant_boundary_mapping": ":forbidden_to_not_found"
+    }
+  },
+  "purpose_and_boundaries": {
+    "never_owns": [
+      "Internal domain resource schemas (ledger, payments, orders)",
+      "Internal state machines and financial invariants (delegated to subsystem contracts)",
+      "Provider-specific payment adapter details"
+    ],
+    "owns": [
+      "Rules for externally reachable HTTP APIs (REST/JSON + JSON:API) and optional GraphQL",
+      "Rules for outbound webhooks and their integrity/retry semantics",
+      "Public-edge query complexity and pagination constraints",
+      "Edge-to-internal observability correlation requirements"
+    ]
+  },
+  "references": [
+    {
+      "kind": "ash_upgrade_to_3_0",
+      "ref": "https://hexdocs.pm/ash/upgrading-to-3-0.html"
+    },
+    {
+      "kind": "ash_multitenancy",
+      "ref": "https://hexdocs.pm/ash/multitenancy.html"
+    },
+    {
+      "kind": "ashjsonapi_resource_dsl",
+      "ref": "https://hexdocs.pm/ash_json_api/dsl-ashjsonapi-resource.html"
+    },
+    {
+      "kind": "owasp_api_top10_2023",
+      "ref": "https://owasp.org/API-Security/editions/2023/en/0x11-t10/"
+    },
+    {
+      "kind": "owasp_api4_2023",
+      "ref": "https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/"
+    },
+    {
+      "kind": "graphql_security",
+      "ref": "https://graphql.org/learn/security/"
+    }
+  ],
+  "resource_projection": {
+    "policy": "explicit_projection_or_allowlist",
+    "rule": "No internal Ash resource may be serialized directly to the public internet. Every endpoint MUST map to a public projection resource (DTO/projection) where fields are explicitly opted-in, or MUST define an explicit allowlist of serializable fields."
+  },
+  "rules": [
+    {
+      "applies_to": [
+        "bundle",
+        "ci"
+      ],
+      "category": "governance",
+      "rationale": "Deterministic CI enforcement; prevents drift.",
+      "rule_id": "EXT-1-META-001",
+      "severity": "P0",
+      "text": "EXT-1 and EXT-1-GATE MUST be JSON-only normative artifacts; repacks (_r1/_r2) are forbidden; metadata must match filenames and manifest pins."
+    },
+    {
+      "applies_to": [
+        "tenant_boundary",
+        "http_api"
+      ],
+      "category": "tenancy",
+      "rationale": "Prevents tenant enumeration and reduces BOLA exploitability.",
+      "rule_id": "EXT-1-TEN-001",
+      "severity": "P0",
+      "text": "Cross-tenant access MUST be hidden with ERR_NOT_FOUND (not 403) for tenant-scoped object lookups, per TEN-1."
+    },
+    {
+      "applies_to": [
+        "authz",
+        "http_api",
+        "graphql"
+      ],
+      "category": "authorization",
+      "rationale": "Broken authorization is the top API breach class.",
+      "rule_id": "EXT-1-AUTH-001",
+      "severity": "P0",
+      "text": "Externally reachable actions MUST authorize via Ash.Policy.Authorizer; bypass is forbidden except audited system flows."
+    },
+    {
+      "applies_to": [
+        "resource_projection",
+        "http_api",
+        "graphql"
+      ],
+      "category": "data_minimization",
+      "rationale": "Prevents excessive data exposure of internal/sensitive fields.",
+      "rule_id": "EXT-1-PATCH-010",
+      "severity": "P0",
+      "text": "Projection Mandatory: All public resources MUST be explicit projections or explicit allowlists; direct serialization of internal resources is forbidden."
+    },
+    {
+      "applies_to": [
+        "http_api.query_standards",
+        "filter_standards"
+      ],
+      "category": "resource_exhaustion",
+      "rationale": "Prevents filter-based DOS that violates PSC-1 latency budgets.",
+      "rule_id": "EXT-1-PATCH-011",
+      "severity": "P0",
+      "text": "Filter Whitelist: Only allowlisted filter fields may be used; unlisted filters MUST return ERR_BAD_REQUEST with EXTFILTERNOTALLOWED."
+    },
+    {
+      "applies_to": [
+        "http_api.required_response_headers",
+        "observability.propagation"
+      ],
+      "category": "observability",
+      "rationale": "Enables rapid incident debugging by correlating client requests with OTel traces.",
+      "rule_id": "EXT-1-PATCH-012",
+      "severity": "P0",
+      "text": "Header Reflection: All responses MUST include X-Trace-Id and X-Request-Id headers for client-to-trace correlation."
+    },
+    {
+      "applies_to": [
+        "http_api.pagination"
+      ],
+      "category": "performance",
+      "rationale": "Offset pagination degrades to O(n) scans and breaks latency budgets.",
+      "rule_id": "EXT-1-PATCH-013",
+      "severity": "P0",
+      "text": "Cursor-Only Pagination: Offset pagination is forbidden for resources over 10,000 rows; if used beyond max_offset, return EXTOFFSETFORBIDDENUSECURSOR."
+    },
+    {
+      "applies_to": [
+        "webhooks.delivery_headers",
+        "http_api.internal_loop_protection"
+      ],
+      "category": "webhooks",
+      "rationale": "Prevents cascading failures from misconfigured webhook consumers creating feedback loops.",
+      "rule_id": "EXT-1-PATCH-014",
+      "severity": "P1",
+      "text": "Webhook Loop Protection: Outbound webhooks MUST include X-ET-Source and X-ET-Worker-Instance; inbound echo loops MUST be rate-limited and surfaced as EXTWEBHOOKLOOPDETECTED."
+    },
+    {
+      "applies_to": [
+        "http_api.idempotency"
+      ],
+      "category": "idempotency",
+      "rationale": "Prevents double-charge, double-issue, double-hold under retries.",
+      "rule_id": "EXT-1-IDEMP-001",
+      "severity": "P0",
+      "text": "Idempotency-Key is mandatory for declared high-risk state-changing endpoints; replays MUST return original response."
+    },
+    {
+      "applies_to": [
+        "webhooks.signing"
+      ],
+      "category": "webhooks",
+      "rationale": "Integrity and replay prevention for external event delivery.",
+      "rule_id": "EXT-1-WH-001",
+      "severity": "P0",
+      "text": "All webhook deliveries MUST be signed (HMAC-SHA256) with timestamp skew validation and rotation support."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Enforceable standards for all externally reachable surfaces (REST/JSON, JSON:API, GraphQL, Webhooks) for the multi-tenant events/ticketing platform. Defines tenancy hide-existence semantics, authN/authZ boundaries, deny-by-default public projections, query complexity controls (filter allowlists + cursor pagination), webhook signing/retries, edge-to-internal observability correlation, and canonical ERR-1 error mapping.",
+  "tenant_boundary": {
+    "hide_existence_errors": {
+      "cross_tenant": "ERR_NOT_FOUND",
+      "unknown_tenant": "ERR_NOT_FOUND"
+    },
+    "notes": [
+      "Never use 403 for cross-tenant object lookups when existence must be hidden.",
+      "If authN is missing/invalid, prefer ERR_UNAUTHENTICATED."
+    ],
+    "path_prefix_template": "/v1/orgs/{org_id}",
+    "rule": "All external requests MUST resolve an effective tenant (org) and MUST apply tenant scoping before any data access. If an actor is not allowed to access the tenant, respond with ERR_NOT_FOUND (hide existence) per TEN-1.",
+    "tenant_key": "org_id"
+  },
+  "tier": 3,
+  "title": "External Surfaces (Public API + Webhooks) Standard",
+  "updated_at_utc": "2026-01-09T07:21:33Z",
+  "version": "2.1.7",
+  "webhooks": {
+    "consumer_safety": {
+      "notes": [
+        "Webhook events are a public API. Treat them like any other external surface."
+      ],
+      "rule": "Never include secrets or full card/bank data. Ensure data minimization and classify fields in the envelope meta."
+    },
+    "delivery_headers": {
+      "attempt_header": "X-ET-Attempt",
+      "event_header": "X-ET-Event-Type",
+      "id_header": "X-ET-Delivery-Id",
+      "source_header": "X-ET-Source",
+      "source_value": "platform-webhook-worker",
+      "tenant_header": "X-ET-Org-Id",
+      "timestamp_header": "X-ET-Timestamp",
+      "worker_instance_header": "X-ET-Worker-Instance"
+    },
+    "egress": {
+      "loop_protection": {
+        "header": "X-ET-Source",
+        "required": true,
+        "rule": "Implementations MUST set and verify X-ET-Source to prevent webhook loop recursion."
+      },
+      "target_url_policy": {
+        "https_only": true,
+        "rejection_error_code": "ERR_BAD_REQUEST",
+        "rule": "All webhook target_url entries MUST be HTTPS; implementations MUST reject http:// targets to prevent credential leakage in transit."
+      }
+    },
+    "event_envelope": {
+      "fields": [
+        "id",
+        "type",
+        "occurred_at",
+        "org_id",
+        "data",
+        "meta",
+        "producer"
+      ],
+      "producer_required_fields": [
+        "service",
+        "kind",
+        "version",
+        "instance_id"
+      ],
+      "rule": "Webhook payloads MUST use a stable envelope. Do not deliver raw internal Ash records.",
+      "version": "1"
+    },
+    "queue": {
+      "ack_rules": [
+        "2xx means accepted",
+        "3xx treated as failure (do not follow redirects)",
+        "4xx means permanent failure EXCEPT 408/429 which are retryable",
+        "5xx retryable"
+      ],
+      "delivery_ordering": "per org_id + resource_id",
+      "dlq": {
+        "alert_on_exhausted": "EXTWEBHOOKEXHAUSTED",
+        "outbox_state_on_exhausted": "permanent_failure",
+        "rule": "Webhooks reaching max_attempts MUST be moved to a permanent_failure state in the Outbox and trigger an EXTWEBHOOKEXHAUSTED alert."
+      },
+      "failure_mapping": {
+        "permanent": {
+          "code": "ERR_BAD_REQUEST",
+          "subcode": "EXTWEBHOOKPERMANENTFAILURE"
+        },
+        "retryable": {
+          "code": "ERR_UNAVAILABLE",
+          "subcode": "EXTWEBHOOKRETRYABLE"
+        }
+      },
+      "retry_policy": {
+        "backoff": "exponential_with_jitter",
+        "initial_delay_seconds": 5,
+        "max_attempts": 12,
+        "max_delay_seconds": 900,
+        "timeout_per_attempt_ms": 5000
+      }
+    },
+    "signing": {
+      "algorithm": "HMAC-SHA256",
+      "constant_time_comparison_required": true,
+      "format": "t=<unix_seconds>,v1=<hex_sha256>[,v1=<hex_sha256>]",
+      "format_regex": "^t=\\d{10},v1=[0-9a-f]{64}(,v1=[0-9a-f]{64})?$",
+      "header": "X-ET-Signature",
+      "max_timestamp_drift_seconds": 300,
+      "max_timestamp_skew_seconds": 300,
+      "rule": "Every webhook MUST be signed with HMAC-SHA256 over (timestamp + '.' + raw_body). Signature verification MUST use constant-time comparison to prevent timing attacks. Reject deliveries outside skew window. Support secret rotation by accepting multiple v1 signatures.",
+      "timestamp_drift_policy": {
+        "error_code": "ERR_BAD_REQUEST",
+        "rule": "Implementations MUST reject signatures where the provided t= timestamp is outside max_timestamp_drift_seconds relative to server time."
+      }
+    }
+  }
+}

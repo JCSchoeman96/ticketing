@@ -1,0 +1,13 @@
+{
+  "doc_id": "COMM-1",
+  "version": "1.1.6",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch successor preserving COMM-1 semantics while repairing the recorded CS-0/gate/manifest identity defects.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "41ef46ea018b8b333a7aa226f3a7a49dd7f4e287d9b977fada06bcd8f8d3de68"
+  }
+}

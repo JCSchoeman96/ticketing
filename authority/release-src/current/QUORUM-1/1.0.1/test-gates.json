@@ -1,0 +1,149 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "QUORUM-1",
+    "version": "1.0.1"
+  },
+  "doc_id": "QUORUM-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.0 across contract and gates.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "suite_schema MUST equal CS-0@2.2.0 across contract and gates.",
+      "id": "QUORUM-1.GATE.0001",
+      "level": "P0",
+      "must": true,
+      "title": "QUORUM-1.GATE.0001"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json MUST exist and match the bundle contents.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "bundle.manifest.json MUST exist and match the bundle contents.",
+      "id": "QUORUM-1.GATE.0002",
+      "level": "P0",
+      "must": true,
+      "title": "QUORUM-1.GATE.0002"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/invariants/QUORUM-1-INVARIANT-ISOLATION",
+            "equals": {
+              "severity": "P0",
+              "text": "Signer keys used for a quorum MUST reside in distinct identity-provider partitions (security boundaries). A single credential leak or account admin in one partition MUST NOT be sufficient to satisfy quorum."
+            }
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/invariants/QUORUM-1-INVARIANT-HANDOVER",
+            "equals": {
+              "severity": "P0",
+              "text": "Any modification to QUORUM-1 MUST be authorized by the outgoing quorum set (handover) OR by the recovery quorum as defined herein. This prevents bootstrap deadlock and ensures controlled quorum rotation."
+            }
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/invariants/QUORUM-1-INVARIANT-NO-CI-SIGNERS",
+            "equals": {
+              "severity": "P0",
+              "text": "CI/build identities MUST NOT be valid quorum signers. Quorum signer keys MUST be inaccessible to CI roles and MUST be callable only from distinct human-controlled security boundaries."
+            }
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/quorum_sets",
+            "equals": [
+              {
+                "configuration_state": "unconfigured",
+                "min_signers": 2,
+                "policy_isolation": {
+                  "notes": "Non-negotiable: keys MUST be in distinct security boundaries (e.g., separate cloud accounts).",
+                  "requires_distinct_cloud_account": true,
+                  "requires_distinct_security_boundary_id": true
+                },
+                "purpose": "Authorize PROD-1 legislative bypass windows.",
+                "quorum_id": "ticketing.legislative.bypass.q1",
+                "required_roles": [
+                  "security_lead",
+                  "lead_architect"
+                ],
+                "signers": []
+              },
+              {
+                "configuration_state": "unconfigured",
+                "min_signers": 2,
+                "policy_isolation": {
+                  "notes": "Recovery quorum MUST be isolated from primary quorum boundaries.",
+                  "requires_distinct_cloud_account": true,
+                  "requires_distinct_security_boundary_id": true
+                },
+                "purpose": "Bootstrap deadlock recovery quorum for quorum handover.",
+                "quorum_id": "ticketing.legislative.recovery.q0",
+                "required_roles": [
+                  "security_recovery_1",
+                  "security_recovery_2",
+                  "security_recovery_3"
+                ],
+                "signers": []
+              }
+            ]
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Required invariants MUST be present (isolation, handover, no-ci-signers).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Required invariants MUST be present (isolation, handover, no-ci-signers).",
+      "id": "QUORUM-1.GATE.0003",
+      "level": "P0",
+      "must": true,
+      "title": "QUORUM-1.GATE.0003"
+    }
+  ],
+  "generated_at_utc": "2026-04-17T08:50:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "QUORUM-1 Test Gates",
+  "updated_at": "2026-04-17T08:50:00Z",
+  "version": "1.0.1",
+  "artifact_name": "QUORUM-1-GATE_TestGates_v1.0.1.json"
+}

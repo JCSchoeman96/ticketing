@@ -1,0 +1,772 @@
+{
+  "artifact_kind": "test_gates",
+  "change_log": [
+    {
+      "date": "2026-06-03",
+      "summary": "Final hardening: converted gate IDs to snake_case, narrowed sensitive-variable checks to persisted fields, and added INT dependency floor alignment gate.",
+      "version": "1.0.4"
+    }
+  ],
+  "contract_ref": {
+    "doc_id": "NOTIF-1",
+    "version": "1.0.5"
+  },
+  "doc_id": "NOTIF-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "NOTIF-1 artifacts MUST be pinned to CS-0@3.0.0.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 artifacts MUST be pinned to CS-0@3.0.0.",
+      "id": "NOTIF_1_GATE_010_SUITE_SCHEMA_PARITY",
+      "level": "P0",
+      "must": true,
+      "title": "Suite schema parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "NOTIF-1 bundle MUST contain bundle.manifest.json.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 bundle MUST contain bundle.manifest.json.",
+      "id": "NOTIF_1_GATE_020_MANIFEST_FILENAME",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest filename"
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "NOTIF-1 manifest MUST list exactly the JSON artifacts excluding itself with correct hashes and sizes.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 manifest MUST list exactly the JSON artifacts excluding itself with correct hashes and sizes.",
+      "id": "NOTIF_1_GATE_030_MANIFEST_FILE_PARITY",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest file parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/thin_orchestration_only"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/no_business_truth_mutation"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "NOTIF-1 MUST be orchestration only and MUST NOT own business truth.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 MUST be orchestration only and MUST NOT own business truth.",
+      "id": "NOTIF_1_GATE_040_THIN_ORCHESTRATION_BOUNDARY",
+      "level": "P0",
+      "must": true,
+      "title": "Thin orchestration boundary"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/reactor_catalog_exists"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "NOTIF-1 MUST define a standard reactor catalog for auth, order, ticket, refund, abandonment, and upsell triggers.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 MUST define a standard reactor catalog for auth, order, ticket, refund, abandonment, and upsell triggers.",
+      "id": "NOTIF_1_GATE_050_REACTOR_CATALOG_EXISTS",
+      "level": "P0",
+      "must": true,
+      "title": "Reactor catalog exists"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/notification_intent_outbox_exists"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "NOTIF-1 MUST define NotificationIntent outbox resource and lifecycle.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 MUST define NotificationIntent outbox resource and lifecycle.",
+      "id": "NOTIF_1_GATE_060_NOTIFICATION_INTENT_OUTBOX_EXISTS",
+      "level": "P0",
+      "must": true,
+      "title": "Notification intent outbox exists"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/marketing_requires_consent_proof"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Marketing reactors MUST require CONSENT-1 proof.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Marketing reactors MUST require CONSENT-1 proof.",
+      "id": "NOTIF_1_GATE_070_MARKETING_CONSENT_PROOF_REQUIRED",
+      "level": "P0",
+      "must": true,
+      "title": "Marketing consent proof required"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/no_provider_calls_in_notif"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "sendgrid",
+              "twilio",
+              "aws_ses",
+              "smtp_password",
+              "api_key"
+            ],
+            "json_pointers": [
+              "/scope",
+              "/execution_and_safe_mode"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "NOTIF-1 MUST NOT call providers directly.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 MUST NOT call providers directly.",
+      "id": "NOTIF_1_GATE_080_NO_PROVIDER_CALLS_IN_NOTIF",
+      "level": "P0",
+      "must": true,
+      "title": "No provider calls in NOTIF"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/checkout_not_blocked_by_notif"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Checkout/order/payment/ticket issuance MUST NOT block on NOTIF/COMM outcomes.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Checkout/order/payment/ticket issuance MUST NOT block on NOTIF/COMM outcomes.",
+      "id": "NOTIF_1_GATE_090_CHECKOUT_NOT_BLOCKED",
+      "level": "P0",
+      "must": true,
+      "title": "Checkout not blocked"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/sensitive_variables_redacted"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/sensitive_variable_checks_are_field_scoped"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "reset_token",
+              "invite_token",
+              "raw_email",
+              "raw_phone",
+              "password",
+              "api_key",
+              "private_key",
+              "secret"
+            ],
+            "json_pointers": [
+              "/notification_intent_outbox/fields"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Sensitive tokens and PII MUST NOT be persisted in NOTIF logs.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Sensitive tokens and PII MUST NOT be persisted in NOTIF logs.",
+      "id": "NOTIF_1_GATE_100_SENSITIVE_VARIABLES_REDACTED",
+      "level": "P0",
+      "must": true,
+      "title": "Sensitive variables redacted"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Ticketing",
+            "json_pointer": "/ash_3x_resource_map/root_namespace"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": ":ticketing",
+            "json_pointer": "/ash_3x_resource_map/otp_app"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/ash_3x_resources_declared"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Ash 3.x resources MUST be declared under Ticketing.Notifications.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Ash 3.x resources MUST be declared under Ticketing.Notifications.",
+      "id": "NOTIF_1_GATE_110_ASH_3_X_RESOURCES_DECLARED",
+      "level": "P0",
+      "must": true,
+      "title": "Ash 3.x resources declared"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/deterministic_idempotency_key_declared"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "NotificationIntent idempotency key MUST be deterministic.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NotificationIntent idempotency key MUST be deterministic.",
+      "id": "NOTIF_1_GATE_120_DETERMINISTIC_IDEMPOTENCY_KEY",
+      "level": "P0",
+      "must": true,
+      "title": "Deterministic idempotency key"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/deterministic_uuid_sorting_declared"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "NOTIF-1 MUST declare binary UUID sorting for recipient/audience/source-event hashes.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 MUST declare binary UUID sorting for recipient/audience/source-event hashes.",
+      "id": "NOTIF_1_GATE_130_DETERMINISTIC_UUID_SORTING",
+      "level": "P0",
+      "must": true,
+      "title": "Deterministic UUID sorting"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "TBD",
+              "TODO",
+              "WIP",
+              "BANNED_TOKEN"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "NOTIF-1 artifacts MUST NOT contain banned tokens.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 artifacts MUST NOT contain banned tokens.",
+      "id": "NOTIF_1_GATE_140_NO_BANNED_TOKENS",
+      "level": "P0",
+      "must": true,
+      "title": "No banned tokens"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/comm_message_classes_only"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "COMM message classes only MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "COMM message classes only MUST be declared and enforceable.",
+      "id": "NOTIF_1_GATE_150_COMM_MESSAGE_CLASSES_ONLY",
+      "level": "P0",
+      "must": true,
+      "title": "COMM message classes only"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/no_invalid_auth_message_class"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "No invalid auth message class MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "No invalid auth message class MUST be declared and enforceable.",
+      "id": "NOTIF_1_GATE_160_NO_INVALID_AUTH_MESSAGE_CLASS",
+      "level": "P0",
+      "must": true,
+      "title": "No invalid auth message class"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/source_event_binding_status_declared"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Source event binding status declared MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Source event binding status declared MUST be declared and enforceable.",
+      "id": "NOTIF_1_GATE_170_SOURCE_EVENT_BINDING_STATUS_DECLARED",
+      "level": "P0",
+      "must": true,
+      "title": "Source event binding status declared"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/intent_status_uses_canonical_atoms"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Intent status uses canonical atoms MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Intent status uses canonical atoms MUST be declared and enforceable.",
+      "id": "NOTIF_1_GATE_180_INTENT_STATUS_USES_CANONICAL_ATOMS",
+      "level": "P0",
+      "must": true,
+      "title": "Intent status uses canonical atoms"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/reactor_catalog_events_are_versioned"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Reactor catalog events versioned MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Reactor catalog events versioned MUST be declared and enforceable.",
+      "id": "NOTIF_1_GATE_190_REACTOR_CATALOG_EVENTS_VERSIONED",
+      "level": "P0",
+      "must": true,
+      "title": "Reactor catalog events versioned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/upstream_event_gaps_are_explicit"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Upstream event gaps explicit MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Upstream event gaps explicit MUST be declared and enforceable.",
+      "id": "NOTIF_1_GATE_200_UPSTREAM_EVENT_GAPS_EXPLICIT",
+      "level": "P0",
+      "must": true,
+      "title": "Upstream event gaps explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "transactional",
+            "json_pointer": "/standard_reactor_catalog/0/message_class"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Password reset MUST use COMM-compatible transactional class, not auth.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Password reset MUST use COMM-compatible transactional class, not auth.",
+      "id": "NOTIF_1_GATE_210_PASSWORD_RESET_CLASS_IS_TRANSACTIONAL",
+      "level": "P0",
+      "must": true,
+      "title": "Password reset class is transactional"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/gate_ids_are_cs_compatible_upper_snake_case"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "NOTIF-1 gates SHALL use CS-0-compatible upper snake_case identifiers to satisfy project governance.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 gate IDs are not CS-compatible upper snake_case.",
+      "id": "NOTIF_1_GATE_220_GATE_IDS_ARE_CS_COMPATIBLE_UPPER_SNAKE",
+      "level": "P0",
+      "must": true,
+      "title": "Gate IDs are CS-compatible upper snake_case"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/int_dependency_floor_aligned_to_hardened_int"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "COMM-1",
+            "json_pointer": "/dependencies/13/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.5",
+            "json_pointer": "/dependencies/13/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "INT-1",
+            "json_pointer": "/dependencies/14/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.0.4",
+            "json_pointer": "/dependencies/14/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR-1",
+            "json_pointer": "/dependencies/7/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.8.2",
+            "json_pointer": "/dependencies/7/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "NOTIF-1 dependency floors MUST pin the coordinated clean versions of COMM-1, INT-1, and ERR-1.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 dependency floor for INT-1 is stale.",
+      "id": "NOTIF_1_GATE_230_INT_DEPENDENCY_FLOOR_ALIGNED",
+      "level": "P0",
+      "must": true,
+      "title": "Dependency floors aligned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/automated_gates_do_not_self_fail"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Automated regex gates SHALL NOT scan their own forbidden regex literals or policy prose.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 contains an automated gate that fails because of its own assertion text.",
+      "id": "NOTIF_1_GATE_240_AUTOMATED_GATES_DO_NOT_SELF_FAIL",
+      "level": "P0",
+      "must": true,
+      "title": "Automated gates do not self-fail"
+    },
+    {
+      "id": "NOTIF_1_GATE_250_DISABLED_REACTORS_CANNOT_EXECUTE",
+      "level": "P0",
+      "must": true,
+      "title": "Disabled reactors cannot create NotificationIntent records",
+      "description": "Any reactor whose reactor_activation_status is not enabled MUST NOT create NotificationIntent records.",
+      "failure_message": "A disabled or pending reactor can create NotificationIntent records.",
+      "enforced_by": "contract_json_gate",
+      "assertions": [
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/ci_sentinels/disabled_reactors_cannot_create_notification_intents",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/standard_reactor_catalog/0/reactor_activation_status",
+            "equals": "disabled"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/standard_reactor_catalog/1/reactor_activation_status",
+            "equals": "disabled"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/standard_reactor_catalog/3/reactor_activation_status",
+            "equals": "disabled"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/standard_reactor_catalog/4/source_doc_id",
+            "equals": "REFUND-1"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/standard_reactor_catalog/4/reactor_activation_status",
+            "equals": "disabled"
+          }
+        }
+      ]
+    },
+    {
+      "id": "NOTIF_1_GATE_260_POST_PURCHASE_UPSELL_MARKETING_ONLY",
+      "level": "P0",
+      "must": true,
+      "title": "Post-purchase upsell remains marketing-only and consent gated",
+      "description": "The post-purchase upsell reactor may consume order.finalized only as a marketing message with consent required.",
+      "failure_message": "Post-purchase upsell drifted away from marketing-only consent-gated classification.",
+      "enforced_by": "contract_json_gate",
+      "assertions": [
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/ci_sentinels/post_purchase_upsell_marketing_only",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/standard_reactor_catalog/6/message_class",
+            "equals": "marketing"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/standard_reactor_catalog/6/consent_requirement",
+            "equals": "required"
+          }
+        }
+      ]
+    },
+    {
+      "id": "NOTIF_1_GATE_270_SOURCE_OWNER_CLEANUP",
+      "level": "P0",
+      "must": true,
+      "title": "Reactor source owners are deterministic contract doc_ids",
+      "description": "IAM lifecycle reactors use IAM-2 and refund-completed reactor uses REFUND-1; ambiguous IAM-1_or_IAM-2 is forbidden.",
+      "failure_message": "NOTIF reactor source ownership is ambiguous or points to the wrong source contract.",
+      "enforced_by": "contract_json_gate",
+      "assertions": [
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/ci_sentinels/iam_lifecycle_reactor_source_owner_is_iam_2",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/ci_sentinels/refund_reactor_source_owner_is_refund_1",
+            "equals": true
+          }
+        },
+        {
+          "type": "forbid_regex_in_artifact",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "regex": "IAM-1_or_IAM-2",
+            "scope": "contract_json"
+          }
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-06-03T15:30:00Z",
+  "last_updated_utc": "2026-06-03T15:30:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "NOTIF-1 Test Gates",
+  "version": "1.0.5"
+}

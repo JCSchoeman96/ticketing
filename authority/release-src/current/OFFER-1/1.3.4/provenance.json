@@ -1,0 +1,39 @@
+{
+  "bootstrap_commit": "344ef171adb2c68955942daab72110bbb106846b",
+  "provenance_statement": "Editable OFFER-1 successor source continued from exact prior PR candidate OFFER-1 1.3.3 ZIP. The predecessor ZIP hash, byte length, member hashes, and original accepted-source provenance are recorded.",
+  "source_bundle_path": "contracts/OFFER-1/OFFER-1_bundle_v1.3.3.zip",
+  "source_zip_sha256": "86c99adbb99585ace023ee9b0a5164ade39cff221de72bb4583b0ed0b8690ab7",
+  "source_zip_bytes": 68774,
+  "source_version": "1.3.3",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "OFFER-1_bundle_v1.3.4/OFFER-1_Contract_v1.3.4.json",
+      "sha256": "738d28e7a3449ddfb7896b0f6aaa9a4aefaa74756778cc1630c9b7900c640b9b",
+      "bytes": 50237
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "OFFER-1_bundle_v1.3.4/OFFER-1_Test_Gates_v1.3.4.json",
+      "sha256": "ce00cb53341cdd734263d19c2e12b6d257a82b11221d47db11fa46f99b75fa31",
+      "bytes": 17555
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "OFFER-1_bundle_v1.2.0/OFFER-1-GATE_TestGates_v1.2.0.json",
+      "sha256": "d870cebd52665e73e86b773dab9ccdacfbd1cc8f1a15a703301afc20569e6269",
+      "bytes": 7366
+    },
+    {
+      "source_member_path": "OFFER-1_bundle_v1.2.0/OFFER-1_Contract_v1.2.0.json",
+      "sha256": "963eeafc67e90333a27204fea6d54bf5b5bdb9a059416fe846999fd2db5edc9b",
+      "bytes": 25609
+    },
+    {
+      "source_member_path": "OFFER-1_bundle_v1.2.0/bundle.manifest.json",
+      "sha256": "7483faae84300aec8cc77636a1a63d01155c702c990f8a984b0f1c7eed48ff66",
+      "bytes": 634
+    }
+  ]
+}

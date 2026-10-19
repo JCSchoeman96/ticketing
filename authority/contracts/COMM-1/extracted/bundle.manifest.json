@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "COMM-1",
+    "bundle_version": "1.1.6"
+  },
+  "doc_id": "COMM-1",
+  "files": [
+    {
+      "bytes": 63649,
+      "path": "COMM-1_Contract_v1.1.6.json",
+      "sha256": "a1845966025fa06c07a1476a1d4009cba6ec740668da3c18cf1a98378b3ccdc4"
+    },
+    {
+      "bytes": 44022,
+      "path": "COMM-1_Test_Gates_v1.1.6.json",
+      "sha256": "6f8f86f32cc0d0709cfd6174cd8cab3b1d282667b11a07556801f5503addf98c"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.1.6"
+}

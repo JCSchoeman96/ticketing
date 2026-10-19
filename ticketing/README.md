@@ -1,31 +1,22 @@
 # Ticketing application
 
-This Phoenix application is the product implementation in the parent repository. Run Mix
-commands from this directory. Canonical domain contracts live in the sibling
-`JCSchoeman96/ticketing-contracts` repository. The reviewed implementation baseline is
-CANON-1 2.0.13 at reviewed contracts commit `b6e4bac210a7bdd906b611984150d1f1198f3141`, recorded in
-`../contracts/authority.json` as a consumption pin rather than a second release.
+This Phoenix application is the product implementation. Canonical Ticketing authority lives in the parent repository's `authority/` directory. Its precedence remains CANON and canonical contracts, then the ROADMAP and active tracer, then approved JIP and Plane execution work.
 
-After B0 bootstrap, T0 is the next implementation slice. Its tracer is in the canonical
-contracts repository at `planning/tracers/T0-tenant-scoped-ga-pending-sale.md`.
+Run Mix commands from this directory. Use `mix setup` to fetch dependencies, create and migrate the development database, and build assets. The checked-in AshPostgres migration installs support functions and creates no application tables.
 
-Use `mix setup` to fetch dependencies, create and migrate the development database, and build
-assets. The checked-in AshPostgres migration installs support functions and creates no
-application tables. Then use `mix contract.authority` to verify the local canonical checkout.
+Run `mix contract.authority` to validate the in-repository manifest, CANON, active tracer, and strict canonical audit. The current CANON version is derived from the authority manifest.
 
-To start your Phoenix server:
+To start the Phoenix server:
 
-* Run `mix setup` to install and setup dependencies
-* Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+- Run `mix setup` to install and set up dependencies.
+- Start the endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`.
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+Visit [localhost:4000](http://localhost:4000) from your browser.
 
 ## Learn more
 
-* Official website: https://www.phoenixframework.org/
-* Guides: https://hexdocs.pm/phoenix/overview.html
-* Docs: https://hexdocs.pm/phoenix
-* Forum: https://elixirforum.com/c/phoenix-forum
-* Source: https://github.com/phoenixframework/phoenix
+- Official website: https://www.phoenixframework.org/
+- Guides: https://hexdocs.pm/phoenix/overview.html
+- Docs: https://hexdocs.pm/phoenix
+- Forum: https://elixirforum.com/c/phoenix-forum
+- Source: https://github.com/phoenixframework/phoenix

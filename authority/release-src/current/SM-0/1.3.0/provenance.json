@@ -1,0 +1,72 @@
+{
+  "bootstrap_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "candidate_preparation_base_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "provenance_statement": "Candidate SM-0@1.3.0 uses the exact active SM-0@1.2.3 ZIP as its installed baseline and replaces contract and test-gates content with the frozen authority-staging/t0-hardening/SM-0 pair. Only release identity, version-bound assertion, and generated timestamp fields were mechanically normalized.",
+  "source_bundle_path": "contracts/SM-0/SM-0_bundle_v1.2.3.zip",
+  "source_zip_sha256": "c8386a1e1009b68c1473553f727a65fb4eaf407fcadb13beee20883bd8d05122",
+  "source_zip_bytes": 27857,
+  "source_version": "1.2.3",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "authority-staging/t0-hardening/SM-0/contract.json",
+      "sha256": "1ce32c7f6b24b454489562909f174b7554a3d82cfe1283fa3f7e169db0fbb04e",
+      "bytes": 19215,
+      "frozen_input_sha256": "232fffa11cea721ecb56bb5e8ec95d831d053f4805845e708249683f5e347bee",
+      "frozen_input_bytes": 19222
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "authority-staging/t0-hardening/SM-0/test-gates.json",
+      "sha256": "71a41cb4f1a943b4b79253a9417c0499fb3e5e24970f46892b134eb6e6b239c7",
+      "bytes": 9072,
+      "frozen_input_sha256": "3a36bcdc7665fe8eeee30f1f54980bf6fc2fb6ba314673b1146e61a42c5bf0ab",
+      "frozen_input_bytes": 9079
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "SM-0_bundle_v1.2.3/SM-0_Contract_v1.2.3.json",
+      "sha256": "e9213d26717c8519bbfdff5210c080a1cee4c8c77579f0ccf353d9be30139851",
+      "bytes": 18273
+    },
+    {
+      "source_member_path": "SM-0_bundle_v1.2.3/SM-0_Test_Gates_v1.2.3.json",
+      "sha256": "7fb3e4019c141882bb2ef5e354840f5970bdcdf225ad32205c245c82e4fe8c89",
+      "bytes": 8458
+    },
+    {
+      "source_member_path": "SM-0_bundle_v1.2.3/bundle.manifest.json",
+      "sha256": "749c4b16144dc39b252df6dbdab6181ece59c7b2c9853a8a82ee30f5892a41f6",
+      "bytes": 618
+    }
+  ],
+  "frozen_authority_sources": [
+    {
+      "path": "authority-staging/t0-hardening/SM-0/contract.json",
+      "sha256": "232fffa11cea721ecb56bb5e8ec95d831d053f4805845e708249683f5e347bee",
+      "bytes": 19222
+    },
+    {
+      "path": "authority-staging/t0-hardening/SM-0/test-gates.json",
+      "sha256": "3a36bcdc7665fe8eeee30f1f54980bf6fc2fb6ba314673b1146e61a42c5bf0ab",
+      "bytes": 9079
+    }
+  ],
+  "mechanical_normalization": {
+    "suite_schema": "CS-0@3.0.1",
+    "target_version": "1.3.0",
+    "generated_at_utc": "2026-10-18T09:26:57Z",
+    "contract_json_pointers": [
+      "/generated_at_utc",
+      "/version"
+    ],
+    "test_gates_json_pointers": [
+      "/contract_ref/version",
+      "/gates/2/assertions/2/details/equals",
+      "/gates/2/assertions/4/details/equals",
+      "/generated_at_utc",
+      "/version"
+    ]
+  }
+}

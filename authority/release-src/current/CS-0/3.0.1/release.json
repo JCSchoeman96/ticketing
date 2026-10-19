@@ -1,0 +1,14 @@
+{
+  "doc_id": "CS-0",
+  "version": "3.0.1",
+  "proposed_successor_version": "3.0.1",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Build candidate carrying forward owner-approved CS-0 v3 semantics with the D7 dependency edge migration definitions. This is not a released or canonical bundle.",
+  "source_provenance": {
+    "kind": "successor-source-derived-from-ratification-snapshot",
+    "path": "provenance.json",
+    "source_zip_sha256": "75c0f020b86153233d9fcc0cdd195b6565862362d1de6724638069d64c894c39"
+  }
+}

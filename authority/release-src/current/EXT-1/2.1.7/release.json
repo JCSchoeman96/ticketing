@@ -1,0 +1,13 @@
+{
+  "doc_id": "EXT-1",
+  "version": "2.1.7",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch release repairs lineage and gate schema shape and regenerates the manifest while preserving canonical:false.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "81ecc09a506b3a48a39e1bb9a08956260d86409680260d6a9c6a5ff7e7f41b20"
+  }
+}

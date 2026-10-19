@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/OBQC-1_bundle_v2.1.8_refactored.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/OBQC-1_bundle_v2.1.8_refactored.zip",
+  "source_zip_sha256": "4ee1b7bc3c10e870ab548705f10eb10906e50fdc8dc8323b6ea953c867effab3",
+  "source_zip_bytes": 10962,
+  "source_version": "2.1.8",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "OBQC-1_bundle_v2.1.8/OBQC-1_Contract_v2.1.8.json",
+      "sha256": "3afa25d0acec65f51d72a24184e23ba09e8807937930519e9100ba26d0bf6355",
+      "bytes": 32302
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "OBQC-1_bundle_v2.1.8/OBQC-1-GATE_TestGates_v2.1.8.json",
+      "sha256": "74c3ea5800b6d8cd5f2990d63ef9014f2bc20c78163d19547187516439c5fa47",
+      "bytes": 7098
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "OBQC-1_bundle_v2.1.8/OBQC-1_Contract_v2.1.8.json",
+      "sha256": "8ed963f19ce9a8afe974a6da67d50255b703c8cdc48e1cf9854912aacf03f4d6",
+      "bytes": 32302
+    },
+    {
+      "source_member_path": "OBQC-1_bundle_v2.1.8/OBQC-1-GATE_TestGates_v2.1.8.json",
+      "sha256": "2d61c0fe918d97b618baac7ad57a0ecd42930805cea844b08be7e6e826a114ea",
+      "bytes": 7098
+    }
+  ]
+}

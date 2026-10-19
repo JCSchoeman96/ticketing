@@ -1,120 +1,64 @@
 defmodule Ticketing.ContractAuthorityTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   alias Ticketing.ContractAuthority
 
-  @pin_path Path.expand("../../../contracts/authority.json", __DIR__)
+  @authority_path Path.expand("../../../authority", __DIR__)
 
-  test "checked-in pin names the implementation's reviewed contract authority" do
-    assert {:ok, pin} = ContractAuthority.load_pin(@pin_path)
-    assert pin["repository"] == "JCSchoeman96/ticketing-contracts"
-    assert pin["reviewed_commit"] == "b6e4bac210a7bdd906b611984150d1f1198f3141"
-    assert pin["canon_doc_id"] == "CANON-1"
-    assert pin["canon_version"] == "2.0.13"
-    assert pin["manifest_path"] == "contracts/manifest.json"
-    assert pin["t0_tracer_path"] == "planning/tracers/T0-tenant-scoped-ga-pending-sale.md"
+  test "verifies the in-repository authority without a sibling checkout" do
+    previous_path = System.get_env("TICKETING_CONTRACTS_PATH")
+    System.put_env("TICKETING_CONTRACTS_PATH", "/path/that/does/not/exist")
+
+    on_exit(fn ->
+      if previous_path do
+        System.put_env("TICKETING_CONTRACTS_PATH", previous_path)
+      else
+        System.delete_env("TICKETING_CONTRACTS_PATH")
+      end
+    end)
+
+    assert {:ok, result} = ContractAuthority.verify()
+    assert result.path == @authority_path
+    assert result.canon_version == manifest_canon_version()
+    assert File.regular?(Path.join(@authority_path, result.active_tracer))
   end
 
-  test "active implementation authority does not include the retired CANON 0.9.41 suite" do
-    root = Path.expand("../../..", __DIR__)
-
-    refute File.exists?(Path.join(root, "contracts/bundles/CANON-1_bundle_v0.9.41_JSON_ONLY.zip"))
-    refute File.exists?(Path.join(root, "contracts/working/canon_patch/CANON-1_bundle_v0.9.41"))
-    refute File.exists?(Path.join(root, "contracts/tools/ci_contract_gate_strict_v2.7.0.py"))
+  test "reports a missing in-repository authority directory" do
+    assert {:error, message} = ContractAuthority.verify("/path/that/does/not/exist")
+    assert message =~ "authority directory is missing"
   end
 
-  test "authority verification reports a missing configured checkout" do
-    assert {:error, message} = ContractAuthority.verify_checkout("/path/that/does/not/exist", %{})
-    assert message =~ "not a Git repository"
+  test "selects the tracer explicitly marked active in the roadmap" do
+    roadmap = """
+    Historical: [an earlier tracer](tracers/T0-old.md).
+    Current: [the active T0 tracer](tracers/T0-current.md).
+    """
+
+    assert {:ok, "tracers/T0-current.md"} = ContractAuthority.active_tracer_link(roadmap)
   end
 
-  test "authority verification rejects a manifest with the wrong CANON version" do
-    {checkout, pin} = fixture_checkout("0.9.41")
-    on_exit(fn -> File.rm_rf!(checkout) end)
+  test "rejects a roadmap with no unique active tracer link" do
+    assert {:error, :missing_active_tracer} =
+             ContractAuthority.active_tracer_link("No tracer link here.")
 
-    assert {:error, message} = ContractAuthority.verify_checkout(checkout, pin)
-    assert message =~ "CANON-1 version mismatch"
-    assert message =~ "expected 2.0.13"
-    assert message =~ "found 0.9.41"
+    roadmap = """
+    [active tracer one](tracers/one.md)
+    [active tracer two](tracers/two.md)
+    """
+
+    assert {:error, :multiple_active_tracers} = ContractAuthority.active_tracer_link(roadmap)
   end
 
-  test "authority verification accepts the pinned commit and required tracer" do
-    {checkout, pin} = fixture_checkout("2.0.13")
-    on_exit(fn -> File.rm_rf!(checkout) end)
+  test "rejects an active tracer link that escapes the tracer directory" do
+    roadmap = "[active tracer](tracers/../README.md)"
 
-    assert {:ok, result} = ContractAuthority.verify_checkout(checkout, pin)
-    assert result.commit == pin["reviewed_commit"]
-    assert result.canon_version == "2.0.13"
-    assert result.path == checkout
+    assert {:error, :invalid_tracer_path} = ContractAuthority.active_tracer_link(roadmap)
   end
 
-  test "authority verification rejects an unstaged tracked modification after the pinned commit" do
-    {checkout, pin} = fixture_checkout("2.0.13")
-    on_exit(fn -> File.rm_rf!(checkout) end)
-
-    File.write!(Path.join(checkout, pin["t0_tracer_path"]), "modified T0")
-
-    assert {:error, message} = ContractAuthority.verify_checkout(checkout, pin)
-    assert message =~ "tracked working tree is dirty"
-    assert message =~ pin["reviewed_commit"]
-  end
-
-  test "authority verification rejects staged tracked modifications" do
-    {checkout, pin} = fixture_checkout("2.0.13")
-    on_exit(fn -> File.rm_rf!(checkout) end)
-
-    File.write!(Path.join(checkout, pin["t0_tracer_path"]), "staged T0")
-    git!(checkout, ["add", pin["t0_tracer_path"]])
-
-    assert {:error, message} = ContractAuthority.verify_checkout(checkout, pin)
-    assert message =~ "tracked working tree is dirty"
-  end
-
-  test "authority verification ignores untracked scratch files" do
-    {checkout, pin} = fixture_checkout("2.0.13")
-    on_exit(fn -> File.rm_rf!(checkout) end)
-
-    File.write!(Path.join(checkout, "local-report.txt"), "scratch")
-
-    assert {:ok, result} = ContractAuthority.verify_checkout(checkout, pin)
-    assert result.commit == pin["reviewed_commit"]
-  end
-
-  defp fixture_checkout(canon_version) do
-    checkout =
-      Path.join(System.tmp_dir!(), "ticketing-contracts-#{System.unique_integer([:positive])}")
-
-    File.mkdir_p!(Path.join(checkout, "contracts"))
-    File.mkdir_p!(Path.join(checkout, "planning/tracers"))
-
-    manifest = %{
-      "contracts" => [
-        %{"doc_id" => "CANON-1", "version" => canon_version}
-      ]
-    }
-
-    File.write!(Path.join(checkout, "contracts/manifest.json"), Jason.encode!(manifest))
-    File.write!(Path.join(checkout, "planning/tracers/T0-tenant-scoped-ga-pending-sale.md"), "T0")
-
-    git!(checkout, ["init", "--quiet"])
-    git!(checkout, ["config", "user.email", "test@example.invalid"])
-    git!(checkout, ["config", "user.name", "Ticketing test"])
-    git!(checkout, ["add", "."])
-    git!(checkout, ["commit", "--quiet", "-m", "fixture"])
-    {commit, 0} = git!(checkout, ["rev-parse", "HEAD"])
-
-    pin = %{
-      "reviewed_commit" => String.trim(commit),
-      "manifest_path" => "contracts/manifest.json",
-      "canon_doc_id" => "CANON-1",
-      "canon_version" => "2.0.13",
-      "t0_tracer_path" => "planning/tracers/T0-tenant-scoped-ga-pending-sale.md"
-    }
-
-    {checkout, pin}
-  end
-
-  defp git!(directory, args) do
-    System.cmd("git", args, cd: directory, stderr_to_stdout: true)
+  defp manifest_canon_version do
+    manifest_path = Path.join(@authority_path, "contracts/manifest.json")
+    {:ok, manifest} = manifest_path |> File.read!() |> Jason.decode()
+    canon = Enum.find(manifest["contracts"], &(&1["doc_id"] == "CANON-1"))
+    canon["version"]
   end
 end

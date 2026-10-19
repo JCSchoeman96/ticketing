@@ -1,0 +1,937 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "SEAT-1",
+    "version": "3.7.2"
+  },
+  "doc_id": "SEAT-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.1 across contract, gates, and manifest.",
+      "failure_message": "Bundle suite_schema drift detected; artifacts are not aligned to CS-0@3.0.1.",
+      "id": "SEAT-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle suite schema parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "bundle.manifest.json MUST use the canonical filename.",
+      "failure_message": "Manifest filename is not the canonical bundle.manifest.json.",
+      "id": "SEAT-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest filename"
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Manifest file hashes and sizes MUST match the bundle contents exactly.",
+      "failure_message": "Manifest inventory does not match the actual bundle contents.",
+      "id": "SEAT-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest contents"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 5000,
+            "json_pointer": "/law_constants/bucket_sharding_threshold_effective_capacity_ceiling_gt"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Bucket sharding threshold constant MUST remain pinned.",
+      "failure_message": "Bucket sharding threshold constant drifted.",
+      "id": "SEAT-1-GATE-100",
+      "level": "P0",
+      "must": true,
+      "title": "Bucket sharding threshold constant"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "occurrence_id",
+              "bucket_id"
+            ],
+            "json_pointer": "/data_model/resources/3/identities/0/fields"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "occurrence_id",
+            "json_pointer": "/data_model/resources/3/required_attributes/1/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "InventoryBucketCursor identity MUST be {org_id, occurrence_id, bucket_id}.",
+      "failure_message": "InventoryBucketCursor identity or required attribute order drifted.",
+      "id": "SEAT-1-GATE-110",
+      "level": "P0",
+      "must": true,
+      "title": "InventoryBucketCursor identity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)\\b(TODO|TBD|FIXME)\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)\\bshould\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "(?i)\\b(TODO|TBD|FIXME)\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Contract and gates MUST NOT contain placeholders or non-binding language.",
+      "failure_message": "Placeholders or non-binding language were found in the contract bundle.",
+      "id": "SEAT-1-GATE-900",
+      "level": "P0",
+      "must": true,
+      "title": "No placeholders or weak language"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEAT-1-V36-005",
+            "json_pointer": "/invariants/29/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Invariant SEAT-1-V36-005 MUST remain present.",
+      "failure_message": "Invariant SEAT-1-V36-005 is missing or moved unexpectedly.",
+      "id": "SEAT-1-GATE-205",
+      "level": "P0",
+      "must": true,
+      "title": "V36-005 invariant presence"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEAT-1-V36-006",
+            "json_pointer": "/invariants/30/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Invariant SEAT-1-V36-006 MUST remain present.",
+      "failure_message": "Invariant SEAT-1-V36-006 is missing or moved unexpectedly.",
+      "id": "SEAT-1-GATE-206",
+      "level": "P0",
+      "must": true,
+      "title": "V36-006 invariant presence"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Let step = (hex_to_int(secondary_probe_salt) mod (shard_count-1)) + 1. Probe shard indexes: (initial + k*step) mod shard_count for k=1..(shard_count-1) until success or all exhausted.",
+            "json_pointer": "/domain_actions/claim_bucket_inventory/concurrency_protocol/probe_sequence"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Overflow probe sequence MUST remain deterministic.",
+      "failure_message": "Overflow probe sequence drifted.",
+      "id": "SEAT-1-GATE-207",
+      "level": "P0",
+      "must": true,
+      "title": "Overflow probe sequence"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "InventoryBucket.shard_count MUST be immutable once any inventory activity exists: if (Σ InventoryBucketShard.sold_count + Σ InventoryBucketShard.held_count) > 0 for a given {org_id, occurrence_id, bucket_id}, then shard_count MUST NOT change. Any attempt MUST be rejected.",
+            "json_pointer": "/invariants/32/must"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Invariant text for shard count immutability MUST remain pinned.",
+      "failure_message": "Shard count immutability invariant text drifted.",
+      "id": "SEAT-1-GATE-301",
+      "level": "P0",
+      "must": true,
+      "title": "Shard count immutability invariant text"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "When base_capacity or oversell_allowance_fixed changes, shard capacity_limit values MUST be deterministically recomputed using shard_index ordering: capacity_limit_i = floor(effective_capacity_ceiling / shard_count) + (1 if shard_index < (effective_capacity_ceiling mod shard_count) else 0). This recomputation MUST occur atomically in the same transaction as the capacity mutation.",
+            "json_pointer": "/rules/13/text"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Rebalancing distribution law text MUST remain pinned.",
+      "failure_message": "Rebalancing distribution law text drifted.",
+      "id": "SEAT-1-GATE-302",
+      "level": "P0",
+      "must": true,
+      "title": "Rebalancing distribution law text"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Resharding physics: shard_count MUST NOT be mutated once any sold_count or held_count exists for the bucket (Σ sold_count+held_count > 0 across shards). If shard_count changes are required, they MUST occur only when the bucket has zero activity (all shard sold_count=0 and held_count=0) or via a future explicit drain/migrate protocol (not defined in this version).",
+            "json_pointer": "/rules/14/text"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Shard count immutability law text MUST remain pinned.",
+      "failure_message": "Shard count immutability law text drifted.",
+      "id": "SEAT-1-GATE-303",
+      "level": "P0",
+      "must": true,
+      "title": "Shard count immutability law text"
+    },
+    {
+      "id": "SEAT-1-T0-BUCKET-INIT",
+      "title": "SEAT-1-T0-BUCKET-INIT",
+      "level": "P0",
+      "must": true,
+      "description": "Bucket setup atomically initializes the derived bucket, cursor and shard rows.",
+      "failure_message": "SEAT-1-T0-BUCKET-INIT failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_inventory_bucket/output_minimum",
+            "equals": [
+              "bucket_id",
+              "effective_capacity_ceiling",
+              "shard_count",
+              "cursor_version",
+              "shards[]"
+            ]
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/law_constants/bucket_shard_capacity_distribution/formula",
+            "equals": "capacity_limit_i = floor(total_ceiling / shard_count) + (1 if i < (total_ceiling mod shard_count) else 0)"
+          }
+        }
+      ]
+    },
+    {
+      "id": "SEAT-1-T0-BUCKET-PROOF",
+      "title": "SEAT-1-T0-BUCKET-PROOF",
+      "level": "P0",
+      "must": true,
+      "description": "Claim returns a bucket signature and verifier binds tenant/actor without signing mutable expiry.",
+      "failure_message": "SEAT-1-T0-BUCKET-PROOF failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/claim_bucket_inventory/output_minimum",
+            "equals": [
+              "hold_id",
+              "hold_signature",
+              "expires_at_utc_usec",
+              "bucket_id",
+              "occurrence_id",
+              "quantity",
+              "shard_index"
+            ]
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/verify_bucket_hold_proofs/side_effects_separation",
+            "equals": "read_only"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/signature_security/bucket_hold_signature/canonical_string_spec/format",
+            "equals": "org_id|hold_id|occurrence_id|bucket_id|quantity|actor_id|actor_type"
+          }
+        }
+      ]
+    },
+    {
+      "id": "SEAT-1-T0-BUCKET-LIFECYCLE",
+      "title": "SEAT-1-T0-BUCKET-LIFECYCLE",
+      "level": "P0",
+      "must": true,
+      "description": "Bucket release, expiry, allocation and grace actions use bounded state transitions.",
+      "failure_message": "SEAT-1-T0-BUCKET-LIFECYCLE failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/bucket_hold_lifecycle/states",
+            "equals": [
+              "active",
+              "released",
+              "expired",
+              "allocated"
+            ]
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/extend_bucket_hold_grace/side_effects_separation",
+            "equals": "after_commit_only"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/limits_and_budgets/hold_grace_extension_count_max",
+            "equals": 1
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/limits_and_budgets/hold_grace_extension_seconds_max",
+            "equals": 180
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/bucket_hold_lifecycle/transitions/4/action",
+            "equals": "extend_bucket_hold_grace"
+          }
+        }
+      ]
+    },
+    {
+      "id": "SEAT-1-T0-CAPACITY-ERROR",
+      "title": "SEAT-1-T0-CAPACITY-ERROR",
+      "level": "P0",
+      "must": true,
+      "description": "Capacity exhaustion maps to the ERR-1 conflict subcode.",
+      "failure_message": "SEAT-1-T0-CAPACITY-ERROR failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/claim_bucket_inventory/errors/capacity_exhausted/top_level",
+            "equals": "ERR_CONFLICT"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/claim_bucket_inventory/errors/capacity_exhausted/subcode",
+            "equals": "SEAT_CAPACITY_EXHAUSTED"
+          }
+        }
+      ]
+    },
+    {
+      "id": "SEAT-1-T0-GATE-001",
+      "title": "Stable bucket idempotency identity",
+      "level": "P0",
+      "must": true,
+      "description": "The persisted identity is {org_id, operation_id, key}; normalized effect request hash is separate.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/claim_bucket_inventory/idempotency/identity",
+            "equals": [
+              "org_id",
+              "operation_id",
+              "key"
+            ]
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/claim_bucket_inventory/idempotency/operation_id",
+            "equals": "SEAT-1.claim_bucket_inventory"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/claim_bucket_inventory/idempotency/boundary_header",
+            "equals": "Idempotency-Key"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/8/identities/0/fields",
+            "equals": [
+              "org_id",
+              "operation_id",
+              "idempotency_key"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "SEAT-1-T0-GATE-002",
+      "title": "Bucket claim atomic rollback",
+      "level": "P0",
+      "must": true,
+      "description": "Claim reservation, conditional capacity update, hold insert and cursor update share one rollback boundary.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/claim_bucket_inventory/atomicity_boundary/scope",
+            "equals": "One database transaction on one connection."
+          }
+        }
+      ]
+    },
+    {
+      "id": "SEAT-1-T0-GATE-003",
+      "title": "Bucket cursor mutation rule",
+      "level": "P0",
+      "must": true,
+      "description": "Bucket cursor starts at zero and advances once per committed authoritative mutation.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/t0_bucket_cursor_rule/initial_value",
+            "equals": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "SEAT-1-T0-GATE-004",
+      "title": "Hold state and outbox atomicity",
+      "level": "P0",
+      "must": true,
+      "description": "Expiry and release event rows commit with their hold state mutations; publisher dispatch occurs after commit.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/expire_holds/validation_rules/6",
+            "equals": "For each hold transitioned to expired, persist the corresponding ticketing.seat.hold.expired.v1 OutboxEvent in the same database transaction as the state mutation; dispatch to publishers only after that transaction commits."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/release_hold/validation_rules/7",
+            "equals": "For each hold transitioned to released, persist the corresponding ticketing.seat.hold.released.v1 OutboxEvent in the same database transaction as the state mutation; dispatch to publishers only after that transaction commits."
+          }
+        }
+      ]
+    },
+    {
+      "id": "SEAT-1-T0-ACTOR-VOCABULARY",
+      "title": "T0 bucket actor vocabulary and signature",
+      "level": "P0",
+      "must": true,
+      "description": "T0 bucket actor values follow IAM-1 through claim hashing, hold persistence and signature verification. Legacy seated-inventory values remain separately governed.",
+      "failure_message": "T0 bucket actor vocabulary or signature transcript drifted from IAM-1.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/rules/3/text",
+            "equals": "actor_id MUST be uuid_v7 and actor_type MUST be present in authenticated tenancy context for all domain_actions (including system jobs). For T0 GA bucket actions, actor_type MUST be one of the IAM-1 actor_kind values {human, service, system}. Legacy seated-inventory actor_type fields and signature transcripts remain outside this T0 bucket alignment."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/6/required_attributes/15/enum",
+            "equals": [
+              "human",
+              "service",
+              "system"
+            ]
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/claim_bucket_inventory/idempotency/normalized_effect_request_fields/6",
+            "equals": "actor_type"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_inventory_bucket/inputs_required/8",
+            "equals": "actor_type"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/claim_bucket_inventory/inputs_required/6",
+            "equals": "actor_type"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/verify_bucket_hold_proofs/inputs_required/3",
+            "equals": "actor_type"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/extend_bucket_hold_grace/inputs_required/4",
+            "equals": "actor_type"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/release_bucket_hold/inputs_required/4",
+            "equals": "actor_type"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/expire_bucket_holds/inputs_required/3",
+            "equals": "actor_type"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/allocate_bucket_hold/inputs_required/5",
+            "equals": "actor_type"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/claim_bucket_inventory/actor_type_example",
+            "equals": {
+              "authenticated_tenancy_context": {
+                "actor_type": "human"
+              },
+              "normalized_idempotency_request": {
+                "actor_type": "human"
+              },
+              "inventory_bucket_hold": {
+                "actor_type": "human"
+              },
+              "bucket_hold_signature": {
+                "actor_type": "human"
+              },
+              "human_to_user_translation": false
+            }
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/expire_bucket_holds/validation_rules/0",
+            "equals": "Actor type MUST be system or service."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/signature_security/bucket_hold_signature/algorithm",
+            "equals": "HMAC-SHA256"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/signature_security/bucket_hold_signature/canonical_string_spec/format",
+            "equals": "org_id|hold_id|occurrence_id|bucket_id|quantity|actor_id|actor_type"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/signature_security/bucket_hold_signature/test_vectors/vectors/0/actor_type",
+            "equals": "human"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/signature_security/bucket_hold_signature/test_vectors/vectors/0/expected_hmac_sha256_hex",
+            "equals": "126ab05638c4c319cce19c20005362cc08f323ffa1fb2b280378d43a28865611"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/signature_security/bucket_hold_signature/test_vectors/vectors/0/canonical_string",
+            "equals": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1|0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8ad|0192d7c0-1a2b-7c3d-9e4f-1234567890ab|018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2|2|018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3|human"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/signature_security/bucket_hold_signature/test_vectors/vectors/1/actor_type",
+            "equals": "service"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/signature_security/bucket_hold_signature/test_vectors/vectors/1/expected_hmac_sha256_hex",
+            "equals": "32b07378be5116cc29092cf7caeaeb488f941e0565380c5e0ff37d6139cc62e3"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/signature_security/bucket_hold_signature/test_vectors/vectors/2/actor_type",
+            "equals": "system"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/signature_security/bucket_hold_signature/test_vectors/vectors/2/expected_hmac_sha256_hex",
+            "equals": "c3d5d400699b8354fb7419782a22d8717d54153111386611a194d3b4315854f3"
+          }
+        }
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/error_code",
+            "equals": "ERR_FORBIDDEN"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/error_layer",
+            "equals": "internal_action_ash"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/subcode",
+            "equals": "TEN_TENANT_CONTEXT_MISSING"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/subcode_layer",
+            "equals": "internal_causal_audit"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/authority",
+            "equals": "TEN-1"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/rule_id",
+            "equals": "TEN-1-BOUNDARY-UNIFORM-404"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/redaction_rule_id",
+            "equals": "TEN-1-BOUNDARY-OMIT-SUBCODE"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/external_response/http_status",
+            "equals": 404
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/external_response/top_level_code",
+            "equals": "ERR_NOT_FOUND"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/external_response/omit_subcode",
+            "equals": true
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/external_response/detail_policy",
+            "equals": "omitted_or_constant_generic"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/external_response/uniform_by_hidden_reason",
+            "equals": true
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/http_boundary/external_response/uniform_headers_by_hidden_reason",
+            "equals": true
+          }
+        }
+      ],
+      "description": "Assert the staged contract preserves SEAT-1 internal missing-tenant classification and delegates uniform HTTP serialization and redaction to TEN-1.",
+      "failure_message": "SEAT-1 missing-tenant action or TEN-1 HTTP boundary contract drifted.",
+      "id": "SEAT-1-GATE-120",
+      "level": "P0",
+      "must": true,
+      "title": "Missing tenant action-to-HTTP boundary"
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_inventory_bucket/errors",
+            "equals": [
+              "ERR_FORBIDDEN",
+              "ERR_NOT_FOUND",
+              "ERR_VALIDATION"
+            ]
+          }
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_seat_bucket_creation_uses_registered_authorization_error"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ],
+      "description": "create_inventory_bucket authorization failures use the registered ERR_FORBIDDEN code.",
+      "failure_message": "create_inventory_bucket error mapping drifted from ERR-1.",
+      "id": "SEAT-1-GATE-NEW-001",
+      "level": "P0",
+      "must": true,
+      "title": "Inventory bucket authorization error mapping"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T15:51:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "SEAT-1 v3.7.2 Test Gates",
+  "updated_at": "2026-10-09T15:51:00Z",
+  "version": "3.7.2"
+}

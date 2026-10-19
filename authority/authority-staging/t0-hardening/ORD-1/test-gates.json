@@ -1,0 +1,1531 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "ORD-1_Test_Gates_v3.8.4.json",
+  "change_log": [
+    {
+      "change_id": "ORD-1-GATE-CHG-3.6.0-001",
+      "date_utc": "2026-02-01T16:08:52.636690Z",
+      "summary": "Add ND-195 anchor gates for payment_intent_id attribute + finalize output + invariant; update contract_ref to 3.6.0."
+    },
+    {
+      "change_id": "ORD-1-GATE-CHG-3.7.0-001",
+      "date_utc": "2026-02-03T10:48:22Z",
+      "summary": "Update contract_ref to v3.7.0; update GC-001 chain pin for SEAT-1; add gates for DP-1 bulkhead routing + physics_layer pins."
+    },
+    {
+      "change_id": "ORD-1-GATE-CHG-3.7.2-001",
+      "date_utc": "2026-02-06T14:58:58Z",
+      "summary": "Phase-5 hardening: update physics_layer EVT-1 pin to 2.16.4; add dependency_floors parity gate for EVT-1/EVT-2/REFUND-1/LED-1/PAY-3; update contract_ref to v3.7.2."
+    },
+    {
+      "at_utc": "2026-02-06T15:45:33Z",
+      "change_id": "CHG-ORD-1-3.7.3-METADATA-FIX",
+      "summary": "Fix artifact_name/version parity in contract and gates; pin gate self-identity to 3.7.3.",
+      "type": "patch"
+    },
+    {
+      "change_id": "ORD-1-GATE-CHG-3.7.5-001",
+      "date_utc": "2026-02-08T10:59:12Z",
+      "summary": "GAP-2.1 enforcement: extend dependency_floors pin gate to require API-0@1.1.1 and PSC-1@1.8.2."
+    }
+  ],
+  "contract_ref": {
+    "doc_id": "ORD-1",
+    "version": "3.8.4"
+  },
+  "doc_id": "ORD-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "Bundle declares the correct suite schema.",
+      "id": "ORD-1-GATE-0001",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0001 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "Bundle uses the standard manifest filename.",
+      "id": "ORD-1-GATE-0002",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0002 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle files match manifest (paths, hashes, bytes).",
+      "id": "ORD-1-GATE-0003",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0003 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ORD-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.8.4",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Identity: contract doc_id + version match this gate pack.",
+      "id": "ORD-1-GATE-0100",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0100 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "payment_reference",
+              "idempotency_key",
+              "payment_method_id",
+              "billing_address",
+              "billing_contact",
+              "browser_ip",
+              "user_agent"
+            ],
+            "json_pointer": "/domain_actions/finalize_checkout/accept"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "finalize_checkout MUST accept only the server-owned input whitelist (client cannot inject fees).",
+      "id": "ORD-1-GATE-0110",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0110 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SD-043",
+            "json_pointer": "/gc_patch_register/GC-001/sd"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/gc_patch_register/GC-001/controls/hold_extension_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/gc_patch_register/GC-001/controls/late_capture_compensation_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "GC-001 / SD-043 controls are explicitly declared (stable pointers).",
+      "id": "ORD-1-GATE-0200",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0200 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ORD-1-GC-001-SD-043-001",
+            "json_pointer": "/invariants/0/rule_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ORD-1-GC-001-SD-043-002",
+            "json_pointer": "/invariants/1/rule_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "GC-001 / SD-043 invariants are present at canonical positions (no silent drift).",
+      "id": "ORD-1-GATE-0201",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0201 failed."
+    },
+    {
+      "acceptance_criteria": [
+        "ORD-1 contract pins GC-001 chain versions in dependency_pins.gc_001_chain.",
+        "Pinned versions match the issued bundles in this hardening sequence (ERR/SEAT/PAY-1/2/3/OBS/PRICE/TEN)."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.4.15",
+            "json_pointer": "/dependency_pins/gc_001_chain/ERR-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.7.15",
+            "json_pointer": "/dependency_pins/gc_001_chain/OBS-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.7.7",
+            "json_pointer": "/dependency_pins/gc_001_chain/PAY-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.8.4",
+            "json_pointer": "/dependency_pins/gc_001_chain/PAY-2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.9.2",
+            "json_pointer": "/dependency_pins/gc_001_chain/PAY-3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.5.6",
+            "json_pointer": "/dependency_pins/gc_001_chain/PRICE-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.7.0",
+            "json_pointer": "/dependency_pins/gc_001_chain/SEAT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.7.6",
+            "json_pointer": "/dependency_pins/gc_001_chain/TEN-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SD-043",
+            "json_pointer": "/gc_patch_register/GC-001/sd"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "GC-001 dependency pins MUST match the patched chain versions to prevent drift.",
+      "id": "ORD-1-GATE-0300",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "If dependency_pins.gc_001_chain is missing or pins a different version, CI MUST fail.",
+        "If TEN-1 or PRICE-1 pins drift from suite actives, CI MUST fail."
+      ],
+      "failure_message": "ORD-1-GATE-0300 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "DP-1@2.1.0",
+            "json_pointer": "/limits_and_budgets/bulkhead_routing/dp_1_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "primary",
+            "json_pointer": "/limits_and_budgets/bulkhead_routing/action_pools/finalize_checkout"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "background",
+            "json_pointer": "/limits_and_budgets/bulkhead_routing/action_pools/expire_checkout"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "background",
+            "json_pointer": "/limits_and_budgets/bulkhead_routing/action_pools/sweep_expired_orders"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "War-time: DP-1 bulkhead routing MUST be declared for checkout vs expiry workloads (stable pointers).",
+      "id": "ORD-1-GATE-0320",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0320 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.1.0",
+            "json_pointer": "/dependency_pins/physics_layer/DP-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.1.0",
+            "json_pointer": "/dependency_pins/physics_layer/LOCKS-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.2.0",
+            "json_pointer": "/dependency_pins/physics_layer/SM-0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_pins/physics_layer/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "War-time: ORD-1 pins Physics Layer dependencies (DP-1/LOCKS-1/SM-0/EVT-1).",
+      "id": "ORD-1-GATE-0321",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0321 failed."
+    },
+    {
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "legacy_forbid_regex": [
+              "\\bTODO\\b|\\bTBD\\b|REPLACE_ME|\\bFIXME\\b"
+            ],
+            "artifact_scope": [
+              "contract",
+              "test_gates",
+              "bundle_manifest"
+            ]
+          }
+        }
+      ],
+      "description": "No placeholders or TODO markers in core artifacts.",
+      "id": "ORD-1-GATE-0900",
+      "level": "P0",
+      "must": true,
+      "acceptance_criteria": [
+        "Contract, test gates, and manifest MUST NOT ship unresolved placeholder markers in governed artifact content.",
+        "Pre-release review MUST confirm no TODO, TBD, FIXME, or REPLACE_ME tokens remain in published artifact bodies."
+      ],
+      "failure_message": "ORD-1-GATE-0900 failed."
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/42/name",
+            "equals": "tax_profile_id"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/46/name",
+            "equals": "applicable_tax_rate_revision_refs"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/43/name",
+            "equals": "tax_pricing_mode"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/47/name",
+            "equals": "evaluated_at_utc"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/44/name",
+            "equals": "tax_context_digest_version"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/45/name",
+            "equals": "tax_context_digest_sha256"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/41/name",
+            "equals": "opaque_pii_jurisdiction_evidence_ref"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/48/name",
+            "equals": "jurisdiction_evidence_sha256"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/invariants/19/rule_id",
+            "equals": "ORD-1-P0-TAX-LOCK"
+          }
+        }
+      ],
+      "description": "Order carries the immutable TAXCTX-V2 quote value provenance and opaque PII evidence reference and digest.",
+      "id": "ORD-1-GATE-0400",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0400 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "internal_rounding_adjustment_minor",
+            "json_pointer": "/data_model/resources/0/required_attributes/39/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ORD-1-P0-BALANCED",
+            "json_pointer": "/invariants/20/rule_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Hardening: internal rounding adjustment required for balanced totals (ND-172).",
+      "id": "ORD-1-GATE-0401",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0401 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ORD-1-P0-DB-TIME",
+            "json_pointer": "/invariants/21/rule_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Hardening: finalized_at_utc must be DB-sourced temporal truth (ND-170).",
+      "id": "ORD-1-GATE-0402",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0402 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "payment_intent_id",
+            "json_pointer": "/data_model/resources/0/required_attributes/49/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ND-195: Order model must include payment_intent_id attribute (nullable until finalization).",
+      "id": "ORD-1-GATE-0410",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0410 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "payment_intent_id",
+            "json_pointer": "/domain_actions/finalize_checkout/output_minimum/21"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ND-195: finalize_checkout output_minimum must include payment_intent_id so downstream can journal and observe.",
+      "id": "ORD-1-GATE-0411",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0411 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ORD-1-P0-PAYMENT-ANCHOR-ND195",
+            "json_pointer": "/invariants/22/rule_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ND-195: contract must declare payment anchor invariant.",
+      "id": "ORD-1-GATE-0412",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0412 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\b(org_id|trace_id|request_id|registry_version_sha)\\b"
+            ],
+            "json_pointers": [
+              "/events/outbox_events/0/required_data_keys",
+              "/events/outbox_events/0/required_keys",
+              "/events/outbox_events/1/required_data_keys",
+              "/events/outbox_events/1/required_keys"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Outbox required_data_keys/required_keys MUST NOT include envelope headers (org_id, trace_id, request_id, registry_version_sha).",
+      "id": "ORD-1-GATE-0413",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0413 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/events/outbox_events/0/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/events/outbox_events/1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Outbox schema_ref MUST be normalized to EVT-2 for all ORD-1 outbox events.",
+      "id": "ORD-1-GATE-0414",
+      "level": "P1",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0414 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.4.0",
+            "json_pointer": "/dependency_floors/EVT-2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.6.2",
+            "json_pointer": "/dependency_floors/REFUND-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "4.4.3",
+            "json_pointer": "/dependency_floors/LED-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.10.3",
+            "json_pointer": "/dependency_floors/PAY-3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.1",
+            "json_pointer": "/dependency_floors/API-0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.8.2",
+            "json_pointer": "/dependency_floors/PSC-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Phase-5 + GAP-2: dependency_floors MUST pin registry heads and runtime survival law floors (API-0/PSC-1) to prevent drift.",
+      "id": "ORD-1-GATE-0322",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-GATE-0322 failed."
+    },
+    {
+      "id": "ORD-1-GATE-RUNTIME-PIN-API-0-SHA",
+      "level": "P0",
+      "must": true,
+      "description": "ORD-1 MUST hard-pin API-0 contract artifact sha256.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/dependency_pins/API-0/sha256",
+            "equals": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991"
+          }
+        }
+      ],
+      "failure_message": "ORD-1-GATE-RUNTIME-PIN-API-0-SHA failed."
+    },
+    {
+      "id": "ORD-1-GATE-RUNTIME-PIN-PSC-1-SHA",
+      "level": "P0",
+      "must": true,
+      "description": "ORD-1 MUST hard-pin PSC-1 contract artifact sha256.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/dependency_pins/PSC-1/sha256",
+            "equals": "d29f4e93d95677713d2b16d6e2e60a5916f5f3a99da1ff24e70b50303f10c9a1"
+          }
+        }
+      ],
+      "failure_message": "ORD-1-GATE-RUNTIME-PIN-PSC-1-SHA failed."
+    },
+    {
+      "id": "ORD-1-GATE-RUNTIME-PIN-PROD-1-SHA",
+      "level": "P0",
+      "must": true,
+      "description": "ORD-1 MUST hard-pin PROD-1 contract artifact sha256.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/dependency_pins/PROD-1/sha256",
+            "equals": "bbba4a2d4832759bb1d7b4d81c6379cc38b277fe4e6a80fb42fd4ef350941eb0"
+          }
+        }
+      ],
+      "failure_message": "ORD-1-GATE-RUNTIME-PIN-PROD-1-SHA failed."
+    },
+    {
+      "id": "ORD-1-GATE-REDIS-POSTGRES-HANDOVER-LAW",
+      "level": "P0",
+      "must": true,
+      "description": "ORD-1 MUST declare the Redis↔Postgres handover invariant to prevent ghost holds.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/handover_laws/redis_postgres_atomicity/rule_id",
+            "equals": "ORD-1-INVARIANT-REDIS-POSTGRES-ATOMICITY"
+          }
+        }
+      ],
+      "failure_message": "ORD-1-GATE-REDIS-POSTGRES-HANDOVER-LAW failed."
+    },
+    {
+      "id": "ORD-1-P0-TAX-APPORTIONMENT-PRIORITY-MAP-001",
+      "level": "P0",
+      "must": true,
+      "title": "Draft tax apportionment fields",
+      "description": "Draft Orders keep tax apportionment map and digest unavailable; line_items includes line_item_id.",
+      "failure_message": "A draft Order must keep the map and digest null and line_items must require line_item_id.",
+      "acceptance_criteria": [
+        "Order tax_apportionment_priority_map and tax_apportionment_priority_map_sha256 are nullable and null while status=draft.",
+        "Order line_items schema requires line_item_id."
+      ],
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "legacy_gate_type": "contract_assertion",
+            "legacy_expect": {
+              "all_of": [
+                {
+                  "path": "$.data_model.resources[?(@.name=='Order')].required_attributes[?(@.name=='tax_apportionment_priority_map')].nullable",
+                  "equals": true
+                },
+                {
+                  "path": "$.data_model.resources[?(@.name=='Order')].required_attributes[?(@.name=='tax_apportionment_priority_map_sha256')].nullable",
+                  "equals": true
+                },
+                {
+                  "path": "$.data_model.resources[?(@.name=='Order')].required_attributes[?(@.name=='line_items')].items.required",
+                  "contains": "line_item_id"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ORD-1-T0-PROOF-UNION",
+      "title": "ORD-1-T0-PROOF-UNION",
+      "level": "P0",
+      "must": true,
+      "description": "Single order accepts verified seat and bucket proofs and binds them to order lines.",
+      "failure_message": "ORD-1-T0-PROOF-UNION failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/seat_and_bucket_proof_rule/at_least_one_set_nonempty",
+            "equals": true
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/seat_and_bucket_proof_rule/bucket_action",
+            "equals": "SEAT-1.verify_bucket_hold_proofs"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/50/name",
+            "equals": "bucket_hold_ids"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/inputs_required/6",
+            "equals": "pricing_snapshot_id"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/quote_snapshot_binding/checkout_input",
+            "equals": "ORD-1.create_checkout.pricing_snapshot_id"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ORD-1-T0-CHECKOUT-BOUNDS",
+      "title": "ORD-1-T0-CHECKOUT-BOUNDS",
+      "level": "P0",
+      "must": true,
+      "description": "Checkout expiry and hold grace use all bound proof types.",
+      "failure_message": "ORD-1-T0-CHECKOUT-BOUNDS failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/event_emission/emitted_events",
+            "equals": []
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/invariants/24/id",
+            "equals": "ORD-1-INV-BUCKET-PROOF-001"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ORD-1-T0-SEMANTIC-CONSISTENCY",
+      "title": "ORD-1-T0-SEMANTIC-CONSISTENCY",
+      "level": "P0",
+      "must": true,
+      "description": "Single-order quote binding, inventory proof sets, TTL, immutability, atomicity, and dependencies agree.",
+      "failure_message": "ORD-1-T0-SEMANTIC-CONSISTENCY failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/dependency_floors/SEAT-1",
+            "equals": "3.7.0"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/quote_snapshot_binding/persisted_order_field",
+            "equals": "Order.price_snapshot_id"
+          }
+        }
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/bucket_hold_actor_binding/actor_type_source",
+            "equals": "Authenticated tenancy context actor_type, required on create_checkout and finalize_checkout; value is not caller-controlled request-body data."
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/bucket_hold_actor_binding/seat_action_inputs/verify_bucket_hold_proofs/actor_type",
+            "equals": "authenticated tenancy context.actor_type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/inputs_required/7",
+            "equals": "actor_type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ORD supplies authenticated actor_type to every bucket SEAT action used by create_checkout.",
+      "id": "ORD-1-T0-BUCKET-ACTOR-TYPE",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-T0-BUCKET-ACTOR-TYPE failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/quote_snapshot_binding/persisted_order_field",
+            "equals": "Order.price_snapshot_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/quote_snapshot_binding/consume_action",
+            "equals": "PRICE-1.consume_snapshot"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ORD binds and consumes an exact PRICE quote without naming a quote producer.",
+      "id": "ORD-1-T0-GENERIC-PRICE-QUOTE",
+      "level": "P0",
+      "must": true,
+      "failure_message": "ORD-1-T0-GENERIC-PRICE-QUOTE failed."
+    },
+    {
+      "id": "ORD-1-T0-GATE-001",
+      "title": "Draft tax apportionment fields",
+      "level": "P0",
+      "must": true,
+      "description": "Tax apportionment map and digest are unavailable until finalization.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/37/nullable",
+            "equals": true
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/38/nullable",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "ORD-1-T0-GATE-002",
+      "title": "T0 draft checkout and finalization boundary",
+      "level": "P0",
+      "must": true,
+      "description": "T0 creates and retrieves one persisted draft Order before provider settlement or finalization; cancellation and checkout-group paths are excluded.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/t0_scope/checkout",
+            "equals": "T0 supports single-order draft checkout only."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/t0_scope/finalization",
+            "equals": "T0 ends after persistence and same-tenant retrieval of a draft Order, before provider settlement or ORD-1 finalization. Finalization tax-provenance behavior is not resolved by this T0 draft."
+          }
+        }
+      ]
+    },
+    {
+      "id": "ORD-1-T0-GATE-003",
+      "title": "Tax provenance copied from quote",
+      "level": "P0",
+      "must": true,
+      "description": "Order persists the frozen TAX/PRICE quote provenance and opaque PII evidence reference and digest.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/t0_scope/provenance",
+            "equals": "Copy tax_profile_id, applicable_tax_rate_revision_refs, tax_pricing_mode, evaluated_at_utc, tax_context_digest_version, tax_context_digest_sha256, opaque_pii_jurisdiction_evidence_ref, and jurisdiction_evidence_sha256 from the frozen signed PRICE-1 snapshot. PRICE-1 binds tax_context_digest_version/hash one-to-one to TAXCTX-V2 digest_version/hash. Do not add tax_context_id, a TaxContext resource, or alternate field names. TAX-1 governs any separate tax-point determination; ORD does not map that determination onto evaluated_at_utc."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/42/name",
+            "equals": "tax_profile_id"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/46/name",
+            "equals": "applicable_tax_rate_revision_refs"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/43/name",
+            "equals": "tax_pricing_mode"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/47/name",
+            "equals": "evaluated_at_utc"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/44/name",
+            "equals": "tax_context_digest_version"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/45/name",
+            "equals": "tax_context_digest_sha256"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/41/name",
+            "equals": "opaque_pii_jurisdiction_evidence_ref"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/required_attributes/48/name",
+            "equals": "jurisdiction_evidence_sha256"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ORD-1-T0-DRAFT-RETRIEVAL",
+      "title": "Same-tenant draft Order retrieval",
+      "level": "P0",
+      "must": true,
+      "description": "The persisted draft Order is addressable by its tenant-scoped identity and remains visible to its authorized same-tenant buyer.",
+      "failure_message": "Draft Order identity or tenant-scoped lookup behavior drifted.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/data_model/resources/0/identities/0/fields",
+            "equals": [
+              "org_id",
+              "order_id"
+            ]
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/output_minimum/0",
+            "equals": "org_id"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/output_minimum/1",
+            "equals": "order_id"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/output_minimum/3",
+            "equals": "status"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_key",
+            "equals": "org_id"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/cross_tenant_lookup/error_code",
+            "equals": "ERR_NOT_FOUND"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ORD-1-T0-TENANT-HIDDEN-NOT-FOUND",
+      "title": "TEN-1 hide-existence tenant boundary",
+      "level": "P0",
+      "must": true,
+      "description": "ORD-1 preserves TEN-1 hidden-not-found output for tenant-scoped operations and keeps the missing-context cause internal.",
+      "failure_message": "ORD-1 tenant boundary error mapping drifted from TEN-1.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/leakage_policy",
+            "equals": "hide_existence"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/error_code",
+            "equals": "ERR_NOT_FOUND"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/internal_cause",
+            "equals": "TEN_TENANT_CONTEXT_MISSING"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/internal_cause_exposure",
+            "equals": "internal_audit_only"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/missing_tenant_context/http_policy",
+            "equals": "TEN-1-BOUNDARY-UNIFORM-404 and TEN-1-BOUNDARY-OMIT-SUBCODE"
+          }
+        }
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/idempotency/test_cases/identical_replay",
+            "equals": {
+              "given": "same org_id, operation_id, key, and request_hash",
+              "expect": "existing idempotency record is reused; side effect executes once"
+            }
+          }
+        }
+      ],
+      "description": "create_checkout idempotency gate case: identical_replay.",
+      "failure_message": "create_checkout idempotency case identical_replay drifted from LOCKS-1 replay behavior.",
+      "id": "ORD-1-GATE-IDEM-IDENTICAL_REPLAY",
+      "level": "P0",
+      "must": true,
+      "title": "create_checkout identical replay"
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/idempotency/test_cases/changed_input_conflict",
+            "equals": {
+              "given": "same org_id, operation_id, and key with a different request_hash",
+              "expect": "ERR_CONFLICT / LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH; side effect does not execute again"
+            }
+          }
+        }
+      ],
+      "description": "create_checkout idempotency gate case: changed_input_conflict.",
+      "failure_message": "create_checkout idempotency case changed_input_conflict drifted from LOCKS-1 replay behavior.",
+      "id": "ORD-1-GATE-IDEM-CHANGED_INPUT_CONFLICT",
+      "level": "P0",
+      "must": true,
+      "title": "create_checkout changed input conflict"
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/idempotency/test_cases/concurrent_duplicate",
+            "equals": {
+              "given": "concurrent calls with same org_id, operation_id, key, and request_hash",
+              "expect": "one side effect; both calls resolve to the same outcome"
+            }
+          }
+        }
+      ],
+      "description": "create_checkout idempotency gate case: concurrent_duplicate.",
+      "failure_message": "create_checkout idempotency case concurrent_duplicate drifted from LOCKS-1 replay behavior.",
+      "id": "ORD-1-GATE-IDEM-CONCURRENT_DUPLICATE",
+      "level": "P0",
+      "must": true,
+      "title": "create_checkout concurrent duplicate"
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/idempotency/test_cases/original_outcome_replay",
+            "equals": {
+              "given": "a completed record and a replay with same identity and request_hash",
+              "expect": "return the original stored outcome"
+            }
+          }
+        }
+      ],
+      "description": "create_checkout idempotency gate case: original_outcome_replay.",
+      "failure_message": "create_checkout idempotency case original_outcome_replay drifted from LOCKS-1 replay behavior.",
+      "id": "ORD-1-GATE-IDEM-ORIGINAL_OUTCOME_REPLAY",
+      "level": "P0",
+      "must": true,
+      "title": "create_checkout original outcome replay"
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/idempotency/test_cases/tenant_separation",
+            "equals": {
+              "given": "same operation_id and key under different org_id values",
+              "expect": "separate idempotency records and effects"
+            }
+          }
+        }
+      ],
+      "description": "create_checkout idempotency gate case: tenant_separation.",
+      "failure_message": "create_checkout idempotency case tenant_separation drifted from LOCKS-1 replay behavior.",
+      "id": "ORD-1-GATE-IDEM-TENANT_SEPARATION",
+      "level": "P0",
+      "must": true,
+      "title": "create_checkout tenant separation"
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/idempotency/test_cases/operation_separation",
+            "equals": {
+              "given": "same org_id and key under different operation_id values",
+              "expect": "separate idempotency records and effects"
+            }
+          }
+        }
+      ],
+      "description": "create_checkout idempotency gate case: operation_separation.",
+      "failure_message": "create_checkout idempotency case operation_separation drifted from LOCKS-1 replay behavior.",
+      "id": "ORD-1-GATE-IDEM-OPERATION_SEPARATION",
+      "level": "P0",
+      "must": true,
+      "title": "create_checkout operation separation"
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/idempotency/operation_id",
+            "equals": "ORD-1.create_checkout"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_checkout/idempotency/persisted_identity",
+            "equals": [
+              "org_id",
+              "operation_id",
+              "key"
+            ]
+          }
+        }
+      ],
+      "description": "create_checkout uses the canonical operation id and LOCKS-1 persisted identity.",
+      "failure_message": "create_checkout idempotency identity drifted from OBS-1 or LOCKS-1.",
+      "id": "ORD-1-GATE-IDEM-IDENTITY",
+      "level": "P0",
+      "must": true,
+      "title": "create_checkout idempotency identity"
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/errors/subcodes/LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH",
+            "equals": {
+              "base": "ERR_CONFLICT",
+              "retryable": false
+            }
+          }
+        }
+      ],
+      "description": "create_checkout changed-hash replay uses the LOCKS-1 registered conflict mapping.",
+      "failure_message": "ORD-1 changed-hash conflict mapping drifted from LOCKS-1.",
+      "id": "ORD-1-GATE-IDEM-MISMATCH-ERROR-MAPPING",
+      "level": "P0",
+      "must": true,
+      "title": "Checkout idempotency mismatch error mapping"
+    },
+    {
+      "id": "ORD-1.GATE.T0.IDEM-REQUEST-HASH",
+      "title": "create_checkout canonical request hash and replay proof validation",
+      "description": "ORD-1 uses the LOCKS-1 durable identity and hashes only the canonical normalized effect-bearing create_checkout request. Completed replays still authenticate actor context and validate proof signatures without rechecking mutable hold state.",
+      "level": "P0",
+      "must": true,
+      "failure_message": "create_checkout request-hash or replay-proof semantics drifted from the approved T0 lock.",
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "criterion": "The request hash uses SHA-256 over UTF-8 RFC8785 JCS of the approved normalized fields, excludes correlation/idempotency metadata and signatures, normalizes unordered proof lists, and validates proof possession before replay without checking mutable hold state."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_final_locks.py::test_checkout_hash_locks_effect_fields_and_normalization"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_final_locks.py::test_checkout_request_hash_vectors_cover_replay_and_effect_inputs"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_final_locks.py::test_checkout_replay_revalidates_proof_signature_without_mutable_hold_checks"
+          }
+        }
+      ],
+      "acceptance_criteria": [
+        "Identical canonical requests produce the same request_hash regardless of request_id, trace_id, or proof-array order.",
+        "Changes to the exact pricing_snapshot_id, authenticated actor, proof hold identity, or entitlement allocation change the request_hash.",
+        "A completed replay re-authenticates actor context and cryptographically validates supplied proof signatures but does not re-evaluate mutable hold status, expiry, or quantity."
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_dependency_floor_consistency.py::test_ord_and_rp_dependency_minima_match_floors"
+          }
+        }
+      ],
+      "description": "ORD-1's TAX-1 dependency minimum MUST match its dependency floor.",
+      "failure_message": "ORD-1 TAX-1 dependency minimum drifted from its declared floor.",
+      "id": "ORD-1-GATE-TAX-DEPENDENCY-FLOOR-CONSISTENCY-001",
+      "level": "P0",
+      "must": true,
+      "title": "TAX-1 dependency minimum matches floor"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T16:48:29Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "ORD-1 Test Gates",
+  "version": "3.8.4",
+  "last_updated_utc": "2026-10-09T16:48:29Z"
+}

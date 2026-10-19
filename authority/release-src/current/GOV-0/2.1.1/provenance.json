@@ -1,0 +1,37 @@
+{
+  "bootstrap_commit": "9607ba7328878dfa2bebc8e14e93492eeea30377",
+  "candidate_preparation_base_commit": "9607ba7328878dfa2bebc8e14e93492eeea30377",
+  "origin_members": [
+    {
+      "bytes": 9145,
+      "role": "test_gates",
+      "sha256": "53e667b1af4d0ac4c867818f2d4d4f0919ca05cb1ae6fbf33b9b392ea4f38000",
+      "source_member_path": "GOV-0_bundle_v2.1.0/GOV-0-GATE_TestGates_v2.1.0.json"
+    },
+    {
+      "bytes": 20303,
+      "role": "contract",
+      "sha256": "b6fa91ae9ba11f0dc5fe9f0d0883e24f7f4a3e584846d3817e51423d22d993e0",
+      "source_member_path": "GOV-0_bundle_v2.1.0/GOV-0_Contract_v2.1.0.json"
+    }
+  ],
+  "provenance_statement": "Successor release source bootstrapped from the exact source bundle recorded here. Editable files preserve the source semantics except the documented release identity/schema correction. This is not original authoring source.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/GOV-0_bundle_v2.1.0_refactored.zip",
+  "source_members": [
+    {
+      "bytes": 20546,
+      "sha256": "fec96bf257b3fa822ffcef6510f22a88956cc68d278af1ee05ee1c82ff01287d",
+      "source_member_path": "GOV-0_bundle_v2.1.0/GOV-0_Contract_v2.1.0.json",
+      "tracked_source_path": "contract.json"
+    },
+    {
+      "bytes": 9145,
+      "sha256": "994a00a0b9e89b914b9717fa2bbf4a9977e3b8429e52d37e6effbbaa9351b838",
+      "source_member_path": "GOV-0_bundle_v2.1.0/GOV-0-GATE_TestGates_v2.1.0.json",
+      "tracked_source_path": "test-gates.json"
+    }
+  ],
+  "source_version": "2.1.0",
+  "source_zip_bytes": 8613,
+  "source_zip_sha256": "5f3fee5e279e4776915b5ce78b3b1ce92422bedf08e96fb54401f820781bbd29"
+}

@@ -1,0 +1,646 @@
+{
+  "artifact_kind": "test_gates",
+  "change_log": [
+    {
+      "summary": "Phase-5 producer scrub: remove envelope keys from payload required_keys; normalize schema_ref; pin EVT-1 floor to 2.16.4; add regression gates.",
+      "ts_utc": "2026-02-06T19:02:54Z"
+    }
+  ],
+  "contract_ref": {
+    "doc_id": "IAM-1",
+    "version": "4.0.0"
+  },
+  "doc_id": "IAM-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.1 for all artifacts in the bundle.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Bundle suite_schema drift detected; IAM-1 artifacts are not aligned to CS-0@3.0.1.",
+      "id": "IAM-1-GATE-010-SUITE-SCHEMA",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle suite schema parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "bundle.manifest.json MUST exist and be named correctly.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "bundle.manifest.json is missing or incorrectly named.",
+      "id": "IAM-1-GATE-020-MANIFEST-PRESENT",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest filename present"
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Manifest MUST match exact bundle files (sha256 + bytes).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "iam_1_gate_030_manifest_integrity failed.",
+      "id": "IAM-1-GATE-030-MANIFEST-INTEGRITY",
+      "level": "P0",
+      "must": true,
+      "title": "iam 1 gate 030 manifest integrity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "4.0.0",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Gate contract_ref MUST point at IAM-1 v4.0.0 (prevents version identity drift).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IAM-1-GATE contract_ref version does not match IAM-1 v4.0.0.",
+      "id": "IAM-1-GATE-040-CONTRACT-VERSION-PIN",
+      "level": "P0",
+      "must": true,
+      "title": "Contract reference version pin"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/0/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bEVT-2:\\b",
+              "\\bEVT-1\\b"
+            ],
+            "json_pointers": [
+              "/outbox_events"
+            ],
+            "remediation_hint": "Use schema_ref: 'EVT-2' literal token for all producer outbox events."
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Producer outbox schema_ref MUST be the normalized literal token 'EVT-2'.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "iam_1_gate_100_schema_ref_normalized failed.",
+      "id": "IAM-1-GATE-100-SCHEMA-REF-NORMALIZED",
+      "level": "P0",
+      "must": true,
+      "title": "iam 1 gate 100 schema ref normalized"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\borg_id\\b",
+              "\\btrace_id\\b",
+              "\\brequest_id\\b",
+              "\\bregistry_version_sha\\b"
+            ],
+            "json_pointers": [
+              "/outbox_events"
+            ],
+            "remediation_hint": "Envelope keys belong to required_extensions in EVT-1, not payload required_keys in producer outbox."
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Envelope keys MUST NOT appear in producer payload required_keys (Envelope ≠ Payload).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "iam_1_gate_110_no_envelope_keys_in_payload failed.",
+      "id": "IAM-1-GATE-110-NO-ENVELOPE-KEYS-IN-PAYLOAD",
+      "level": "P0",
+      "must": true,
+      "title": "iam 1 gate 110 no envelope keys in payload"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "session_id",
+              "user_id",
+              "actor_id",
+              "tenant_tier",
+              "auth_strategy",
+              "result",
+              "occurred_at_utc",
+              "version"
+            ],
+            "json_pointer": "/outbox_events/0/required_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "session_id",
+              "user_id",
+              "actor_id",
+              "tenant_tier",
+              "reason",
+              "occurred_at_utc",
+              "version"
+            ],
+            "json_pointer": "/outbox_events/1/required_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Outbox required_keys MUST match EVT-1 required_data_keys exactly (including order).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "iam_1_gate_120_outbox_keylist_parity failed.",
+      "id": "IAM-1-GATE-120-OUTBOX-KEYLIST-PARITY",
+      "level": "P0",
+      "must": true,
+      "title": "iam 1 gate 120 outbox keylist parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Producer MUST pin EVT-1 dependency floor to registry head (no split-brain).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "iam_1_gate_130_evt1_floor_pin failed.",
+      "id": "IAM-1-GATE-130-EVT1-FLOOR-PIN",
+      "level": "P1",
+      "must": true,
+      "title": "iam 1 gate 130 evt1 floor pin"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256",
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/algorithm"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "none",
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/key_scope"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "subject_id",
+              "algorithm_version"
+            ],
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/canonical_inputs"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 1,
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/algorithm_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "kv_lines",
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/canonicalization/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "\n",
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/canonicalization/delimiter"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id={org_id}",
+              "subject_id={subject_id}",
+              "algorithm_version={algorithm_version}"
+            ],
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/canonicalization/lines"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "required",
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/canonicalization/trailing_delimiter"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id={org_id}\nsubject_id={subject_id}\nalgorithm_version={algorithm_version}\n",
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/canonicalization/template"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IAM-1 MUST pin subject_key_hash derivation (sha256, fixed field order, and trailing newline) to prevent split-brain identity across languages.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "iam_1_gate_360_subject_pseudonym_derivation_pinned failed.",
+      "id": "IAM-1-GATE-360-SUBJECT-PSEUDONYM-DERIVATION-PINNED",
+      "level": "P0",
+      "must": true,
+      "title": "iam 1 gate 360 subject pseudonym derivation pinned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\\"subject_key_hash\\\""
+            ],
+            "json_pointers": [
+              "/outbox_events"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "IAM-1 outbox payload required_keys MUST NOT include subject_key_hash (it is a derived/internal lookup key).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "iam_1_gate_365_no_subject_key_hash_in_outbox_payload_keys failed.",
+      "id": "IAM-1-GATE-365-NO-SUBJECT-KEY-HASH-IN-OUTBOX-PAYLOAD-KEYS",
+      "level": "P0",
+      "must": true,
+      "title": "iam 1 gate 365 no subject key hash in outbox payload keys"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256",
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/algorithm"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "none",
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/key_scope"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 1,
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/algorithm_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "kv_lines",
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/canonicalization/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "\n",
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/canonicalization/delimiter"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "subject_key_hash derivation MUST be sha256 with deterministic canonicalization (no tenant secret) and algorithm_version MUST be pinned.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "iam_1_gate_140_pseudonym_derivation_pins failed.",
+      "id": "IAM-1-GATE-140-PSEUDONYM-DERIVATION-PINS",
+      "level": "P0",
+      "must": true,
+      "title": "iam 1 gate 140 pseudonym derivation pins"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEC-1.HYDRATION_MANIFEST.v1",
+            "json_pointer": "/offline_hydration_slot_production/schema_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "allow_lists",
+            "json_pointer": "/offline_hydration_slot_production/owned_slots/0/slot_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "scan.",
+            "json_pointer": "/offline_hydration_slot_production/owned_slots/0/fields/active_allow_list_actor_ids/filters/capability_prefix"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "lex_asc",
+            "json_pointer": "/offline_hydration_slot_production/owned_slots/0/fields/active_allow_list_actor_ids/ordering/sort"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IAM-1 MUST align allow_lists slot production to SEC-1.HYDRATION_MANIFEST.v1 and use deterministic ordering.",
+      "failure_message": "IAM-1 hydration allow_lists slot production is not aligned to SEC-1.HYDRATION_MANIFEST.v1.",
+      "id": "IAM-1-GATE-HYDRATION-ALLOWLIST-SLOT-PARITY",
+      "level": "P0",
+      "must": true,
+      "title": "Hydration allowlist slot parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991",
+            "json_pointer": "/dependency_pins/API-0/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IAM-1 MUST hard-pin API-0 contract artifact sha256.",
+      "failure_message": "IAM-1-GATE-RUNTIME-PIN-API-0-SHA failed.",
+      "id": "IAM-1-GATE-RUNTIME-PIN-API-0-SHA",
+      "level": "P0",
+      "must": true,
+      "title": "IAM 1 GATE RUNTIME PIN API 0 SHA"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "d29f4e93d95677713d2b16d6e2e60a5916f5f3a99da1ff24e70b50303f10c9a1",
+            "json_pointer": "/dependency_pins/PSC-1/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IAM-1 MUST hard-pin PSC-1 contract artifact sha256 (runtime law).",
+      "failure_message": "IAM-1-GATE-RUNTIME-PIN-PSC-1-SHA failed.",
+      "id": "IAM-1-GATE-RUNTIME-PIN-PSC-1-SHA",
+      "level": "P0",
+      "must": true,
+      "title": "IAM 1 GATE RUNTIME PIN PSC 1 SHA"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "bbba4a2d4832759bb1d7b4d81c6379cc38b277fe4e6a80fb42fd4ef350941eb0",
+            "json_pointer": "/dependency_pins/PROD-1/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IAM-1 MUST hard-pin PROD-1 contract artifact sha256 (runtime law).",
+      "failure_message": "IAM-1-GATE-RUNTIME-PIN-PROD-1-SHA failed.",
+      "id": "IAM-1-GATE-RUNTIME-PIN-PROD-1-SHA",
+      "level": "P0",
+      "must": true,
+      "title": "IAM 1 GATE RUNTIME PIN PROD 1 SHA"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IAM-1-SUBJECT-KEY-HASH-TV-0001",
+            "json_pointer": "/domain_invariants/pseudonymization/subject_key_hash_derivation/derivation_test_vectors/0/vector_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IAM-1 MUST ship at least one subject_key_hash derivation test vector to guarantee byte-identical hashing across implementations.",
+      "failure_message": "IAM-1-GATE-SUBJECT-KEY-HASH-TEST-VECTOR failed.",
+      "id": "IAM-1-GATE-SUBJECT-KEY-HASH-TEST-VECTOR",
+      "level": "P0",
+      "must": true,
+      "title": "IAM 1 GATE SUBJECT KEY HASH TEST VECTOR"
+    },
+    {
+      "id": "IAM-1-GATE-T0-RESOURCE-SCOPE",
+      "level": "P0",
+      "must": true,
+      "enforced_by": "authority_review",
+      "description": "User, AuthIdentity, and PlatformRoleAssignment are global; OrgMembership and OrgRoleAssignment are tenant-scoped.",
+      "failure_message": "IAM-1 resource tenancy classification differs from approved T0 authority.",
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/data_model/resources/0/global"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/data_model/resources/0/tenant_scoped"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/data_model/resources/1/global"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/data_model/resources/1/tenant_scoped"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/data_model/resources/3/global"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/data_model/resources/3/tenant_scoped"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/data_model/resources/5/global"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/data_model/resources/5/tenant_scoped"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/data_model/resources/6/global"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/data_model/resources/6/tenant_scoped"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "last_updated_utc": "2026-02-08T11:54:13Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "IAM-1 Test Gates",
+  "updated_at_utc": "2026-02-07T16:13:46Z",
+  "version": "4.0.0",
+  "authority_review_gates": [
+    {
+      "id": "IAM-1-FPP-CORRECTION-REVIEW",
+      "level": "P0",
+      "must": true,
+      "mode": "manual",
+      "description": "Review the approved authority corrections in the paired versionless contract.json draft. Confirm the contract text contains no contradictory legacy lock for the corrected behavior.",
+      "failure_message": "Approved authority correction or legacy contradiction remains unresolved."
+    }
+  ]
+}

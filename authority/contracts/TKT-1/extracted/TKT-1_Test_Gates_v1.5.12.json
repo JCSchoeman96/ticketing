@@ -1,0 +1,1247 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "TKT-1_Test_Gates_v1.5.12.json",
+  "change_log": [
+    {
+      "change_id": "CHG-TKT-1.3.1-001",
+      "date_utc": "2026-01-28",
+      "summary": "Lock Ticket trinity bindings + status enum; standardize occurrence binding to occurrence_id; standardize pricing snapshot id to pricing_snapshot_id."
+    },
+    {
+      "date_utc": "2026-02-04T10:46:13Z",
+      "summary": "Structural Sovereignty gates: outbox_events parity, PII bans, dependency floors, topic pin.",
+      "version": "1.5.0"
+    },
+    {
+      "at_utc": "2026-02-06T15:11:57Z",
+      "by": "legislative.patch",
+      "summary": "Phase 5 hardening gates: assert normalized outbox payload law, forbid envelope keys in required_keys, pin dependency_floors to suite heads (including EVT-1@2.16.4)."
+    }
+  ],
+  "contract_ref": {
+    "doc_id": "TKT-1",
+    "version": "1.5.12"
+  },
+  "created_at_utc": "2026-01-25T08:57:33Z",
+  "doc_id": "TKT-1-GATE",
+  "doc_version": "1.5.10",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "equals": "CS-0@3.0.1",
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "Suite schema pin",
+      "id": "TKT-1-GATE-010",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "pattern": "(?i)\\b(TODO|TBD|FIXME|PLACEHOLDER)\\b"
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "pattern": "(?i)\\b(TODO|TBD|FIXME|PLACEHOLDER)\\b"
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders in contract or gates",
+      "id": "TKT-1-GATE-020",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "equals": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {
+            "equals": "manifest_matches_zip_contents"
+          },
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle manifest + file integrity",
+      "id": "TKT-1-GATE-030",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ORD-1",
+            "json_pointer": "/issuance_trigger/source_doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.order.finalized.v1",
+            "json_pointer": "/issuance_trigger/source_event_name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TKT-CRED-V1",
+            "json_pointer": "/credential_envelope/format_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EdDSA",
+            "json_pointer": "/credential_envelope/header/alg"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Ed25519",
+            "json_pointer": "/credential_envelope/header/curve"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "ticket_id",
+              "ticket_credential_id",
+              "occurrence_id",
+              "iat_utc",
+              "nbf_utc",
+              "exp_utc"
+            ],
+            "json_pointer": "/credential_envelope/claims/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "account_id",
+              "user_id",
+              "email",
+              "phone",
+              "name",
+              "first_name",
+              "last_name",
+              "order_number",
+              "order_id_external",
+              "delivery_address",
+              "id_number",
+              "passport_number",
+              "tenant_slug",
+              "org_slug"
+            ],
+            "json_pointer": "/credential_envelope/claims/forbidden"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "No-drift pins for issuance trigger + credential envelope",
+      "id": "TKT-1-GATE-050",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "may_sign": true,
+                "must_verify": true,
+                "state": "active"
+              },
+              {
+                "may_sign": false,
+                "must_verify": true,
+                "state": "grace"
+              },
+              {
+                "may_sign": false,
+                "must_verify": false,
+                "state": "revoked"
+              }
+            ],
+            "json_pointer": "/key_management/key_states"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "active_public_keys",
+              "grace_public_keys",
+              "revoked_kids",
+              "revoked_ticket_credential_ids",
+              "superseded_ticket_credential_ids"
+            ],
+            "json_pointer": "/offline_revocation_propagation/hydrate_items"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2.scan_policy.stale_device_behavior",
+            "json_pointer": "/offline_revocation_propagation/stale_device_behavior_source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2.scan_policy.max_offline_age_seconds",
+            "json_pointer": "/offline_revocation_propagation/max_offline_age_seconds_source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "No-drift pins for key management and offline hydration requirements",
+      "id": "TKT-1-GATE-060",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "pdf",
+              "apple_pkpass",
+              "google_pass_payload"
+            ],
+            "json_pointer": "/render_artifacts/artifact_kinds"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "generated",
+              "stale",
+              "revoked",
+              "failed"
+            ],
+            "json_pointer": "/render_artifacts/artifact_statuses"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "apple",
+              "google"
+            ],
+            "json_pointer": "/wallet_passes/providers"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "pending",
+              "active",
+              "update_pending",
+              "revoked",
+              "failed"
+            ],
+            "json_pointer": "/wallet_passes/binding_statuses"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "No-drift pins for artifacts + wallet lifecycle models",
+      "id": "TKT-1-GATE-070",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/template_theming_policy/external_urls_forbidden"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/template_theming_policy/assets_must_be_internal_refs"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "standard",
+              "compact",
+              "wallet_compact"
+            ],
+            "json_pointer": "/template_theming_policy/layout_variants"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "No-drift pins for template theming policy",
+      "id": "TKT-1-GATE-080",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "json_pointer": "/dispute_risk_policy/fail_closed",
+            "equals": {
+              "notes": "If dispute status cannot be determined online and no fresh hydrated snapshot exists, automated operations MUST deny.",
+              "when_unknown": true
+            }
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "json_pointer": "/dependency_floors/PAY-3",
+            "equals": "2.10.5"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "json_pointer": "/dependency_floors/ERR-1",
+            "equals": "1.6.1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "json_pointer": "/dependency_floors/PRICE-1",
+            "equals": "3.5.4"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "json_pointer": "/dependency_floors/ORD-1",
+            "equals": "3.7.4"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Dispute risk policy is fail-closed and aligned with PAY-3 and ERR-1 floors.",
+      "enforced_by": "TG-0@1.0.0",
+      "id": "TKT-1-GATE-090",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.1",
+            "json_pointer": "/dependency_floors/PII-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.3.1",
+            "json_pointer": "/dependency_floors/DATA-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.1",
+            "json_pointer": "/dependency_floors/PROD-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.0.14",
+            "json_pointer": "/dependency_floors/GOV-0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact": "contract",
+            "regex": "DSAR-1"
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Dependency floors + ban DSAR coupling",
+      "enforced_by": "TG-0@1.0.0",
+      "id": "TKT-1-GATE-095",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Ticket",
+            "json_pointer": "/data_model/resources/0/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "occurrence_id",
+            "json_pointer": "/data_model/resources/0/required_attributes/6/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "pricing_snapshot_id",
+            "json_pointer": "/data_model/resources/0/required_attributes/8/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "pricing_line_id",
+            "json_pointer": "/data_model/resources/0/required_attributes/9/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "order_id",
+            "json_pointer": "/data_model/resources/0/required_attributes/2/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "checkout_group_id",
+            "json_pointer": "/data_model/resources/0/required_attributes/3/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "issued",
+              "active",
+              "scanned",
+              "completed",
+              "revoked",
+              "expired"
+            ],
+            "json_pointer": "/data_model/resources/0/required_attributes/5/enum"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Ticket trinity bindings + status enum are locked to prevent drift.",
+      "enforced_by": "TG-0@1.0.0",
+      "id": "TKT-1-GATE-096",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.5.12",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract version pinned to 1.5.0",
+      "id": "TKT-1-GATE-100",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ticket",
+            "json_pointer": "/events_and_ordering/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Topic pinned to ticketing.ticket",
+      "id": "TKT-1-GATE-110",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "doc_id": "TKT-1",
+                "name": "ticketing.ticket.issued.v1",
+                "notes": "Ticket created + initial credential issued."
+              },
+              {
+                "doc_id": "TKT-1",
+                "name": "ticketing.ticket.credential.superseded.v1",
+                "notes": "Old credential superseded by new credential."
+              },
+              {
+                "doc_id": "TKT-1",
+                "name": "ticketing.ticket.credential.revoked.v1",
+                "notes": "Credential revoked."
+              },
+              {
+                "doc_id": "TKT-1",
+                "name": "ticketing.ticket.render.generated.v1",
+                "notes": "Artifact generated."
+              },
+              {
+                "doc_id": "TKT-1",
+                "name": "ticketing.ticket.render.stale.v1",
+                "notes": "Artifact marked stale due to reschedule."
+              },
+              {
+                "doc_id": "TKT-1",
+                "name": "ticketing.ticket.wallet.update_requested.v1",
+                "notes": "Wallet pass update enqueued."
+              },
+              {
+                "doc_id": "TKT-1",
+                "name": "ticketing.ticket.wallet.revoked.v1",
+                "notes": "Wallet pass revoked."
+              },
+              {
+                "doc_id": "TKT-1",
+                "name": "ticketing.ticket.abuse_signal.recorded.v1",
+                "notes": "A TicketAbuseSignal was recorded for enforcement/analytics."
+              }
+            ],
+            "json_pointer": "/events/emits"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "No Shadow Law: emits list pinned (must match outbox_events set)",
+      "id": "TKT-1-GATE-120",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "ticket_id"
+                },
+                "event_name": "ticketing.ticket.issued.v1",
+                "notes": "Emitted exactly once when a ticket reaches status=issued and the initial credential is minted. MUST be atomic with ticket persistence.",
+                "optional_keys": [
+                  "seat_allocation_ids"
+                ],
+                "required_keys": [
+                  "ticket_id",
+                  "order_id",
+                  "checkout_group_id",
+                  "purchaser_actor_id",
+                  "occurrence_id",
+                  "issued_at_utc",
+                  "pricing_snapshot_id",
+                  "pricing_line_id",
+                  "credential_id",
+                  "mode",
+                  "kid",
+                  "valid_from_utc",
+                  "valid_until_utc",
+                  "payload_fingerprint_sha256"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "new_credential_id"
+                },
+                "event_name": "ticketing.ticket.credential.superseded.v1",
+                "notes": "Emitted when a credential is superseded by a newly minted credential for the same ticket. Old credential remains revoked/invalid for admission.",
+                "optional_keys": [
+                  "transfer_id",
+                  "admin_case_id",
+                  "security_incident_id"
+                ],
+                "required_keys": [
+                  "ticket_id",
+                  "occurrence_id",
+                  "old_credential_id",
+                  "new_credential_id",
+                  "kid",
+                  "effective_at_utc",
+                  "revocation_authority",
+                  "reason_subcode"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "credential_id"
+                },
+                "event_name": "ticketing.ticket.credential.revoked.v1",
+                "notes": "Emitted when a credential is revoked and MUST be treated as final for admission decisions (deny).",
+                "optional_keys": [
+                  "refund_id",
+                  "dispute_id",
+                  "transfer_id",
+                  "admin_case_id",
+                  "security_incident_id"
+                ],
+                "required_keys": [
+                  "ticket_id",
+                  "occurrence_id",
+                  "credential_id",
+                  "revoked_at_utc",
+                  "revocation_authority",
+                  "reason_subcode"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "render_id"
+                },
+                "event_name": "ticketing.ticket.render.generated.v1",
+                "notes": "Emitted when a render artifact is generated (PDF/PKPASS/etc). Payload MUST NOT include URLs; use sha256/bytes for audit.",
+                "optional_keys": [
+                  "storage_ref",
+                  "last_error_subcode"
+                ],
+                "required_keys": [
+                  "render_id",
+                  "ticket_id",
+                  "credential_id",
+                  "format",
+                  "bytes",
+                  "sha256",
+                  "created_at_utc"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "render_id"
+                },
+                "event_name": "ticketing.ticket.render.stale.v1",
+                "notes": "Emitted when an existing render artifact is marked stale and MUST be regenerated before distribution.",
+                "optional_keys": [
+                  "caused_by_event_name"
+                ],
+                "required_keys": [
+                  "render_id",
+                  "ticket_id",
+                  "credential_id",
+                  "marked_stale_at_utc",
+                  "reason_subcode"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "binding_id"
+                },
+                "event_name": "ticketing.ticket.wallet.update_requested.v1",
+                "notes": "Emitted when a wallet binding update is queued/requested for external wallet providers.",
+                "required_keys": [
+                  "binding_id",
+                  "credential_id",
+                  "provider",
+                  "external_pass_id",
+                  "status",
+                  "last_attempt_at_utc",
+                  "attempt_count",
+                  "last_error_subcode"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "binding_id"
+                },
+                "event_name": "ticketing.ticket.wallet.revoked.v1",
+                "notes": "Emitted when a wallet binding is revoked and the pass MUST be considered invalid.",
+                "required_keys": [
+                  "binding_id",
+                  "credential_id",
+                  "provider",
+                  "external_pass_id",
+                  "revoked_at_utc",
+                  "reason_subcode"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "signal_id"
+                },
+                "event_name": "ticketing.ticket.abuse_signal.recorded.v1",
+                "notes": "Emitted when an abuse signal is recorded for enforcement/analytics. MUST be pseudonymous (no PII).",
+                "optional_keys": [
+                  "scan_id",
+                  "scanner_device_id",
+                  "gate_id",
+                  "reason_subcode",
+                  "details"
+                ],
+                "required_keys": [
+                  "signal_id",
+                  "ticket_id",
+                  "occurrence_id",
+                  "signal_kind",
+                  "severity",
+                  "decision",
+                  "created_at_utc"
+                ],
+                "schema_ref": "EVT-2"
+              }
+            ],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Structural Sovereignty: outbox_events payload law pinned",
+      "id": "TKT-1-GATE-130",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "address",
+              "device_id_hash",
+              "email",
+              "first_name",
+              "full_name",
+              "gov_id",
+              "guest_name",
+              "id_number",
+              "ip_address_hash",
+              "last_name",
+              "name",
+              "phone",
+              "phone_e164",
+              "user_agent_hash",
+              "wallet_token_ref"
+            ],
+            "json_pointer": "/security_posture/pii/forbidden_fields_in_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PII ban list for events pinned (PII-1 aligned)",
+      "id": "TKT-1-GATE-140",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "json_pointer": "/emits_events",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "json_pointer": "/outbox_events",
+            "equals": [
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "ticket_id"
+                },
+                "event_name": "ticketing.ticket.issued.v1",
+                "notes": "Emitted exactly once when a ticket reaches status=issued and the initial credential is minted. MUST be atomic with ticket persistence.",
+                "optional_keys": [
+                  "seat_allocation_ids"
+                ],
+                "required_keys": [
+                  "ticket_id",
+                  "order_id",
+                  "checkout_group_id",
+                  "purchaser_actor_id",
+                  "occurrence_id",
+                  "issued_at_utc",
+                  "pricing_snapshot_id",
+                  "pricing_line_id",
+                  "credential_id",
+                  "mode",
+                  "kid",
+                  "valid_from_utc",
+                  "valid_until_utc",
+                  "payload_fingerprint_sha256"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "new_credential_id"
+                },
+                "event_name": "ticketing.ticket.credential.superseded.v1",
+                "notes": "Emitted when a credential is superseded by a newly minted credential for the same ticket. Old credential remains revoked/invalid for admission.",
+                "optional_keys": [
+                  "transfer_id",
+                  "admin_case_id",
+                  "security_incident_id"
+                ],
+                "required_keys": [
+                  "ticket_id",
+                  "occurrence_id",
+                  "old_credential_id",
+                  "new_credential_id",
+                  "kid",
+                  "effective_at_utc",
+                  "revocation_authority",
+                  "reason_subcode"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "credential_id"
+                },
+                "event_name": "ticketing.ticket.credential.revoked.v1",
+                "notes": "Emitted when a credential is revoked and MUST be treated as final for admission decisions (deny).",
+                "optional_keys": [
+                  "refund_id",
+                  "dispute_id",
+                  "transfer_id",
+                  "admin_case_id",
+                  "security_incident_id"
+                ],
+                "required_keys": [
+                  "ticket_id",
+                  "occurrence_id",
+                  "credential_id",
+                  "revoked_at_utc",
+                  "revocation_authority",
+                  "reason_subcode"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "render_id"
+                },
+                "event_name": "ticketing.ticket.render.generated.v1",
+                "notes": "Emitted when a render artifact is generated (PDF/PKPASS/etc). Payload MUST NOT include URLs; use sha256/bytes for audit.",
+                "optional_keys": [
+                  "storage_ref",
+                  "last_error_subcode"
+                ],
+                "required_keys": [
+                  "render_id",
+                  "ticket_id",
+                  "credential_id",
+                  "format",
+                  "bytes",
+                  "sha256",
+                  "created_at_utc"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "render_id"
+                },
+                "event_name": "ticketing.ticket.render.stale.v1",
+                "notes": "Emitted when an existing render artifact is marked stale and MUST be regenerated before distribution.",
+                "optional_keys": [
+                  "caused_by_event_name"
+                ],
+                "required_keys": [
+                  "render_id",
+                  "ticket_id",
+                  "credential_id",
+                  "marked_stale_at_utc",
+                  "reason_subcode"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "binding_id"
+                },
+                "event_name": "ticketing.ticket.wallet.update_requested.v1",
+                "notes": "Emitted when a wallet binding update is queued/requested for external wallet providers.",
+                "required_keys": [
+                  "binding_id",
+                  "credential_id",
+                  "provider",
+                  "external_pass_id",
+                  "status",
+                  "last_attempt_at_utc",
+                  "attempt_count",
+                  "last_error_subcode"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "binding_id"
+                },
+                "event_name": "ticketing.ticket.wallet.revoked.v1",
+                "notes": "Emitted when a wallet binding is revoked and the pass MUST be considered invalid.",
+                "required_keys": [
+                  "binding_id",
+                  "credential_id",
+                  "provider",
+                  "external_pass_id",
+                  "revoked_at_utc",
+                  "reason_subcode"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "signal_id"
+                },
+                "event_name": "ticketing.ticket.abuse_signal.recorded.v1",
+                "notes": "Emitted when an abuse signal is recorded for enforcement/analytics. MUST be pseudonymous (no PII).",
+                "optional_keys": [
+                  "scan_id",
+                  "scanner_device_id",
+                  "gate_id",
+                  "reason_subcode",
+                  "details"
+                ],
+                "required_keys": [
+                  "signal_id",
+                  "ticket_id",
+                  "occurrence_id",
+                  "signal_kind",
+                  "severity",
+                  "decision",
+                  "created_at_utc"
+                ],
+                "schema_ref": "EVT-2"
+              }
+            ]
+          }
+        }
+      ],
+      "id": "TKT-1-GATE-ASSERT-NON-PRODUCER",
+      "description": "Prevent CI theatre: this contract MUST remain a non-producer (no outbox events).",
+      "level": "P0",
+      "must": true,
+      "failure_message": "Fail build: non-producer contract gained an outbox surface."
+    },
+    {
+      "assertions": [
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "json_pointer": "/offline_hydration_slot_production/schema_id",
+            "equals": "SEC-1.HYDRATION_MANIFEST.v1"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "json_pointer": "/dependency_floors/SEC-1",
+            "equals": "3.4.2"
+          }
+        }
+      ],
+      "id": "TKT-1-GATE-HYDRATION-SLOT-PRODUCTION-PINNED",
+      "title": "TKT-1 MUST pin hydration slot production to SEC-1.HYDRATION_MANIFEST.v1",
+      "description": "TKT-1 MUST pin hydration slot production to SEC-1.HYDRATION_MANIFEST.v1",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "json_pointer": "/credential_envelope/canonicalization/type",
+            "equals": "JCS"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "json_pointer": "/credential_envelope/encoding/type",
+            "equals": "base64url_no_padding"
+          }
+        }
+      ],
+      "id": "TKT-1-GATE-CREDENTIAL-C14N-JCS-PINNED",
+      "title": "Ticket credentials MUST use JCS + Base64URL(no padding) per SEC-1",
+      "description": "Ticket credentials MUST use JCS + Base64URL(no padding) per SEC-1",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991",
+            "json_pointer": "/dependency_pins/API-0/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "TKT-1 MUST hard-pin API-0 contract artifact sha256.",
+      "id": "TKT-1-GATE-RUNTIME-PIN-API-0-SHA",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "d29f4e93d95677713d2b16d6e2e60a5916f5f3a99da1ff24e70b50303f10c9a1",
+            "json_pointer": "/dependency_pins/PSC-1/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "TKT-1 MUST hard-pin PSC-1 contract artifact sha256.",
+      "id": "TKT-1-GATE-RUNTIME-PIN-PSC-1-SHA",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1b53890c44a5387244d6d2eac803180e77b716629bfc00d294d500e79a70194f",
+            "json_pointer": "/dependency_pins/PROD-1/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "TKT-1 MUST hard-pin PROD-1 contract artifact sha256.",
+      "id": "TKT-1-GATE-RUNTIME-PIN-PROD-1-SHA",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "acceptance_criteria": [
+        "Contract contains conformance_requirements.sec1_byte_truth",
+        "Contract pins dependency_pins.SEC-1 to the current SEC-1 contract sha256",
+        "Contract pins conformance runner sha256 and requires evidence result=pass",
+        "Evidence schema version must be sec1-conformance-evidence/2.0"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "json_pointer": "/dependency_pins/SEC-1/sha256",
+            "equals": "074d4a10f8f447ca3d35fb88af786419266fc4ca84559a072fdaf37b5b64b851"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "json_pointer": "/conformance_requirements/sec1_byte_truth/must_match/sec1_contract_sha256",
+            "equals": "074d4a10f8f447ca3d35fb88af786419266fc4ca84559a072fdaf37b5b64b851"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "json_pointer": "/conformance_requirements/sec1_byte_truth/must_match/runner_sha256",
+            "equals": "2badcc09c255914a6d15ee89569ae6f747773ac9d3a21d3380bd221975fbd394"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "json_pointer": "/conformance_requirements/sec1_byte_truth/must_match/result",
+            "equals": "pass"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "json_pointer": "/conformance_requirements/sec1_byte_truth/evidence_schema_version",
+            "equals": "sec1-conformance-evidence/3.0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Prevents Ghost Gates by requiring an explicit SEC-1 conformance evidence artifact linkage in the contract and pinning it to the current SEC-1 + runner sha256.",
+      "enforced_by": "repo_ci, ci_sec1_conformance_runner",
+      "evidence": [
+        "file: **/SEC1-CONF-EVIDENCE-074d4a10f8f447ca3d35fb88af786419266fc4ca84559a072fdaf37b5b64b851.json"
+      ],
+      "id": "TKT-1-GATE-SEC1-CONFORMANCE-EVIDENCE-P0",
+      "level": "P0",
+      "must": true,
+      "title": "Ticket issuer/verifier must require SEC-1 conformance evidence"
+    }
+  ],
+  "generated_at_utc": "2026-02-08T16:36:30Z",
+  "last_updated_utc": "2026-02-08T16:36:30Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "TKT-1 Test Gates",
+  "updated_at": "2026-01-25T09:12:53Z",
+  "updated_at_utc": "2026-02-08T16:36:30Z",
+  "version": "1.5.12"
+}

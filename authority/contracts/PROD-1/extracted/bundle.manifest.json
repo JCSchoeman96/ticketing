@@ -1,0 +1,22 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "PROD-1",
+    "bundle_version": "1.2.2"
+  },
+  "files": [
+    {
+      "bytes": 23251,
+      "path": "PROD-1-GATE_TestGates_v1.2.2.json",
+      "sha256": "ce1b0b0eb7cc8ce403456446d92a6b4adedf7fbb33cbe45abe8ecf393d304480"
+    },
+    {
+      "bytes": 23381,
+      "path": "PROD-1_Contract_v1.2.2.json",
+      "sha256": "6b52122176d03ef81626af82f00a616e0894e433f1a309acc6365dbef11d82a4"
+    }
+  ],
+  "generated_at_utc": "2026-04-17T10:43:40Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.0"
+}

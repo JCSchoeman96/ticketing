@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "CANON-1",
+    "bundle_version": "2.0.14"
+  },
+  "doc_id": "CANON-1",
+  "files": [
+    {
+      "bytes": 57851,
+      "path": "CANON-1_Contract_v2.0.14.json",
+      "sha256": "199bf54a7e57f86d1cab3a5547f0b7cf50a37681fa414a12048c833de6f8c99f"
+    },
+    {
+      "bytes": 90473,
+      "path": "CANON-1_Test_Gates_v2.0.14.json",
+      "sha256": "94ad8cf3fb92103fef6926cdd1ca0a1599c098a9c3abf2aacc34ccfd190d2e51"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T20:30:06Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.0.14"
+}

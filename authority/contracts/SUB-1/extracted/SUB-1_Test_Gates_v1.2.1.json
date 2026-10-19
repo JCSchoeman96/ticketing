@@ -1,0 +1,673 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "SUB-1",
+    "version": "1.2.1"
+  },
+  "doc_id": "SUB-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "name": "ticketing.sub.program_created.v1",
+                "notes": "Lawful outbox event. Payload defined in outbox_events."
+              },
+              {
+                "name": "ticketing.sub.entitlement_granted.v1",
+                "notes": "Lawful outbox event. Payload defined in outbox_events."
+              },
+              {
+                "name": "ticketing.sub.entitlement_revoked.v1",
+                "notes": "Lawful outbox event. Payload defined in outbox_events."
+              },
+              {
+                "name": "ticketing.sub.entitlement_expired.v1",
+                "notes": "Lawful outbox event. Payload defined in outbox_events."
+              },
+              {
+                "name": "ticketing.sub.entitlement_checked.v1",
+                "notes": "Lawful outbox event. Payload defined in outbox_events."
+              },
+              {
+                "name": "ticketing.sub.offer_blocked.v1",
+                "notes": "Lawful outbox event. Payload defined in outbox_events."
+              }
+            ],
+            "json_pointer": "/events/emits"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "No Shadow Law: events.emits list is pinned and MUST match outbox_events names.",
+      "failure_message": "No Shadow Law: events.emits list is pinned and MUST match outbox_events names.",
+      "id": "SUB-1-GATE-140",
+      "level": "P0",
+      "must": true,
+      "title": "No Shadow Law: events.emits list is pinned and MUST match outbox_events names."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "program_id"
+                },
+                "event_name": "ticketing.sub.program_created.v1",
+                "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+                "optional_keys": [],
+                "required_keys": [
+                  "program_id",
+                  "actor_id",
+                  "actor_role",
+                  "created_at_utc",
+                  "version"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "entitlement_grant_id"
+                },
+                "event_name": "ticketing.sub.entitlement_granted.v1",
+                "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+                "optional_keys": [],
+                "required_keys": [
+                  "program_id",
+                  "tier_id",
+                  "entitlement_grant_id",
+                  "subject_customer_id",
+                  "status",
+                  "granted_at_utc",
+                  "activated_at_utc",
+                  "expires_at_utc",
+                  "grace_until_utc",
+                  "source_system",
+                  "actor_id",
+                  "actor_role",
+                  "version"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "entitlement_grant_id"
+                },
+                "event_name": "ticketing.sub.entitlement_revoked.v1",
+                "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+                "optional_keys": [],
+                "required_keys": [
+                  "program_id",
+                  "entitlement_grant_id",
+                  "subject_customer_id",
+                  "revoked_at_utc",
+                  "revocation_reason",
+                  "actor_id",
+                  "actor_role",
+                  "version"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "entitlement_grant_id"
+                },
+                "event_name": "ticketing.sub.entitlement_expired.v1",
+                "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+                "optional_keys": [],
+                "required_keys": [
+                  "program_id",
+                  "entitlement_grant_id",
+                  "subject_customer_id",
+                  "expired_at_utc",
+                  "version"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "subject_customer_id"
+                },
+                "event_name": "ticketing.sub.entitlement_checked.v1",
+                "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+                "optional_keys": [],
+                "required_keys": [
+                  "program_id",
+                  "subject_customer_id",
+                  "eligible",
+                  "entitlement_grant_id",
+                  "evaluated_at_utc",
+                  "version"
+                ],
+                "schema_ref": "EVT-2"
+              },
+              {
+                "emission_semantics": {
+                  "atomic_outbox_required": true,
+                  "delivery": "at_least_once",
+                  "idempotency_key": "subject_customer_id"
+                },
+                "event_name": "ticketing.sub.offer_blocked.v1",
+                "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+                "optional_keys": [],
+                "required_keys": [
+                  "program_id",
+                  "subject_customer_id",
+                  "offer_ref",
+                  "blocked_reason",
+                  "evaluated_at_utc",
+                  "version"
+                ],
+                "schema_ref": "EVT-2"
+              }
+            ],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Mechanical Parity: outbox_events payload chemistry is pinned.",
+      "failure_message": "Mechanical Parity: outbox_events payload chemistry is pinned.",
+      "id": "SUB-1-GATE-141",
+      "level": "P0",
+      "must": true,
+      "title": "Mechanical Parity: outbox_events payload chemistry is pinned."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "name",
+              "surname",
+              "email",
+              "phone",
+              "id_number",
+              "passport_number",
+              "address",
+              "postal_address",
+              "notes",
+              "freeform_notes",
+              "geo_hash",
+              "device_firmware",
+              "device_boot_id",
+              "device_uptime_millis",
+              "manifest_signature",
+              "hydration_payload_hash"
+            ],
+            "json_pointer": "/security_posture/pii/forbidden_event_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PII leak prevention: forbidden_event_keys list pinned (no attendee PII in event bus).",
+      "failure_message": "PII leak prevention: forbidden_event_keys list pinned (no attendee PII in event bus).",
+      "id": "SUB-1-GATE-142",
+      "level": "P0",
+      "must": true,
+      "title": "PII leak prevention: forbidden_event_keys list pinned (no attendee PII in event bus)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.subscriptions",
+            "json_pointer": "/producer_service"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Producer binding is pinned (PROD-1 allowlist target).",
+      "failure_message": "Producer binding is pinned (PROD-1 allowlist target).",
+      "id": "SUB-1-GATE-143",
+      "level": "P0",
+      "must": true,
+      "title": "Producer binding is pinned (PROD-1 allowlist target)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "attribute": "created_at_utc",
+                "data_class": "c1",
+                "resource": "SubProgram",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "default_grace_period_days",
+                "data_class": "c1",
+                "resource": "SubProgram",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "program_id",
+                "data_class": "c2",
+                "resource": "SubProgram",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "name",
+                "data_class": "c1",
+                "resource": "SubProgram",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "org_id",
+                "data_class": "c1",
+                "notes": "Tenancy key; retain per platform compliance.",
+                "resource": "SubProgram",
+                "retention_profile": "p4_finance_records"
+              },
+              {
+                "attribute": "status",
+                "data_class": "c1",
+                "resource": "SubProgram",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "updated_at_utc",
+                "data_class": "c1",
+                "resource": "SubProgram",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "created_at_utc",
+                "data_class": "c1",
+                "resource": "SubTier",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "external_plan_ref",
+                "data_class": "c1",
+                "resource": "SubTier",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "tier_id",
+                "data_class": "c2",
+                "resource": "SubTier",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "metadata",
+                "data_class": "c1",
+                "resource": "SubTier",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "name",
+                "data_class": "c1",
+                "resource": "SubTier",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "program_id",
+                "data_class": "c1",
+                "resource": "SubTier",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "sort_order",
+                "data_class": "c1",
+                "resource": "SubTier",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "updated_at_utc",
+                "data_class": "c1",
+                "resource": "SubTier",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "abuse_flags",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "activated_at_utc",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "expires_at_utc",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "fingerprint",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "grace_until_utc",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "granted_at_utc",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "entitlement_grant_id",
+                "data_class": "c2",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "last_synced_at_utc",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "org_id",
+                "data_class": "c1",
+                "notes": "Tenancy key; retain per platform compliance.",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p4_finance_records"
+              },
+              {
+                "attribute": "program_id",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "revocation_reason",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "revoked_at_utc",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "source_system",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "status",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "subject_customer_id",
+                "data_class": "c2",
+                "notes": "Restricted identifier; treat as identity-adjacent.",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p3_attendee_pii"
+              },
+              {
+                "attribute": "subject_external_member_ref",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "tier_id",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "trial_consumed_at_utc",
+                "data_class": "c1",
+                "resource": "EntitlementGrant",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "applies_to",
+                "data_class": "c1",
+                "resource": "BenefitRule",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "benefit_type",
+                "data_class": "c1",
+                "resource": "BenefitRule",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "config",
+                "data_class": "c1",
+                "resource": "BenefitRule",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "effective_from_utc",
+                "data_class": "c1",
+                "resource": "BenefitRule",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "effective_to_utc",
+                "data_class": "c1",
+                "resource": "BenefitRule",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "benefit_rule_id",
+                "data_class": "c2",
+                "resource": "BenefitRule",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "program_id",
+                "data_class": "c1",
+                "resource": "BenefitRule",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "status",
+                "data_class": "c1",
+                "resource": "BenefitRule",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "target_ref",
+                "data_class": "c1",
+                "resource": "BenefitRule",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "tier_id",
+                "data_class": "c1",
+                "resource": "BenefitRule",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "version",
+                "data_class": "c1",
+                "resource": "BenefitRule",
+                "retention_profile": "p1_operational"
+              },
+              {
+                "attribute": "trace_id",
+                "data_class": "c1",
+                "notes": "Traceability header required on all outbox events.",
+                "resource": "OutboxEvent",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "request_id",
+                "data_class": "c1",
+                "notes": "Traceability header required on all outbox events.",
+                "resource": "OutboxEvent",
+                "retention_profile": "p2_audit_evidence"
+              },
+              {
+                "attribute": "version",
+                "data_class": "c1",
+                "notes": "Traceability header required on all outbox events.",
+                "resource": "OutboxEvent",
+                "retention_profile": "p2_audit_evidence"
+              }
+            ],
+            "json_pointer": "/data_handling/attribute_labels"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "DATA-1 discipline: attribute_labels are pinned for coverage.",
+      "failure_message": "DATA-1 discipline: attribute_labels are pinned for coverage.",
+      "id": "SUB-1-GATE-144",
+      "level": "P0",
+      "must": true,
+      "title": "DATA-1 discipline: attribute_labels are pinned for coverage."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "DATA-1": "1.3.0",
+              "ERR-1": "1.6.0",
+              "EVT-1": "2.16.4",
+              "EVT-2": "2.4.0",
+              "GOV-0": "2.0.13",
+              "LOCKS-1": "2.1.0",
+              "PII-1": "1.1.0",
+              "PROD-1": "1.0.5"
+            },
+            "json_pointer": "/dependency_floors"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Physics hardening: dependency_floors pinned for quota/locks + governance.",
+      "failure_message": "Physics hardening: dependency_floors pinned for quota/locks + governance.",
+      "id": "SUB-1-GATE-150",
+      "level": "P0",
+      "must": true,
+      "title": "Physics hardening: dependency_floors pinned for quota/locks + governance."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.sub",
+            "json_pointer": "/events/topics/0/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Canonical topic ticketing.sub is pinned for subscription-domain events.",
+      "failure_message": "Canonical topic ticketing.sub is pinned for subscription-domain events.",
+      "id": "SUB-1-GATE-151",
+      "level": "P1",
+      "must": true,
+      "title": "Canonical topic ticketing.sub is pinned for subscription-domain events."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": "EVT-2:",
+            "json_pointers": [
+              "/outbox_events"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Phase 5: schema_ref normalization \u2014 outbox_events.schema_ref MUST be literal EVT-2 (qualified refs forbidden).",
+      "failure_message": "Phase 5: schema_ref normalization \u2014 outbox_events.schema_ref MUST be literal EVT-2 (qualified refs forbidden).",
+      "id": "SUB-1-GATE-152",
+      "level": "P0",
+      "must": true,
+      "title": "Phase 5: schema_ref normalization \u2014 outbox_events.schema_ref MUST be literal EVT-2 (qualified refs forbidden)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": "\\\"required_keys\\\"\\s*:\\s*\\[[^\\]]*(\\\"org_id\\\"|\\\"trace_id\\\"|\\\"request_id\\\"|\\\"registry_version_sha\\\")[^\\]]*\\]",
+            "json_pointers": [
+              "/outbox_events"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Phase 5: Envelope \u2260 Payload \u2014 envelope keys MUST NOT appear inside outbox_events.required_keys.",
+      "failure_message": "Phase 5: Envelope \u2260 Payload \u2014 envelope keys MUST NOT appear inside outbox_events.required_keys.",
+      "id": "SUB-1-GATE-153",
+      "level": "P0",
+      "must": true,
+      "title": "Phase 5: Envelope \u2260 Payload \u2014 envelope keys MUST NOT appear inside outbox_events.required_keys."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Phase 5: Registry floor parity \u2014 dependency_floors.EVT-1 MUST equal pinned registry head (2.16.4).",
+      "failure_message": "Phase 5: Registry floor parity \u2014 dependency_floors.EVT-1 MUST equal pinned registry head (2.16.4).",
+      "id": "SUB-1-GATE-154",
+      "level": "P0",
+      "must": true,
+      "title": "Phase 5: Registry floor parity \u2014 dependency_floors.EVT-1 MUST equal pinned registry head (2.16.4)."
+    }
+  ],
+  "generated_at_utc": "2026-02-06T15:35:36Z",
+  "last_updated_utc": "2026-02-06T15:35:36Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "SUB-1 test gates",
+  "version": "1.2.1"
+}

@@ -1,0 +1,950 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "TEN-1",
+    "version": "1.7.13"
+  },
+  "doc_id": "TEN-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST match the CS bundle used by CI.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-010",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "Bundle manifest filename MUST be canonical.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-020",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json MUST exactly match the JSON files in the bundle (sha256 + bytes).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-030",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bTODO\\b",
+              "\\bTBD\\b",
+              "\\bto be decided\\b",
+              "\\bFIXME\\b"
+            ],
+            "json_pointers": [
+              "/tenancy",
+              "/rules",
+              "/change_log"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No unresolved placeholders allowed in enforceable TEN-1 sections.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-040",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "app.current_org_id",
+            "json_pointer": "/tenancy/postgresrls/session_variable/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/postgresrls/default_deny_when_unset"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SET LOCAL",
+            "json_pointer": "/tenancy/postgresrls/session_variable/set_method_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/postgresrls/session_variable/transaction_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/tenancy/postgresrls/session_variable/type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RLS default-deny, session variable name, transaction scope, and type must be pinned.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-100",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/index_isolation/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/index_isolation/composite_primary_keys_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/index_isolation/composite_unique_indexes_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/index_isolation/org_id_must_be_first_column"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Index isolation invariants must be present and enabled.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-110",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/sequencing/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/sequencing/ban_global_postgres_sequences_for_tenant_visible_numbers"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenant-scoped sequencing invariant must be enabled.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-120",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN-1-GLOBAL-ALLOWLIST-v1",
+            "json_pointer": "/tenancy/global_resources/sentinel"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "deny_by_default_allowlist_only",
+            "json_pointer": "/tenancy/global_resources/default_policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "IAM-1.User",
+              "IAM-1.AuthIdentity",
+              "IAM-1.PlatformRoleAssignment",
+              "TAX-1.TaxRate"
+            ],
+            "json_pointer": "/tenancy/global_resources/allowed_resources"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/global_resources/constraints/no_oltp_cross_tenant_joins"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/global_resources/constraints/no_tenant_private_data"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "read_only_if_publicly_non_sensitive",
+            "json_pointer": "/tenancy/global_resources/constraints/tenant_read_access"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "system_internal_only_no_org_context",
+            "json_pointer": "/tenancy/global_resources/constraints/writes_scope"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/global_resources/constraints/audit_required_for_writes"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/global_resources/constraints/no_org_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/global_resources/constraints/no_tenant_existence_or_activity_inference"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "TAX-1.TaxRate"
+            ],
+            "json_pointer": "/tenancy/global_resources/constraints/tenant_read_resources"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "The global allowlist must contain only the approved resources. Global resources have no tenant-private data, no cross-tenant OLTP joins or inference, public non-sensitive reads only, and system-internal writes without org context.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-130",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "attribute",
+            "json_pointer": "/tenancy/ash_multitenancy/strategy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/tenancy/ash_multitenancy/attribute"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/tenancy/ash_multitenancy/global_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Ash multitenancy strategy is locked: attribute strategy on org_id; global mode forbidden.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-135",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/tenancy/tenant_resolution/source_constraints/http_header/public_clients_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/tenancy/tenant_resolution/source_constraints/request_path_param/public_clients_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/tenancy/tenant_resolution/source_constraints/subdomain_mapping/public_clients_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/tenant_resolution/membership_validation/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/tenant_resolution/membership_validation/enforced_before_setting_tenant"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenant resolution hardening: client-supplied tenant via header/path/subdomain is forbidden for public clients; membership validation required.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-140",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/tenant_resolution/source_constraints/public_object_key/public_clients_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/tenant_resolution/source_constraints/public_object_key/resolution_requirements/slug_must_not_be_used_for_resolution"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "public_surface",
+            "json_pointer": "/tenancy/tenant_resolution/profiles/1/profile_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "public_object_key"
+            ],
+            "json_pointer": "/tenancy/tenant_resolution/profiles/1/sources_in_precedence_order"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/tenancy/tenant_resolution/source_constraints/request_path_param/public_clients_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/tenancy/tenant_resolution/source_constraints/subdomain_mapping/public_clients_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/tenancy/tenant_resolution/source_constraints/http_header/public_clients_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Public tenant resolution MUST be supported via public_object_key and public_surface profile, while org_id sources remain forbidden for public clients.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-141",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "hide_existence",
+            "json_pointer": "/tenancy/hide_existence/default_policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_NOT_FOUND",
+            "json_pointer": "/tenancy/hide_existence/when_tenant_mismatch/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_NOT_FOUND",
+            "json_pointer": "/tenancy/hide_existence/when_rls_denied/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_NOT_FOUND",
+            "json_pointer": "/tenancy/hide_existence/when_cross_tenant/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "hide_existence policy MUST return ERR_NOT_FOUND for tenant mismatch and RLS denial to prevent existence leakage.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-150",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing:org:{org_id}:{domain}:{entity}:{action}",
+            "json_pointer": "/tenancy/boundaries/pubsub_topics/patterns/tier1_org_scoped"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing:org:{org_id}:event:{event_id}:{domain}:{entity}:{action}",
+            "json_pointer": "/tenancy/boundaries/pubsub_topics/patterns/tier2_event_scoped"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/boundaries/pubsub_topics/org_id_must_be_first_discriminator"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/boundaries/pubsub_topics/wildcards_forbidden"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PubSub topic namespace MUST be tenant-scoped (org_id-first) and use canonical Ticketing tier patterns.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-160",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing:org:{org_id}:{cache_kind}:{key}",
+            "json_pointer": "/tenancy/boundaries/cache/key_prefix_format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/boundaries/cache/org_id_must_be_first_discriminator"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Cache key prefix format MUST be ticketing-namespaced and org_id-first.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-161",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing:org:{org_id}:rate_limit:{scope}:{key}",
+            "json_pointer": "/tenancy/boundaries/rate_limiting/key_prefix_format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/boundaries/rate_limiting/org_id_must_be_first_discriminator"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Rate limiting keys MUST be tenant-scoped (org_id-first) and ticketing-namespaced.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-162",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/privacy_boundary/subject_scope/subject_key_is_tenant_scoped"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/privacy_boundary/subject_scope/subject_key_reuse_across_tenants_forbidden"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/privacy_boundary/subject_scope/platform_wide_subject_processing_requires_explicit_multi_org_scope"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/privacy_boundary/pii_vault_sealing/org_id_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/privacy_boundary/pii_vault_sealing/cross_tenant_aliasing_forbidden"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "TEN-1 MUST declare tenant-scoped subject identifiers and forbid cross-tenant linkability (aligns PII-1 and DSAR-1).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-163",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN-1-HTTP-EXC-001-platform_orchestrator",
+            "json_pointer": "/tenancy/boundaries/http_api/exceptions/0/exception_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/boundaries/http_api/exceptions/0/tenant_may_be_unset"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/privacy_boundary/platform_wide_orchestration/enforcement/spawn_per_org_jobs_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/privacy_boundary/platform_wide_orchestration/enforcement/per_org_jobs_must_set_tenant"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "If tenant is unset for platform-wide orchestration, TEN-1 MUST constrain it to orchestration only and require per-org tenant-scoped execution.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-164",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "checkout_group_id",
+            "json_pointer": "/tenancy/boundaries/http_api/tenant_spanning_correlation_ids/examples/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/boundaries/http_api/tenant_spanning_correlation_ids/rules/must_not_be_sole_query_predicate"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/boundaries/http_api/tenant_spanning_correlation_ids/rules/must_not_be_authorization_boundary"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/boundaries/http_api/tenant_spanning_correlation_ids/rules/must_also_enforce_org_id_and_actor"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenant-spanning correlation IDs MUST be declared and constrained (checkout_group_id MUST NOT become an auth boundary).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-165",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_NOT_FOUND",
+            "json_pointer": "/tenancy/hide_existence/when_missing_tenant/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "GC-030: missing tenant context MUST externalize as ERR_NOT_FOUND in hide_existence mode.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-170",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 404,
+            "json_pointer": "/tenancy/hide_existence/http_surface_uniformity/hidden_not_found/http_status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "GC-030: hide_existence HTTP uniformity MUST pin hidden-not-found to 404.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-171",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "subcode"
+            ],
+            "json_pointer": "/tenancy/hide_existence/http_surface_uniformity/hidden_not_found/must_omit_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "GC-030: hide_existence HTTP uniformity MUST omit subcode to prevent tenant enumeration.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-172",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "omit_or_constant",
+            "json_pointer": "/tenancy/hide_existence/http_surface_uniformity/hidden_not_found/detail_policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "GC-030: hide_existence MUST redact or constantize problem-details 'detail' for ERR_NOT_FOUND.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-173",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Not found.",
+            "json_pointer": "/tenancy/hide_existence/http_surface_uniformity/hidden_not_found/constant_detail"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "GC-030: hide_existence constant detail string must be pinned (if detail is ever emitted).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-174",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/hide_existence/http_surface_uniformity/hidden_not_found/must_not_vary_headers_by_reason"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "GC-030: hide_existence MUST enforce header uniformity (no varying headers by hidden reason).",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-175",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Prevent CI theatre: this contract MUST remain a non-producer (no outbox events).",
+      "failure_message": "Fail build: non-producer contract gained an outbox surface.",
+      "id": "TEN-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "Non-producer contract remains event-silent"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_NOT_FOUND",
+            "json_pointer": "/tenancy/tenant_resolution/conflict_handling/when_multiple_sources_present_and_disagree/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Conflicting tenant sources with TEN_TENANT_MISMATCH MUST externalize as ERR_NOT_FOUND; ERR_FORBIDDEN is not permitted at this boundary.",
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "id": "TEN-1-GATE-176",
+      "level": "P0",
+      "must": true
+    }
+  ],
+  "generated_at_utc": "2026-01-30T10:11:10Z",
+  "last_updated_utc": "2026-01-30T10:11:10Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "TEN-1 Test Gates (Self-Validation) (v1.7.7)",
+  "updated_at_utc": "2026-01-30T10:11:10Z",
+  "version": "1.7.13",
+  "authority_review_gates": [
+    {
+      "id": "TEN-1-FPP-CORRECTION-REVIEW",
+      "level": "P0",
+      "must": true,
+      "mode": "manual",
+      "description": "Review the approved authority corrections in the paired versionless contract.json draft. Confirm the contract text contains no contradictory legacy lock for the corrected behavior.",
+      "failure_message": "Approved authority correction or legacy contradiction remains unresolved."
+    }
+  ]
+}

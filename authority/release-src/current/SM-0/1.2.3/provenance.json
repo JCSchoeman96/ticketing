@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "b91bbb5ef071cf2d9ddbfc7f8c5d4ae3bec4442d",
+  "candidate_preparation_base_commit": "b91bbb5ef071cf2d9ddbfc7f8c5d4ae3bec4442d",
+  "source_bundle_path": "contracts/SM-0/SM-0_bundle_v1.2.2.zip",
+  "source_zip_sha256": "60b4e09f6c6f03286670291eae6d4373013a719984270f2c2ff05cf1e26c862b",
+  "source_zip_bytes": 27613,
+  "source_version": "1.2.2",
+  "origin_members": [
+    {
+      "source_member_path": "SM-0_bundle_v1.2.2/SM-0_Contract_v1.2.2.json",
+      "bytes": 18029,
+      "sha256": "97130ef2593037e2de7c5ca935a7d3407a01745bba8922fb1c98fc9dcc962e58"
+    },
+    {
+      "source_member_path": "SM-0_bundle_v1.2.2/SM-0_Test_Gates_v1.2.2.json",
+      "bytes": 8458,
+      "sha256": "107ea347b127f2d0afee89c338b9c8fe3d13725d3fb5de97e610741ff3713618"
+    }
+  ],
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "SM-0_bundle_v1.2.2/SM-0_Contract_v1.2.2.json",
+      "bytes": 18273,
+      "sha256": "e9213d26717c8519bbfdff5210c080a1cee4c8c77579f0ccf353d9be30139851"
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "SM-0_bundle_v1.2.2/SM-0_Test_Gates_v1.2.2.json",
+      "bytes": 8458,
+      "sha256": "7fb3e4019c141882bb2ef5e354840f5970bdcdf225ad32205c245c82e4fe8c89"
+    }
+  ],
+  "provenance_statement": "Successor source bootstrapped from the exact active SM-0 v1.2.2 ZIP. This is not original authoring source. The gate description now agrees with the automated CS-0@3.0.1 assertions; SM-0 domain semantics remain unchanged."
+}

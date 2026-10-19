@@ -1,0 +1,1305 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "TRK-1_Contract_v1.3.3.json",
+  "banned_anti_patterns": [
+    {
+      "ban": "Client-provided data (via POST body or query params) MUST NOT be used as authoritative for purchase_amount, seat_allocation, or revenue attribution. All such fields MUST originate from backend order/ledger systems (ORD-1, LED-1).",
+      "enforcement_layer": "Runtime policy + audit gate (OBS-1 audit log) + ORD-1/LED-1 purchase truth MUST come from backend.",
+      "id": "AP-TRK-CLIENT-TRUTH",
+      "rationale": "Client data can be spoofed via browser dev tools or HTTP interception; treating it as truth breaks financial integrity and seat allocation correctness.",
+      "severity": "P0"
+    },
+    {
+      "ban": "Raw PII (email, phone, IP address, device_id, full user agent) MUST NOT be included in tracking event payloads. Only pseudonymous identifiers (subject_key via uuid_v7) and sanitized/hashed fields are permitted.",
+      "enforcement_layer": "Schema validation + sanitization layer + lint gate (forbid PII patterns in test data).",
+      "id": "AP-TRK-RAW-PII",
+      "rationale": "Raw PII in tracking violates GDPR/CCPA minimization principles and creates compliance risk; pseudonymous identifiers allow analytics without PII exposure.",
+      "severity": "P0"
+    },
+    {
+      "ban": "Synchronous third-party dispatch (HTTP calls to GA4, Facebook Pixel, etc.) in checkout or payment flow is FORBIDDEN. All third-party dispatch MUST be async via DP-1 outbox.",
+      "enforcement_layer": "Code review + PSC-1 latency budgets (checkout p99 ≤ 900ms cannot include external HTTP calls) + DP-1 outbox enforcement.",
+      "id": "AP-TRK-SYNC-FANOUT",
+      "rationale": "Sync dispatch blocks checkout on third-party availability; creates revenue risk if vendor is slow/down. Async via outbox ensures checkout completes regardless of vendor state.",
+      "severity": "P0"
+    },
+    {
+      "ban": "TRK-1 ingestion or dispatch logic MUST NOT bypass CONSENT-1 v1.1.0 evaluation. CONSENT-1 is the sole authority for consent state with cryptographic proof requirements (consent_evaluation_hash_sha256); no 'skip consent' flags or unconditional dispatch permitted.",
+      "enforcement_layer": "Lint gate (verify CONSENT-1 v1.1.0 in dependencies) + structural gate (verify dispatch actions reference CONSENT-1 proof-hash check) + runtime consent_evaluation_hash_sha256 verification + manual code review.",
+      "id": "AP-TRK-CONSENT-BYPASS",
+      "rationale": "Bypassing consent violates GDPR/CCPA; regulatory penalties + reputational damage. CONSENT-1 v1.1.0 centralization with proof-hash ensures consistent, auditable enforcement.",
+      "severity": "P0"
+    },
+    {
+      "ban": "TRK-1 tracking events (page_view, add_to_cart, etc.) MUST NOT be emitted via EVT-1 outbox. EVT-1 is for low-volume domain events (order finalized, ledger posted); high-volume tracking uses dedicated ingestion pipeline.",
+      "enforcement_layer": "EVT-1 contract forbids tracking event types + lint gate (forbid ticketing.tracking.* in EVT-1 event registry).",
+      "id": "AP-TRK-EVT-OUTBOX",
+      "rationale": "Mixing high-volume tracking with low-volume domain events saturates EVT-1 outbox, breaks SLOs, and violates separation of concerns.",
+      "severity": "P0"
+    }
+  ],
+  "changelog": [
+    {
+      "changes": [
+        "MINOR: Added comprehensive event taxonomy with 6 event types and 22 field definitions.",
+        "MINOR: Added identity_and_keys section with subject_key (uuid_v7) and session_key (UUIDv7) derivation.",
+        "MINOR: Added attribution_capture section with UTM/click-id allowlists, sanitization rules, dedupe keys.",
+        "MINOR: Added ingestion_guarantees with append-only storage, idempotency, backpressure, multi-tenant sealing.",
+        "MINOR: Added dispatch_governance with consent-gating, vendor allowlist, rate limits, audit logs, async-only rule.",
+        "MINOR: Added retention_and_deletion with 90d raw retention, 730d aggregate retention, DSAR hooks.",
+        "MINOR: Added performance_safety with SLO targets, checkout_blocking_forbidden, degraded modes.",
+        "MINOR: Added observability metrics (4 counters), trace propagation, SLO alignment.",
+        "MINOR: Added 8 ERR-1 subcodes for tracking errors.",
+        "MINOR: Added 7 invariants (TRK-1-INV-001 through TRK-1-INV-007).",
+        "MINOR: Added tier field (1-critical).",
+        "MINOR: Expanded anti-patterns with rationale + enforcement_layer for all 5 patterns.",
+        "MINOR: Added 15 test gates (9 P0, 6 P1) with remediation hints."
+      ],
+      "date": "2026-01-14",
+      "version": "1.2.0"
+    },
+    {
+      "changes": [
+        "PATCH: Dependency version bump: CONSENT-1 v1.0.1 → v1.1.0 (align with CONSENT-1 upgrade to proof model with cryptographic integrity).",
+        "PATCH: Added proof_requirement section under dispatch_governance.consent_gating (consent_evaluation_hash_sha256 required for all dispatch actions).",
+        "PATCH: Added 3 new error subcodes: ERR_TRK_CONSENT_PROOF_MISSING, ERR_TRK_CONSENT_PROOF_INVALID (align with CONSENT-1 v1.1.0 proof verification).",
+        "PATCH: Updated TRK-1-INV-002 to reference CONSENT-1 v1.1.0 proof requirements explicitly.",
+        "PATCH: Added TRK-1-INV-008 invariant (dispatch actions MUST verify consent_evaluation_hash_sha256 format before dispatch).",
+        "PATCH: Added TRK-1-RULE-006 (consent_evaluation_hash_sha256 MUST be 64-char hex lowercase).",
+        "PATCH: Updated audit_logs.schema to include consent_evaluation_hash_sha256 field for forensic verification.",
+        "PATCH: Updated dispatch_flow_state_machine to include proof_verification_step (verify consent_evaluation_hash_sha256 before dispatch).",
+        "PATCH: Added 2 new observability metrics: ticketing.trk1.consent.proof_missing.total, ticketing.trk1.consent.proof_invalid.total.",
+        "PATCH: Added alert rule for consent proof failures (> 10/min triggers P0 incident: potential bypass attack).",
+        "PATCH: Updated operational_notes with consent proof verification failure runbook.",
+        "PATCH: Updated AP-TRK-CONSENT-BYPASS anti-pattern to reference CONSENT-1 v1.1.0 proof-hash enforcement."
+      ],
+      "date": "2026-01-14",
+      "version": "1.2.1"
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "CONSENT-1",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "Authoritative consent evaluation with cryptographic proof (consent_evaluation_hash_sha256) for all tracking collection and dispatch; TRK MUST NOT bypass CONSENT-1 v1.1.0 proof requirements."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "requires",
+      "min_version": "2.16.4",
+      "reason": "Clarifies TRK behavioral events MUST NOT use EVT outbox; EVT is for low-volume domain events only."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "requires",
+      "min_version": "1.7.0",
+      "reason": "Performance budgets: tracking ingestion MUST NOT block checkout; drop/buffer rules required."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.0",
+      "reason": "Tenant scoping via org_id, hide-existence semantics, RLS enforcement, and immutability guarantees."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.3.26",
+      "reason": "Canonical error codes for tracking denials (consent, payload, rate limit, vendor, PII)."
+    },
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "requires",
+      "min_version": "2.0.3",
+      "reason": "Data retention tiers and PII classification (raw tracking = operational 90d baseline)."
+    },
+    {
+      "doc_id": "ARCH-1",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Retention policy enforcement and DSAR deletion hooks for raw tracking events."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.0.4",
+      "reason": "Actor/session identity for audit trail and pseudonymous subject_key derivation."
+    },
+    {
+      "doc_id": "API-0",
+      "edge_type": "requires",
+      "min_version": "1.0.6",
+      "reason": "Endpoint rate limiting and request envelope requirements for ingestion API."
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "requires",
+      "min_version": "3.0.1",
+      "reason": "Ash 3.x resource patterns: org_id multitenancy, UUIDv7 IDs, utc_datetime_usec."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.0.6",
+      "reason": "Payload integrity requirements if third-party dispatch requires signing."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.6",
+      "reason": "Observability requirements for TRK pipeline metrics (ingest/dispatch/drop rates). (Updated for event-scope dimensions: event_id/occurrence_id/content_revision_id/experiment_id/price_program_revision_id propagation.)"
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.4",
+      "reason": "Queue capacity posture for async dispatch workers; backpressure + degraded modes."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.0",
+      "reason": "Constitutional invariants: tenant isolation, no global sequences, fail-closed posture."
+    },
+    {
+      "doc_id": "DP-1",
+      "edge_type": "requires",
+      "min_version": "2.0.5",
+      "reason": "Outbox pattern for async third-party dispatch; idempotency + retry semantics."
+    },
+    {
+      "doc_id": "BP-0",
+      "edge_type": "governance_floor",
+      "min_version": "1.0.6",
+      "reason": "Blueprint baseline patterns and gate structure."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "Suite schema envelopes for contract/test-gates/manifest artifacts."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Test gate authoring rules and enforcement posture."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.1",
+      "reason": "Defines event landing/content revision + experiment surfaces; TRK must capture content_revision_id + experiment context for attribution and analytics."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.0.9",
+      "reason": "Defines price programs/phases and revision keys; TRK must capture price_program_revision_id and price_phase_key for sales analytics by price changes."
+    },
+    {
+      "doc_id": "SUB-1",
+      "edge_type": "requires",
+      "min_version": "1.0.0",
+      "reason": "Tracking taxonomy needs a dedicated event when entitlement-gated offers are shown but purchase is blocked; aligns TRK to SUB-1 offer gating model."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "requires",
+      "min_version": "1.0.4",
+      "reason": "TRK subject_key issuance and PII prohibition boundary"
+    },
+    {
+      "doc_id": "DSAR-1",
+      "edge_type": "requires",
+      "min_version": "1.1.2",
+      "reason": "TRK deletion/anonymization behavior under DSAR cryptoshred"
+    }
+  ],
+  "doc_id": "TRK-1",
+  "domain_sections": {
+    "attribution_capture": {
+      "click_id_allowlist": [
+        "gclid",
+        "fbclid",
+        "msclkid"
+      ],
+      "dedupe_key_rules": [
+        {
+          "dedupe_key": "sha256(org_id + subject_key + attribution_set_hash_sha256)",
+          "dedupe_ttl": "7 days",
+          "description": "Attribution capture records are idempotent per subject for a bounded window; do not dedupe behavioral events.",
+          "notes": [
+            "attribution_set_hash_sha256 is computed from a canonical JSON of utm_* + click ids (gclid/fbclid/ttclid) + referrer_domain + landing_path.",
+            "This preserves multiple event views across sessions while avoiding repeated attribution overwrites."
+          ],
+          "rule_id": "TRK-1-DEDUPE-ATTR-001"
+        }
+      ],
+      "normalization_rules": {
+        "click_ids": "alphanumeric_only",
+        "utm_campaign": "lowercase_trim",
+        "utm_medium": "lowercase_trim",
+        "utm_source": "lowercase_trim"
+      },
+      "referrer_capture_rules": {
+        "deny_patterns": [
+          "email=",
+          "password=",
+          "ssn=",
+          "phone="
+        ],
+        "max_length": 2048,
+        "sanitization": "strip_query_params_with_pii_patterns"
+      },
+      "sanitization_rules": {
+        "allowed_charset": "ascii_alphanumeric_plus_symbols",
+        "max_length_per_field": 2048,
+        "notes": "Any field matching PII deny pattern MUST be stripped before storage and logged as ERR_TRK_PII_DETECTED.",
+        "pii_deny_patterns": {
+          "email_pattern": "^[^@]+@[^@]+\\.[a-z]{2,}$",
+          "password_pattern": "password=.*",
+          "phone_pattern": "\\+?[0-9]{10,15}",
+          "ssn_pattern": "\\d{3}-\\d{2}-\\d{4}"
+        }
+      },
+      "utm_allowlist": [
+        "utm_source",
+        "utm_medium",
+        "utm_campaign",
+        "utm_term",
+        "utm_content"
+      ]
+    },
+    "dispatch_governance": {
+      "async_only_rule": {
+        "enforcement": "AP-TRK-SYNC-FANOUT anti-pattern + PSC-1 latency gates",
+        "rationale": "Sync dispatch blocks checkout on third-party availability; violates PSC-1 budgets and creates revenue risk.",
+        "rule": "Synchronous third-party dispatch in checkout or payment flow is FORBIDDEN. All dispatch MUST be async via DP-1 outbox pattern."
+      },
+      "audit_logs": {
+        "rule": "Every dispatch attempt (success or failure) MUST be logged to audit table. Audit logs MUST include payload hash (SHA256) and consent_evaluation_hash_sha256 for forensic verification and consent audit trails.",
+        "schema": {
+          "log_destination": "immutable_append_only_table",
+          "required_fields": [
+            "timestamp_utc",
+            "org_id",
+            "subject_key",
+            "vendor_id",
+            "payload_hash",
+            "consent_evaluation_hash_sha256",
+            "success_bool",
+            "error_code_if_failed",
+            "actor_id"
+          ],
+          "retention_days": 2555
+        }
+      },
+      "consent_gating": {
+        "authority": "CONSENT-1",
+        "bypass_forbidden": true,
+        "client_flags_advisory_only": true,
+        "consent_evaluation": "server_side_only",
+        "consent_purpose_required": "analytics",
+        "min_version": "1.1.0",
+        "notes": "CONSENT-1 v1.1.0 introduces consent_evaluation_hash_sha256 (SHA-256 over canonicalized consent_evaluation per CANON-1). TRK-1 MUST verify proof-hash before dispatch to prevent consent bypass.",
+        "proof_requirement": {
+          "invalid_proof_error": "ERR_TRK_CONSENT_PROOF_INVALID",
+          "missing_proof_error": "ERR_TRK_CONSENT_PROOF_MISSING",
+          "proof_field": "consent_evaluation_hash_sha256",
+          "rationale": "CONSENT-1 v1.1.0 proof model ensures consent decisions are cryptographically auditable and non-repudiable; prevents bypass attacks.",
+          "required": true,
+          "verification": "Dispatch actions MUST include consent_evaluation_hash_sha256 from CONSENT-1 v1.1.0 proving consent was evaluated server-side per deterministic resolution algorithm."
+        },
+        "rule": "All third-party dispatch (GA4, Facebook Pixel, TikTok Pixel, etc.) MUST be gated by CONSENT-1 v1.1.0 evaluation with cryptographic proof (consent_evaluation_hash_sha256). If consent is denied or unknown, dispatch MUST NOT occur. No bypass paths permitted."
+      },
+      "dispatch_flow_state_machine": {
+        "consent_withdrawal_mid_dispatch": "abort_dispatch_and_log; do_not_retry",
+        "proof_verification_step": "Before dispatch, verify consent_evaluation_hash_sha256 exists and matches CONSENT-1 v1.1.0 canonical hash format (64-char hex lowercase SHA-256).",
+        "states": [
+          {
+            "action": "check_consent_with_proof",
+            "name": "pending",
+            "next": "consent_checked"
+          },
+          {
+            "action": "if_granted_and_proof_valid_then_dispatch_else_drop",
+            "name": "consent_checked",
+            "next": [
+              "dispatched",
+              "dropped"
+            ]
+          },
+          {
+            "action": "log_success_with_proof_hash_and_ack",
+            "name": "dispatched",
+            "next": "end"
+          },
+          {
+            "action": "log_drop_reason_and_ack",
+            "name": "dropped",
+            "next": "end"
+          }
+        ]
+      },
+      "payload_allowlist_enforcement": {
+        "audit_stripped_fields": true,
+        "rule": "Only vendor-specific allowlisted fields MAY be dispatched to each vendor. Unlisted fields MUST be stripped before dispatch."
+      },
+      "rate_limiting": {
+        "backoff_strategy": "exponential_with_jitter",
+        "limits_per_vendor": "See vendor_allowlist.max_rate_per_org_per_minute",
+        "rate_limit_error": "ERR_TRK_RATE_LIMITED",
+        "scope": "(org_id + vendor_id)"
+      },
+      "vendor_allowlist": [
+        {
+          "display_name": "Google Analytics 4",
+          "endpoint_pattern": "https://www.google-analytics.com/mp/collect",
+          "max_rate_per_org_per_minute": 600,
+          "payload_allowlist": [
+            "client_id",
+            "events",
+            "user_properties"
+          ],
+          "signing_required": false,
+          "vendor_id": "ga4"
+        },
+        {
+          "display_name": "Facebook Pixel",
+          "endpoint_pattern": "https://graph.facebook.com/*/events",
+          "max_rate_per_org_per_minute": 300,
+          "payload_allowlist": [
+            "data",
+            "access_token"
+          ],
+          "signing_required": false,
+          "vendor_id": "facebook_pixel"
+        },
+        {
+          "display_name": "TikTok Pixel",
+          "endpoint_pattern": "https://business-api.tiktok.com/open_api/*/event/track/",
+          "max_rate_per_org_per_minute": 300,
+          "payload_allowlist": [
+            "event_source",
+            "event_source_id",
+            "data"
+          ],
+          "signing_required": false,
+          "vendor_id": "tiktok_pixel"
+        }
+      ]
+    },
+    "error_envelope": {
+      "error_contract": "ERR-1",
+      "min_version": "1.3.26",
+      "subcodes": [
+        {
+          "base_code": "ERR_FORBIDDEN",
+          "reason": "Consent evaluation returned false; dispatch/collection blocked per CONSENT-1 v1.1.0.",
+          "remediation": "Prompt user to grant consent; link to privacy settings.",
+          "retryable": false,
+          "subcode": "ERR_TRK_CONSENT_DENIED"
+        },
+        {
+          "base_code": "ERR_PRECONDITION",
+          "reason": "consent_evaluation_hash_sha256 missing from dispatch request; CONSENT-1 v1.1.0 proof requirement not met.",
+          "remediation": "Call CONSENT-1 evaluation endpoint; include consent_evaluation_hash_sha256 in dispatch payload; do not bypass.",
+          "retryable": false,
+          "subcode": "ERR_TRK_CONSENT_PROOF_MISSING"
+        },
+        {
+          "base_code": "ERR_PRECONDITION",
+          "reason": "consent_evaluation_hash_sha256 format invalid (not 64-char hex lowercase SHA-256) or verification failed.",
+          "remediation": "Verify proof-hash generation uses CANON-1 canonicalization + SHA-256; check for tampering.",
+          "retryable": false,
+          "subcode": "ERR_TRK_CONSENT_PROOF_INVALID"
+        },
+        {
+          "base_code": "ERR_BAD_REQUEST",
+          "reason": "Event payload failed schema validation (missing required field, invalid type, etc.).",
+          "remediation": "Log validation error; correct payload and retry.",
+          "retryable": false,
+          "subcode": "ERR_TRK_PAYLOAD_INVALID"
+        },
+        {
+          "base_code": "ERR_BAD_REQUEST",
+          "reason": "Event payload exceeds max size limit (8192 bytes).",
+          "remediation": "Truncate or split payload; retry with smaller payload.",
+          "retryable": false,
+          "subcode": "ERR_TRK_PAYLOAD_TOO_LARGE"
+        },
+        {
+          "base_code": "ERR_RATE_LIMITED",
+          "reason": "Ingestion rate limit exceeded for tenant (org_id).",
+          "remediation": "Back off; implement exponential retry; escalate if sustained.",
+          "retryable": true,
+          "subcode": "ERR_TRK_RATE_LIMITED"
+        },
+        {
+          "base_code": "ERR_FORBIDDEN",
+          "reason": "Vendor ID not in dispatch allowlist.",
+          "remediation": "Check vendor allowlist config; request vendor addition if needed.",
+          "retryable": false,
+          "subcode": "ERR_TRK_VENDOR_NOT_ALLOWED"
+        },
+        {
+          "base_code": "ERR_UNAVAILABLE",
+          "reason": "Dispatch attempt failed (vendor unreachable, timeout, 5xx response, etc.).",
+          "remediation": "Log attempt; retry via DP-1 outbox with exponential backoff; escalate if repeated failures.",
+          "retryable": true,
+          "subcode": "ERR_TRK_DISPATCH_BLOCKED"
+        },
+        {
+          "base_code": "ERR_BAD_REQUEST",
+          "reason": "PII pattern detected in payload; event dropped/sanitized per AP-TRK-RAW-PII.",
+          "remediation": "Audit payload sanitization logic; flag for security review.",
+          "retryable": false,
+          "subcode": "ERR_TRK_PII_DETECTED"
+        },
+        {
+          "base_code": "ERR_BAD_REQUEST",
+          "reason": "Event name doesn't match allowed taxonomy or namespace (must be ticketing.tracking.*).",
+          "remediation": "Check event name against contract taxonomy; correct and retry.",
+          "retryable": false,
+          "subcode": "ERR_TRK_EVENT_NAME_INVALID"
+        }
+      ]
+    },
+    "event_taxonomy": {
+      "event_namespace": "ticketing.tracking",
+      "field_definitions": [
+        {
+          "description": "Unique tracking event identifier; used for idempotency dedupe.",
+          "name": "event_id",
+          "nullable": false,
+          "type": "uuidv7"
+        },
+        {
+          "description": "Tenant identifier; immutable; used for RLS and tenant sealing.",
+          "name": "org_id",
+          "nullable": false,
+          "type": "uuidv7"
+        },
+        {
+          "description": "Client-reported timestamp (microsecond precision); server may adjust for clock skew.",
+          "name": "occurred_at_utc",
+          "nullable": false,
+          "type": "utc_datetime_usec"
+        },
+        {
+          "description": "Pseudonymous identifier; uuid_v7(org_id + user_email + salt); hex lowercase 64 chars.",
+          "name": "subject_key",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "Per-session temporal identifier; random UUIDv7; lifetime ≤ 1440 minutes (24h).",
+          "name": "session_key",
+          "nullable": false,
+          "type": "uuidv7"
+        },
+        {
+          "max_length": 2048,
+          "name": "page_url",
+          "nullable": false,
+          "sanitization": "strip_pii_patterns",
+          "type": "string"
+        },
+        {
+          "max_length": 2048,
+          "name": "referrer",
+          "nullable": true,
+          "sanitization": "strip_pii_patterns",
+          "type": "string"
+        },
+        {
+          "allowed_charset": "ascii_alphanumeric_plus_symbols",
+          "max_length": 256,
+          "name": "utm_source",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "allowed_charset": "ascii_alphanumeric_plus_symbols",
+          "max_length": 256,
+          "name": "utm_medium",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "allowed_charset": "ascii_alphanumeric_plus_symbols",
+          "max_length": 256,
+          "name": "utm_campaign",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "allowed_charset": "ascii_alphanumeric_plus_symbols",
+          "max_length": 256,
+          "name": "utm_term",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "allowed_charset": "ascii_alphanumeric_plus_symbols",
+          "max_length": 256,
+          "name": "utm_content",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "Google Click ID",
+          "max_length": 128,
+          "name": "gclid",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "Facebook Click ID",
+          "max_length": 128,
+          "name": "fbclid",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "description": "Microsoft Click ID",
+          "max_length": 128,
+          "name": "msclkid",
+          "nullable": true,
+          "type": "string"
+        },
+        {
+          "max_length": 128,
+          "name": "item_id",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "max_length": 512,
+          "name": "item_name",
+          "nullable": false,
+          "type": "string"
+        },
+        {
+          "description": "Price in minor currency units (cents); tracking metadata only; ORD-1 is authoritative.",
+          "name": "price_minor",
+          "nullable": true,
+          "type": "integer"
+        },
+        {
+          "max_length": 3,
+          "name": "currency",
+          "nullable": false,
+          "pattern": "^[A-Z]{3}$",
+          "type": "string"
+        },
+        {
+          "description": "References ORD-1 order record.",
+          "name": "order_id",
+          "nullable": false,
+          "type": "uuidv7"
+        },
+        {
+          "description": "Payment transaction ID (if applicable).",
+          "name": "transaction_id",
+          "nullable": false,
+          "type": "uuidv7"
+        },
+        {
+          "description": "Revenue in minor currency units; tracking metadata only; LED-1 is authoritative.",
+          "name": "revenue_minor",
+          "nullable": false,
+          "type": "integer"
+        },
+        {
+          "max_length": 64,
+          "name": "event_name",
+          "nullable": false,
+          "pattern": "^[a-z0-9_]+$",
+          "type": "string"
+        },
+        {
+          "description": "Identifier for a specific occurrence/session within an event (EVT-2 occurrence). Required when the event supports multi-occurrence purchase or session-level attendance.",
+          "examples": [
+            "0192b3d6-9c2d-7a7b-9f55-7fd9b10d1a11"
+          ],
+          "name": "occurrence_id",
+          "type": "uuid_v7"
+        },
+        {
+          "description": "Identifier for the event content revision (EVT-2) rendered to the user at the time of the event.",
+          "examples": [
+            "0192b3d6-9c2d-7a7b-9f55-7fd9b10d1a12"
+          ],
+          "name": "content_revision_id",
+          "type": "uuid_v7"
+        },
+        {
+          "description": "Identifier for an A/B experiment definition (EVT-2) associated with an event surface.",
+          "examples": [
+            "0192b3d6-9c2d-7a7b-9f55-7fd9b10d1a13"
+          ],
+          "name": "experiment_id",
+          "type": "uuid_v7"
+        },
+        {
+          "description": "Stable key for the variant presented (e.g., control, hero_big_cta, social_proof_v2).",
+          "examples": [
+            "control",
+            "hero_big_cta"
+          ],
+          "name": "experiment_variant_key",
+          "type": "snake_case"
+        },
+        {
+          "description": "Stable identifier for a UI surface being experimented on (e.g., event_landing.hero, event_landing.faq, checkout.summary).",
+          "examples": [
+            "event_landing_hero",
+            "event_landing_faq"
+          ],
+          "name": "surface_id",
+          "type": "snake_case"
+        },
+        {
+          "description": "Identifier for the active price program revision used to price the cart/order (PRICE-1).",
+          "examples": [
+            "0192b3d6-9c2d-7a7b-9f55-7fd9b10d1a14"
+          ],
+          "name": "price_program_revision_id",
+          "type": "uuid_v7"
+        },
+        {
+          "description": "Key for the price phase applied (e.g., early_bird, phase_1, phase_2).",
+          "examples": [
+            "early_bird",
+            "phase_2"
+          ],
+          "name": "price_phase_key",
+          "type": "snake_case"
+        },
+        {
+          "description": "Entitlement kind required to purchase the offer (e.g., subscriber).",
+          "name": "required_entitlement_kind",
+          "type": "snake_case"
+        },
+        {
+          "description": "External or platform tier identifier required for eligibility (optional; may map to WP tier id/slug).",
+          "name": "required_tier_key",
+          "type": "string"
+        },
+        {
+          "description": "Stable code for why purchase was blocked (e.g., entitlement_missing, tier_ineligible, quota_exceeded, beneficiary_invalid).",
+          "name": "block_reason_code",
+          "type": "snake_case"
+        }
+      ],
+      "naming_rule": "All tracking events MUST be prefixed with 'ticketing.tracking.' namespace. Format: ticketing.tracking.<event_name>. Use snake_case for event names.",
+      "registry": [
+        {
+          "category": "navigation",
+          "description": "User viewed a page (event detail page, checkout page, etc.).",
+          "event_type": "ticketing.tracking.page_view",
+          "optional_fields": [
+            "utm_source",
+            "utm_medium",
+            "utm_campaign",
+            "utm_term",
+            "utm_content",
+            "gclid",
+            "fbclid",
+            "page_title",
+            "occurrence_id",
+            "content_revision_id",
+            "experiment_id",
+            "experiment_variant_key",
+            "surface_id",
+            "price_program_revision_id",
+            "price_phase_key"
+          ],
+          "pii_policy": "no_raw_pii",
+          "required_fields": [
+            "event_id",
+            "org_id",
+            "occurred_at_utc",
+            "subject_key",
+            "session_key",
+            "page_url",
+            "referrer"
+          ],
+          "schema_version": "1.0.0"
+        },
+        {
+          "category": "product",
+          "description": "User viewed an event or ticket product detail page.",
+          "event_type": "ticketing.tracking.view_item",
+          "optional_fields": [
+            "item_category",
+            "price_minor",
+            "currency",
+            "utm_source",
+            "utm_medium",
+            "utm_campaign",
+            "occurrence_id",
+            "content_revision_id",
+            "experiment_id",
+            "experiment_variant_key",
+            "surface_id",
+            "price_program_revision_id",
+            "price_phase_key"
+          ],
+          "pii_policy": "no_raw_pii",
+          "required_fields": [
+            "event_id",
+            "org_id",
+            "occurred_at_utc",
+            "subject_key",
+            "session_key",
+            "item_id",
+            "item_name"
+          ],
+          "schema_version": "1.0.0"
+        },
+        {
+          "category": "product",
+          "description": "User added item(s) to cart or initiated seat hold.",
+          "event_type": "ticketing.tracking.add_to_cart",
+          "optional_fields": [
+            "price_minor",
+            "currency",
+            "utm_source",
+            "utm_medium",
+            "occurrence_id",
+            "content_revision_id",
+            "experiment_id",
+            "experiment_variant_key",
+            "surface_id",
+            "price_program_revision_id",
+            "price_phase_key"
+          ],
+          "pii_policy": "no_raw_pii",
+          "required_fields": [
+            "event_id",
+            "org_id",
+            "occurred_at_utc",
+            "subject_key",
+            "session_key",
+            "item_id",
+            "quantity"
+          ],
+          "schema_version": "1.0.0"
+        },
+        {
+          "category": "checkout",
+          "description": "User initiated checkout flow.",
+          "event_type": "ticketing.tracking.begin_checkout",
+          "optional_fields": [
+            "item_count",
+            "utm_source",
+            "utm_medium",
+            "utm_campaign",
+            "occurrence_id",
+            "content_revision_id",
+            "experiment_id",
+            "experiment_variant_key",
+            "surface_id",
+            "price_program_revision_id",
+            "price_phase_key"
+          ],
+          "pii_policy": "no_raw_pii",
+          "required_fields": [
+            "event_id",
+            "org_id",
+            "occurred_at_utc",
+            "subject_key",
+            "session_key",
+            "cart_total_minor",
+            "currency"
+          ],
+          "schema_version": "1.0.0"
+        },
+        {
+          "category": "transaction",
+          "description": "Purchase completed successfully. Revenue attribution source of truth is ORD-1/LED-1; this is behavioral tracking only.",
+          "event_type": "ticketing.tracking.purchase",
+          "notes": "Revenue fields are tracking metadata only; ORD-1 order snapshot is authoritative for financial reconciliation.",
+          "optional_fields": [
+            "tax_minor",
+            "shipping_minor",
+            "utm_source",
+            "utm_medium",
+            "utm_campaign",
+            "gclid",
+            "fbclid",
+            "occurrence_id",
+            "content_revision_id",
+            "experiment_id",
+            "experiment_variant_key",
+            "surface_id",
+            "price_program_revision_id",
+            "price_phase_key"
+          ],
+          "pii_policy": "no_raw_pii",
+          "required_fields": [
+            "event_id",
+            "org_id",
+            "occurred_at_utc",
+            "subject_key",
+            "session_key",
+            "order_id",
+            "transaction_id",
+            "revenue_minor",
+            "currency"
+          ],
+          "schema_version": "1.0.0"
+        },
+        {
+          "category": "custom",
+          "constraints": {
+            "event_name_max_length": 64,
+            "event_params_max_bytes": 2048
+          },
+          "description": "Client-defined custom event (e.g., video play, form submit). Subject to same consent + PII + sanitization rules.",
+          "event_type": "ticketing.tracking.custom_event",
+          "optional_fields": [
+            "event_params",
+            "occurrence_id",
+            "content_revision_id",
+            "experiment_id",
+            "experiment_variant_key",
+            "surface_id",
+            "price_program_revision_id",
+            "price_phase_key"
+          ],
+          "pii_policy": "no_raw_pii",
+          "required_fields": [
+            "event_id",
+            "org_id",
+            "occurred_at_utc",
+            "subject_key",
+            "session_key",
+            "event_name"
+          ],
+          "schema_version": "1.0.0"
+        },
+        {
+          "description": "Records that a subject was exposed to an experiment variant on a specific surface for an event landing experience.",
+          "event_type": "ticketing.tracking.experiment_exposure",
+          "optional_fields": [
+            "occurrence_id",
+            "content_revision_id",
+            "utm_source",
+            "utm_medium",
+            "utm_campaign",
+            "referrer_domain",
+            "landing_path",
+            "user_agent_hash_sha256"
+          ],
+          "pii_allowed": false,
+          "required_fields": [
+            "org_id",
+            "event_id",
+            "occurred_at_utc",
+            "subject_key",
+            "session_key",
+            "experiment_id",
+            "experiment_variant_key",
+            "surface_id"
+          ]
+        },
+        {
+          "category": "eligibility",
+          "description": "Emitted when an offer is visible to the public but purchase is blocked because eligibility requirements (entitlements) are not met. Used for funnel and upsell analytics; enforcement is still server-side in ORD-1.",
+          "event_type": "ticketing.tracking.offer_blocked",
+          "optional_fields": [
+            "required_tier_key",
+            "price_phase_key",
+            "page_url",
+            "page_path",
+            "referrer",
+            "utm_source",
+            "utm_medium",
+            "utm_campaign",
+            "utm_content",
+            "utm_term",
+            "user_agent",
+            "device_type",
+            "language"
+          ],
+          "required_fields": [
+            "org_id",
+            "occurred_at_utc",
+            "subject_key",
+            "session_key",
+            "event_id",
+            "occurrence_id",
+            "item_id",
+            "required_entitlement_kind",
+            "block_reason_code"
+          ]
+        }
+      ],
+      "versioning_rule": "Event schema uses semantic versioning. New optional fields = minor version bump. Field removal or type change = major version bump. Backward compat: old field names MUST remain supported for 90 days after deprecation."
+    },
+    "identity_and_keys": {
+      "cross_device_rules": {
+        "consent_purpose": "analytics",
+        "default": "no_cross_device",
+        "notes": "Cross-device identity resolution (linking subject_keys across devices) requires explicit 'analytics' consent grant. Default: treat each device as separate subject_key.",
+        "requires_consent": true
+      },
+      "explicit_no_pii_rule": "Tracking payloads MUST NOT contain: email, phone, IP address (except hashed with daily salt rotation), full user agent (hash only), device_id (use session_key), postal_code, or any field matching PII deny patterns.",
+      "session_key": {
+        "derivation": "random_uuidv7_per_session",
+        "immutable_per_session": true,
+        "lifetime_minutes": 1440,
+        "notes": "Session boundary defined by: explicit logout, 24h timeout, or consent withdrawal.",
+        "type": "session_temporal_identifier"
+      },
+      "subject_key": {
+        "derivation": "uuid_v7(org_id + subject_source_id + salt) where subject_source_id is chosen as: (1) anon_sticky_id (UUIDv7 random, first-party cookie) if present; else (2) actor_id (UUIDv7 from IAM-1) when authenticated.",
+        "format": "hex_lowercase_64_chars",
+        "immutable": true,
+        "notes": [
+          "Subject keys MUST be pseudonymous and MUST NOT be derived from direct PII (email, phone, name).",
+          "anon_sticky_id is generated server-side at first consented analytics touch and persisted as a first-party cookie (suggested TTL: 180 days) to support cross-session attribution.",
+          "If CONSENT-1 denies analytics consent, anon_sticky_id MUST NOT be set/read; tracking events MUST be dropped or reduced to strictly-necessary operational telemetry.",
+          "Cross-device matching is out-of-scope for TRK-1 (no fingerprinting)."
+        ],
+        "pii_policy": "no_direct_pii",
+        "type": "pseudonymous_identifier"
+      }
+    },
+    "ingestion_guarantees": {
+      "backpressure_and_failure": {
+        "buffer_max_age_seconds": 300,
+        "buffer_max_events": 10000,
+        "checkout_blocking_forbidden": true,
+        "drop_behavior": "If buffer exceeds capacity, drop oldest non-purchase events first; log drop count as ticketing.trk1.events.dropped.total metric.",
+        "notes": "Tracking failures MUST NOT propagate to checkout response. Use fire-and-forget async ingestion with bounded buffer.",
+        "rule": "Tracking ingestion MUST degrade (drop or buffer) without blocking checkout or payment flows. PSC-1 budgets: checkout p99 ≤ 900ms; tracking ingestion p99 ≤ 100ms."
+      },
+      "idempotency": {
+        "dedupe_key": "(org_id + event_id)",
+        "dedupe_window_days": 7,
+        "notes": "If same (org_id, event_id) seen within 7 days, return success (idempotent replay) unless payload hash differs (conflict).",
+        "replay_behavior": "return_original_ack_or_ERR_CONFLICT_on_mismatch"
+      },
+      "immutability": "Tracking events are immutable after insert; no updates permitted except DSAR deletion.",
+      "multi_tenant_sealing": {
+        "cross_tenant_writes_forbidden": true,
+        "org_id_required": true,
+        "org_id_source": "explicit_actor_context",
+        "rationale": "Per TEN-1 v1.7.0: org_id MUST be explicit in every write; no ambient/global tenant state."
+      },
+      "storage_model": "append_only"
+    },
+    "observability": {
+      "metrics": {
+        "cardinality_limits": {
+          "forbid_user_identifiers_as_labels": true,
+          "max_label_values_per_dim": 64
+        },
+        "counters": [
+          {
+            "cardinality_limit": 64,
+            "labels": [
+              "org_id",
+              "event_type"
+            ],
+            "name": "ticketing.trk1.events.ingested.total"
+          },
+          {
+            "cardinality_limit": 16,
+            "labels": [
+              "org_id",
+              "reason"
+            ],
+            "name": "ticketing.trk1.events.dropped.total"
+          },
+          {
+            "cardinality_limit": 32,
+            "labels": [
+              "org_id",
+              "vendor_id",
+              "result"
+            ],
+            "name": "ticketing.trk1.dispatch.attempts.total"
+          },
+          {
+            "cardinality_limit": 1,
+            "labels": [
+              "org_id"
+            ],
+            "name": "ticketing.trk1.consent.denied.total"
+          },
+          {
+            "cardinality_limit": 1,
+            "labels": [
+              "org_id"
+            ],
+            "name": "ticketing.trk1.consent.proof_missing.total"
+          },
+          {
+            "cardinality_limit": 1,
+            "labels": [
+              "org_id"
+            ],
+            "name": "ticketing.trk1.consent.proof_invalid.total"
+          }
+        ]
+      },
+      "slo_alignment": {
+        "alerting_rules": [
+          {
+            "metric": "ticketing.trk1.events.dropped.total",
+            "severity": "P1",
+            "threshold": "drop_rate > 0.5%"
+          },
+          {
+            "metric": "ticketing.trk1.dispatch.attempts.total",
+            "severity": "P2",
+            "threshold": "failure_rate > 5%"
+          },
+          {
+            "metric": "ticketing.trk1.consent.proof_missing.total",
+            "notes": "Missing consent proofs indicate bypass attempt or integration bug.",
+            "severity": "P0",
+            "threshold": "> 10/min"
+          }
+        ],
+        "reference": "OBS-1 v2.7.5"
+      },
+      "trace_propagation": {
+        "request_id_required": true,
+        "span_name_pattern": "ticketing.tracking.<action>",
+        "trace_id_required": true
+      }
+    },
+    "operational_notes": {
+      "break_glass_conditions": [
+        "If drop rate > 5%, pause dispatch to vendors and page on-call (P1 incident).",
+        "If CONSENT-1 unavailable, default to eu_strict (deny tracking); alert immediately.",
+        "If consent proof verification failures > 10/min, trigger P0 alert (potential bypass attack or integration bug)."
+      ],
+      "degradation_modes": [
+        {
+          "action": "Drop oldest non-purchase events; sample 10% if sustained.",
+          "trigger": "Buffer overflow (>10k events queued)"
+        },
+        {
+          "action": "Circuit-break vendor; queue for retry via DP-1.",
+          "trigger": "Vendor dispatch failure rate > 10%"
+        },
+        {
+          "action": "Enable sampling mode (50%); alert on-call.",
+          "trigger": "Ingestion p99 latency > 200ms"
+        },
+        {
+          "action": "Halt all dispatch; page security on-call (P0); investigate bypass attempt.",
+          "trigger": "CONSENT-1 proof verification failures > 10/min"
+        }
+      ],
+      "runbooks": [
+        {
+          "link": "https://ops-runbook.internal/trk-ingestion-lag",
+          "severity": "P2",
+          "title": "TRK ingestion lag > 1min"
+        },
+        {
+          "link": "https://ops-runbook.internal/trk-dispatch-vendor-blocked",
+          "severity": "P1",
+          "title": "Dispatch to vendor blocked (circuit open)"
+        },
+        {
+          "link": "https://ops-runbook.internal/consent-unavailable",
+          "severity": "P0",
+          "title": "Consent service unavailable"
+        },
+        {
+          "link": "https://ops-runbook.internal/trk-consent-proof-failures",
+          "severity": "P0",
+          "title": "Consent proof verification failures spike"
+        }
+      ]
+    },
+    "performance_safety": {
+      "checkout_blocking_forbidden": {
+        "enforcement": "PSC-1 budgets + async fire-and-forget ingestion",
+        "rule": "Tracking ingestion MUST NOT block checkout. If tracking fails, checkout MUST succeed. Drop tracking event and log error."
+      },
+      "degraded_modes": {
+        "buffer_overflow": "Drop oldest non-purchase events; sampling 10% if sustained overflow.",
+        "consent_service_unavailable": "Default to eu_strict (deny tracking) per CONSENT-1 v1.1.0 locked_decisions.resolution_rule (most_restrictive_wins).",
+        "vendor_dispatch_unavailable": "Queue for retry via DP-1; do not block ingestion."
+      },
+      "slo_targets": {
+        "alert_threshold_drop_rate": 0.5,
+        "dispatch_availability_slo": "99.5%",
+        "dispatch_p99_latency_ms": 500,
+        "ingestion_availability_slo": "99.9%",
+        "ingestion_p99_latency_ms": 100,
+        "max_drop_rate_percent": 0.1
+      }
+    },
+    "retention_and_deletion": {
+      "aggregate_retention": {
+        "notes": "Aggregates MUST NOT contain subject_key, session_key, or any re-identifiable fields.",
+        "pii_policy": "non_identifying_only",
+        "rationale": "Aggregated/anonymized attribution data may be retained longer for trend analysis (2 years).",
+        "retention_days": 730,
+        "tier": "analytical"
+      },
+      "dsar_deletion_hooks": {
+        "aggregate_handling": "Aggregates MAY remain if non-identifying (no subject_key); otherwise delete.",
+        "audit_trail": "Log deletion completion in ARCH-1 audit log.",
+        "deletion_scope": "All raw tracking events where subject_key matches DSAR subject_id.",
+        "timeline": "Complete deletion within 30 days of DSAR request approval.",
+        "trigger": "DSAR-1 subject deletion request"
+      },
+      "legal_hold_interaction": {
+        "release_behavior": "Resume normal retention policy after legal hold release.",
+        "rule": "If legal hold active (ARCH-1), raw events MUST NOT be deleted even after retention period expires."
+      },
+      "raw_event_retention": {
+        "purge_behavior": "Delete raw events after 90 days unless legal hold active (ARCH-1).",
+        "rationale": "Per DATA-1 v2.0.3: operational data baseline is 90 days. Raw tracking events are operational (not long-term analytical).",
+        "retention_days": 90,
+        "tier": "operational"
+      }
+    }
+  },
+  "emits_events": false,
+  "generated_at_utc": "2026-02-07T05:29:57Z",
+  "invariants": [
+    {
+      "enforcement": "CI gate TRK-1-GATE-TAXONOMY-COMPLETE (cardinality check).",
+      "id": "TRK-1-INV-001",
+      "severity": "P0",
+      "statement": "Tracking event taxonomy MUST be non-empty and contain all required event types (page_view, view_item, add_to_cart, begin_checkout, purchase)."
+    },
+    {
+      "enforcement": "CI gate TRK-1-GATE-CONSENT-AUTHORITY (structural check: CONSENT-1 v1.1.0 in dependencies + dispatch actions reference consent_evaluation_hash_sha256 proof).",
+      "id": "TRK-1-INV-002",
+      "severity": "P0",
+      "statement": "CONSENT-1 v1.1.0 is the sole authority for consent evaluation with cryptographic proof requirements. TRK-1 ingestion and dispatch MUST NOT bypass CONSENT-1 v1.1.0 evaluation or proof verification (consent_evaluation_hash_sha256)."
+    },
+    {
+      "enforcement": "Sanitization layer + lint gate TRK-1-GATE-PII-BAN-ENFORCEMENT (forbid PII patterns in test data).",
+      "id": "TRK-1-INV-003",
+      "severity": "P0",
+      "statement": "Tracking events MUST be pseudonymous by default. subject_key MUST be uuid_v7 derived; raw PII (email, phone, IP, device_id) MUST NOT be in payloads."
+    },
+    {
+      "enforcement": "PSC-1 budgets + backpressure gate TRK-1-GATE-BACKPRESSURE-RULE.",
+      "id": "TRK-1-INV-004",
+      "severity": "P0",
+      "statement": "Tracking ingestion MUST degrade without blocking checkout. If buffer overflows or ingestion fails, drop events and log; checkout MUST succeed."
+    },
+    {
+      "enforcement": "AP-TRK-SYNC-FANOUT anti-pattern + PSC-1 latency gates.",
+      "id": "TRK-1-INV-005",
+      "severity": "P0",
+      "statement": "Third-party dispatch MUST be async via DP-1 outbox. Synchronous HTTP calls to vendors in checkout flow are FORBIDDEN."
+    },
+    {
+      "enforcement": "TEN-1 compliance gate + DB schema (org_id immutable constraint).",
+      "id": "TRK-1-INV-006",
+      "severity": "P0",
+      "statement": "org_id is immutable after tracking event creation. Cross-tenant queries MUST return ERR_NOT_FOUND (hide-existence per TEN-1)."
+    },
+    {
+      "enforcement": "Audit schema gate TRK-1-GATE-DISPATCH-GOVERNANCE (verify audit log schema includes consent_evaluation_hash_sha256).",
+      "id": "TRK-1-INV-007",
+      "severity": "P0",
+      "statement": "All dispatch attempts (success or failure) MUST be logged to immutable audit table with payload_hash, consent_evaluation_hash_sha256, vendor_id, timestamp, result."
+    },
+    {
+      "enforcement": "Runtime proof verification gate + OBS-1 alert (ticketing.trk1.consent.proof_missing.total > 10/min triggers P0 incident).",
+      "id": "TRK-1-INV-008",
+      "severity": "P0",
+      "statement": "Dispatch actions MUST verify consent_evaluation_hash_sha256 format (64-char hex lowercase SHA-256) before dispatch. Missing or invalid proof MUST surface ERR_TRK_CONSENT_PROOF_MISSING or ERR_TRK_CONSENT_PROOF_INVALID."
+    }
+  ],
+  "last_updated_utc": "2026-02-07T05:29:57Z",
+  "normative_source": {
+    "kind": "json"
+  },
+  "outbox_events": [],
+  "purpose_and_boundaries": {
+    "never_owns": [
+      "Business intelligence definitions, dashboards, or aggregation logic (BI-1)",
+      "Operational telemetry or platform observability (OBS-1)",
+      "Domain truth for orders, ledger, or seat allocation (ORD-1, LED-1, SEAT-1)",
+      "Consent evaluation logic (CONSENT-1 is sole authority)",
+      "Third-party tag injection or client-side tracking libraries (client responsibility)"
+    ],
+    "out_of_scope": [
+      "Server-side rendering of tracking pixels",
+      "Real-time personalization engines",
+      "A/B testing framework (future contract if needed)",
+      "Cross-device identity resolution without explicit consent"
+    ],
+    "owns": [
+      "Canonical tracking event taxonomy (page_view, view_item, add_to_cart, begin_checkout, purchase, custom_event)",
+      "Ingestion rules: append-only, idempotent, tenant-sealed, backpressure/drop rules",
+      "Consent-gated collection and dispatch (CONSENT-1 v1.1.0 is sole authority; bypass forbidden; proof-hash required)",
+      "Attribution capture: UTM params, click IDs, referrer; sanitization, dedupe, normalization",
+      "Third-party dispatch governance: vendor allowlist, payload allowlist, rate limits, audit logs, async-only",
+      "Raw tracking retention and DSAR deletion hooks",
+      "Performance safety: tracking MUST degrade without blocking checkout"
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "TRK-1-RULE-001",
+      "severity": "P0",
+      "text": "Event taxonomy registry MUST be non-empty and MUST contain all required event types with stable snake_case names prefixed with ticketing.tracking.*"
+    },
+    {
+      "rule_id": "TRK-1-RULE-002",
+      "severity": "P0",
+      "text": "Consent-gated dispatch flow MUST evaluate CONSENT-1 v1.1.0 and verify consent_evaluation_hash_sha256 before every third-party HTTP call; if consent denied, proof missing, or proof invalid, drop dispatch and log appropriate error code."
+    },
+    {
+      "rule_id": "TRK-1-RULE-003",
+      "severity": "P0",
+      "text": "Attribution dedupe key (org_id + subject_key + utm_source + utm_medium + utm_campaign) MUST be unique within 7-day window; duplicates silently ignored (idempotent)."
+    },
+    {
+      "rule_id": "TRK-1-RULE-004",
+      "severity": "P0",
+      "text": "Sanitization MUST strip any field matching PII deny patterns (email, phone, password, SSN) before storage; log ERR_TRK_PII_DETECTED and reject event."
+    },
+    {
+      "rule_id": "TRK-1-RULE-005",
+      "severity": "P0",
+      "text": "Raw tracking event retention is 90 days (operational tier per DATA-1); DSAR deletion MUST purge all events where subject_key matches within 30 days."
+    },
+    {
+      "rule_id": "TRK-1-RULE-006",
+      "severity": "P0",
+      "text": "consent_evaluation_hash_sha256 MUST be 64-character hexadecimal lowercase string (SHA-256 output format); any other format MUST be rejected with ERR_TRK_CONSENT_PROOF_INVALID."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines canonical first-party tracking event taxonomy, consent-gated ingestion and third-party dispatch with cryptographic proof requirements (CONSENT-1 v1.1.0), attribution capture and normalization, retention and deletion hooks, and performance safety guarantees. TRK-1 governs behavioral tracking only—NOT business intelligence (BI-1), operational telemetry (OBS-1), or domain truth (ORD-1/LED-1). Platform-authoritative for tracking governance.",
+  "tenancy": {
+    "context_required": true,
+    "cross_org_query_forbidden": true,
+    "forbid_ambient_tenancy": true,
+    "hide_existence": true,
+    "leakage_policy": "hide_existence",
+    "rationale": "Per TEN-1 v1.7.0 Constitutional Invariant TEN-INV-HIDE-EXIST: org_id is immutable after creation; cross-tenant queries return ERRNOTFOUND (not ERRFORBIDDEN); RLS enforced at DB layer.",
+    "rls_enforcement": "mandatory_via_postgres_policies",
+    "strategy": "ash_attribute",
+    "tenant_immutable": true,
+    "tenant_key": "org_id"
+  },
+  "tier": "1-critical",
+  "title": "Tracking Event Contract",
+  "version": "1.3.3"
+}

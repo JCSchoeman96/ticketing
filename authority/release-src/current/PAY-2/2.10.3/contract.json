@@ -1,0 +1,1378 @@
+{
+  "anomaly_detection": {
+    "poison_decision_detection": {
+      "action": "mark_poisoned_and_reroute",
+      "alert_event": "payment.route_decision_poisoned.v1",
+      "automatic_rerouting": {
+        "description": "Poisoned decisions trigger automatic route re-evaluation with provider exclusion.",
+        "enabled": true,
+        "exclude_provider": true
+      },
+      "failure_threshold": 3,
+      "window_minutes": 60
+    },
+    "routing_distribution_monitoring": {
+      "tier_1_realtime": {
+        "alert_event": "payment.routing_distribution_anomaly.v1",
+        "description": "Alert if one provider share shifts >40% in 15 minutes.",
+        "failover_rate_spike": {
+          "alert_event": "payment.failover_rate_spike_realtime.v1",
+          "baseline_comparison": "24_hour_rolling_average",
+          "description": "Fire SEV2 if 5-minute failover rate exceeds 3× the 24-hour baseline.",
+          "severity": "SEV2",
+          "threshold_multiplier": 3,
+          "window": "5_minutes"
+        },
+        "threshold_shift_percent": 40,
+        "window": "15_minutes"
+      },
+      "tier_2_daily": {
+        "alert_event": "payment.failover_rate_exceeded.v1",
+        "baseline_comparison": true,
+        "description": "Daily aggregate for long-term trend analysis and capacity planning.",
+        "failover_rate_threshold_percent": 5,
+        "window": "daily"
+      }
+    }
+  },
+  "anti_patterns": [
+    {
+      "id": "ATP-PAY-2-001",
+      "severity": "P1",
+      "text": "Dedupe/idempotency MUST NOT ignore provider_account_ref. Using only (provider_id, provider_event_id) is forbidden in multi-account environments."
+    }
+  ],
+  "artifact_kind": "contract",
+  "artifact_name": "PAY-2_Contract_v2.10.3.json",
+  "change_log": [
+    {
+      "changes": [
+        "BREAKING: JSON-only normative bundle.",
+        "Added deterministic routing + persisted RouteDecision.",
+        "Strengthened webhook tenant-binding rules.",
+        "Made failover safety and ambiguous-state behavior explicit."
+      ],
+      "date": "2026-01-02",
+      "version": "2.0.0"
+    },
+    {
+      "changes": [
+        "ENTERPRISE HARDENING - parity with PAY-1 v2.5.0",
+        "Upgraded to CS-0@2.2.0 schema and BP-0 bundle structure.",
+        "Added core_domain_contract with Ash 3.x identities.",
+        "Implemented binary circuit breaker with OBS-1 integration.",
+        "Added correlation tracking and decision_hash.",
+        "Webhook hardening: HMAC+timestamp, storm detection.",
+        "Complete telemetry contract with Ash.Tracer.",
+        "Two-tier anomaly detection."
+      ],
+      "date": "2026-01-05",
+      "version": "2.5.0"
+    },
+    {
+      "changes": [
+        "CRITICAL OPERATIONAL HARDENING - addresses circuit breaker deadlock and webhook performance.",
+        "FIX 1: Fractional traffic shedding (5% probationary throttle) replaces binary circuit breakers.",
+        "FIX 2: Optimistic webhook processing with selective fetch for high-value events only.",
+        "FIX 3: Independent hash verification in reconciliation using clean-room implementation.",
+        "FIX 4: UnboundWebhookEvent holding pen for orphaned webhooks failing tenant-binding.",
+        "FIX 5: Real-time failover rate monitoring (5-minute SEV2) replaces daily aggregate.",
+        "Added probationary_throttle state (5% traffic) for degraded providers.",
+        "Added cascade prevention logic when all providers degrade simultaneously.",
+        "Added selective fetch triggers: refunds, high-value captures (>$1000), disputes.",
+        "Added independent decision_hash verification algorithm specification.",
+        "Added 24-hour TTL and retry strategy for unbound webhooks.",
+        "Moved failover spike detection from daily to 5-minute real-time SEV2 alert.",
+        "Added 5 new P0/P1 rules addressing operational rigidity."
+      ],
+      "date": "2026-01-05",
+      "version": "2.6.0"
+    },
+    {
+      "changes": [
+        "BREAKING: Normalized tenant key from org_id (uuid) → org_id (string) per TEN-1 v1.6.8 canonical model.",
+        "DEPENDENCY ALIGNMENT: Upgraded TEN-1 min_version from 1.5.0 → 1.6.8.",
+        "DEPENDENCY ALIGNMENT: Upgraded LED-1 min_version from 2.1.0 → 2.3.4 for org_id/RLS alignment.",
+        "DEPENDENCY ALIGNMENT: Upgraded PAY-1 min_version from 2.5.0 → 2.6.0.",
+        "Removed org_id from routing model recommended inputs (org_id is the canonical tenant key).",
+        "Updated idempotency key format to reference org_id instead of org_id.",
+        "Updated telemetry span attributes: pay2.org_id → pay2.org_id.",
+        "Updated all resource attributes (RouteDecision, RoutePolicy, ProviderAccount, ProviderWebhookEvent) to use org_id.",
+        "Updated required identities to reference org_id.",
+        "Migration: Existing implementations must rename org_id columns/fields to org_id and update type from uuid to string."
+      ],
+      "date": "2026-01-06",
+      "version": "2.7.0"
+    },
+    {
+      "changes": [
+        "DOC: ERR-1 canonical section text no longer includes alias code strings (avoids accidental regex matches).",
+        "FIX: summary normalized to a string per CS-0 contract schema; detailed object moved to executive_summary.",
+        "FIX: ERR-1 top-level error codes now use canonical underscore forms (ERR_FORBIDDEN, ERR_UNAVAILABLE, ERR_BAD_REQUEST, ERR_CONFLICT).",
+        "FIX: Reconciliation mismatch subcode now uses registered, namespaced subcode PAY_ROUTE_DECISION_HASH_MISMATCH (requires ERR-1 update).",
+        "FIX: Tenant-scoped RoutePolicy and ProviderAccount now require non-null org_id (no implicit platform scope via nullable org_id).",
+        "FIX: Removed platform-scope wording from RoutePolicy purpose (tenant-scoped only).",
+        "HARDENING: Decision hash verification now specifies canonical encodings and uses length-prefixed encoding (delimiter ambiguity forbidden).",
+        "HARDENING: Clean-room hash computation enforcement now specifies required module + forbidden dependency edge (NEW proposed governance lint rule).",
+        "PACKAGING: Bundle normalized to BP-0 foldered bundle structure with regenerated manifest."
+      ],
+      "date": "2026-01-09",
+      "version": "2.7.3"
+    },
+    {
+      "date_utc": "2026-01-25T08:29:27Z",
+      "summary": "Tighten payment-finality boundary: PAY-2 routing/failover/webhook processing MUST not attest paid_confirmed; adds invariants + rules linking to PAY-1.verify_payment_reference; bumps dependency floors to PAY-1>=2.7.3 and ERR-1>=1.4.1; adds payment_reference_c14n output hint.",
+      "version": "2.8.0"
+    },
+    {
+      "date_utc": "2026-01-25T08:33:52Z",
+      "summary": "Dependency floor bump: ERR-1>=1.4.2 to match suite-wide PAY_REFERENCE_* subcode registry used by canonical money confirmation seam.",
+      "version": "2.8.1"
+    },
+    {
+      "changes": [
+        "Raised dependency floor to PAY-1>=2.7.4.",
+        "Locked payment_reference_c14n derivation rule to match PAY-1."
+      ],
+      "date_utc": "2026-01-25T09:59:34Z",
+      "version": "2.8.2"
+    },
+    {
+      "changes": [
+        "GC-001 / SD-043 hardening: add explicit PAY-1 verification → ORD reconciliation workflow and mandatory PAY-3 compensation on late capture.",
+        "Add dependency_pins.gc_001_chain and register required ERR-1 subcode PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED.",
+        "Bump dependency floors: ERR-1>=1.4.15, PAY-1>=2.7.5, ORD-1>=3.5.0, add PAY-3>=2.9.2."
+      ],
+      "date_utc": "2026-01-28T18:49:30Z",
+      "version": "2.8.3"
+    },
+    {
+      "date_utc": "2026-01-29T11:33:16Z",
+      "summary": "GC-001 drift-prevention repin: ORD-1 -> 3.5.4, PAY-1 -> 2.7.7; refresh TEN-1/OBS-1 floors; add explicit SEAT-1 dependency to match pinned chain.",
+      "version": "2.8.4"
+    }
+  ],
+  "circuit_breaker": {
+    "cascade_prevention": {
+      "emergency_override": {
+        "description": "If all providers circuit-open, allow manual override to probationary_throttle for disaster recovery.",
+        "enabled": true
+      },
+      "if_all_degraded_behavior": "distribute_traffic_proportionally_by_health_score",
+      "min_healthy_providers_required": 1
+    },
+    "health_check_integration": {
+      "delegated_to": "OBS-1",
+      "description": "Routing MUST query OBS-1 provider health before selection.",
+      "required": true
+    },
+    "metrics_required": [
+      "pay2.provider_circuit_state{provider_id, state}",
+      "pay2.circuit_trips_total{provider_id}",
+      "pay2.provider_health_check_duration_ms{provider_id}"
+    ],
+    "provider_health_model": {
+      "circuit_states": [
+        "healthy",
+        "degraded",
+        "probationary_throttle",
+        "circuit_open"
+      ],
+      "cooldown_seconds": 60,
+      "description": "Fractional traffic shedding prevents cascading failures when all providers degrade simultaneously.",
+      "fractional_shedding_required": true,
+      "half_open_probe_count": 1,
+      "state_transitions": {
+        "degraded_to_probationary_throttle": {
+          "consecutive_failures": 2,
+          "description": "2 more failures in degraded state within 30s triggers throttle.",
+          "window_seconds": 30
+        },
+        "healthy_to_degraded": {
+          "description": "3 failures in 10 seconds transitions to degraded.",
+          "failures": 3,
+          "window_seconds": 10
+        },
+        "probationary_throttle_to_circuit_open": {
+          "consecutive_failures": 3,
+          "description": "If throttled traffic still fails 3× in 60s, fully open circuit.",
+          "window_seconds": 60
+        }
+      },
+      "traffic_allocation": {
+        "circuit_open": "0%_excluded_from_routing",
+        "degraded": "50%_with_monitoring",
+        "healthy": "100%",
+        "probationary_throttle": "5%_for_automated_recovery_testing"
+      }
+    }
+  },
+  "core_domain_contract": {
+    "required_attributes": [
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "payment_intent_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "provider_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "provider_account_ref",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "route_policy_version",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "reason_code",
+            "nullable": false,
+            "type": "string_enum"
+          },
+          {
+            "name": "v42_correlation_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "decision_hash",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "routed_at",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "resource": "RouteDecision"
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "version",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "rules",
+            "nullable": false,
+            "type": "map"
+          },
+          {
+            "name": "effective_from",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "effective_until",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "resource": "RoutePolicy"
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "provider_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "provider_account_ref",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "currencies",
+            "nullable": false,
+            "type": "array"
+          },
+          {
+            "name": "regions",
+            "nullable": false,
+            "type": "array"
+          },
+          {
+            "name": "status",
+            "nullable": false,
+            "type": "string_enum"
+          }
+        ],
+        "resource": "ProviderAccount"
+      },
+      {
+        "attributes": [
+          {
+            "name": "provider_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "provider_event_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "payload_hash",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "signature_verified",
+            "nullable": false,
+            "type": "boolean"
+          },
+          {
+            "name": "received_at",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "resource": "ProviderWebhookEvent"
+      },
+      {
+        "attributes": [
+          {
+            "name": "provider_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "provider_event_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "description": "Used to attempt binding once parent appears.",
+            "name": "provider_transaction_id",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "raw_payload",
+            "nullable": false,
+            "type": "map"
+          },
+          {
+            "name": "signature_verified",
+            "nullable": false,
+            "type": "boolean"
+          },
+          {
+            "name": "received_at",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "retry_count",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "last_retry_at",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "binding_failure_reason",
+            "nullable": false,
+            "type": "string"
+          }
+        ],
+        "resource": "UnboundWebhookEvent"
+      }
+    ],
+    "required_identities": [
+      {
+        "identity": [
+          "org_id",
+          "provider_id",
+          "provider_account_ref",
+          "provider_event_id"
+        ],
+        "resource": "RouteDecision",
+        "uniqueness": "non_unique_but_selective",
+        "why": "Ensures deterministic routing: same intent + policy → same route."
+      },
+      {
+        "identity": [
+          "org_id",
+          "provider_id",
+          "provider_account_ref",
+          "provider_event_id"
+        ],
+        "resource": "RouteDecision",
+        "why": "Global correlation lookup for end-to-end traceability."
+      },
+      {
+        "identity": [
+          "org_id",
+          "version"
+        ],
+        "resource": "RoutePolicy",
+        "why": "Unique versioned policy per tenant."
+      },
+      {
+        "identity": [
+          "provider_id",
+          "provider_account_ref"
+        ],
+        "resource": "ProviderAccount",
+        "why": "Prevent config collisions and misrouting."
+      },
+      {
+        "identity": [
+          "provider_id",
+          "provider_account_ref",
+          "provider_event_id"
+        ],
+        "resource": "ProviderWebhookEvent",
+        "why": "Replay protection via deduplication."
+      },
+      {
+        "identity": [
+          "provider_id",
+          "provider_event_id"
+        ],
+        "resource": "UnboundWebhookEvent",
+        "why": "Dedupe orphaned webhooks in holding pen."
+      }
+    ],
+    "required_relationships": [
+      {
+        "kind": "belongs_to",
+        "nullable": false,
+        "relationship": "payment_intent",
+        "resource": "RouteDecision",
+        "target_resource": "PaymentIntent"
+      },
+      {
+        "kind": "belongs_to",
+        "nullable": false,
+        "relationship": "route_policy",
+        "resource": "RouteDecision",
+        "target_resource": "RoutePolicy"
+      }
+    ],
+    "required_resources": [
+      {
+        "immutability": "create_and_read_only",
+        "purpose": "Immutable audit trail of routing decisions linked to PaymentIntent.",
+        "resource": "RouteDecision",
+        "tenant_scoped": true
+      },
+      {
+        "immutability": "versioned_immutable",
+        "purpose": "Versioned routing rule set (tenant-scoped).",
+        "resource": "RoutePolicy",
+        "tenant_scoped": true
+      },
+      {
+        "immutability": false,
+        "purpose": "Trusted config mapping provider accounts to tenants, currencies, regions.",
+        "resource": "ProviderAccount",
+        "tenant_scoped": true
+      },
+      {
+        "immutability": "create_and_read_only",
+        "purpose": "Durable webhook event record with replay protection.",
+        "resource": "ProviderWebhookEvent",
+        "tenant_scoped": true
+      },
+      {
+        "description": "Tenant-agnostic table for orphaned webhooks; retried until parent appears or TTL expires.",
+        "immutability": false,
+        "purpose": "Holding pen for webhooks failing tenant-binding due to missing parent RouteDecision/PaymentIntent.",
+        "resource": "UnboundWebhookEvent",
+        "rls_bypass_audit_required": true,
+        "tenant_scoped": false,
+        "ttl_hours": 24
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "Bundle schema compliance."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.15",
+      "reason": "Canonical error envelope + error codes for routing denials (incl PAY_REFERENCE_* subcodes used by PAY-1 money confirmation seam)."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "requires",
+      "min_version": "2.16.4",
+      "reason": "Context/type safety only; PAY-2 is a router (emits_events=false, outbox_events=[])."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "4.4.1",
+      "reason": "Ledger posting boundaries with org_id alignment; routing must not imply posting."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "1.0.0",
+      "reason": "Queue taxonomy for webhook ingestion and reconciliation workers."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.15",
+      "reason": "Provider health status, circuit breaker state, anomaly alerts."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.5.4",
+      "reason": "v42_correlation_id flow from order → routing → adapter → PSP."
+    },
+    {
+      "doc_id": "PAY-1",
+      "edge_type": "requires",
+      "min_version": "2.7.7",
+      "reason": "PSP adapter boundary + canonical money-confirmed proof via verify_payment_reference."
+    },
+    {
+      "doc_id": "PAY-3",
+      "edge_type": "requires",
+      "min_version": "2.9.2",
+      "reason": "Late-capture compensation (void/refund) mandated by GC-001 / SD-043; PAY-2 initiates compensation when ORD rejects late money confirmation."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "1.0.0",
+      "reason": "Webhook signature verification, replay protections, secrets."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.6",
+      "reason": "Tenant isolation with canonical org_id key and 'hide existence' semantics."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "TG-0 v2.3.0 gate standard: denial tests + runtime verification primitives + harness interlock."
+    },
+    {
+      "doc_id": "SEAT-1",
+      "edge_type": "requires",
+      "min_version": "3.5.3",
+      "reason": "Seat allocation and hold state must be interpreted consistently for payment authorization, capture, and dispute workflows."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.1",
+      "reason": "Schema token normalization contract (Phase 5)."
+    }
+  ],
+  "dependency_pins": {
+    "DP-1": {
+      "min_version": "2.1.0"
+    },
+    "EVT-1": {
+      "min_version": "2.8.0"
+    },
+    "LOCKS-1": {
+      "min_version": "2.1.0"
+    },
+    "ORD-1": {
+      "min_version": "3.7.0"
+    },
+    "PAY-1": {
+      "min_version": "2.10.0"
+    },
+    "PRICE-1": {
+      "min_version": "3.3.0"
+    },
+    "RP-0": {
+      "min_version": "3.2.0"
+    },
+    "SEAT-1": {
+      "min_version": "3.3.0"
+    },
+    "SM-0": {
+      "min_version": "1.2.0"
+    },
+    "gc_001_chain": {
+      "ERR-1": "1.4.15",
+      "ORD-1": "3.5.4",
+      "PAY-1": "2.7.7",
+      "PAY-3": "2.9.2",
+      "SEAT-1": "3.2.0"
+    }
+  },
+  "doc_id": "PAY-2",
+  "domain_invariants": {
+    "err1_primary_code_canonical": true
+  },
+  "emits_events": false,
+  "executive_summary": {
+    "non_goals": [
+      "Defining PSP adapter interface details (PAY-1).",
+      "Defining ledger posting rules (LED-1).",
+      "Defining public endpoints (API-0 / EXT-1)."
+    ],
+    "one_liner": "Provider routing and reconciliation contract with deterministic selection, denial semantics, idempotency, and decision-hash verification for auditability.",
+    "problem": "Multi-PSP routing becomes a money-loss machine when selection is non-deterministic, circuit breakers cause cascade failures, or webhook verification doubles latency during storms.",
+    "solution": "Routing policy with immutable RouteDecision, fractional traffic shedding (5% probationary throttle), optimistic webhook processing for trusted signatures, independent hash verification, orphaned webhook holding pen, and 5-minute failover spike detection."
+  },
+  "failover": {
+    "allow_cross_provider_failover": true,
+    "ambiguous_state_policy": "mark_pending_block_fulfillment_and_reconcile",
+    "hard_rules": [
+      "Failover MUST NOT create duplicates: no second capture/authorization unless first is proven non-effective.",
+      "Failover requires provider truth check when state is ambiguous (timeouts, unknown capture state).",
+      "If any attempt might have succeeded, system MUST enter pending and reconcile before fulfillment.",
+      "Circuit breaker MUST exclude providers with open circuits from failover routing."
+    ],
+    "provider_exclusion": {
+      "circuit_open": "exclude_from_routing",
+      "consecutive_failures": {
+        "action": "mark_degraded_and_alert",
+        "threshold": 3,
+        "window_minutes": 5
+      },
+      "degraded_status": "deprioritize_in_routing"
+    },
+    "requires_provider_truth_check": true
+  },
+  "gc_patch_register": {
+    "GC-001": {
+      "controls": {
+        "late_capture_requires_pay3_compensation": true,
+        "must_enqueue_pay1_verify_on_finality_webhook": true,
+        "must_trigger_ord_reconcile_on_verified_money": true,
+        "must_use_err1_subcode_for_late_capture": "PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED"
+      },
+      "notes": "PAY-2 webhook ingestion/routing remains tentative; money finality is verified via PAY-1 only. Upon verified money confirmation, PAY-2 MUST trigger ORD-1 reconciliation; if ORD indicates grace/holds expired, PAY-2 MUST initiate PAY-3 compensation and emit OBS signals with ERR-1 subcode.",
+      "sd": "SD-043"
+    }
+  },
+  "generated_at_utc": "2026-02-07T05:29:24Z",
+  "idempotency_rules": {
+    "conflict_behavior": {
+      "smart_retry_detection": {
+        "changed_params_same_key_behavior": {
+          "client_guidance": "Parameters changed; derive new idempotency key for new routing attempt.",
+          "error_code": "ERR_CONFLICT"
+        },
+        "enabled": true,
+        "identical_params_behavior": "return_cached_decision"
+      }
+    },
+    "key_requirements": {
+      "description": "Keys MUST be context-derived and MUST be reused for retry of same routing operation.",
+      "deterministic_for_operation": true,
+      "min_entropy_bits": 128,
+      "recommended_format": "hmac_sha256(org_id || \":\" || payment_intent_id || \":\" || route_policy_version, secret)"
+    }
+  },
+  "invariants": {
+    "ambiguous_state_blocks_fulfillment": true,
+    "err1_primary_code_canonical": true,
+    "gc_001_compensation_via_pay3_required": true,
+    "gc_001_late_capture_error_subcode": "PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED",
+    "gc_001_ord_reconcile_required": true,
+    "gc_001_pay1_verify_required": true,
+    "money_confirmed_authority": "PAY-1.verify_payment_reference",
+    "p0": [
+      {
+        "id": "PAY-2-INV-014",
+        "severity": "P0",
+        "text": "Webhook durability dedupe identity MUST include provider_account_ref. Uniqueness tuple is (provider_id, provider_account_ref, provider_event_id)."
+      }
+    ],
+    "tentative_webhook_must_not_finalize": true
+  },
+  "last_updated_utc": "2026-02-07T05:29:24Z",
+  "normative_source": "json",
+  "outbox_events": [],
+  "reconciliation": {
+    "decision_hash_verification": {
+      "clean_room_implementation": {
+        "description": "Reconciliation worker MUST re-calculate decision_hash using independent implementation, not calling RouteDecision.compute_decision_hash.",
+        "enforcement": {
+          "must_not_reference_modules": [
+            "Ticketing.Payments.Routing.RouteDecision"
+          ],
+          "notes": "NEW: proposed invariant — requires LINT-0 rule to forbid dependency edge CleanRoomHash -> RouteDecision.",
+          "proposed_governance_lint_rule_id": "LINT_DEP_EDGE_FORBIDDEN_PAY2_CLEANROOM_HASH",
+          "required_module": "Ticketing.Payments.Routing.CleanRoomHash"
+        },
+        "required": true
+      },
+      "independent_verification_required": true,
+      "mismatch_behavior": {
+        "alert_event": "payment.route_decision_hash_mismatch.v1",
+        "block_reconciliation": true,
+        "error_code": "ERR_CONFLICT",
+        "error_subcode": "PAY_ROUTE_DECISION_HASH_MISMATCH",
+        "require_manual_investigation": true
+      },
+      "verification_logic": {
+        "algorithm": "SHA256",
+        "canonicalization": {
+          "integers": "base10_no_padding",
+          "separator_injection": "not_applicable_length_prefixed",
+          "strings": "utf8",
+          "utc_datetime_usec": "rfc3339_utc_fixed_6_usec_trailing_z",
+          "uuid_v7": "lowercase_rfc4122_string"
+        },
+        "description": "Reconciliation MUST independently compute the decision_hash as SHA256 over the ordered fields using the canonicalization and length-prefixed encoding rules above. Delimiter-based concatenation is FORBIDDEN.",
+        "encoding": {
+          "concatenation": "records_concatenated_no_delimiter",
+          "length_format": "base10",
+          "length_unit": "bytes",
+          "record_format": "<len>:<utf8_bytes>",
+          "type": "length_prefixed_utf8"
+        },
+        "input_fields_canonical_order": [
+          "org_id",
+          "payment_intent_id",
+          "provider_id",
+          "provider_account_ref",
+          "route_policy_version",
+          "routed_at"
+        ]
+      }
+    },
+    "gc_001": {
+      "compensation": {
+        "error_code": "ERR_CONFLICT",
+        "error_subcode": "PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED",
+        "fallback": "refund",
+        "obs_signal": "gc_001.late_capture.compensated.v1",
+        "preferred": "void"
+      },
+      "description": "GC-001 late money confirmation handling: translate tentative provider events into PAY-1 verification, then ORD reconciliation; compensate via PAY-3 when money arrives after order grace/holds expired.",
+      "ord_contract_ref": {
+        "doc_id": "ORD-1",
+        "min_version": "3.5.0"
+      },
+      "pay1_contract_ref": {
+        "doc_id": "PAY-1",
+        "min_version": "2.7.5"
+      },
+      "pay3_contract_ref": {
+        "doc_id": "PAY-3",
+        "min_version": "2.9.2"
+      },
+      "workflow_steps": [
+        "Persist webhook event with signature proof + tenant binding (or holding pen) and correlate to RouteDecision/payment_intent_id/v42_correlation_id when available.",
+        "For any webhook that indicates potential finality (capture/paid/settled), enqueue PAY-1.verify_payment_reference using provider_reference_id and payment_reference_c14n for correlation only.",
+        "Only after PAY-1 verification attests paid_confirmed_at_utc + verified_payment_attempt_id + evidence_digest_sha256 may PAY-2 emit money-confirmed event for downstream consumption.",
+        "Trigger ORD-1 reconciliation using v42_correlation_id + verified_payment_attempt_id + paid_confirmed_at_utc; ORD decides whether order is still within grace and whether seats/holds are still valid.",
+        "If ORD rejects as expired or holds released, PAY-2 MUST initiate PAY-3 compensation (prefer void; fallback refund) and record ERR-1 error_subcode PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED."
+      ]
+    }
+  },
+  "routing_model": {
+    "inputs": {
+      "forbidden_from_client": [
+        "fee_amount",
+        "net_amount",
+        "provider_account_ref_override",
+        "settlement_destination_override"
+      ],
+      "recommended": [
+        "buyer_country",
+        "merchant_of_record",
+        "payment_flow",
+        "risk_tier",
+        "capture_mode"
+      ],
+      "required": [
+        "org_id",
+        "currency",
+        "payment_method",
+        "sales_region"
+      ],
+      "trust_rules": [
+        "Inputs MUST be derived from persisted Order/Invoice resources inside tenant scope.",
+        "Any client-provided field used by routing MUST be validated against server truth or ignored."
+      ]
+    },
+    "outputs": {
+      "additional": [
+        "route_policy_version",
+        "route_decision_id",
+        "v42_correlation_id",
+        "requires_truth_check",
+        "payment_reference_c14n"
+      ],
+      "persistence_required": true,
+      "persistence_resource": "RouteDecision",
+      "required": [
+        "provider_id",
+        "provider_account_ref",
+        "reason_code",
+        "decision_hash"
+      ]
+    },
+    "policy_versioning": {
+      "reason": "Changing routing rules without versioning makes reconciliation impossible.",
+      "required": true,
+      "version_field": "route_policy_version"
+    },
+    "selection": {
+      "denial_semantics": {
+        "insufficient_context": "ERR_FORBIDDEN",
+        "provider_unavailable": "ERR_UNAVAILABLE",
+        "unsupported_currency_or_region": "ERR_BAD_REQUEST"
+      },
+      "must_be": [
+        "deterministic",
+        "auditable",
+        "tenant_scoped"
+      ]
+    }
+  },
+  "rules": [
+    {
+      "applies_to": [
+        "RouteDecision",
+        "RoutePolicy"
+      ],
+      "category": "routing",
+      "rationale": "Non-deterministic routing breaks reconciliation and causes double-charges during retries.",
+      "rule_id": "PAY-2-P0-001",
+      "severity": "P0",
+      "text": "Routing MUST be deterministic and auditable: same trusted inputs + same policy version => same route. RouteDecisions MUST be persisted."
+    },
+    {
+      "applies_to": [
+        "ProviderWebhookEvent",
+        "RouteDecision"
+      ],
+      "category": "tenancy",
+      "rationale": "Misrouting webhooks is a direct cross-tenant money movement risk.",
+      "rule_id": "PAY-2-P0-002",
+      "severity": "P0",
+      "text": "Tenant binding for webhooks and routing MUST NOT rely on untrusted inputs. Cross-tenant access MUST be hidden (ERR_NOT_FOUND) per TEN-1."
+    },
+    {
+      "applies_to": [
+        "failover",
+        "RouteDecision"
+      ],
+      "category": "failover",
+      "rationale": "Failover without truth checks causes double-charges.",
+      "rule_id": "PAY-2-P0-003",
+      "severity": "P0",
+      "text": "Failover MUST NOT create duplicate authorizations/captures. Any ambiguous state MUST transition to pending and block fulfillment until reconciled."
+    },
+    {
+      "applies_to": [
+        "RouteDecision",
+        "idempotency"
+      ],
+      "category": "idempotency",
+      "rationale": "Client/network retries must not produce different routes or provider attempts.",
+      "rule_id": "PAY-2-P0-004",
+      "severity": "P0",
+      "text": "All route creation actions MUST be idempotent and parameter-consistent. Replays with same key but different inputs MUST be rejected."
+    },
+    {
+      "applies_to": [
+        "RouteDecision"
+      ],
+      "category": "correlation",
+      "rationale": "Enables correlation from order → routing → adapter → PSP → reconciliation.",
+      "rule_id": "PAY-2-PATCH-001",
+      "severity": "P0",
+      "text": "RouteDecision MUST persist v42_correlation_id from ORD-1 and decision_hash for end-to-end audit trail."
+    },
+    {
+      "applies_to": [
+        "RouteDecision",
+        "reconciliation"
+      ],
+      "category": "verification",
+      "rationale": "Prevents reconciliation errors from tampered or race-condition RouteDecisions.",
+      "rule_id": "PAY-2-PATCH-002",
+      "severity": "P0",
+      "text": "Reconciliation MUST verify decision_hash before applying provider state changes to prevent tampering."
+    },
+    {
+      "applies_to": [
+        "RouteDecision",
+        "RoutePolicy"
+      ],
+      "category": "immutability",
+      "rationale": "Ensures audit trail integrity and prevents tampering.",
+      "rule_id": "PAY-2-PATCH-003",
+      "severity": "P0",
+      "text": "RouteDecision and RoutePolicy resources MUST be immutable: create+read only, no update/destroy actions."
+    },
+    {
+      "applies_to": [
+        "circuit_breaker",
+        "ProviderAccount"
+      ],
+      "category": "circuit_breaker",
+      "rationale": "Prevents cascade failures when multiple providers degrade simultaneously; binary circuit breakers cause total blackout.",
+      "rule_id": "PAY-2-PATCH-004",
+      "severity": "P1",
+      "text": "Circuit breaker MUST implement fractional traffic shedding: healthy (100%), degraded (50%), probationary_throttle (5%), circuit_open (0%)."
+    },
+    {
+      "applies_to": [
+        "circuit_breaker",
+        "routing_model"
+      ],
+      "category": "circuit_breaker",
+      "rationale": "Integrates circuit breaker state with routing decisions.",
+      "rule_id": "PAY-2-PATCH-005",
+      "severity": "P1",
+      "text": "Routing MUST query OBS-1 provider health status before selection; providers with open circuits MUST be excluded."
+    },
+    {
+      "applies_to": [
+        "webhooks",
+        "ProviderWebhookEvent"
+      ],
+      "category": "webhook_security",
+      "rationale": "Prevents replay attacks and stale webhook processing.",
+      "rule_id": "PAY-2-PATCH-006",
+      "severity": "P0",
+      "text": "Webhooks MUST be HMAC-verified with timestamp check; reject payloads older than 300 seconds."
+    },
+    {
+      "applies_to": [
+        "webhooks",
+        "storm_detection"
+      ],
+      "category": "webhook_storm",
+      "rationale": "Protects reconciliation workers from replay storm DDoS.",
+      "rule_id": "PAY-2-PATCH-007",
+      "severity": "P1",
+      "text": "If webhook rate exceeds 10× baseline, emit payment.webhook_replay_storm_detected.v1 and throttle ingestion."
+    },
+    {
+      "applies_to": [
+        "webhooks",
+        "reconciliation"
+      ],
+      "category": "webhook_verification",
+      "rationale": "Defends against webhook spoofing and ensures state consistency.",
+      "rule_id": "PAY-2-PATCH-008",
+      "severity": "P1",
+      "text": "For critical state transitions, implement fetch-before-process: call PSP API to verify event before state change."
+    },
+    {
+      "applies_to": [
+        "telemetry"
+      ],
+      "category": "observability",
+      "rationale": "Enables performance monitoring and anomaly detection.",
+      "rule_id": "PAY-2-PATCH-009",
+      "severity": "P1",
+      "text": "All routing actions MUST be instrumented with Ash.Tracer spans including org_id, provider_id, route_policy_version, reason_code."
+    },
+    {
+      "applies_to": [
+        "telemetry"
+      ],
+      "category": "observability",
+      "rationale": "Zero-cost compile-time redaction prevents secret leakage.",
+      "rule_id": "PAY-2-PATCH-010",
+      "severity": "P1",
+      "text": "RoutePolicy and ProviderAccount MUST derive Inspect using :only/:except to exclude secrets from logs."
+    },
+    {
+      "applies_to": [
+        "telemetry",
+        "ci_gates"
+      ],
+      "category": "observability",
+      "rationale": "Prevents maintenance-driven log leaks.",
+      "rule_id": "PAY-2-PATCH-011",
+      "severity": "P1",
+      "text": "CI MUST fail if new field matching sensitive patterns added to routing resources without Inspect exclusion."
+    },
+    {
+      "applies_to": [
+        "anomaly_detection"
+      ],
+      "category": "anomaly",
+      "rationale": "Detects routing anomalies from config errors or provider outages.",
+      "rule_id": "PAY-2-PATCH-012",
+      "severity": "P1",
+      "text": "Monitor routing distribution: alert if one provider share shifts >40% in 15 minutes."
+    },
+    {
+      "applies_to": [
+        "anomaly_detection"
+      ],
+      "category": "anomaly",
+      "rationale": "Daily monitoring is too slow; real-time detection prevents silent failover cost leakage.",
+      "rule_id": "PAY-2-PATCH-013",
+      "severity": "P1",
+      "text": "Monitor failover rate in real-time: fire SEV2 if 5-minute rate exceeds 3× 24-hour baseline. Daily aggregate for trend analysis."
+    },
+    {
+      "applies_to": [
+        "anomaly_detection",
+        "RouteDecision"
+      ],
+      "category": "poison_pill",
+      "rationale": "Prevents repeated failures from misconfigured ProviderAccounts.",
+      "rule_id": "PAY-2-PATCH-014",
+      "severity": "P1",
+      "text": "If RouteDecision fails >3 times in 60 minutes, mark poisoned, emit alert, and trigger automatic re-routing with provider exclusion."
+    },
+    {
+      "applies_to": [
+        "circuit_breaker"
+      ],
+      "category": "circuit_breaker",
+      "rationale": "Prevents circuit breaker deadlock where all providers trip simultaneously during traffic spikes.",
+      "rule_id": "PAY-2-PATCH-015",
+      "severity": "P0",
+      "text": "A health-degraded provider MUST NOT be fully excluded; it MUST move to probationary_throttle (5% traffic) for automated recovery testing."
+    },
+    {
+      "applies_to": [
+        "webhooks"
+      ],
+      "category": "webhook_performance",
+      "rationale": "Prevents fetch-before-process from doubling latency and overwhelming worker capacity during webhook storms.",
+      "rule_id": "PAY-2-PATCH-016",
+      "severity": "P1",
+      "text": "Optimistic processing MUST be enabled for HMAC-verified webhooks; hard fetch ONLY for high-value events (refunds, >$1000 captures, disputes)."
+    },
+    {
+      "applies_to": [
+        "reconciliation"
+      ],
+      "category": "reconciliation",
+      "rationale": "Prevents bugs in hash logic from being invisible; ensures independent verification.",
+      "rule_id": "PAY-2-PATCH-017",
+      "severity": "P0",
+      "text": "Reconciliation MUST re-calculate decision_hash using independent clean-room implementation, not RouteDecision.compute_decision_hash."
+    },
+    {
+      "applies_to": [
+        "webhooks",
+        "UnboundWebhookEvent"
+      ],
+      "category": "webhook_binding",
+      "rationale": "Prevents payment loss from webhooks arriving before parent RouteDecision due to replication lag.",
+      "rule_id": "PAY-2-PATCH-018",
+      "severity": "P0",
+      "text": "Webhooks failing tenant-binding MUST be persisted in UnboundWebhookEvent holding pen and retried for 24 hours with exponential backoff."
+    },
+    {
+      "applies_to": [
+        "anomaly_detection"
+      ],
+      "category": "anomaly",
+      "rationale": "Prevents silent failover to high-fee providers from burning profit margin for hours.",
+      "rule_id": "PAY-2-PATCH-019",
+      "severity": "P1",
+      "text": "Failover rate spike MUST trigger SEV2 alert if 5-minute rate exceeds 3× 24-hour baseline."
+    },
+    {
+      "applies_to": [
+        "telemetry"
+      ],
+      "category": "observability",
+      "rationale": "Enables SRE to detect provider outages and routing anomalies.",
+      "rule_id": "PAY-2-P1-001",
+      "severity": "P1",
+      "text": "Every route decision MUST emit structured log/metric with org_id, provider_id, route_policy_version, reason_code (no PII)."
+    },
+    {
+      "applies_to": [
+        "routing_model",
+        "failover",
+        "webhooks.processing"
+      ],
+      "category": "money_confirmation_boundary",
+      "rationale": "Prevents adapter/provider-specific interpretation drift and blocks ticket issuance on non-final money states.",
+      "rule_id": "PAY-2-PATCH-020",
+      "severity": "P0",
+      "text": "PAY-2 MUST NOT attest or derive money finality (paid_confirmed) for fulfillment. Money finality MUST be attested exclusively by PAY-1.verify_payment_reference producing verified_payment_attempt_id + paid_confirmed_at_utc + evidence_digest_sha256."
+    },
+    {
+      "applies_to": [
+        "webhooks.processing.optimistic_processing"
+      ],
+      "category": "optimistic_webhook_processing",
+      "rationale": "Stops 'fast-ack' webhook handling from becoming an implicit payment confirmation seam.",
+      "rule_id": "PAY-2-PATCH-021",
+      "severity": "P0",
+      "text": "Optimistic webhook processing MAY mark events as tentative, but tentative events MUST NOT trigger fulfillment, ticket issuance, or refund eligibility decisions. Tentative events MUST set requires_truth_check=true and MUST enqueue provider truth reconciliation before any downstream money_confirmed action."
+    },
+    {
+      "applies_to": [
+        "failover"
+      ],
+      "category": "ambiguous_state_failover",
+      "rationale": "Avoids double-charges and prevents fulfillment on unknown/ambiguous state.",
+      "rule_id": "PAY-2-PATCH-022",
+      "severity": "P0",
+      "text": "On ambiguous provider state (timeouts, unknown capture/settlement), PAY-2 MUST enter pending and block fulfillment until provider truth reconciliation completes. Reconciliation MUST feed PAY-1.verify_payment_reference to obtain canonical money confirmation proof when applicable."
+    },
+    {
+      "details": "PAY-2 MUST compute payment_reference_c14n as: 'payref_c14n/v1:' + provider + ':' + sha256_hex(provider_reference_id). PAY-2 MUST treat payment_reference_c14n as correlation-only and MUST NOT use it as a verification lookup key.",
+      "id": "PAY-2-RULE-PAYREF-C14N",
+      "priority": "P1",
+      "rule": "payment_reference_c14n derivation MUST match PAY-1."
+    },
+    {
+      "applies_to": [
+        "webhooks.processing",
+        "reconciliation"
+      ],
+      "category": "gc_001",
+      "rationale": "Provider webhooks are not authoritative for money finality; GC-001 requires PAY-1 verification and evidence binding to avoid zombie fulfillment after holds expire.",
+      "rule_id": "PAY-2-GC-001-P0-001",
+      "severity": "P0",
+      "text": "On any webhook event that indicates potential money finality (capture/paid/settled), PAY-2 MUST enqueue PAY-1.verify_payment_reference and MUST treat the webhook as tentative until PAY-1 returns verified_payment_attempt_id + paid_confirmed_at_utc + evidence_digest_sha256."
+    },
+    {
+      "applies_to": [
+        "reconciliation",
+        "routing_model"
+      ],
+      "category": "gc_001",
+      "rationale": "Money arriving after checkout expiry must not resurrect inventory/fulfillment; compensation is mandatory to preserve seat truth and ledger correctness.",
+      "rule_id": "PAY-2-GC-001-P0-002",
+      "severity": "P0",
+      "text": "After PAY-1 attests paid_confirmed, PAY-2 MUST trigger ORD-1 reconciliation. If ORD indicates order grace expired or holds released, PAY-2 MUST initiate PAY-3 compensation (prefer void; fallback refund) and MUST use ERR-1 error_subcode PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED for audit + alerting."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "sections": [
+    {
+      "id": "1.4.4",
+      "text": "All public error envelopes MUST emit ERR-1 primary codes WITH underscores (e.g., ERR_BAD_REQUEST, ERR_CONFLICT) and MUST NOT emit alias forms without underscores.",
+      "title": "ERR-1 canonical primary codes"
+    }
+  ],
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Deterministic payment-provider routing contract: selection rules, denial semantics, idempotency, reconciliation, and decision-hash verification.",
+  "telemetry": {
+    "logs": {
+      "custom_inspect_required": true,
+      "custom_inspect_resources": [
+        "RoutePolicy",
+        "ProviderAccount"
+      ],
+      "forbid_secrets_in_logs": true,
+      "forbidden_fields": [
+        "api_keys",
+        "webhook_signing_secret",
+        "provider_credentials"
+      ],
+      "include_trace_ids": true,
+      "inspect_maintenance_requirements": {
+        "ci_gate_required": true,
+        "new_field_policy": "fail_ci_if_sensitive_field_added_without_except_entry",
+        "sensitive_field_patterns": [
+          "secret",
+          "key",
+          "credential",
+          "token",
+          "password",
+          "api_key"
+        ]
+      },
+      "inspect_strategy": "derive_only_or_except",
+      "structured": true
+    },
+    "metrics": {
+      "cardinality_rules": {
+        "forbid_user_identifiers_as_labels": true,
+        "max_label_values_per_dim": 64,
+        "provider_id_max_values": 32
+      },
+      "counters": [
+        "pay2.routing_decisions_total{provider_id, route_policy_version, reason_code}",
+        "pay2.failover_attempts_total{provider_id, outcome}",
+        "pay2.webhook_events_total{provider_id, result}",
+        "pay2.webhook_storm_events_total{provider_id}",
+        "pay2.poison_route_decisions_total{provider_id}",
+        "pay2.circuit_trips_total{provider_id}",
+        "pay2.orphaned_webhooks_total{provider_id}"
+      ],
+      "gauges": [
+        "pay2.provider_circuit_state{provider_id, state}",
+        "pay2.orphaned_webhooks_pending{provider_id}"
+      ],
+      "histograms": [
+        "pay2.routing_duration_ms{provider_id}",
+        "pay2.webhook_processing_duration_ms{provider_id}",
+        "pay2.provider_truth_check_duration_ms{provider_id}"
+      ],
+      "required": true
+    },
+    "tracer": {
+      "actions_instrumented": [
+        "route_payment",
+        "evaluate_failover",
+        "bind_webhook_to_tenant",
+        "verify_route_decision_hash",
+        "reconciliation_with_provider_truth"
+      ],
+      "ash_tracer_module_required": true,
+      "required": true,
+      "span_attributes": [
+        "pay2.org_id",
+        "pay2.payment_intent_id",
+        "pay2.provider_id",
+        "pay2.route_policy_version",
+        "pay2.reason_code",
+        "pay2.decision_hash",
+        "pay2.circuit_state",
+        "pay2.webhook_event_id"
+      ]
+    }
+  },
+  "tier": 3,
+  "title": "Payments — Provider Routing & Failover Contract",
+  "version": "2.10.3",
+  "webhooks": {
+    "durability": {
+      "dedupe": {
+        "identity": [
+          "provider_id",
+          "provider_account_ref",
+          "provider_event_id"
+        ],
+        "key": "provider_event_id",
+        "notes": "",
+        "scope": "provider_id"
+      },
+      "durable_record_before_ack": true
+    },
+    "endpoint_pattern": "/webhooks/payments/<provider_id>/v1",
+    "processing": {
+      "ack_fast_process_async": true,
+      "enqueue_queue": "integrations",
+      "fetch_before_process_pattern": {
+        "always_fetch_for": [
+          "refunds",
+          "high_value_captures (>$1000)",
+          "disputes",
+          "chargebacks"
+        ],
+        "description": "Selective fetch balances security and performance.",
+        "enabled": true,
+        "selective_application": true,
+        "skip_fetch_for": [
+          "payment_intent_created (signature_verified)",
+          "low_value_authorizations (<$100 AND signature_verified)"
+        ]
+      },
+      "optimistic_processing": {
+        "description": "Optimistic processing avoids doubling latency for trusted low-risk webhooks.",
+        "enabled": true,
+        "hard_fetch_triggers": [
+          "high_value_state_change (amount > threshold)",
+          "refund_event",
+          "capture_event (if amount_mismatch_suspected)",
+          "dispute_event"
+        ],
+        "high_value_threshold": {
+          "configurable_per_tenant": true,
+          "currency": "USD",
+          "default_amount": 1000.0
+        },
+        "trusted_signature_processing": {
+          "allow_optimistic": true,
+          "description": "If HMAC signature valid and event_id fresh, process optimistically without fetch.",
+          "mark_as": "tentative"
+        }
+      }
+    },
+    "security": {
+      "description": "All webhooks MUST be HMAC-verified with timestamp check; reject stale payloads.",
+      "hmac_algorithm": "SHA256",
+      "hmac_signature_required": true,
+      "max_timestamp_age_seconds": 300,
+      "timestamp_header_required": true
+    },
+    "storage": {
+      "retain_normalized_snapshot": true,
+      "retain_payload_hash": true,
+      "retain_raw_body": false,
+      "retention_days": 30
+    },
+    "storm_detection": {
+      "alert_event": "payment.webhook_replay_storm_detected.v1",
+      "description": "If webhook rate exceeds 10× baseline, emit alert and throttle ingestion.",
+      "rate_limit_per_provider": 100,
+      "rate_window_seconds": 60,
+      "storm_threshold_multiplier": 10,
+      "throttle_behavior": "queue_excess_with_exponential_backoff"
+    },
+    "tenant_binding": {
+      "allowed_methods": [
+        "signature-bound metadata (preferred)",
+        "mapping from provider_account to tenant (trusted config)"
+      ],
+      "forbidden_methods": [
+        "untrusted query params",
+        "untrusted body fields without signature binding"
+      ],
+      "orphaned_webhook_handling": {
+        "after_ttl_behavior": "alert_and_archive",
+        "alert_event": "payment.orphaned_webhook_expired.v1",
+        "description": "Webhooks failing tenant-binding are persisted globally and retried until parent RouteDecision/PaymentIntent appears.",
+        "holding_pen_resource": "UnboundWebhookEvent",
+        "retry_strategy": {
+          "backoff_multiplier": 2,
+          "initial_delay_seconds": 5,
+          "max_delay_seconds": 300,
+          "max_retries": 10
+        },
+        "rls_bypass_justification": "Cannot determine org_id until parent record appears; strict audit trail required.",
+        "ttl_hours": 24
+      },
+      "tenant_binding_required": true
+    }
+  }
+}

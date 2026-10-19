@@ -1,0 +1,1707 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "SCAN-1_Contract_v1.6.4.json",
+  "change_log": [
+    {
+      "changes": [
+        "P0: Convert required_attributes from string list to structured objects with type/nullable (UUIDv7 for IDs, utc_datetime_usec for timestamps)",
+        "P1: Replace 'stable key ordering' with normative CANON-1 reference for manifest canonicalization",
+        "P1: Add gates for new typed required_attributes enforcement"
+      ],
+      "date_utc": "2026-01-09T08:47:00.000000Z",
+      "version": "1.0.1"
+    },
+    {
+      "changes": [
+        "Add occurrence_id to Scan and HydrationSession resources.",
+        "Remove ticket/event uniqueness; enforce idempotency via device sequencing.",
+        "Add scan_intent, decision_authority, provisional, manifest_age_seconds_at_scan, reason_subcode.",
+        "Add RedemptionStatus derived resource to materialize canonical winner/redeemed truth.",
+        "Switch hydration manifest signing to Ed25519 with key rotation by kid."
+      ],
+      "date_utc": "2026-01-24T16:00:00Z",
+      "type": "semantics",
+      "version": "1.1.0"
+    },
+    {
+      "changes": [
+        "P0: Fix Scan identities: align scan_device_sequence_unique identity fields with DB unique constraint (org_id, occurrence_id, device_id, device_scan_sequence_number).",
+        "P0: Remove invalid Scan identity scan_ticket_event_unique (referenced event_id which is not an attribute on Scan).",
+        "P0: Specify deterministic handling of stale hydration manifests per EVT-2 scan_stale_behavior (deny|warn|accept_provisional) using scan_outcome/provisional/reason_subcode."
+      ],
+      "date_utc": "2026-01-24T18:13:26Z",
+      "type": "patch",
+      "version": "1.1.1"
+    },
+    {
+      "changes": [
+        "P0: Enterprise-safe dispute risk handling for re-entry — active dispute acts as a risk flag to force validate_only re-entry when policy allows re-entry.",
+        "P0: Dependency floors updated (ERR-1 v1.4.3, PAY-3 v2.8.0, EVT-2 v2.2.0, TKT-1 v1.2.0).",
+        "P1: Explicit ERR-1 subcode reference for the validate_only outcome."
+      ],
+      "date_utc": "2026-01-25",
+      "summary": "Dispute risk flag integration + dependency alignment"
+    },
+    {
+      "changes": [
+        "P0: HydrationSession identity now keys by occurrence_id (removed event_id from identity) to align offline hydration authority to occurrence-scoped admission truth.",
+        "P0: HydrationSession no longer requires event_id (occurrence_id is canonical); removes identity/unique constraint mismatch risk.",
+        "P1: err_subcodes_used now includes SCAN_MANIFEST_TOO_OLD since it is normatively referenced in scan stale behavior."
+      ],
+      "date_utc": "2026-01-25T17:17:39Z",
+      "version": "1.2.1"
+    },
+    {
+      "at_utc": "2026-01-27T07:49:22Z",
+      "summary": "Allow multiple HydrationSession records (append-only history) and define deterministic selection; add scan-time monotonic anchors to enforce trusted time/reboot lockout and offline staleness window; align dependency floors (ERR-1>=1.4.11, PAY-3>=2.8.1).",
+      "type": "patch",
+      "version": "1.2.2"
+    },
+    {
+      "at_utc": "2026-02-03T13:07:29Z",
+      "note": "Physics-aware hardening: hydrate_manifest bulkhead routing (DP-1), dependency floor alignment, and explicit materialization requirement for RedemptionStatus.",
+      "version": "1.3.0"
+    },
+    {
+      "date_utc": "2026-02-04T11:57:22.738926Z",
+      "kind": "minor",
+      "operator": "contract_patch",
+      "summary": "Structural Sovereignty: added events.emits + outbox_events, producer binding, DATA-1 attribute labeling, and PII/crypto leak bans. Enables EVT-1 Mechanical Parity registration.",
+      "version": "1.4.0"
+    },
+    {
+      "date_utc": "2026-02-06T15:24:21Z",
+      "summary": "Phase 5 hardening: remove envelope keys from outbox payload keys, normalize schema_ref to 'EVT-2', raise EVT-1 floor to 2.16.4, align PAY-3/TKT-1 floors, and make dependencies schema-strict (reason only)."
+    },
+    {
+      "chg_id": "SCAN-1-CHG-SEC1-REPINS-PH7-0001",
+      "date_utc": "2026-02-08T16:37:00Z",
+      "kind": "patch",
+      "summary": "Repin SEC-1 to v3.3.6 and require SEC1 conformance Evidence v3 (nonce+attestation) produced by runner v1.3.1."
+    },
+    {
+      "breaking": false,
+      "date_utc": "2026-02-10T12:48:39Z",
+      "summary": "Hardening: mandate N-1 Ed25519 key retention window for issuer rotation; force WARN_STALE_SOVEREIGNTY to be recorded as provisional scans with sovereignty_drift_detected flag.",
+      "version": "1.5.1"
+    },
+    {
+      "at_utc": "2026-03-09T19:48:20Z",
+      "kind": "patch",
+      "summary": "Hard cleanup release: metadata parity, dependency floor alignment, lawful event-consumption model, tenant-safe outbox payloads, operator accountability fields, deterministic raw-UUID conflict tie-breaks, and bundled mobile conformance companion tooling.",
+      "version": "1.6.3"
+    }
+  ],
+  "conformance_requirements": {
+    "sec1_byte_truth": {
+      "evidence_filename": "SEC1-CONF-EVIDENCE-6af4d038134b60fec24e262ff691c32aa4e3e0ef9227b3b5786750cdb8915d86.json",
+      "evidence_schema_version": "sec1-conformance-evidence/3.0",
+      "must_match": {
+        "result": "pass",
+        "runner_sha256": "2badcc09c255914a6d15ee89569ae6f747773ac9d3a21d3380bd221975fbd394",
+        "runner_version": "1.3.1",
+        "sec1_contract_sha256": "6af4d038134b60fec24e262ff691c32aa4e3e0ef9227b3b5786750cdb8915d86"
+      },
+      "notes": "SEC-1 byte-truth evidence is an external release-gate artifact and is not bundled inside SCAN-1 v1.6.3.",
+      "required": false,
+      "required_fields": [
+        "schema_version",
+        "tool",
+        "sec1",
+        "signed_payload",
+        "attestation",
+        "attestation_verification",
+        "transcript_sha256",
+        "result"
+      ],
+      "required_for_release_gate": true,
+      "required_in_bundle": false
+    }
+  },
+  "contract_id": "SCAN-1",
+  "credential_status_interlock": {
+    "configured_max_credential_status_staleness_seconds": 30,
+    "errors": {
+      "credential_not_ready": {
+        "subcode": "CREDENTIAL_NOT_READY",
+        "top_level": "ERR_PRECONDITION"
+      }
+    },
+    "rule": "A scan decision MUST NOT be accepted unless TicketCredential.status is 'active' at scan time. The scanner MUST prove it checked credential status either via an online TKT-1 lookup or via a hydrated credential revocation/supersession snapshot whose age at scan time is <= configured_max_credential_status_staleness_seconds.",
+    "strict": true
+  },
+  "data_handling": {
+    "attribute_labels": [
+      {
+        "attribute": "scan_id",
+        "data_class": "c2",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "org_id",
+        "data_class": "c1",
+        "notes": "Tenancy key; retain per platform compliance.",
+        "resource": "Scan",
+        "retention_profile": "p4_finance_records"
+      },
+      {
+        "attribute": "occurrence_id",
+        "data_class": "c2",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "ticket_id",
+        "data_class": "c2",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "device_id",
+        "data_class": "c2",
+        "notes": "Restricted operational identifier (edge device).",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "gate_id",
+        "data_class": "c2",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "device_scan_sequence_number",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "scan_intent",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "scan_outcome",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "decision_authority",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "provisional",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "manifest_age_seconds_at_scan",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "reason_subcode",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "scanned_at_device_utc",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "scanned_at_corrected_utc",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "created_at_utc",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "client_clock_offset_seconds",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "geo_hash",
+        "data_class": "c4",
+        "notes": "High-risk operational/crypto/telemetry field; MUST NOT be emitted in outbox payloads.",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "device_firmware",
+        "data_class": "c4",
+        "notes": "High-risk operational/crypto/telemetry field; MUST NOT be emitted in outbox payloads.",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "manifest_version",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "manifest_signature",
+        "data_class": "c4",
+        "notes": "High-risk operational/crypto/telemetry field; MUST NOT be emitted in outbox payloads.",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "superseded_by_scan_id",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "canonicalized_at_utc",
+        "data_class": "c1",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "device_boot_id",
+        "data_class": "c4",
+        "notes": "High-risk operational/crypto/telemetry field; MUST NOT be emitted in outbox payloads.",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "device_uptime_millis",
+        "data_class": "c4",
+        "notes": "High-risk operational/crypto/telemetry field; MUST NOT be emitted in outbox payloads.",
+        "resource": "Scan",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "redemption_id",
+        "data_class": "c2",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "org_id",
+        "data_class": "c1",
+        "notes": "Tenancy key; retain per platform compliance.",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p4_finance_records"
+      },
+      {
+        "attribute": "occurrence_id",
+        "data_class": "c2",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "ticket_id",
+        "data_class": "c2",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "scan_intent",
+        "data_class": "c1",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "redemption_state",
+        "data_class": "c1",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "winner_scan_id",
+        "data_class": "c2",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "winner_scanned_at_utc",
+        "data_class": "c1",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "conflict_count",
+        "data_class": "c1",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "last_reconciled_at_utc",
+        "data_class": "c1",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "created_at_utc",
+        "data_class": "c1",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "updated_at_utc",
+        "data_class": "c1",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "note",
+        "data_class": "c1",
+        "resource": "RedemptionStatus",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "hydration_id",
+        "data_class": "c2",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "org_id",
+        "data_class": "c1",
+        "notes": "Tenancy key; retain per platform compliance.",
+        "resource": "HydrationSession",
+        "retention_profile": "p4_finance_records"
+      },
+      {
+        "attribute": "occurrence_id",
+        "data_class": "c2",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "device_id",
+        "data_class": "c2",
+        "notes": "Restricted operational identifier (edge device).",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "manifest_version",
+        "data_class": "c1",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "manifest_key_id",
+        "data_class": "c1",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "manifest_signature",
+        "data_class": "c4",
+        "notes": "High-risk operational/crypto/telemetry field; MUST NOT be emitted in outbox payloads.",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "server_time_utc",
+        "data_class": "c1",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "device_time_utc",
+        "data_class": "c1",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "client_clock_offset_seconds",
+        "data_class": "c1",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "created_at_utc",
+        "data_class": "c1",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "hydration_payload_hash",
+        "data_class": "c4",
+        "notes": "High-risk operational/crypto/telemetry field; MUST NOT be emitted in outbox payloads.",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "device_uptime_millis",
+        "data_class": "c4",
+        "notes": "High-risk operational/crypto/telemetry field; MUST NOT be emitted in outbox payloads.",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "device_boot_id",
+        "data_class": "c4",
+        "notes": "High-risk operational/crypto/telemetry field; MUST NOT be emitted in outbox payloads.",
+        "resource": "HydrationSession",
+        "retention_profile": "p2_audit_evidence"
+      }
+    ]
+  },
+  "data_model": {
+    "resources": [
+      {
+        "constraints": [
+          {
+            "description": "scan_outcome MUST be one of: accepted | denied.",
+            "enforced_by": "application",
+            "name": "scan_outcome_allowed_values"
+          },
+          {
+            "description": "scan_intent MUST be one of: check_in | check_out | validate_only.",
+            "enforced_by": "application",
+            "name": "scan_intent_allowed_values"
+          },
+          {
+            "description": "decision_authority MUST be one of: edge | online | device.",
+            "enforced_by": "application",
+            "name": "decision_authority_allowed_values"
+          },
+          {
+            "description": "If scan_outcome == denied then reason_subcode MUST be non-null and MUST reference ERR-1.",
+            "enforced_by": "application",
+            "name": "denials_require_reason_subcode"
+          },
+          {
+            "description": "Scan rows are append-only evidence; do not de-duplicate by (ticket_id, occurrence_id). Reconciliation may only set derived fields (superseded_by_scan_id, canonicalized_at_utc).",
+            "enforced_by": "governance",
+            "name": "append_only_scan_evidence"
+          },
+          {
+            "description": "scanned_at_corrected_utc MUST be derived deterministically from scanned_at_device_utc using the selected HydrationSession (see multiple_hydrations_allowed_append_only). For edge decision_authority, the selected HydrationSession MUST be the latest by server_time_utc for (org_id, occurrence_id, device_id) and MUST have server_time_utc + device_time_utc captured. client_clock_offset_seconds, when present, MUST equal (server_time_utc - device_time_utc) rounded to seconds.",
+            "enforced_by": "application",
+            "name": "scanned_at_corrected_required"
+          },
+          {
+            "description": "If decision_authority == \"edge\" then manifest_version AND manifest_signature MUST be present on the Scan record, and MUST match the selected latest HydrationSession (same org_id, occurrence_id, device_id) with that manifest_version. Mismatch MUST fail-closed.",
+            "enforced_by": "application",
+            "name": "edge_decisions_require_manifest_signature"
+          },
+          {
+            "description": "If decision_authority == edge then manifest_age_seconds_at_scan MUST be <= configured_max_manifest_age_seconds unless EVT-2 occurrence scan_stale_behavior permits otherwise. If manifest_age_seconds_at_scan exceeds configured_max_manifest_age_seconds, behavior MUST follow EVT-2 scan_stale_behavior: (a) deny: scan_outcome MUST be denied and reason_subcode MUST equal SCAN_MANIFEST_TOO_OLD (ERR-1); (b) warn: scan_outcome MUST be accepted, provisional MUST be false, and reason_subcode MUST equal SCAN_MANIFEST_TOO_OLD (ERR-1) as an operator notice; (c) accept_provisional: scan_outcome MUST be accepted, provisional MUST be true, and reason_subcode MUST equal SCAN_MANIFEST_TOO_OLD (ERR-1).",
+            "enforced_by": "application",
+            "name": "manifest_age_bounds_for_edge"
+          },
+          {
+            "description": "If scan_intent == validate_only then the scan MUST NOT mutate RedemptionStatus; it is evidence-only.",
+            "enforced_by": "governance",
+            "name": "validate_only_no_redemption"
+          },
+          {
+            "description": "If scan_outcome == accepted and reason_subcode is non-null, it MUST reference ERR-1 (operator notice subcode).",
+            "enforced_by": "application",
+            "name": "accepted_reason_subcode_must_reference_err"
+          },
+          {
+            "description": "If decision_authority == \"edge\" then device_boot_id and device_uptime_millis MUST be present on the Scan record, and the selected HydrationSession MUST also have device_boot_id and device_uptime_millis present. If monotonic anchors are missing, the scan MUST be denied with ERR_PRECONDITION / SCAN_DEVICE_TIME_UNTRUSTED (fail-closed) or MUST downgrade to central evaluation before allowing redemption.",
+            "enforced_by": "application",
+            "name": "edge_requires_monotonic_anchor_for_trusted_time",
+            "type": "invariant"
+          },
+          {
+            "description": "If decision_authority == \"edge\" then device_boot_id MUST match the selected HydrationSession.device_boot_id AND device_uptime_millis MUST be >= HydrationSession.device_uptime_millis. A mismatch indicates reboot/reset while offline and MUST be denied with ERR_PRECONDITION / SCAN_DEVICE_TIME_UNTRUSTED until a fresh HydrationSession is recorded.",
+            "enforced_by": "application",
+            "name": "edge_reboot_detection_lockout",
+            "type": "invariant"
+          },
+          {
+            "description": "If decision_authority == \"edge\" then the device clock MUST be validated using monotonic uptime: expected_device_time_utc_at_scan = HydrationSession.device_time_utc + (device_uptime_millis - HydrationSession.device_uptime_millis)/1000. abs(scanned_at_device_utc - expected_device_time_utc_at_scan) MUST be <= configured_max_clock_drift_seconds. If exceeded, deny with ERR_PRECONDITION / SCAN_DEVICE_TIME_UNTRUSTED.",
+            "enforced_by": "application",
+            "name": "edge_clock_drift_threshold_enforced",
+            "type": "invariant"
+          },
+          {
+            "description": "For decision_authority == \"edge\", the selected HydrationSession.server_time_utc MUST be no older than configured_max_offline_age_seconds at the time of scan evaluation. If stale, handling MUST follow EVT-2 scan_policy.stale_behavior with ERR_PRECONDITION / SCAN_STALE_DEVICE (deny | warn | accept_provisional) and MUST be recorded in the Scan record evidence.",
+            "enforced_by": "application",
+            "name": "offline_staleness_window_enforced",
+            "type": "invariant"
+          },
+          {
+            "description": "If the effective parent_state_fingerprint for occurrence_id (from EVT-2) does not match the fingerprint cached in the active scan manifest snapshot, the scan MUST be treated as stale sovereignty and MUST fail closed. scan_outcome MUST be denied, provisional MUST be false, and reason_subcode MUST equal WARN_STALE_SOVEREIGNTY (ERR-1) until a fresh authoritative hydration is recorded.",
+            "enforced_by": "application",
+            "name": "stale_sovereignty_mismatch_warn"
+          },
+          {
+            "description": "For scan_intent in {check_in, check_out}, temporal validity MUST be evaluated using EntitlementSpec.valid_from_utc/valid_until_utc extended by the appropriate buffer_minutes from OFFER-1. Buffer is applied symmetrically unless EntitlementSpec defines distinct entry/exit buffers.",
+            "enforced_by": "application",
+            "name": "buffer_minutes_applied_to_temporal_validity"
+          },
+          {
+            "description": "Every Scan evidence row MUST record operator_actor_id. operator_session_id SHOULD be recorded when an authenticated staff session exists on the device.",
+            "enforced_by": "application",
+            "name": "operator_accountability_required_for_scan_evidence"
+          },
+          {
+            "description": "org_id on Scan MUST be derived and enforced from the authenticated device/session context on the backend. Client-supplied org_id MUST NOT widen or override tenant scope.",
+            "enforced_by": "application",
+            "name": "tenant_derived_from_authenticated_device_context"
+          }
+        ],
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "occurrence_id",
+              "device_id",
+              "device_scan_sequence_number"
+            ],
+            "name": "scan_device_sequence_unique"
+          }
+        ],
+        "immutability": "create_and_read_only",
+        "indexes": [
+          {
+            "keys": [
+              "org_id",
+              "occurrence_id",
+              "ticket_id"
+            ],
+            "name": "idx_scan_occurrence_ticket",
+            "type": "btree"
+          },
+          {
+            "keys": [
+              "org_id",
+              "occurrence_id",
+              "scanned_at_corrected_utc"
+            ],
+            "name": "idx_scan_scanned_at_corrected",
+            "type": "btree"
+          }
+        ],
+        "optional_attributes": [
+          {
+            "name": "operator_session_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "client_clock_offset_seconds",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "name": "geo_hash",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "device_firmware",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "manifest_version",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "name": "manifest_signature",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "superseded_by_scan_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "canonicalized_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Device boot/session identifier captured at scan-time for trusted-time validation. MUST be stable across offline scans until re-hydration.",
+            "name": "device_boot_id",
+            "type": "string"
+          },
+          {
+            "description": "Monotonic device uptime in milliseconds captured at scan-time for trusted-time validation and reboot detection.",
+            "name": "device_uptime_millis",
+            "type": "integer"
+          }
+        ],
+        "required_attributes": [
+          {
+            "name": "scan_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ticket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "device_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "gate_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "operator_actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "device_scan_sequence_number",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "scan_intent",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "scan_outcome",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "decision_authority",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "provisional",
+            "nullable": false,
+            "type": "boolean"
+          },
+          {
+            "name": "manifest_age_seconds_at_scan",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "reason_subcode",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "scanned_at_device_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "scanned_at_corrected_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "resource": "Scan",
+        "tenant_scoped": true,
+        "unique_constraints": [
+          {
+            "enforced_by": "database",
+            "keys": [
+              "org_id",
+              "occurrence_id",
+              "device_id",
+              "device_scan_sequence_number"
+            ],
+            "name": "scan_device_sequence_unique"
+          }
+        ]
+      },
+      {
+        "constraints": [
+          {
+            "description": "scan_intent MUST be one of: check_in | check_out (validate_only MUST NOT create RedemptionStatus).",
+            "enforced_by": "application",
+            "name": "scan_intent_allowed_values"
+          },
+          {
+            "description": "redemption_state MUST be one of: unredeemed | redeemed.",
+            "enforced_by": "application",
+            "name": "redemption_state_allowed_values"
+          }
+        ],
+        "immutability": "mutable_derived",
+        "indexes": [
+          {
+            "keys": [
+              "org_id",
+              "occurrence_id"
+            ],
+            "name": "idx_redemption_occurrence",
+            "type": "btree"
+          },
+          {
+            "keys": [
+              "org_id",
+              "ticket_id"
+            ],
+            "name": "idx_redemption_ticket",
+            "type": "btree"
+          }
+        ],
+        "optional_attributes": [
+          {
+            "name": "note",
+            "nullable": true,
+            "type": "string"
+          }
+        ],
+        "required_attributes": [
+          {
+            "name": "redemption_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ticket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "scan_intent",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "redemption_state",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "winner_scan_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "winner_scanned_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "conflict_count",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "last_reconciled_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "updated_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "resource": "RedemptionStatus",
+        "unique_constraints": [
+          {
+            "enforced_by": "database",
+            "keys": [
+              "org_id",
+              "occurrence_id",
+              "ticket_id",
+              "scan_intent"
+            ],
+            "name": "redemption_unique"
+          }
+        ]
+      },
+      {
+        "constraints": [
+          {
+            "description": "Scanners MUST verify manifest_signature using SEC-1 public key identified by manifest_key_id (kid).",
+            "enforced_by": "application",
+            "name": "manifest_signature_verification"
+          },
+          {
+            "description": "HydrationSession is append-only history. The system MUST allow multiple HydrationSession records per (org_id, occurrence_id, device_id, manifest_version). When a scan requires hydration context, the system MUST select the latest HydrationSession by server_time_utc (tie-breaker: created_at_utc then hydration_id) with the same (org_id, occurrence_id, device_id) and with manifest_version matching the scan.manifest_version (when present).",
+            "enforced_by": "application",
+            "name": "multiple_hydrations_allowed_append_only",
+            "type": "invariant"
+          }
+        ],
+        "identities": [],
+        "immutability": "create_and_read_only",
+        "indexes": [
+          {
+            "keys": [
+              "org_id",
+              "occurrence_id",
+              "device_id"
+            ],
+            "name": "idx_hydration_occurrence_device",
+            "type": "btree"
+          },
+          {
+            "keys": [
+              "org_id",
+              "created_at_utc"
+            ],
+            "name": "idx_hydration_created_at",
+            "type": "btree"
+          },
+          {
+            "columns": [
+              "org_id",
+              "occurrence_id",
+              "device_id",
+              "manifest_version",
+              "created_at_utc"
+            ],
+            "name": "idx_hydration_occ_dev_ver_created",
+            "purpose": "Support deterministic selection of latest HydrationSession per device+occurrence+manifest_version."
+          }
+        ],
+        "optional_attributes": [
+          {
+            "name": "hydration_payload_hash",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "device_uptime_millis",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "name": "device_boot_id",
+            "nullable": true,
+            "type": "string"
+          }
+        ],
+        "required_attributes": [
+          {
+            "name": "hydration_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "device_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "manifest_version",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "manifest_key_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "manifest_signature",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "server_time_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "device_time_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "client_clock_offset_seconds",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "resource": "HydrationSession",
+        "tenant_scoped": true,
+        "unique_constraints": []
+      },
+      {
+        "actions": [
+          {
+            "effects": [
+              "MUST verify signature using auditor_key_id from local key cache/registry.",
+              "MUST compute candidate scan set to resolve based on coverage_mode.",
+              "MUST fail if COUNT(candidate_scans_where_provisional_true)!=scan_id_count (prevents ghost resolution).",
+              "MUST update candidate scans redemption_status to a terminal value while preserving scan record immutability (append-only resolution)."
+            ],
+            "inputs": [
+              "org_id",
+              "occurrence_id",
+              "coverage_mode",
+              "covered_scan_ids",
+              "scan_id_count",
+              "covered_scan_ids_sha256_summary_hash",
+              "auditor_actor_id",
+              "auditor_key_id",
+              "signature_ed25519_base64url_nopad",
+              "signed_at_utc"
+            ],
+            "name": "attest_resolution",
+            "type": "create"
+          }
+        ],
+        "attributes": [
+          {
+            "name": "resolution_manifest_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "explicit_scan_id_list",
+              "occurrence_all_provisional"
+            ],
+            "name": "coverage_mode",
+            "required": true,
+            "type": "enum"
+          },
+          {
+            "name": "covered_scan_ids",
+            "notes": "Required when coverage_mode==explicit_scan_id_list.",
+            "required": false,
+            "type": "uuid_v7[]"
+          },
+          {
+            "constraints": {
+              "min": 1
+            },
+            "name": "scan_id_count",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "covered_scan_ids_sha256_summary_hash",
+            "notes": "Computed over lexicographically sorted 16-byte UUID binaries concatenated with no delimiters.",
+            "required": true,
+            "type": "sha256_hex_lowercase"
+          },
+          {
+            "name": "auditor_actor_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "auditor_key_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "signature_ed25519_base64url_nopad",
+            "required": true,
+            "type": "base64url_no_padding"
+          },
+          {
+            "name": "signed_at_utc",
+            "required": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "created_at_utc",
+            "required": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "name": "ResolutionManifest",
+        "primary_key": "resolution_manifest_id",
+        "purpose": "Bulk attestation resolving provisional scans for an occurrence without per-scan manual actions.",
+        "tenant_key": "org_id"
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Schema validation"
+    },
+    {
+      "doc_id": "BP-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Bundle blueprint"
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Gate authoring"
+    },
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "governance_floor",
+      "min_version": "1.3.1",
+      "reason": "Data classification and retention discipline."
+    },
+    {
+      "doc_id": "DP-1",
+      "edge_type": "integration_floor",
+      "min_version": "2.1.1",
+      "reason": "Bulkhead routing requirements."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "governance_floor",
+      "min_version": "1.6.0",
+      "reason": "Canonical error subcodes and envelope rules."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Registry governance for scan outbox events (mechanical parity)."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "registry_floor",
+      "min_version": "2.5.3",
+      "reason": "Dependency alignment."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.14",
+      "reason": "Governance baseline."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.1.1",
+      "reason": "Session/transaction affinity rules."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "governance_floor",
+      "min_version": "2.7.17",
+      "reason": "Observability envelope alignment."
+    },
+    {
+      "doc_id": "PAY-3",
+      "edge_type": "paired_contract",
+      "min_version": "2.10.5",
+      "reason": "Anomaly reconciliation events baseline."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "governance_floor",
+      "min_version": "1.1.1",
+      "reason": "PII constraints for scan payloads and event emissions."
+    },
+    {
+      "doc_id": "PROD-1",
+      "edge_type": "governance_floor",
+      "min_version": "1.1.3",
+      "reason": "Producer allowlist discipline."
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "foundation_floor",
+      "min_version": "3.2.1",
+      "reason": "Tenancy + identity rules for edge evidence."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.4.2",
+      "reason": "SEC-1 defines the JCS (RFC 8785) canonicalization and signature verification required for offline hydration manifests."
+    },
+    {
+      "doc_id": "SM-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.2.1",
+      "reason": "CAS fencing rules for state transitions."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.7.11",
+      "reason": "Multi-tenant isolation floors."
+    },
+    {
+      "doc_id": "TKT-1",
+      "edge_type": "paired_contract",
+      "min_version": "1.5.3",
+      "reason": "Ticket credential and privacy doctrine alignment."
+    },
+    {
+      "doc_id": "DMSC-1",
+      "edge_type": "governance_floor",
+      "min_version": "2.1.1",
+      "reason": "Deployment and migration safety constraints for scanner releases."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.1.8",
+      "reason": "Queue capacity/backpressure discipline for scan ingest spikes."
+    },
+    {
+      "doc_id": "OFFER-1",
+      "edge_type": "paired_contract",
+      "min_version": "1.0.2",
+      "reason": "Temporal validity buffers and issuer key rotation alignment."
+    }
+  ],
+  "dependency_floors": {
+    "BP-0": "3.0.0",
+    "CS-0": "3.0.0",
+    "DATA-1": "1.3.1",
+    "DMSC-1": "2.1.1",
+    "DP-1": "2.1.1",
+    "ERR-1": "1.6.0",
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.5.3",
+    "GOV-0": "2.0.14",
+    "LOCKS-1": "2.1.1",
+    "OBQC-1": "2.1.8",
+    "OBS-1": "2.7.17",
+    "OFFER-1": "1.0.2",
+    "PAY-3": "2.10.5",
+    "PII-1": "1.1.1",
+    "PROD-1": "1.1.3",
+    "RP-0": "3.2.1",
+    "SEC-1": "3.4.2",
+    "SM-0": "1.2.1",
+    "TEN-1": "1.7.11",
+    "TG-0": "2.3.0",
+    "TKT-1": "1.5.3"
+  },
+  "dependency_pins": {
+    "API-0": {
+      "artifact": "API-0_Contract_v1.1.1.json",
+      "sha256": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991",
+      "version": "1.1.1"
+    },
+    "PROD-1": {
+      "artifact": "PROD-1_Contract_v1.1.3.json",
+      "sha256": "1b53890c44a5387244d6d2eac803180e77b716629bfc00d294d500e79a70194f",
+      "version": "1.1.3"
+    },
+    "SEC-1": {
+      "artifact": "SEC-1_Contract_v3.3.6.json",
+      "sha256": "6af4d038134b60fec24e262ff691c32aa4e3e0ef9227b3b5786750cdb8915d86",
+      "version": "3.3.6"
+    }
+  },
+  "dispute_risk_policy": {
+    "fail_closed": {
+      "notes": "If re-entry requires online validation per EVT-2 scan_policy and risk flags cannot be evaluated, scanner MUST fail to validate_only (not allow).",
+      "when_flag_unknown_on_reentry": true
+    },
+    "offline_hydration": {
+      "may_include_active_dispute_credential_ids": true,
+      "notes": "Hydration MAY include a bounded active-dispute set for the occurrence lifecycle. This is optional but recommended for enterprise re-entry controls.",
+      "snapshot_fields": [
+        "snapshot_at_utc",
+        "active_dispute_ticket_credential_ids"
+      ]
+    },
+    "reentry_behavior": {
+      "if_active_dispute_flag_present": "validate_only",
+      "notes": "This does not revoke admission; it forces an online decision path (or guard checkpoint) when dispute risk is present.",
+      "reason_subcode": "SCAN_REENTRY_VALIDATE_ONLY_DISPUTE_RISK",
+      "when_reentry_detected": true
+    },
+    "scope": "risk_flag_only",
+    "source": {
+      "concept": "active_dispute",
+      "doc_id": "PAY-3"
+    }
+  },
+  "doc_id": "SCAN-1",
+  "err_subcodes_used": [
+    {
+      "subcode": "SCAN_MANIFEST_TOO_OLD"
+    },
+    {
+      "subcode": "SCAN_REENTRY_VALIDATE_ONLY_DISPUTE_RISK"
+    },
+    "SCAN_DEVICE_TIME_UNTRUSTED",
+    "SCAN_STALE_DEVICE",
+    {
+      "subcode": "WARN_STALE_SOVEREIGNTY"
+    }
+  ],
+  "events": {
+    "consumes": [
+      {
+        "name": "ticketing.offer.key_rotated.v1",
+        "notes": "Required for local EligibilityIssuerKey cache rotation and N-1 retention discipline."
+      }
+    ],
+    "emits": [
+      {
+        "name": "ticketing.scan.recorded.v1",
+        "notes": "Lawful outbox event. Payload defined in outbox_events."
+      },
+      {
+        "name": "ticketing.scan.hydration.recorded.v1",
+        "notes": "Lawful outbox event. Payload defined in outbox_events."
+      },
+      {
+        "name": "ticketing.redemption.status.materialized.v1",
+        "notes": "Lawful outbox event. Payload defined in outbox_events."
+      }
+    ]
+  },
+  "generated_at_utc": "2026-03-09T19:48:20Z",
+  "invariants": [
+    {
+      "id": "SCAN-1-INV-STALE-SOVEREIGNTY",
+      "severity": "P0",
+      "statement": "If EVT-2 parent_state_fingerprint verification fails for the occurrence at scan-time, the scan MUST fail closed, MUST record WARN_STALE_SOVEREIGNTY as the reason_subcode, and MUST be preserved for mandatory post-event audit review."
+    },
+    {
+      "id": "SCAN-1-INV-BINARY-SUMMARY",
+      "severity": "P0",
+      "statement": "ResolutionManifest.covered_scan_ids_sha256_summary_hash MUST be computed as sha256 over the concatenation of lexicographically (memcmp) sorted 16-byte raw UUID binaries (no delimiters, no string UUID formatting)."
+    },
+    {
+      "id": "SCAN-1-CONSTR-AUDIT-COUNT",
+      "severity": "P0",
+      "statement": "ResolutionManifest.attest_resolution MUST fail closed if the database provisional scan count selected for resolution does not exactly equal ResolutionManifest.scan_id_count."
+    },
+    {
+      "id": "SCAN-1-INV-KEY-ID-REQUIRED",
+      "severity": "P0",
+      "statement": "SignedEligibilityClaim and HydrationManifest MUST include kid (key_id). Scanners MUST NOT attempt fallback verification by trying multiple keys."
+    },
+    {
+      "id": "SCAN-1-INV-TKT-ACTIVE",
+      "rule": "A scan decision MUST NOT be accepted unless TicketCredential.status is 'active' at scan time. The scanner MUST prove it checked credential status either via an online TKT-1 lookup or via a hydrated credential revocation/supersession snapshot whose age at scan time is <= configured_max_credential_status_staleness_seconds.",
+      "severity": "P0"
+    }
+  ],
+  "last_updated_utc": "2026-03-09T19:48:20Z",
+  "limits_and_budgets": {
+    "bulkhead_routing": {
+      "action_pools": {
+        "hydrate_manifest": "background"
+      },
+      "dependency": "DP-1",
+      "notes": [
+        "All hydrate_manifest operations MUST run in the DP-1 background pool to prevent API starvation during mass scanner boot."
+      ]
+    }
+  },
+  "mobile_conformance_layer": {
+    "android_required_gate_stack": [
+      "Kotlin",
+      "CameraX",
+      "ML Kit Barcode Scanning"
+    ],
+    "bundle_companion_files": {
+      "runtime_harness_guide": "scan_mobile_conformance_harness_v1.0.0.md",
+      "static_lint_script": "scan_mobile_conformance_lint_v1.0.0.py"
+    },
+    "gate_mode_forbidden_technologies": [
+      "android.webkit.WebView",
+      "WKWebView",
+      "Capacitor",
+      "Cordova",
+      "PWA camera scanning",
+      "DOM-backed barcode scanning for admission truth"
+    ],
+    "ios_required_gate_stack": [
+      "Swift or SwiftUI",
+      "AVFoundation",
+      "Vision barcode detection"
+    ],
+    "notes": "This companion tooling is a required implementation control for gate-scanner clients, but current CS-0/LINT-0 governance does not yet execute these mobile checks natively.",
+    "required_for_gate_scanner_clients": true
+  },
+  "normative_source": {
+    "format": "json"
+  },
+  "offline_conflict_resolution": {
+    "rule_id": "SCAN-1-POLICY-OFFLINE-CONFLICT",
+    "severity": "P0",
+    "text": "When multiple Scan evidence rows for the same (org_id, occurrence_id, ticket_id, scan_intent) are later reconciled, the system MUST deterministically select exactly one winning scan to materialize RedemptionStatus truth. Default winner selection MUST be: (1) lowest scanned_at_corrected_utc wins when present and trusted; (2) if scanned_at_corrected_utc values are equal, missing, or not trustworthy, lowest device_id wins using unsigned lexicographic ordering over raw 16-byte UUID binary; (3) if device_id is also equal or unavailable, lowest scan_id wins using the same raw 16-byte UUID binary ordering. All non-winning Scan rows MUST be preserved as append-only audit evidence and MUST be marked as conflicts with an explicit reason_subcode and winner_scan_id reference. Reconciliation MUST be idempotent and MUST converge to the same winner regardless of ingestion order."
+  },
+  "offline_hydration_manifest_input": {
+    "anti_patterns": [
+      "SCAN-ANTI-HYDR-SCHEMA-OWNERSHIP: SCAN-1 MUST NOT define the authoritative schema of the offline hydration manifest. It MUST reference SEC-1.HYDRATION_MANIFEST.v1."
+    ],
+    "freshness_rules": [
+      {
+        "rule_id": "SCAN-OFFLINE-HYDRATION-TTL",
+        "text": "snapshot_valid_until_utc MUST be <= snapshot_at_utc + EVT-2.Occurrence.scan_max_offline_age_seconds."
+      },
+      {
+        "rule_id": "SCAN-OFFLINE-HYDRATION-AGE",
+        "text": "At scan-time, (scan_occurred_at_utc - snapshot_at_utc) MUST be <= EVT-2.Occurrence.scan_max_offline_age_seconds."
+      },
+      {
+        "rule_id": "SCAN-OFFLINE-HYDRATION-VALID-UNTIL",
+        "text": "At scan-time, scan_occurred_at_utc MUST be <= snapshot_valid_until_utc."
+      }
+    ],
+    "required_inputs": [
+      {
+        "description": "Public key set for SignedEligibilityClaim issuers, synchronized via ticketing.offer.key_rotated.v1.",
+        "name": "eligibility_issuer_keys",
+        "source": "OFFER-1"
+      },
+      {
+        "description": "Fingerprint used to detect stale sovereignty when parent status changed after hydration.",
+        "name": "parent_state_fingerprint",
+        "source": "EVT-2"
+      },
+      {
+        "description": "Entry/exit buffer minutes for entitlements; applied to scan temporal validity.",
+        "name": "entitlement_spec_buffer_minutes",
+        "source": "OFFER-1"
+      }
+    ],
+    "schema_id": "SEC-1.HYDRATION_MANIFEST.v1",
+    "signature_verification": {
+      "alg": "Ed25519",
+      "bytes_to_verify": "JCS(offline_hydration_manifest with signature field omitted), per SEC-1.crypto_primitives.jcs_rfc8785",
+      "notes": "Flat hydration manifests are forbidden. SCAN-1 consumes SEC-1.HYDRATION_MANIFEST.v1.",
+      "public_key_source": "offline_hydration_manifest.payload.keys_snapshot.keys[].pub_b64url selected by matching signature.kid"
+    },
+    "source_contract": {
+      "doc_id": "SEC-1",
+      "min_version": "3.3.1"
+    },
+    "validation": {
+      "canonicalization": "JCS (RFC 8785) per SEC-1.crypto_primitives.jcs_rfc8785",
+      "mapping_to_scan_storage": {
+        "HydrationSession.hydration_payload_hash": "sha256(JCS(offline_hydration_manifest.payload))",
+        "HydrationSession.manifest_key_id": "offline_hydration_manifest.signature.kid",
+        "HydrationSession.manifest_signature": "offline_hydration_manifest.signature.sig_b64url",
+        "HydrationSession.manifest_signature_alg": "offline_hydration_manifest.signature.alg"
+      },
+      "optional_payload_fields": [
+        "active_dispute_ticket_credential_ids"
+      ],
+      "payload_slots": [
+        {
+          "json_pointer": "/payload/keys_snapshot",
+          "slot": "keys_snapshot"
+        },
+        {
+          "json_pointer": "/payload/revoked_ticket_credential_ids",
+          "slot": "revoked_ticket_credential_ids"
+        },
+        {
+          "json_pointer": "/payload/superseded_ticket_credential_ids",
+          "slot": "superseded_ticket_credential_ids"
+        },
+        {
+          "json_pointer": "/payload/active_allow_list_actor_ids",
+          "slot": "active_allow_list_actor_ids"
+        },
+        {
+          "json_pointer": "/payload/active_dispute_ticket_credential_ids",
+          "optional": true,
+          "slot": "active_dispute_ticket_credential_ids"
+        }
+      ],
+      "required_payload_fields": [
+        "keys_snapshot",
+        "revoked_ticket_credential_ids",
+        "superseded_ticket_credential_ids",
+        "active_allow_list_actor_ids"
+      ],
+      "required_signature_fields": [
+        "signature.kid",
+        "signature.alg",
+        "signature.sig_b64url"
+      ],
+      "required_top_level_fields": [
+        "schema_id",
+        "manifest_id",
+        "org_id",
+        "occurrence_id",
+        "snapshot_at_utc",
+        "snapshot_valid_until_utc",
+        "payload",
+        "signature"
+      ],
+      "signature_algorithm": "Ed25519 per SEC-1.crypto_primitives.ed25519",
+      "signature_encoding": "Base64URL (RFC 4648) without padding per SEC-1.crypto_primitives.base64url_rfc4648_no_pad"
+    }
+  },
+  "outbox_events": [
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "scan_id"
+      },
+      "event_name": "ticketing.scan.recorded.v1",
+      "notes": "Emitted when Scan evidence is recorded. MUST NOT include manifest_signature, hydration_payload_hash, geo_hash, firmware, boot_id, or uptime.",
+      "optional_keys": [
+        "operator_session_id"
+      ],
+      "required_keys": [
+        "scan_id",
+        "org_id",
+        "occurrence_id",
+        "ticket_id",
+        "device_id",
+        "gate_id",
+        "operator_actor_id",
+        "device_scan_sequence_number",
+        "scan_intent",
+        "scan_outcome",
+        "decision_authority",
+        "provisional",
+        "reason_subcode",
+        "scanned_at_corrected_utc",
+        "manifest_version",
+        "manifest_age_seconds_at_scan",
+        "version"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "hydration_id"
+      },
+      "event_name": "ticketing.scan.hydration.recorded.v1",
+      "notes": "Emitted when a HydrationSession is recorded. MUST NOT include manifest_signature or hydration_payload_hash in outbox payload.",
+      "optional_keys": [],
+      "required_keys": [
+        "hydration_id",
+        "org_id",
+        "occurrence_id",
+        "device_id",
+        "manifest_version",
+        "manifest_key_id",
+        "server_time_utc",
+        "device_time_utc",
+        "client_clock_offset_seconds",
+        "version"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "redemption_id"
+      },
+      "event_name": "ticketing.redemption.status.materialized.v1",
+      "notes": "Emitted when RedemptionStatus is materialized or changes due to reconciliation. Represents admission truth for a ticket at an occurrence.",
+      "optional_keys": [],
+      "required_keys": [
+        "redemption_id",
+        "org_id",
+        "occurrence_id",
+        "ticket_id",
+        "scan_intent",
+        "redemption_state",
+        "winner_scan_id",
+        "winner_scanned_at_utc",
+        "conflict_count",
+        "last_reconciled_at_utc",
+        "version"
+      ],
+      "schema_ref": "EVT-2"
+    }
+  ],
+  "producer_service": "ticketing.scanning",
+  "redemption_truth": {
+    "redemption_status": {
+      "materialization_reason": "High-scale scan queries require O(1) lookup of redemption truth without on-the-fly dispute reconciliation.",
+      "materialization_required": true
+    }
+  },
+  "rules": [
+    {
+      "id": "SCAN-1-LAW-KEY-SYNC",
+      "severity": "P0",
+      "statement": "Scanners MUST consume ticketing.offer.key_rotated.v1 and maintain a local, versioned cache of EligibilityIssuerKey public keys for offline verification of SignedEligibilityClaim."
+    },
+    {
+      "id": "SCAN-1-LAW-BUFFER-ENFORCEMENT",
+      "severity": "P0",
+      "statement": "The scan engine MUST apply EntitlementSpec.buffer_minutes (entry/exit) from OFFER-1 when evaluating temporal validity for check_in/check_out decisions, for both online and edge decision_authority."
+    },
+    {
+      "id": "SCAN-1-LAW-KEY-RETENTION",
+      "severity": "P0",
+      "statement": "Scanners MUST retain the previous EligibilityIssuerKey (N-1) for a minimum rotation_window_minutes=60 after a ticketing.offer.key_rotated.v1 event, to prevent edge propagation lag from bricking recently-issued SignedEligibilityClaims or HydrationManifests."
+    },
+    {
+      "id": "SCAN-1-LAW-PROVISIONAL-SOVEREIGNTY",
+      "severity": "P0",
+      "statement": "Any scan decision that surfaces WARN_STALE_SOVEREIGNTY MUST be persisted with provisional=true and sovereignty_drift_detected=true, and MUST be discoverable for mandatory post-event audit review."
+    },
+    {
+      "id": "SCAN-1-LAW-KEY-SELECTION",
+      "severity": "P0",
+      "statement": "Scanners MUST select the verification key by kid (key_id) from the claim/manifest header and lookup that exact key in the local cache. If kid is missing or outside the retention window, verification MUST fail with EXT_SIGNATURE_INVALID."
+    },
+    {
+      "id": "SCAN-1-LAW-BULK-RESOLUTION-ATTESTATION",
+      "severity": "P0",
+      "statement": "An authorized auditor MAY resolve provisional scans using a single ResolutionManifest covering either an explicit scan ID list or occurrence_all_provisional. The manifest MUST be persisted before EVT-2 occurrence completion can proceed."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "security_posture": {
+    "crypto": {
+      "manifest_signing": {
+        "algorithm": "Ed25519",
+        "canonicalization": "JCS (RFC 8785) per SEC-1.crypto_primitives.jcs_rfc8785",
+        "normative_schema": "SEC-1.HYDRATION_MANIFEST.v1",
+        "rotation": "Verification MUST accept multiple active + grace public keys (by kid) for the occurrence lifecycle.",
+        "rotation_policy": {
+          "allow_grace_keys": true,
+          "allow_multiple_active_keys": true,
+          "grace_window_bound_to": "occurrence_lifecycle",
+          "kid_indexed": true
+        },
+        "signature_algorithm": "Ed25519 per SEC-1.crypto_primitives.ed25519",
+        "signature_encoding": "Base64URL (RFC 4648) without padding per SEC-1.crypto_primitives.base64url_no_pad"
+      }
+    },
+    "pii": {
+      "forbidden_event_keys": [
+        "name",
+        "surname",
+        "email",
+        "phone",
+        "id_number",
+        "passport_number",
+        "geo_hash",
+        "device_firmware",
+        "device_boot_id",
+        "device_uptime_millis",
+        "manifest_signature",
+        "hydration_payload_hash"
+      ],
+      "notes": "Outbox events MUST NOT contain PII or cryptographic material. device_id is allowed as a restricted operational identifier and MUST be classified via DATA-1."
+    }
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "SCAN-1 governs ticket scanning evidence, hydration authority, offline reconciliation, and admission-truth materialization. v1.6.3 is a hard cleanup release focused on internal consistency, tenant-safe event payloads, operator accountability, and deterministic reconciliation wording.",
+  "tenancy": {
+    "strategy": "ash_attribute",
+    "tenant_key": "org_id"
+  },
+  "test_vectors": {
+    "SCAN-1-VEC-BINARY-SUMMARY-001": {
+      "expected": {
+        "covered_scan_ids_sha256_summary_hash_hex_lower": "441082b78eedafdfadf0a7adaf22f9ce4ba97553fba06d3e2e9b9044e716e803"
+      },
+      "id": "SCAN-1-VEC-BINARY-SUMMARY-001",
+      "inputs": {
+        "concat": "raw_binary_no_delimiters",
+        "covered_scan_ids_uuid16_hex": [
+          "0102030405060708090a0b0c0d0e0f10",
+          "0202030405060708090a0b0c0d0e0f10",
+          "0302030405060708090a0b0c0d0e0f10"
+        ],
+        "sort": "lexicographic_memcmp_on_16byte_binary"
+      },
+      "purpose": "Proves sha256 summary hashing over lexicographically sorted 16-byte UUID binaries (memcmp), concatenated without delimiters."
+    },
+    "SCAN-1-VEC-GHOST-SCAN-COUNT-001": {
+      "action": {
+        "interference": "insert_one_new_provisional_scan_before_attest_commit",
+        "resolution_manifest": {
+          "coverage_mode": "occurrence_all_provisional",
+          "scan_id_count": 5
+        }
+      },
+      "expected": {
+        "attest_result": "ERR_SCAN_COUNT_MISMATCH"
+      },
+      "id": "SCAN-1-VEC-GHOST-SCAN-COUNT-001",
+      "purpose": "Prevents occurrence_all_provisional manifests from swallowing late-arriving provisional scans.",
+      "setup": {
+        "initial_provisional_count": 5,
+        "occurrence_id": "uuid_v7"
+      }
+    }
+  },
+  "tier": 2,
+  "title": "SCAN-1 Offline-Authoritative Ticket Scanning Contract",
+  "version": "1.6.4"
+}

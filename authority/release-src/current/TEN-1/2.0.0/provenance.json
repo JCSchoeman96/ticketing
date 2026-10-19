@@ -1,0 +1,71 @@
+{
+  "bootstrap_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "candidate_preparation_base_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "provenance_statement": "Candidate TEN-1@2.0.0 uses the exact active TEN-1@1.7.13 ZIP as its installed baseline and replaces contract and test-gates content with the frozen authority-staging/t0-hardening/TEN-1 pair. Only release identity, version-bound assertion, and generated timestamp fields were mechanically normalized.",
+  "source_bundle_path": "contracts/TEN-1/TEN-1_bundle_v1.7.13.zip",
+  "source_zip_sha256": "e914b841dd0444c9300a3ef39ec7c48ed290eb92801393a65a819c7eb4caa72e",
+  "source_zip_bytes": 72264,
+  "source_version": "1.7.13",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "authority-staging/t0-hardening/TEN-1/contract.json",
+      "sha256": "0384ab11eb1efbf345352a5b590fca7b4d4192152049a3a2c50115e2fbd61c77",
+      "bytes": 44552,
+      "frozen_input_sha256": "8b1201249de59af67eb6ed6726e06d639c1d9d31c45ffc1659b0bbd6c2c4d011",
+      "frozen_input_bytes": 44553
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "authority-staging/t0-hardening/TEN-1/test-gates.json",
+      "sha256": "c70479461b54c402c0527f6a037493a610aaab67f8306ddb5f9daa04a0b8bb4e",
+      "bytes": 31012,
+      "frozen_input_sha256": "29f49bee284003a011775f2b61ce01d44f1ee1334077a190fff562c62c813551",
+      "frozen_input_bytes": 31014
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "TEN-1_bundle_v1.7.13/TEN-1_Contract_v1.7.13.json",
+      "sha256": "4e87dafd7891a63cd4c3b6f6c79a8f1c3d5c428b585d87315c7fa9e161e589c2",
+      "bytes": 43641
+    },
+    {
+      "source_member_path": "TEN-1_bundle_v1.7.13/TEN-1_Test_Gates_v1.7.13.json",
+      "sha256": "78838931a1668fc8aff7ea021ad15ee396f07f99229106fc546d36fe5aec4855",
+      "bytes": 27468
+    },
+    {
+      "source_member_path": "TEN-1_bundle_v1.7.13/bundle.manifest.json",
+      "sha256": "f1d312a1e436f37a16d8d60639e3483e93f6604cd68837a0a63ad54d3d98588a",
+      "bytes": 627
+    }
+  ],
+  "frozen_authority_sources": [
+    {
+      "path": "authority-staging/t0-hardening/TEN-1/contract.json",
+      "sha256": "8b1201249de59af67eb6ed6726e06d639c1d9d31c45ffc1659b0bbd6c2c4d011",
+      "bytes": 44553
+    },
+    {
+      "path": "authority-staging/t0-hardening/TEN-1/test-gates.json",
+      "sha256": "29f49bee284003a011775f2b61ce01d44f1ee1334077a190fff562c62c813551",
+      "bytes": 31014
+    }
+  ],
+  "mechanical_normalization": {
+    "suite_schema": "CS-0@3.0.1",
+    "target_version": "2.0.0",
+    "generated_at_utc": "2026-10-18T09:26:57Z",
+    "contract_json_pointers": [
+      "/contract_ref/version",
+      "/generated_at_utc",
+      "/version"
+    ],
+    "test_gates_json_pointers": [
+      "/contract_ref/version",
+      "/generated_at_utc",
+      "/version"
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "PSC-1",
+    "bundle_version": "1.8.3"
+  },
+  "doc_id": "PSC-1",
+  "files": [
+    {
+      "bytes": 33420,
+      "path": "PSC-1_Contract_v1.8.3.json",
+      "sha256": "bf5a91a4781b47002dffef0374b1445992b6cbd5efd599ae2b2d2cb003d96240"
+    },
+    {
+      "bytes": 21168,
+      "path": "PSC-1_Test_Gates_v1.8.3.json",
+      "sha256": "8ae63953347e04392aea6bf0d4e6c1dba8d8f0b136361feeada729ab9c81b802"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.8.3"
+}

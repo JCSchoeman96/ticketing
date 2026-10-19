@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "LED-1",
+    "bundle_version": "4.4.7"
+  },
+  "doc_id": "LED-1",
+  "files": [
+    {
+      "bytes": 75400,
+      "path": "LED-1_Contract_v4.4.7.json",
+      "sha256": "a97f88c5c847a085433bc86a96db8a2771b0ceca930b7281acd390ef9d94e380"
+    },
+    {
+      "bytes": 12747,
+      "path": "LED-1_Test_Gates_v4.4.7.json",
+      "sha256": "d6287ace82c777e1a7629ab7f89e3141bdd414a7fe108e256eed24db0bfeed1b"
+    }
+  ],
+  "generated_at_utc": "2026-04-15T13:52:04Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.0",
+  "version": "4.4.7"
+}

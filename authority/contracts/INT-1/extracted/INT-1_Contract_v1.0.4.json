@@ -1,0 +1,931 @@
+{
+  "adapter_contract": {
+    "callback_contracts": [
+      {
+        "arity": 1,
+        "name": "capabilities",
+        "returns": "provider_capability_map"
+      },
+      {
+        "arity": 2,
+        "name": "send",
+        "returns": "{:ok, provider_response} | {:error, err_1_envelope}"
+      },
+      {
+        "arity": 2,
+        "name": "verify_webhook",
+        "returns": "{:ok, normalized_event} | {:error, err_1_envelope}"
+      },
+      {
+        "arity": 2,
+        "name": "normalize_receipt",
+        "returns": "{:ok, normalized_receipt} | {:error, err_1_envelope}"
+      }
+    ],
+    "elixir_behaviour_module": "Ticketing.Integrations.ProviderAdapter",
+    "provider_call_shape": {
+      "error_envelope_rule": "All errors MUST use ERR-1 envelope and INT_* subcodes.",
+      "input_fields": [
+        "provider_account_ref",
+        "provider_operation",
+        "provider_idempotency_key",
+        "payload_ref_or_payload_hash",
+        "correlation_id"
+      ],
+      "success_fields": [
+        "provider_account_ref",
+        "provider_id",
+        "provider_message_or_event_id",
+        "provider_status",
+        "provider_response_hash_sha256",
+        "retry_after_seconds"
+      ]
+    },
+    "rules": [
+      "Adapters MUST be stateless with respect to business truth and MUST NOT cache provider secrets beyond the single provider call lifecycle.",
+      "Adapters MUST receive secret material only through SEC-1 authorized resolution and MUST NOT log it.",
+      "Adapters MUST classify errors as retryable, non_retryable, or circuit_breaker_signal using ERR-1 envelope fields.",
+      "Adapters MUST return provider_response_hash_sha256 instead of raw provider bodies unless the receiving domain explicitly owns encrypted raw payload retention."
+    ]
+  },
+  "artifact_kind": "contract",
+  "ash_3x_resource_map": {
+    "ash_rules": [
+      "All tenant-owned resources MUST use Ash 3.x multitenancy with explicit org_id context and Postgres RLS alignment.",
+      "ProviderWebhookReceipt MUST be append-only except for controlled state transitions represented as append-only receipt events or audited status transitions.",
+      "Route resolution MUST run in a service action that accepts tenant context explicitly and MUST NOT infer org_id from process dictionary or hidden defaults."
+    ],
+    "domain_module": "Ticketing.Integrations",
+    "otp_app": ":ticketing",
+    "resources": [
+      {
+        "actions": [
+          "create",
+          "publish",
+          "disable",
+          "retire",
+          "read"
+        ],
+        "module": "Ticketing.Integrations.Provider",
+        "policies": [
+          "platform_admin_only_for_write",
+          "org_scoped_read_for_available_providers"
+        ],
+        "tenancy": "global_registry"
+      },
+      {
+        "actions": [
+          "create",
+          "activate",
+          "disable",
+          "rotate_secret_ref",
+          "retire",
+          "read"
+        ],
+        "module": "Ticketing.Integrations.ProviderAccount",
+        "policies": [
+          "org_owner_or_integration_admin",
+          "platform_admin_for_platform_scope",
+          "deny_cross_tenant"
+        ],
+        "tenancy": "org_id_or_platform_scope"
+      },
+      {
+        "actions": [
+          "create",
+          "submit_verification",
+          "verify",
+          "reject",
+          "disable",
+          "read"
+        ],
+        "module": "Ticketing.Integrations.ProviderSenderIdentity",
+        "policies": [
+          "integration_admin_write",
+          "platform_admin_for_platform_scope",
+          "deny_cross_tenant"
+        ],
+        "tenancy": "org_id_or_platform_scope"
+      },
+      {
+        "actions": [
+          "create",
+          "publish",
+          "disable",
+          "resolve",
+          "read"
+        ],
+        "module": "Ticketing.Integrations.ProviderRoutingRule",
+        "policies": [
+          "integration_admin_write",
+          "service_actor_resolve_only",
+          "deny_cross_tenant"
+        ],
+        "tenancy": "org_id_or_platform_scope"
+      },
+      {
+        "actions": [
+          "register",
+          "rotate_secret_ref",
+          "disable",
+          "read"
+        ],
+        "module": "Ticketing.Integrations.ProviderWebhookEndpoint",
+        "policies": [
+          "integration_admin_write",
+          "provider_ingress_read_none"
+        ],
+        "tenancy": "org_id_or_platform_scope"
+      },
+      {
+        "actions": [
+          "ingest",
+          "validate",
+          "quarantine",
+          "mark_processed",
+          "mark_failed",
+          "read"
+        ],
+        "module": "Ticketing.Integrations.ProviderWebhookReceipt",
+        "policies": [
+          "provider_ingress_create",
+          "ops_read",
+          "deny_mutable_raw_edits"
+        ],
+        "tenancy": "org_id_or_platform_scope"
+      }
+    ],
+    "root_namespace": "Ticketing"
+  },
+  "atlas": {
+    "architect": "INT-1 separates provider registry and routing from COMM/PAY/TKT business truth and from SEC-1 secrets.",
+    "assemble": "Implementation MUST use Ash 3.x resources under Ticketing.Integrations and OTP app :ticketing.",
+    "link": "INT-1 links COMM-1 dispatch to provider accounts, SEC-1 secret references, OBS-1 telemetry, OBQC-1 queue controls, and TEN-1 tenancy.",
+    "stress_test": "INT-1 MUST fail closed on missing route, ambiguous route, disabled provider, missing secret_ref, signature failure, replay, tenant mismatch, and circuit-open states.",
+    "trace": "Every provider resolution and webhook receipt MUST carry correlation_id, org_id or platform_org_id, provider_account_ref, provider_id, and deterministic idempotency_key."
+  },
+  "canonical": true,
+  "change_log": [
+    {
+      "changes": [
+        "Renamed test-gates artifact to BP-0 Test_Gates filename format.",
+        "Raised ERR-1 dependency floor to v1.8.2 so INT_* subcodes are guaranteed registered.",
+        "Replaced fragile placeholder-ban wording with banned-token wording while preserving provider/secret boundaries."
+      ],
+      "released_at_utc": "2026-06-03T14:50:00Z",
+      "summary": "Provider-routing authority hygiene patch aligned to ERR-1 v1.8.2.",
+      "version": "1.0.4"
+    },
+    {
+      "changes": [
+        "Initial CS-0@3.0.0 INT-1 provider account, routing, adapter, and webhook governance contract."
+      ],
+      "date": "2026-06-03",
+      "version": "1.0.0"
+    },
+    {
+      "changes": [
+        "Harden provider routing with explicit ProviderRoutingRule schema and deterministic resolver output.",
+        "Add ProviderSenderIdentity resource so communications sender/from/reply-to/domain posture is tenant-scoped without storing secrets in COMM.",
+        "Replace non-canonical webhook status quarantined with failed plus quarantine_reason/outcome fields.",
+        "Clarify inbound webhooks MUST NOT be circuit-blocked; circuit breakers affect processing and outbound provider calls.",
+        "Remove normative COMM-1 dependency from INT-1 to avoid reverse ownership/circular truth.",
+        "Add credential_mode rules so console/test providers can declare no secret while real providers require SEC-1 secret_ref."
+      ],
+      "date": "2026-06-03",
+      "version": "1.0.1"
+    },
+    {
+      "date": "2026-06-03",
+      "summary": "Final hardening: CS-compatible upper snake_case gate IDs, non-self-failing automated gate assertions, exact secret-field checks, and manifest regeneration for CS-0@3.0.0.",
+      "version": "1.0.3"
+    }
+  ],
+  "ci_sentinels": {
+    "adapter_contract_exists": true,
+    "ash_3x_resources_declared": true,
+    "automated_gates_do_not_self_fail": true,
+    "credential_mode_declared": true,
+    "deterministic_uuid_sorting_declared": true,
+    "forbidden_secret_field_checks_are_exact": true,
+    "gate_ids_are_cs_compatible_upper_snake_case": true,
+    "inbound_webhooks_not_circuit_blocked": true,
+    "no_comm_dependency": true,
+    "no_secrets_in_int": true,
+    "provider_account_registry_exists": true,
+    "provider_adapter_return_shape_declared": true,
+    "provider_resolution_output_schema_declared": true,
+    "provider_sender_identity_declared": true,
+    "routing_resolution_is_deterministic": true,
+    "routing_rule_schema_declared": true,
+    "runtime_config_is_not_tenant_truth": true,
+    "suite_schema_locked": true,
+    "tenancy_org_id_required": true,
+    "webhook_ingress_is_idempotent": true,
+    "webhook_status_values_are_canonical": true
+  },
+  "dependencies": [
+    {
+      "doc_id": "BP-0",
+      "edge_type": "foundation_floor",
+      "min_version": "3.0.0",
+      "reason": "BP-0 defines the CS-0@3.0.0 blueprint discipline used by this bundle."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "CS-0 defines the schema families and suite_schema target for this bundle."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "TG-0 defines test-gate authoring conventions and deterministic assertion posture."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "CG-0 defines strict CI expectations for bundle, manifest, dependency, and gate validation."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.8.1",
+      "reason": "V42-0 supplies the constitutional tenancy, reliability, idempotency, and observability invariants."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.12",
+      "reason": "TEN-1 governs org_id scoping, tenant context propagation, and cross-tenant denial."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.6",
+      "reason": "IAM-1 governs actor identity, capabilities, step-up, and audited privileged operations."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.8.2",
+      "reason": "ERR-1 governs canonical error envelope and stable INT_* subcodes registered for INT-1 v1.0.4 and later."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.6",
+      "reason": "OBS-1 governs telemetry, alerts, runbooks, and SLO evidence."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.4",
+      "reason": "OBQC-1 governs queue capacity, backpressure, and notification queue posture."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "requires",
+      "min_version": "1.7.0",
+      "reason": "PSC-1 governs performance and safe-mode degradation requirements."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.1",
+      "reason": "LOCKS-1 governs deterministic locking for publish, route resolution, and idempotent processing."
+    },
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "requires",
+      "min_version": "1.3.1",
+      "reason": "DATA-1 governs data classification, minimization, and retention posture."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.0.7",
+      "reason": "SEC-1 MUST own secret material, signing keys, encryption keys, webhook verification material, and rotation posture. INT-1 stores only secret_ref values."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.10",
+      "reason": "GOV-0 governs waiver and governance discipline for integration provider changes."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.11",
+      "reason": "LINT-0 governs snake_case, banned-token rules, and repo-level anti-drift scanning."
+    }
+  ],
+  "deterministic_uuid_sorting": {
+    "rule": "When INT-1 hashes or signs lists of UUIDs, it MUST normalize each UUID to raw 16-byte form, sort by unsigned lexicographic byte order ascending, and MUST NOT sort UUID strings."
+  },
+  "doc_id": "INT-1",
+  "errors": [
+    "INT_PROVIDER_ACCOUNT_NOT_FOUND",
+    "INT_PROVIDER_ROUTE_NOT_FOUND",
+    "INT_PROVIDER_ROUTE_AMBIGUOUS",
+    "INT_PROVIDER_SECRET_UNAVAILABLE",
+    "INT_WEBHOOK_SIGNATURE_INVALID",
+    "INT_WEBHOOK_REPLAY_DETECTED",
+    "INT_PROVIDER_DISABLED",
+    "INT_PROVIDER_RATE_LIMITED",
+    "INT_PROVIDER_CIRCUIT_OPEN",
+    "INT_PROVIDER_CAPABILITY_UNSUPPORTED",
+    "INT_PROVIDER_TENANT_SCOPE_VIOLATION"
+  ],
+  "generated_at_utc": "2026-06-03T14:25:00Z",
+  "last_updated_utc": "2026-06-03T14:50:00Z",
+  "lineage": {
+    "foundation_refs": [
+      {
+        "doc_id": "V42-0",
+        "min_version": "1.8.1",
+        "reason": "V42 requires org_id tenancy, idempotent side effects, Oban-only retries, and circuit-breaker posture for external dependencies."
+      }
+    ],
+    "supersedes": []
+  },
+  "observability": {
+    "audit_required_for": [
+      "provider_account_create",
+      "provider_account_secret_ref_rotate",
+      "provider_routing_rule_publish",
+      "provider_webhook_endpoint_register",
+      "platform_scope_route_change"
+    ],
+    "events": [
+      "integration.provider_account_activated",
+      "integration.provider_route_resolved",
+      "integration.provider_route_failed",
+      "integration.webhook_received",
+      "integration.webhook_validated",
+      "integration.webhook_quarantined",
+      "integration.provider_circuit_opened"
+    ],
+    "metrics": [
+      "provider_route_resolution_latency_ms",
+      "provider_route_failures_total",
+      "provider_call_success_rate",
+      "provider_call_latency_ms",
+      "webhook_signature_failures_total",
+      "webhook_replay_detected_total",
+      "provider_circuit_open_total"
+    ]
+  },
+  "provider_account_registry": {
+    "fields": [
+      {
+        "name": "provider_account_id",
+        "primary_key": true,
+        "required": true,
+        "type": "uuid_v7"
+      },
+      {
+        "name": "org_id",
+        "notes": "MUST be present for org-scoped accounts. MUST be null only when platform_scope=platform.",
+        "required": false,
+        "tenant_key": true,
+        "type": "uuid_v7"
+      },
+      {
+        "name": "platform_scope",
+        "required": true,
+        "type": "enum",
+        "values": [
+          "org",
+          "platform"
+        ]
+      },
+      {
+        "name": "provider_id",
+        "required": true,
+        "type": "enum_ref"
+      },
+      {
+        "name": "provider_kind",
+        "required": true,
+        "type": "enum_ref"
+      },
+      {
+        "name": "channel",
+        "required": true,
+        "type": "enum",
+        "values": [
+          "email",
+          "sms",
+          "whatsapp",
+          "push",
+          "webhook",
+          "payment",
+          "analytics"
+        ]
+      },
+      {
+        "name": "display_name",
+        "required": true,
+        "type": "string"
+      },
+      {
+        "name": "sender_identity_ref",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "credential_mode",
+        "required": true,
+        "type": "enum",
+        "values": [
+          "secret_ref",
+          "none"
+        ]
+      },
+      {
+        "name": "secret_ref",
+        "notes": "Required when credential_mode=secret_ref. MUST be null when credential_mode=none.",
+        "required": false,
+        "sensitive_pointer": true,
+        "type": "sec_1_secret_ref"
+      },
+      {
+        "name": "webhook_secret_ref",
+        "required": false,
+        "sensitive_pointer": true,
+        "type": "sec_1_secret_ref"
+      },
+      {
+        "name": "status",
+        "required": true,
+        "type": "enum",
+        "values": [
+          "draft",
+          "active",
+          "disabled",
+          "retired"
+        ]
+      },
+      {
+        "name": "verified_at_utc",
+        "required": false,
+        "type": "iso_datetime_utc"
+      },
+      {
+        "name": "created_by_actor_ref",
+        "required": true,
+        "type": "iam_actor_ref"
+      },
+      {
+        "name": "updated_by_actor_ref",
+        "required": false,
+        "type": "iam_actor_ref"
+      },
+      {
+        "name": "created_at_utc",
+        "required": true,
+        "type": "iso_datetime_utc"
+      },
+      {
+        "name": "updated_at_utc",
+        "required": true,
+        "type": "iso_datetime_utc"
+      }
+    ],
+    "invariants": [
+      "ProviderAccount MUST NOT contain encrypted_credentials, api_key, password, private_key, token, refresh_token, smtp_password, or webhook_secret fields.",
+      "ProviderAccount.credential_mode=secret_ref MUST include secret_ref referencing SEC-1 and MUST be resolved only by authorized runtime adapters at final provider call time.",
+      "ProviderAccount.credential_mode=none MUST have secret_ref=null and MAY be used only for console/test providers or explicitly credentialless endpoints.",
+      "ProviderAccount with platform_scope=org MUST include org_id and MUST be protected by TEN-1 RLS.",
+      "ProviderAccount with platform_scope=platform MUST be readable only by platform-scoped capabilities and MUST NOT be selected for org traffic unless the routing rule explicitly declares platform_fallback_allowed=true."
+    ],
+    "primary_key": "provider_account_id_uuid_v7",
+    "resource": "Ticketing.Integrations.ProviderAccount",
+    "tenancy": "org_scoped_or_platform_scoped"
+  },
+  "provider_routing_rules": {
+    "fields": [
+      {
+        "name": "provider_routing_rule_id",
+        "primary_key": true,
+        "required": true,
+        "type": "uuid_v7"
+      },
+      {
+        "name": "route_version",
+        "required": true,
+        "type": "integer"
+      },
+      {
+        "name": "org_id",
+        "required": false,
+        "tenant_key": true,
+        "type": "uuid_v7"
+      },
+      {
+        "name": "platform_scope",
+        "required": true,
+        "type": "enum",
+        "values": [
+          "org",
+          "platform"
+        ]
+      },
+      {
+        "name": "integration_domain",
+        "required": true,
+        "type": "enum",
+        "values": [
+          "communications",
+          "payments",
+          "analytics",
+          "webhook_ingress",
+          "storage"
+        ]
+      },
+      {
+        "name": "channel",
+        "required": true,
+        "type": "enum",
+        "values": [
+          "email",
+          "sms",
+          "whatsapp",
+          "push",
+          "webhook",
+          "payment",
+          "analytics"
+        ]
+      },
+      {
+        "name": "message_class",
+        "required": false,
+        "type": "enum",
+        "values": [
+          "transactional",
+          "marketing",
+          "operational",
+          "legal"
+        ]
+      },
+      {
+        "name": "purpose_id",
+        "required": false,
+        "type": "stable_string"
+      },
+      {
+        "name": "provider_kind",
+        "required": true,
+        "type": "enum_ref"
+      },
+      {
+        "name": "provider_account_ref",
+        "required": true,
+        "type": "uuid_v7"
+      },
+      {
+        "name": "sender_identity_ref",
+        "required": false,
+        "type": "uuid_v7"
+      },
+      {
+        "name": "priority",
+        "required": true,
+        "type": "integer"
+      },
+      {
+        "name": "platform_fallback_allowed",
+        "required": true,
+        "type": "boolean"
+      },
+      {
+        "name": "effective_from_utc",
+        "required": true,
+        "type": "iso_datetime_utc"
+      },
+      {
+        "name": "effective_to_utc",
+        "required": false,
+        "type": "iso_datetime_utc"
+      },
+      {
+        "name": "status",
+        "required": true,
+        "type": "enum",
+        "values": [
+          "draft",
+          "active",
+          "disabled",
+          "retired"
+        ]
+      }
+    ],
+    "resolution_contract": [
+      "Routing resolution MUST accept an explicit selector object and MUST return exactly one active provider_account_ref or a typed INT error.",
+      "If zero active routes match, INT-1 MUST return INT_PROVIDER_ROUTE_NOT_FOUND and the caller MUST fail closed or defer according to its own safe-mode contract.",
+      "If more than one active route has the same highest priority for the selector, INT-1 MUST return INT_PROVIDER_ROUTE_AMBIGUOUS and MUST NOT choose nondeterministically.",
+      "Routing resolution MUST NOT read runtime.exs or application environment as the source of tenant provider truth.",
+      "Routing resolution MUST record provider_resolution_hash_sha256 over canonical_json(selector, matched_rule_id, provider_account_ref, route_version)."
+    ],
+    "resolver_input_schema": {
+      "conditional_fields": [
+        "org_id is required when platform_scope=org",
+        "message_class is required when integration_domain=communications",
+        "purpose_id is required when a purpose-specific route is expected"
+      ],
+      "required_fields": [
+        "platform_scope",
+        "integration_domain",
+        "channel",
+        "provider_kind"
+      ]
+    },
+    "resolver_output_schema": {
+      "failure_subcodes": [
+        "INT_PROVIDER_ROUTE_NOT_FOUND",
+        "INT_PROVIDER_ROUTE_AMBIGUOUS",
+        "INT_PROVIDER_DISABLED",
+        "INT_PROVIDER_TENANT_SCOPE_VIOLATION"
+      ],
+      "success_fields": [
+        "provider_account_ref",
+        "provider_id",
+        "provider_kind",
+        "sender_identity_ref",
+        "route_version",
+        "provider_resolution_hash_sha256",
+        "correlation_id"
+      ]
+    },
+    "resource": "Ticketing.Integrations.ProviderRoutingRule",
+    "selector_examples": [
+      {
+        "channel": "email",
+        "integration_domain": "communications",
+        "message_class": "transactional",
+        "purpose_id": "system.order_receipt"
+      },
+      {
+        "channel": "sms",
+        "integration_domain": "communications",
+        "message_class": "transactional",
+        "purpose_id": "system.password_reset"
+      },
+      {
+        "channel": "payment",
+        "integration_domain": "payments",
+        "purpose_id": "payment.webhook_ingress"
+      }
+    ],
+    "selector_fields": [
+      "org_id",
+      "platform_scope",
+      "integration_domain",
+      "channel",
+      "message_class",
+      "purpose_id",
+      "provider_kind",
+      "region_profile",
+      "priority",
+      "effective_from_utc",
+      "effective_to_utc"
+    ],
+    "tenancy": "org_scoped_or_platform_scoped"
+  },
+  "provider_sender_identity_registry": {
+    "fields": [
+      {
+        "name": "sender_identity_id",
+        "primary_key": true,
+        "required": true,
+        "type": "uuid_v7"
+      },
+      {
+        "name": "org_id",
+        "notes": "Required when platform_scope=org.",
+        "required": false,
+        "tenant_key": true,
+        "type": "uuid_v7"
+      },
+      {
+        "name": "platform_scope",
+        "required": true,
+        "type": "enum",
+        "values": [
+          "org",
+          "platform"
+        ]
+      },
+      {
+        "name": "channel",
+        "required": true,
+        "type": "enum",
+        "values": [
+          "email",
+          "sms",
+          "whatsapp",
+          "push",
+          "webhook"
+        ]
+      },
+      {
+        "name": "sender_name",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "from_address",
+        "pii_risk": "configuration_not_secret",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "reply_to_address",
+        "pii_risk": "configuration_not_secret",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "sending_domain",
+        "required": false,
+        "type": "string"
+      },
+      {
+        "name": "verification_status",
+        "required": true,
+        "type": "enum",
+        "values": [
+          "pending",
+          "verified",
+          "rejected",
+          "expired"
+        ]
+      },
+      {
+        "name": "verification_evidence_hash_sha256",
+        "required": false,
+        "type": "sha256"
+      },
+      {
+        "name": "created_by_actor_ref",
+        "required": true,
+        "type": "iam_actor_ref"
+      },
+      {
+        "name": "updated_at_utc",
+        "required": true,
+        "type": "iso_datetime_utc"
+      }
+    ],
+    "invariants": [
+      "ProviderSenderIdentity MUST NOT store provider credentials or DNS provider secrets.",
+      "Email sender identities MUST be verified before active routing can select them for production sends.",
+      "Org-scoped sender identities MUST NOT be usable by another org_id.",
+      "Platform-scoped sender identities MUST require platform capability and audit reason for change."
+    ],
+    "resource": "Ticketing.Integrations.ProviderSenderIdentity",
+    "tenancy": "org_scoped_or_platform_scoped"
+  },
+  "provider_taxonomy": {
+    "capability_flags": [
+      "send_email",
+      "send_sms",
+      "send_whatsapp",
+      "send_push",
+      "accept_webhook",
+      "verify_signature",
+      "provider_idempotency_key",
+      "delivery_receipts",
+      "bounce_receipts",
+      "complaint_receipts",
+      "rate_limit_headers",
+      "domain_verification",
+      "oauth2",
+      "smtp_auth"
+    ],
+    "provider_ids_initial_allowlist": [
+      "aws_ses",
+      "sendgrid",
+      "elasticmail",
+      "brevo",
+      "mailchimp_transactional",
+      "mailchimp_campaigns",
+      "twilio",
+      "meta_whatsapp",
+      "firebase_cloud_messaging",
+      "console",
+      "test"
+    ],
+    "provider_kinds": [
+      "smtp_relay",
+      "api_transactional",
+      "campaign_platform",
+      "sms_gateway",
+      "whatsapp_gateway",
+      "push_gateway",
+      "payment_gateway",
+      "webhook_sink",
+      "analytics_destination"
+    ],
+    "rules": [
+      "Provider kind MUST be declared explicitly and MUST NOT be inferred from provider_id string values.",
+      "Provider capabilities MUST be declared before an account can be selected by a routing rule.",
+      "Provider capability declarations MUST be append-only; removing a capability from an active account MUST disable affected routes before deployment."
+    ]
+  },
+  "reliability_and_safe_mode": {
+    "circuit_breaker_rules": [
+      "Provider breaker state MUST be keyed by provider_account_ref and provider_operation.",
+      "Circuit-open state MUST prevent non-critical calls and MUST allow only domain-declared critical queueing behavior.",
+      "Provider 401/403 credential failures MUST disable affected ProviderAccount or route until reviewed; they MUST NOT be retried indefinitely."
+    ],
+    "inbound_webhook_rule": "Inbound webhook receipt creation MUST remain available where technically possible and MUST NOT be circuit-blocked; processing MAY be deferred through Oban according to domain criticality.",
+    "queue": "integrations",
+    "retry_policy": "All retryable provider calls and webhook processing MUST run through Oban; no inline retry loops are permitted.",
+    "safe_mode_order": [
+      "marketing_provider_calls",
+      "analytics_fanout",
+      "non_critical_outbound_provider_calls",
+      "transactional_communications",
+      "critical_payment_provider_processing"
+    ]
+  },
+  "schema_version": "contract-suite/1.0",
+  "scope": {
+    "boundary_rules": [
+      "INT-1 MUST store only provider_account_ref, provider_id, provider_kind, route metadata, sender_identity_ref, and secret_ref pointers; INT-1 MUST NOT store api keys, smtp passwords, private keys, webhook signing secrets, oauth refresh tokens, or raw credentials.",
+      "INT-1 MUST NOT dispatch messages or mutate message state; calling domains MUST own their own dispatch, attempt, receipt, and business-state semantics.",
+      "INT-1 MUST NOT mark orders paid, issue tickets, post journals, or create refunds; domain-specific contracts MUST own those business truths.",
+      "INT-1 MUST provide deterministic route resolution for communications, payment, analytics, and webhook integrations without becoming the owner of those domains."
+    ],
+    "does_not_own": [
+      "secret_material",
+      "message_templates",
+      "message_rendering",
+      "payment_business_truth",
+      "ledger_truth",
+      "order_truth",
+      "ticket_truth",
+      "tracking_semantics",
+      "message_state"
+    ],
+    "owns": [
+      "provider_catalog",
+      "provider_account_registry",
+      "provider_routing_rules",
+      "provider_adapter_contracts",
+      "provider_webhook_endpoint_registry",
+      "provider_webhook_receipts",
+      "provider_domain_verification_refs",
+      "provider_circuit_breaker_policy_refs"
+    ]
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "Integration Provider Account, Routing, Adapter, Sender Identity, and Webhook Ingress Governance for CS-0@3.0.0.",
+  "title": "INT-1 \u2014 Integration Provider Account, Routing, and Webhook Governance Contract",
+  "updated_at": "2026-06-03T14:50:00Z",
+  "updated_at_utc": "2026-06-03T14:50:00Z",
+  "version": "1.0.4",
+  "webhook_ingress": {
+    "endpoint_rules": [
+      "Webhook endpoint registration MUST be tied to provider_account_ref and webhook_secret_ref when the provider signs callbacks.",
+      "Inbound webhook controllers MUST verify signature before domain processing and MUST persist a receipt envelope quickly before async processing.",
+      "Signature failures MUST create a failed receipt with safe metadata and quarantine_reason=signature_invalid; they MUST NOT invoke domain handlers.",
+      "Inbound webhook receipts MUST be idempotent by provider_event_id when supplied, otherwise by sha256(canonical_provider_headers_subset + raw_body_hash + provider_account_ref).",
+      "Webhook replay detection MUST fail closed, MUST set failure_reason=replay_detected, and MUST emit INT_WEBHOOK_REPLAY_DETECTED.",
+      "Inbound webhook endpoints MUST NOT be blocked by outbound circuit breaker state; breaker state may defer processing but MUST NOT reject provider retries at ingress."
+    ],
+    "raw_payload_policy": "Raw provider payload storage MUST be controlled by the domain-specific contract receiving the event. INT-1 MUST store raw_body_hash_sha256 and MAY store encrypted raw payload only when DATA-1 retention classification and SEC-1 encryption controls explicitly allow it.",
+    "receipt_fields": [
+      "webhook_receipt_id",
+      "provider_account_ref",
+      "provider_id",
+      "provider_event_id",
+      "provider_event_type",
+      "received_at_utc",
+      "signature_status",
+      "raw_body_hash_sha256",
+      "headers_hash_sha256",
+      "idempotency_key",
+      "status",
+      "correlation_id",
+      "failure_reason",
+      "quarantine_reason"
+    ],
+    "resources": [
+      "Ticketing.Integrations.ProviderWebhookEndpoint",
+      "Ticketing.Integrations.ProviderWebhookReceipt"
+    ],
+    "status_values": [
+      "received",
+      "validated",
+      "processing",
+      "processed",
+      "failed"
+    ]
+  }
+}

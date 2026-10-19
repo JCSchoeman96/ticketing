@@ -1,0 +1,748 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "DSAR-1-GATE_TestGates_v1.2.2.json",
+  "contract_ref": {
+    "doc_id": "DSAR-1",
+    "version": "1.2.2"
+  },
+  "doc_id": "DSAR-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        },
+        {
+          "details": {
+            "artifact_kind": "bundle_manifest",
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema pinned everywhere",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "suite_schema pinned everywhere",
+      "id": "DSAR_1_GATE_SUITE_SCHEMA",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE SUITE SCHEMA"
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "manifest present and correct",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "manifest present and correct",
+      "id": "DSAR_1_GATE_MANIFEST",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE MANIFEST"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "contract-suite/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "test-gates/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "bundle_manifest",
+            "equals": "bundle-manifest/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "DSAR-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": {
+              "doc_id": "DSAR-1",
+              "version": "1.2.1"
+            },
+            "json_pointer": "/contract_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "schema families pinned",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "schema families pinned",
+      "id": "DSAR_1_GATE_SCHEMA_VERSIONS",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE SCHEMA VERSIONS"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)\\b(T(?:B)D|T(?:O)D(?:O)|W(?:I)P|P(?:L)ACEH(?:O)LDER|F(?:I)LL_(?:M)E)\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "(?i)\\b(T(?:B)D|T(?:O)D(?:O)|W(?:I)P|P(?:L)ACEH(?:O)LDER|F(?:I)LL_(?:M)E)\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "no placeholders allowed",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "no placeholders allowed",
+      "id": "DSAR_1_GATE_NO_PLACEHOLDERS",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE NO PLACEHOLDERS"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "doc_id": "BP-0",
+                "min_version": "1.0.6",
+                "reason": "Blueprint baseline patterns and anti-pattern bans."
+              },
+              {
+                "doc_id": "CS-0",
+                "min_version": "2.2.0",
+                "reason": "Suite schema source of truth for contract-suite/1.0, test-gates/1.0, bundle-manifest/1.0."
+              },
+              {
+                "doc_id": "TG-0",
+                "min_version": "2.3.0",
+                "reason": "Test-gates schema + authoring constraints for CI strict."
+              },
+              {
+                "doc_id": "V42-0",
+                "min_version": "1.6.0",
+                "reason": "Constitutional invariants: immutability boundaries, truth preservation, and platform-wide constraints."
+              },
+              {
+                "doc_id": "TEN-1",
+                "min_version": "1.7.3",
+                "reason": "Multi-tenancy: org_id sealing, hide-existence semantics, cross-tenant prohibition."
+              },
+              {
+                "doc_id": "IAM-1",
+                "min_version": "3.2.0",
+                "reason": "Capabilities/authorization model; DSAR actions are capability-gated + audited, including tiered export capabilities (data.export.c3, data.export.c4)."
+              },
+              {
+                "doc_id": "PII-1",
+                "min_version": "1.1.0",
+                "reason": "PII boundary: identity mapping, PII vault exclusivity, joinable identifier classification, cryptoshred primitives, and anti-differencing invariants."
+              },
+              {
+                "doc_id": "CONSENT-1",
+                "min_version": "1.1.0",
+                "reason": "Consent proof ownership; DSAR MUST preserve consent proofs while removing PII linkability per PII-1."
+              },
+              {
+                "doc_id": "TRK-1",
+                "min_version": "1.3.1",
+                "reason": "Tracking schema and storage rules; DSAR MUST delete/transform subject-linked raw telemetry."
+              },
+              {
+                "doc_id": "DATA-1",
+                "min_version": "1.3.0",
+                "reason": "Export profiles + data-class ceilings; DSAR access exports MUST bind to a C4-regulated export profile."
+              },
+              {
+                "doc_id": "ARCH-1",
+                "min_version": "3.0.1",
+                "reason": "Archival/destruction semantics; DSAR cryptoshred is destruction-by-unlinkability without mutating immutable facts."
+              },
+              {
+                "doc_id": "LED-1",
+                "min_version": "3.0.8",
+                "reason": "Ledger immutability boundary: postings MUST NOT be mutated or redacted by DSAR."
+              },
+              {
+                "doc_id": "ORD-1",
+                "min_version": "3.0.10",
+                "reason": "Immutable order truth boundary: order price snapshots & fulfillment facts MUST NOT be mutated by DSAR."
+              },
+              {
+                "doc_id": "PRICE-1",
+                "min_version": "3.0.9",
+                "reason": "Immutable price snapshot boundary: DSAR MUST NOT alter historical pricing truth."
+              },
+              {
+                "doc_id": "OBS-1",
+                "min_version": "2.7.8",
+                "reason": "Anomaly monitoring and evidence posture for DSAR/PII access."
+              },
+              {
+                "doc_id": "ERR-1",
+                "min_version": "1.3.32",
+                "reason": "Canonical error envelope and subcode conventions for DSAR errors."
+              },
+              {
+                "doc_id": "GOV-0",
+                "min_version": "2.0.12",
+                "reason": "Governance discipline: break-glass, approvals, and audit retention requirements."
+              }
+            ],
+            "json_pointer": "/dependencies"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "dependencies are explicit and locked",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "dependencies are explicit and locked",
+      "id": "DSAR_1_GATE_DEPENDENCIES_EXACT",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE DEPENDENCIES EXACT"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "received",
+              "verification_pending",
+              "support_approval_pending",
+              "approved",
+              "execution_queued",
+              "executing",
+              "completed",
+              "rejected",
+              "cancelled",
+              "failed"
+            ],
+            "json_pointer": "/domain_sections/case_model/states"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/case_model/idempotency/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 30,
+            "json_pointer": "/domain_sections/case_model/timelines/max_days_to_complete"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "case model is deterministic",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "case model is deterministic",
+      "id": "DSAR_1_GATE_CASE_MODEL",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE CASE MODEL"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/requestors/org_admin/approval_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "level_2_strong",
+            "json_pointer": "/domain_sections/requestors/org_admin/minimum_verification_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_admin_submitted_any_request_type",
+              "platform_wide_any_request_type"
+            ],
+            "json_pointer": "/domain_sections/approvals/dual_control_required_for"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "org_admin requires support approval + strong verification",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "org_admin requires support approval + strong verification",
+      "id": "DSAR_1_GATE_ORG_ADMIN_DUAL_CONTROL",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE ORG ADMIN DUAL CONTROL"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "async_job_only",
+            "json_pointer": "/domain_sections/export_delivery/mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/export_delivery/export_artifact/integrity/export_hash_sha256_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "export is async-only with integrity evidence",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "export is async-only with integrity evidence",
+      "id": "DSAR_1_GATE_EXPORT_ASYNC_ONLY",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE EXPORT ASYNC ONLY"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "LED-1 postings",
+              "ORD-1 immutable snapshots",
+              "PRICE-1 immutable snapshots"
+            ],
+            "json_pointer": "/domain_sections/cryptoshred_semantics/must_not_mutate"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "cryptoshred semantics exist and preserve immutable truth",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "cryptoshred semantics exist and preserve immutable truth",
+      "id": "DSAR_1_GATE_CRYPTOSHRED_SEMANTICS",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE CRYPTOSHRED SEMANTICS"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 5,
+            "json_pointer": "/domain_sections/anonymization_threshold/min_population_size"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "anonymization threshold locked",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "anonymization threshold locked",
+      "id": "DSAR_1_GATE_ANONYMIZATION_THRESHOLD",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE ANONYMIZATION THRESHOLD"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/audit_and_notifications/append_only_audit_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "dsar_legal_obligation",
+              "subject_request",
+              "org_admin_request_approved",
+              "support_initiated",
+              "break_glass"
+            ],
+            "json_pointer": "/domain_sections/audit_and_notifications/reason_codes"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "audit is append-only with bounded reasons",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "audit is append-only with bounded reasons",
+      "id": "DSAR_1_GATE_AUDIT_REQUIREMENTS",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE AUDIT REQUIREMENTS"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_scoped_default",
+            "json_pointer": "/domain_sections/tenancy/scope"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "org_id sealing required",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "org_id sealing required",
+      "id": "DSAR_1_GATE_TENANCY_SEALING",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE TENANCY SEALING"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/requestors/subject_self/validation_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/requestors/subject_self/approval_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/requestors/org_admin/validation_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/approvals/approval_pipeline/stages/2/dual_control"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/tenancy/org_scoped_default"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Subject and org_admin DSAR requestors MUST require support validation and admin/owner approval; platform-wide MUST be dual-control.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Subject and org_admin DSAR requestors MUST require support validation and admin/owner approval; platform-wide MUST be dual-control.",
+      "id": "DSAR_1_GATE_SUBJECT_PIPELINE",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE SUBJECT PIPELINE"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "dsar_access_export_c4",
+            "json_pointer": "/domain_sections/export_delivery/export_profile_binding/access_export_profile_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "DSAR access exports bind to DATA-1 C4 export profile id",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "DSAR access exports bind to DATA-1 C4 export profile id",
+      "id": "DSAR_1_GATE_EXPORT_PROFILE_BINDING",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE EXPORT PROFILE BINDING"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "access_export": [
+                "dsar.execute",
+                "data.export.c4"
+              ],
+              "erasure_cryptoshred": [
+                "dsar.execute"
+              ],
+              "restriction_processing": [
+                "dsar.execute"
+              ]
+            },
+            "json_pointer": "/domain_sections/export_delivery/required_capabilities"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "DSAR export actions require dsar.execute and C4 export capability for access_export",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "DSAR export actions require dsar.execute and C4 export capability for access_export",
+      "id": "DSAR_1_GATE_EXPORT_REQUIRED_CAPABILITIES",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE EXPORT REQUIRED CAPABILITIES"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "job_start": {
+                "checks": [
+                  "dsar_case_state MUST be approved at job start",
+                  "approval record MUST still be valid (not revoked, not expired)",
+                  "actor MUST still hold required capabilities for request_type",
+                  "scope MUST remain equal to approved scope (no widening)"
+                ],
+                "on_failure": "abort_job_and_append_audit",
+                "required": true
+              },
+              "token_issue": {
+                "checks": [
+                  "dsar_case_state MUST be completed before issuing delivery token",
+                  "actor MUST still hold required capabilities for request_type",
+                  "delivery_token MUST be issued to subject channel only (no third-party substitution)"
+                ],
+                "on_failure": "deny_token_and_append_audit",
+                "required": true
+              }
+            },
+            "json_pointer": "/domain_sections/export_delivery/auth_recheck"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "export pipeline requires auth re-check at job start and token issuance",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "export pipeline requires auth re-check at job start and token issuance",
+      "id": "DSAR_1_GATE_EXPORT_AUTH_RECHECK",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE EXPORT AUTH RECHECK"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "access_export": {
+                "export_profile_id": "dsar_access_export_c4",
+                "minimum_verification_level": "level_2_strong",
+                "notes": "Access exports include joinable identifiers and vault rehydration; treat as C4 regulated export."
+              },
+              "erasure_cryptoshred": {
+                "minimum_verification_level": "level_2_strong",
+                "notes": "Erasure is irreversible unlinkability; require strong verification."
+              },
+              "restriction_processing": {
+                "minimum_verification_level": "level_1_basic",
+                "notes": "Restriction does not release full export or irreversibly destroy linkability."
+              }
+            },
+            "json_pointer": "/domain_sections/request_types/requirements"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "request_type-specific minimum verification and export_profile bindings are locked",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "request_type-specific minimum verification and export_profile bindings are locked",
+      "id": "DSAR_1_GATE_REQUEST_TYPE_REQUIREMENTS",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE REQUEST TYPE REQUIREMENTS"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "issued_only_after_auth_recheck": true,
+              "single_use": true,
+              "subject_delivery_channel_only": true,
+              "ttl_seconds": 86400,
+              "type": "time_limited_retrieval_token"
+            },
+            "json_pointer": "/domain_sections/export_delivery/delivery_token"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "delivery tokens are subject-channel-only and issued after auth recheck",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "delivery tokens are subject-channel-only and issued after auth recheck",
+      "id": "DSAR_1_GATE_DELIVERY_TOKEN_SUBJECT_ONLY",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE DELIVERY TOKEN SUBJECT ONLY"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Non-producer MUST declare emits_events=false. Non-producer MUST have empty outbox_events list.",
+      "failure_message": "Non-producer MUST declare emits_events=false. Non-producer MUST have empty outbox_events list.",
+      "id": "DSAR-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "DSAR 1 GATE ASSERT NON PRODUCER"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "dependency_floors.EVT-1 MUST equal pinned registry head 2.16.4.",
+      "failure_message": "dependency_floors.EVT-1 MUST equal pinned registry head 2.16.4.",
+      "id": "DSAR-1-GATE-EVT-1-FLOOR-PIN",
+      "level": "P1",
+      "must": true,
+      "title": "DSAR 1 GATE EVT 1 FLOOR PIN"
+    }
+  ],
+  "generated_at_utc": "2026-01-30T06:10:36Z",
+  "last_updated_utc": "2026-01-30T06:10:36Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "DSAR-1 Test Gates",
+  "version": "1.2.2"
+}

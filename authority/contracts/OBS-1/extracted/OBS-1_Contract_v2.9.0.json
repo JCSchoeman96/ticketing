@@ -1,0 +1,1940 @@
+{
+  "alert_aggregation": {
+    "enabled": true,
+    "group_by": [
+      "alert_name",
+      "env"
+    ],
+    "group_window_seconds": 300,
+    "notes": [
+      "Alertmanager routing configuration MUST implement group_by/group_wait/group_interval consistent with this policy.",
+      "Grouping MUST NOT suppress SEV1 paging; it only reduces duplicate notifications within the window."
+    ],
+    "policy": "Alerts with the same alert_name and env MUST be grouped into a single notification window before routing."
+  },
+  "alert_classes": [
+    {
+      "description": "Spike in checkout errors impacting revenue.",
+      "id": "checkout_error_spike",
+      "notification_role": "sre_primary_checkout",
+      "runbook_required": true,
+      "severity": "sev1",
+      "signals": [
+        "error_rate",
+        "queue_lag"
+      ],
+      "slo_refs": [
+        "checkout_success_rate"
+      ]
+    },
+    {
+      "description": "One or more payout blockers active in LED-1.",
+      "id": "payout_blocked",
+      "notification_role": "finance_incidents",
+      "runbook_required": true,
+      "severity": "sev1",
+      "signals": [
+        "payout_blocker_state"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Sustained failure of provider webhooks.",
+      "id": "webhook_failures",
+      "notification_role": "sre_primary_checkout",
+      "runbook_required": true,
+      "severity": "sev2",
+      "signals": [
+        "webhook_retry_count",
+        "webhook_error_rate"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Analytics data freshness exceeds target.",
+      "id": "analytics_delay",
+      "notification_role": "observability_team",
+      "runbook_required": false,
+      "severity": "sev3",
+      "signals": [
+        "data_freshness_minutes"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Break-glass PII vault access invoked; treat as security incident until reviewed.",
+      "id": "pii_break_glass_invoked",
+      "notification_role": "sre_primary_security",
+      "runbook_required": true,
+      "severity": "sev1",
+      "signals": [
+        "pii.vault.break_glass.count"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "DSAR execution failures above threshold; export/cryptoshred may be incomplete.",
+      "id": "dsar_execution_failures",
+      "notification_role": "sre_primary_privacy",
+      "runbook_required": true,
+      "severity": "sev2",
+      "signals": [
+        "dsar.case.failed.count",
+        "dsar.export.job.queue_lag_ms"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Tracking ingestion rejected events due to pii_direct/pii_sensitive detection; indicates producer violation.",
+      "id": "trk_pii_violation_detected",
+      "notification_role": "sre_primary_privacy",
+      "runbook_required": true,
+      "severity": "sev2",
+      "signals": [
+        "trk.ingest.rejected.pii_direct.count",
+        "trk.ingest.rejected.pii_sensitive.count"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Repeated near-threshold aggregate queries indicate possible differencing/probing attack.",
+      "id": "privacy_threshold_probing_detected",
+      "notification_role": "sre_primary_privacy",
+      "runbook_required": true,
+      "severity": "sev2",
+      "signals": [
+        "privacy.threshold.near_miss.count",
+        "privacy.query.rate_limited.count"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Payment confirmation/capture observed after seat hold expiry/release or after checkout expiry (GC-001).",
+      "id": "late_capture_after_hold_expiry",
+      "notification_role": "sre_primary_checkout",
+      "runbook_required": true,
+      "severity": "sev1",
+      "signals": [
+        "error_rate",
+        "pay.late_capture.after_hold_expiry.count"
+      ],
+      "slo_refs": [
+        "checkout_success_rate"
+      ]
+    },
+    {
+      "description": "Export executed with unexpected export_profile_id or violated DATA-1 class boundaries (C0–C4). Treat as potential PII leak until triaged.",
+      "id": "data_export_profile_mismatch",
+      "notification_role": "oncall-security",
+      "runbook_required": true,
+      "severity": "sev1",
+      "signals": [
+        "data.export.profile_mismatch.count",
+        "data.export.redaction_violation.count"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Security incident active flag or platform-wide containment mode observed.",
+      "id": "security_incident_active",
+      "notification_role": "security_incident_commander",
+      "runbook_required": true,
+      "severity": "sev1",
+      "signals": [
+        "ir.incident.active"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Suspicious auth velocity or credential-stuffing activity detected.",
+      "id": "security_auth_anomaly",
+      "notification_role": "sre_primary_security",
+      "runbook_required": true,
+      "severity": "sev2",
+      "signals": [
+        "security.auth.login_velocity_anomaly",
+        "security.auth.credential_stuffing_suspected"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Session replay or assurance-epoch mismatch signals indicate compromised or stale session usage.",
+      "id": "security_session_replay",
+      "notification_role": "platform_auth_oncall",
+      "runbook_required": true,
+      "severity": "sev2",
+      "signals": [
+        "security.session.replay_suspected"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Privilege escalation or cross-tenant probing indicators detected.",
+      "id": "security_privilege_escalation",
+      "notification_role": "sre_primary_security",
+      "runbook_required": true,
+      "severity": "sev1",
+      "signals": [
+        "security.admin.privilege_escalation_anomaly",
+        "security.tenancy.cross_tenant_probe_suspected"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Unverified provider quarantine backlog threatens recovery or reconciliation posture.",
+      "id": "security_provider_quarantine_backlog",
+      "notification_role": "sre_primary_checkout",
+      "runbook_required": true,
+      "severity": "sev2",
+      "signals": [
+        "security.provider.unverified_quarantine_backlog"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Nodes are alive but stuck in degraded boot/readiness posture.",
+      "id": "security_boot_barrier_degraded",
+      "notification_role": "platform_auth_oncall",
+      "runbook_required": true,
+      "severity": "sev2",
+      "signals": [
+        "security.runtime.boot_barrier.degraded"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Edge shedding or WAF mitigation is actively dropping traffic under incident posture.",
+      "id": "security_edge_shedding_active",
+      "notification_role": "sre_primary_security",
+      "runbook_required": true,
+      "severity": "sev2",
+      "signals": [
+        "security.edge.shedding.active"
+      ],
+      "slo_refs": []
+    },
+    {
+      "description": "Session revocation backlog or scheduler pressure exceeds safe wave budgets.",
+      "id": "security_revocation_backpressure",
+      "notification_role": "platform_auth_oncall",
+      "runbook_required": true,
+      "severity": "sev2",
+      "signals": [
+        "security.session.revocation.backpressure"
+      ],
+      "slo_refs": []
+    }
+  ],
+  "alerting_config_integration": {
+    "alerting_config_source": "runtime:file:alertmanager_routes.yaml",
+    "notes": [
+      "Alerting configuration MUST be generated from the routing_registry pinned in CANON-1 and stored in the artifact registry (ART-0).",
+      "Alerting configuration MUST implement grouping consistent with alert_aggregation.group_by and alert_aggregation.group_window_seconds.",
+      "Provider-level destination existence checks MUST be performed by implementation integration tests; this contract does not attempt to enforce provider API checks inside TG-0 gates."
+    ],
+    "provider_check_task": "obs1.verify_alert_targets",
+    "verification_task": "obs1.verify_alerting_config_origin"
+  },
+  "alerting_standard": {
+    "burn_rate_method": "multi-window burn-rate paging over SLOs as defined by runtime burn-rate config.",
+    "routing_roles": [
+      "sre_primary_checkout",
+      "finance_incidents",
+      "observability_team"
+    ],
+    "severities": [
+      "sev1",
+      "sev2",
+      "sev3"
+    ]
+  },
+  "artifact_kind": "contract",
+  "burn_rate_policies": {
+    "config_source": "runtime:env:OBS1_BURNRATES_JSON",
+    "policies": [
+      {
+        "applies_to_scopes": [
+          "HOT_SALE",
+          "SCANNING_PEAK",
+          "NORMAL"
+        ],
+        "id": "sev1_multiwindow",
+        "long_burn_factor": 6.0,
+        "long_window": "1h",
+        "notes": [
+          "Fire when both short+long burn factors exceed thresholds; suppress flappy alerts via alert_aggregation."
+        ],
+        "severity": "sev1",
+        "short_burn_factor": 14.4,
+        "short_window": "5m"
+      },
+      {
+        "applies_to_scopes": [
+          "NORMAL"
+        ],
+        "id": "sev2_multiwindow",
+        "long_burn_factor": 1.0,
+        "long_window": "6h",
+        "notes": [
+          "Slower burn detection for non-peak conditions."
+        ],
+        "severity": "sev2",
+        "short_burn_factor": 3.0,
+        "short_window": "30m"
+      }
+    ],
+    "recommended_defaults": {
+      "default_policy_id_by_severity": {
+        "sev1": "sev1_multiwindow",
+        "sev2": "sev2_multiwindow"
+      }
+    },
+    "schema": {
+      "max_burn_factor": 20.0,
+      "min_burn_factor": 1.0,
+      "required_severities": [
+        "sev1",
+        "sev2",
+        "sev3"
+      ],
+      "window_allowlist": [
+        "5m",
+        "30m",
+        "1h",
+        "2h",
+        "6h",
+        "24h"
+      ]
+    },
+    "semantics": "Each severity defines a short and long window and a burn_factor evaluated over a target SLO."
+  },
+  "change_log": [
+    {
+      "changes": [
+        "P0 FIX: Test gates schema compliance — normalize gate 'level' enum ('must' -> 'P0').",
+        "P0 FIX: Regenerate bundle manifest."
+      ],
+      "date": "2026-01-29",
+      "version": "2.7.15"
+    },
+    {
+      "changes": [
+        "P0 FIX: Test gates schema compliance — restore required 'title' field; regenerate manifest."
+      ],
+      "date": "2026-01-29",
+      "version": "2.7.14"
+    },
+    {
+      "changes": [
+        "P0 FIX: CS-0 compliance — add missing dependency 'reason' fields (PAY-1/PAY-2/PAY-3/TAX-1).",
+        "P0 FIX: Test gates schema hygiene — remove disallowed top-level fields; regenerate manifest."
+      ],
+      "date": "2026-01-29",
+      "version": "2.7.13"
+    },
+    {
+      "changes": [
+        "P0 FIX: suite_schema corrected to CS-0@2.2.0 across contract, gates, and manifest.",
+        "P0 ADD: Privacy observability domain aligned to PII-1/DSAR-1/TRK-1/IAM-1/TEN-1 (DSAR monitoring, PII access + break-glass monitoring, TRK PII violation monitoring, anti-differencing monitoring).",
+        "P1 ADD: k-anonymity anonymization threshold min_population_size=5 locked for analytics surfaces; suppression metrics required.",
+        "P1 ADD: New privacy alert classes (break_glass, dsar failures, tracking PII violations, threshold probing)."
+      ],
+      "date": "2026-01-21",
+      "version": "2.7.8"
+    },
+    {
+      "changes": [
+        "P0 FIX: Proper ZIP bundle structure with top-level folder (CI strict compliance).",
+        "P2 FIX: Converted all severity identifiers from SEV1/SEV2/SEV3 to sev1/sev2/sev3 (snake_case constitutional compliance).",
+        "P1 FIX: Added 4 deterministic gates for observability invariants (log required fields, metrics cardinality bans, trace attributes, severity snake_case enforcement).",
+        "Gates now mechanically enforce critical contract semantics preventing enforcement theatre."
+      ],
+      "date": "2026-01-09",
+      "version": "2.7.5"
+    },
+    {
+      "changes": [
+        "CS-0 compliance: schema_version/status/dependency min_version normalized; JSON-only bundle packaging.",
+        "Filled burn-rate policies and routing registry roles; removed non-existent dependencies from hard dependency list.",
+        "Defined SLO window semantics and clarified empty operation_ids meaning."
+      ],
+      "date": "2026-01-06",
+      "version": "2.7.1"
+    },
+    {
+      "changes": [
+        "Added Ash 3.x monitoring integration requirements and banned Ash 2.x observability patterns.",
+        "Clarified adaptive sampling semantics (metric names, windows, thresholds).",
+        "Introduced telemetry contract lifecycle rules and CI verification.",
+        "Bound routing_registry to actual alerting configuration through CI.",
+        "Parameterised CI tasks with contract fields, keeping verification logic visible in JSON."
+      ],
+      "date": "2026-01-05",
+      "version": "2.5.0"
+    },
+    {
+      "changes": [
+        "MAJOR: Added Ash engine-level sampling requirements to reduce tracing overhead under SCANNING_PEAK and WEBHOOK_STORM while preserving error visibility.",
+        "MAJOR: Introduced telemetry lifecycle emergency_bypass semantics for P0 security/financial fixes.",
+        "MAJOR: Extended routing integrity to include provider-level destination checks (e.g. Slack/PagerDuty APIs).",
+        "UPDATED: Kept CI parameterization but encourages internal schema-based validation to reduce gate fragility."
+      ],
+      "date": "2026-01-05",
+      "version": "2.6.0"
+    },
+    {
+      "changes": [
+        "Finance-aware semantic observability: force-keep traces via sampling.priority for money-critical operations and error_code prefixes.",
+        "Added financial histogram bucket policy for *_amount_minor metrics.",
+        "Added explicit metric cardinality budgets and high-cardinality exception policy.",
+        "Added alert storm grouping policy and required Alertmanager grouping alignment.",
+        "Fixed implicit dependencies by declaring DP-1 and V42-0, and aligned checkout operation_id naming."
+      ],
+      "date": "2026-01-06",
+      "version": "2.7.0"
+    },
+    {
+      "changes": [
+        "Added explicit observability requirements for DATA-1 exports (operation_ids, required logs/metrics, privacy notes).",
+        "Hardened PII leakage prevention in logs and metrics by banning joinable identifiers and export payload sampling in general logs.",
+        "Added sev1 alert class for export profile/classification mismatch (potential PII leak).",
+        "Updated dependencies to align with IAM-1@3.2.0, PII-1@1.1.0, DSAR-1@1.2.0, DATA-1@1.3.0."
+      ],
+      "date": "2026-01-30",
+      "version": "2.7.16"
+    }
+  ],
+  "critical_operations": {
+    "business_rest_mutations": [
+      "checkouts.create_intent",
+      "checkouts.finalize",
+      "holds.create",
+      "holds.extend",
+      "holds.release",
+      "issuance.create",
+      "payments.capture",
+      "payments.confirm",
+      "payments.intents.create",
+      "payouts.run",
+      "refunds.create",
+      "subs.entitlements.check",
+      "subs.entitlements.grant_manual",
+      "subs.entitlements.revoke",
+      "subs.entitlements.sync_grant",
+      "subs.programs.create",
+      "subs.programs.sync",
+      "subs.tiers.upsert",
+      "data.exports.request",
+      "data.exports.execute",
+      "data.exports.issue_download_token",
+      "data.exports.revoke",
+      "data.exports.download"
+    ],
+    "privacy_rest_mutations": [
+      "dsar.cases.submit",
+      "dsar.cases.validate",
+      "dsar.cases.approve_org",
+      "dsar.cases.approve_platform_wide_batch",
+      "dsar.cases.execute_export",
+      "dsar.cases.execute_cryptoshred",
+      "pii_vault.aliases.create",
+      "pii_vault.aliases.destroy",
+      "pii_vault.export.start",
+      "pii_vault.break_glass.read",
+      "trk.ingest"
+    ],
+    "requirements": [
+      "All critical operations MUST emit log + trace + metric signals with consistent operation_id (as defined by OBS-1.operation_registry).",
+      "All critical operations MUST have a runbook section with symptoms, impact, fast checks, mitigations, rollback, and verification.",
+      "All critical money-path operations MUST implement force_keep trace sampling priority per trace_sampling.force_keep."
+    ],
+    "scanning_rest_mutations": [
+      "scan_sessions.create",
+      "scan_sessions.refresh",
+      "scans.validate",
+      "scans.redeem",
+      "scans.redeem_batch"
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "requires",
+      "min_version": "1.3.0",
+      "reason": "Export profile semantics (C0–C4), authorization re-check, and export audit invariants that must be observable."
+    },
+    {
+      "doc_id": "DSAR-1",
+      "edge_type": "requires",
+      "min_version": "1.2.0",
+      "reason": "DSAR workflow semantics; validation/approval/execution monitoring and export/cryptoshred outcomes."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.15",
+      "reason": "Canonical error envelope and error_code mapping."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.2.0",
+      "reason": "Capability and role semantics required to observe PII/DSAR and enforce export authorization + redaction boundaries."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "4.1.1",
+      "reason": "Ledger integrity signals and payout blockers."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.0.13",
+      "reason": "Lock contention and idempotency under retries; overload signals."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.5.0",
+      "reason": "Order lifecycle signals for checkout SLOs and incident triage."
+    },
+    {
+      "doc_id": "PAY-1",
+      "edge_type": "requires",
+      "min_version": "2.7.5",
+      "reason": "GC-001 chain: adapter verification + provider-confirmed timestamps for observability."
+    },
+    {
+      "doc_id": "PAY-2",
+      "edge_type": "requires",
+      "min_version": "2.8.3",
+      "reason": "GC-001 chain: orchestration/webhook outcomes that emit late-capture observability signals."
+    },
+    {
+      "doc_id": "PAY-3",
+      "edge_type": "requires",
+      "min_version": "2.9.2",
+      "reason": "GC-001 chain: compensation (void/refund) + fee engine signals required for metrics/alerts."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "Privacy boundary; joinable identifier classes, vault access, and anonymization/cryptoshred invariants to be monitored."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.0.15",
+      "reason": "Price snapshot and mismatch detection signals."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "requires",
+      "min_version": "1.7.4",
+      "reason": "Latency budgets and load profiles for SLOs and traces."
+    },
+    {
+      "doc_id": "REFUND-1",
+      "edge_type": "requires",
+      "min_version": "1.3.0",
+      "reason": "Refund reversal signals and incident triage correlation."
+    },
+    {
+      "doc_id": "SEAT-1",
+      "edge_type": "requires",
+      "min_version": "3.2.0",
+      "reason": "Seat hold/reservation/redeem signals for scanning and oversell detection."
+    },
+    {
+      "doc_id": "SUB-1",
+      "edge_type": "requires",
+      "min_version": "1.0.0",
+      "reason": "Subscriptions/entitlements introduce new critical operations and fraud/abuse surfaces; OBS-1 must cover baseline logging/metrics/trace expectations."
+    },
+    {
+      "doc_id": "TAX-1",
+      "edge_type": "requires",
+      "min_version": "2.0.3",
+      "reason": "Tax posture observability: audit-linked tax signals and alerting integration."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.5",
+      "reason": "Tenancy isolation and org_id sealing semantics for telemetry and privacy workflows."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Assertion-style test gates."
+    },
+    {
+      "doc_id": "TRK-1",
+      "edge_type": "requires",
+      "min_version": "1.3.1",
+      "reason": "Tracking payload prohibitions and ingestion-reject signals for PII detection."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.0",
+      "reason": "Constitutional baseline; payout/release-blocking observability scope."
+    }
+  ],
+  "doc_id": "OBS-1",
+  "edge_case_observability": {
+    "gc_001": {
+      "error_codes_to_watch": [
+        "PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED",
+        "SEAT_HOLD_EXPIRED",
+        "ORD_CHECKOUT_EXPIRED"
+      ],
+      "gotcha_id": "GC-001",
+      "name": "Zombie hold / late payment capture",
+      "purpose": "Ensure late payment confirmations/captures cannot silently succeed after seat holds expire or checkouts close.",
+      "required_alert_class_ids": [
+        "late_capture_after_hold_expiry"
+      ],
+      "required_correlation_fields_when_applicable": {
+        "hold": [
+          "seat_hold_id",
+          "seat_hold_expires_at_utc"
+        ],
+        "order": [
+          "org_id",
+          "order_id",
+          "checkout_id"
+        ],
+        "payment": [
+          "payment_attempt_id",
+          "payment_intent_id",
+          "provider_charge_id",
+          "idempotency_key"
+        ]
+      },
+      "required_metrics": [
+        "pay.late_capture.after_hold_expiry.count",
+        "seat.hold.expired.auto_release.count",
+        "checkout.expired.payment_window_closed.count"
+      ]
+    },
+    "ir_001": {
+      "gotcha_id": "IR-001",
+      "must_emit_logs": [
+        "security.runtime.upgrade.blocked"
+      ],
+      "must_emit_metrics": [
+        "security.runtime.boot_barrier.degraded.count",
+        "http.server.upgrade.rejected.count"
+      ],
+      "name": "Zombie UI on degraded_alive node",
+      "purpose": "Ensure degraded nodes reject interactive upgrades and emit observable rejection signals."
+    },
+    "ir_002": {
+      "gotcha_id": "IR-002",
+      "must_emit_logs": [
+        "security.provider.quarantine.replay.outcome"
+      ],
+      "must_emit_metrics": [
+        "security.provider.quarantine.side_effect_suppressed.count"
+      ],
+      "name": "Quarantine replay side-effect storm",
+      "purpose": "Ensure replay from provider quarantine silently reconciles without re-triggering customer or partner side effects."
+    },
+    "ir_003": {
+      "gotcha_id": "IR-003",
+      "must_emit_logs": [
+        "security.integration.severance.reopen_decision"
+      ],
+      "must_emit_metrics": [
+        "security.integration.reconciliation.pending.count"
+      ],
+      "name": "Integration severance reconciliation drift",
+      "purpose": "Ensure severed integrations cannot reopen without explicit reconciliation evidence across applicable classes."
+    },
+    "ir_004": {
+      "gotcha_id": "IR-004",
+      "must_emit_logs": [
+        "security.session.revocation.wave"
+      ],
+      "must_emit_metrics": [
+        "security.session.revocation.backlog",
+        "security.session.revocation.disconnect_latency_ms"
+      ],
+      "name": "Live-session revocation fan-out saturation",
+      "purpose": "Ensure revocation waves surface backlog and scheduler pressure rather than silently collapsing the cluster."
+    },
+    "ir_005": {
+      "gotcha_id": "IR-005",
+      "must_emit_logs": [
+        "security.edge.shedding.activated"
+      ],
+      "must_emit_metrics": [
+        "security.edge.shedding.dropped.count",
+        "security.edge.shedding.collateral_estimate"
+      ],
+      "name": "Edge shedding observability blindness",
+      "purpose": "Ensure edge mitigation still emits aggregate telemetry and collateral estimates back to central observability."
+    }
+  },
+  "emits_events": false,
+  "foundation_ref": "V42",
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "incident_runtime_evidence_requirements": {
+    "required_scenarios": [
+      {
+        "required_logs": [
+          "security.runtime.upgrade.blocked"
+        ],
+        "required_metrics": [
+          "security.runtime.boot_barrier.degraded.count",
+          "http.server.upgrade.rejected.count"
+        ],
+        "required_traces": [
+          "interactive_upgrade_rejected"
+        ],
+        "simulation_label": "security.degraded_alive_interactive_upgrade"
+      },
+      {
+        "required_logs": [
+          "security.provider.quarantine.replay.outcome"
+        ],
+        "required_metrics": [
+          "security.provider.quarantine.replay.count",
+          "security.provider.quarantine.side_effect_suppressed.count"
+        ],
+        "required_traces": [
+          "quarantine_replay_silent_reconcile"
+        ],
+        "simulation_label": "security.quarantine_replay_silent_reconcile"
+      },
+      {
+        "required_logs": [
+          "security.integration.severance.reopen_decision"
+        ],
+        "required_metrics": [
+          "security.integration.severed.count",
+          "security.integration.reconciliation.pending.count"
+        ],
+        "required_traces": [
+          "integration_severance_reconciliation"
+        ],
+        "simulation_label": "security.severance_reconciliation_reopen"
+      },
+      {
+        "required_logs": [
+          "security.session.revocation.wave"
+        ],
+        "required_metrics": [
+          "security.session.revocation.backlog",
+          "security.session.revocation.disconnect_latency_ms"
+        ],
+        "required_traces": [
+          "live_session_revocation_wave"
+        ],
+        "simulation_label": "security.live_session_revocation_backpressure"
+      },
+      {
+        "required_logs": [
+          "security.edge.shedding.activated"
+        ],
+        "required_metrics": [
+          "security.edge.shedding.dropped.count",
+          "security.edge.shedding.collateral_estimate"
+        ],
+        "required_traces": [
+          "edge_shedding_control_path"
+        ],
+        "simulation_label": "security.edge_shedding_aggregate_observability"
+      },
+      {
+        "required_logs": [
+          "security.jobs.blocked_disposition"
+        ],
+        "required_metrics": [
+          "security.jobs.blocked.count"
+        ],
+        "required_traces": [
+          "leased_job_incident_barrier"
+        ],
+        "simulation_label": "security.leased_job_freeze_barrier"
+      }
+    ],
+    "rule": "IR-linked runtime validations MUST produce observable metrics, logs, and traces sufficient to prove edge shedding, quarantine replay, session revocation, severance reconciliation, boot barrier degradation, and leased-job blocking behavior."
+  },
+  "invariants": [
+    {
+      "rule_id": "OBS-1-GC-001-OBS-001",
+      "text": "GC-001 detection: Any attempt to confirm or capture payment after the seat hold is expired/released, or after checkout expires (including grace window closure), MUST be (a) rejected, (b) logged with strong correlation fields, and (c) surfaced via a dedicated metric and alert class. At minimum emit error codes: PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED, SEAT_HOLD_EXPIRED, ORD_CHECKOUT_EXPIRED. Emit metric pay.late_capture.after_hold_expiry.count (tagged by provider and environment) and page via alert class late_capture_after_hold_expiry (sev1) when thresholds are breached."
+    }
+  ],
+  "last_updated_utc": "2026-04-17T05:55:00Z",
+  "normative_source": "json",
+  "observed_flags": [
+    {
+      "description": "Global payout freeze switch owned by LED-1/GOV-0; OBS-1 only monitors state.",
+      "id": "PAYOUT_FREEZE",
+      "kind": "boolean",
+      "observation_signal_logical": "payout_freeze_flag",
+      "owner_contract": "LED-1"
+    },
+    {
+      "description": "Traffic mode flag (NORMAL/HOT_SALE); OBS-1 reads but does not set.",
+      "id": "HOT_SALE_MODE",
+      "kind": "enum",
+      "observation_signal_logical": "traffic_mode",
+      "owner_contract": "GOV-0"
+    },
+    {
+      "description": "Global or scoped incident active flag observed from IR-1; OBS-1 monitors but does not set it.",
+      "id": "IR_INCIDENT_ACTIVE",
+      "kind": "boolean",
+      "observation_signal_logical": "ir.incident.active",
+      "owner_contract": "IR-1"
+    },
+    {
+      "description": "Current containment mode observed from IR-1 (monitoring/scoped/global/degraded).",
+      "id": "IR_CONTAINMENT_MODE",
+      "kind": "enum",
+      "observation_signal_logical": "ir.containment.mode",
+      "owner_contract": "IR-1"
+    },
+    {
+      "description": "Edge/WAF shedding is actively dropping or throttling traffic under incident posture.",
+      "id": "IR_EDGE_SHEDDING_ACTIVE",
+      "kind": "boolean",
+      "observation_signal_logical": "security.edge.shedding.active",
+      "owner_contract": "IR-1"
+    }
+  ],
+  "outbox_events": [],
+  "owners": {
+    "primary": "SRE",
+    "secondary": [
+      "Platform",
+      "Security",
+      "Finance"
+    ]
+  },
+  "planned_contract_refs": [
+    {
+      "doc_id": "PROD-1",
+      "reason": "Producer identity schema. OBS-1 defines the mapping; PROD-1 (when locked) MUST be congruent.",
+      "target_min_version": "1.0.0"
+    },
+    {
+      "doc_id": "API-0",
+      "reason": "Operation registry taxonomy. OBS-1 defines operation_id fields; API-0 (when locked) MUST be congruent.",
+      "target_min_version": "0.1.0"
+    },
+    {
+      "doc_id": "OBQC-1",
+      "reason": "Queue telemetry contract. This contract treats OBQC-1 as optional/planned.",
+      "target_min_version": "1.9.0"
+    },
+    {
+      "doc_id": "IR-1",
+      "reason": "IR-1 defines tiered incident response and containment runtime obligations that OBS-1 must observe and route.",
+      "target_min_version": "1.5.0"
+    }
+  ],
+  "planned_telemetry_dependencies": [
+    {
+      "contract_id": "OBQC-1",
+      "logical_signals": [
+        "queue_depth",
+        "queue_lag_ms"
+      ],
+      "min_version": "1.9.0",
+      "signal_contract_id": "obqc1.telemetry.v1",
+      "verification_task": "obs1.verify_signal_contracts"
+    },
+    {
+      "contract_id": "SUB-1",
+      "logical_signals": [
+        "subs_entitlement_granted_total",
+        "subs_entitlement_revoked_total",
+        "subs_entitlement_expired_total",
+        "subs_entitlement_check_total",
+        "subs_offer_blocked_total",
+        "subs_discount_applied_total",
+        "subs_discount_amount_minor_total",
+        "subs_suspected_abuse_total"
+      ],
+      "min_version": "1.0.0",
+      "signal_contract_id": "sub1.telemetry.v1",
+      "verification_task": "obs.verify_sub_signals"
+    }
+  ],
+  "privacy_observability": {
+    "anti_differencing_monitoring": {
+      "enabled": true,
+      "must_alert_on": [
+        "privacy.threshold.probing.detected"
+      ],
+      "must_emit_metrics": [
+        "privacy.query.rate_limited.count",
+        "privacy.threshold.near_miss.count"
+      ]
+    },
+    "data_export_monitoring": {
+      "enabled": true,
+      "must_emit_logs": [
+        "data.export.audit.append_only",
+        "data.export.outcome"
+      ],
+      "must_emit_metrics": [
+        "data.export.requested.count",
+        "data.export.completed.count",
+        "data.export.failed.count",
+        "data.export.job.queue_lag_ms",
+        "data.export.profile_mismatch.count",
+        "data.export.redaction_violation.count"
+      ],
+      "notes": [
+        "Export profile IDs (DATA-1.export_profiles[].export_profile_id) are bounded and MAY be used as metric labels.",
+        "Export tokens/URLs MUST NOT be logged; only export_id and export_hash MAY be logged outside append-only audit logs.",
+        "For any export containing C3/C4 classes, metrics/logs MUST be emitted to privacy alerting even on success (for auditability)."
+      ],
+      "operation_ids": [
+        "data.exports.request",
+        "data.exports.execute",
+        "data.exports.issue_download_token",
+        "data.exports.revoke",
+        "data.exports.download"
+      ]
+    },
+    "dsar_monitoring": {
+      "enabled": true,
+      "must_emit_logs": [
+        "dsar.audit.append_only",
+        "dsar.execution.outcome"
+      ],
+      "must_emit_metrics": [
+        "dsar.case.created.count",
+        "dsar.case.validated.count",
+        "dsar.case.approved.count",
+        "dsar.case.executed.count",
+        "dsar.case.failed.count",
+        "dsar.export.job.queue_lag_ms"
+      ],
+      "operation_ids": [
+        "dsar.cases.submit",
+        "dsar.cases.validate",
+        "dsar.cases.approve_org",
+        "dsar.cases.approve_platform_wide_batch",
+        "dsar.cases.execute_export",
+        "dsar.cases.execute_cryptoshred"
+      ]
+    },
+    "enabled": true,
+    "k_anonymity": {
+      "applies_to_surfaces": [
+        "analytics_ui",
+        "analytics_export",
+        "bi_drilldown"
+      ],
+      "exceptions": [
+        "dsar_subject_export"
+      ],
+      "min_population_size": 5,
+      "must_emit_metrics": [
+        "privacy.suppression.count",
+        "privacy.threshold.near_miss.count"
+      ],
+      "suppression_event_name": "privacy.suppression_applied"
+    },
+    "pii_access_monitoring": {
+      "enabled": true,
+      "must_alert_on": [
+        "pii.break_glass.invoked",
+        "pii.vault.export.spike",
+        "pii.vault.read.spike"
+      ],
+      "must_emit_logs": [
+        "pii.audit.append_only",
+        "pii.break_glass.invoked"
+      ],
+      "must_emit_metrics": [
+        "pii.vault.read.count",
+        "pii.vault.export.count",
+        "pii.vault.break_glass.count"
+      ]
+    },
+    "trk_pii_violation_monitoring": {
+      "enabled": true,
+      "must_alert_on": [
+        "trk.pii_violation.detected"
+      ],
+      "must_emit_metrics": [
+        "trk.ingest.rejected.pii_direct.count",
+        "trk.ingest.rejected.pii_sensitive.count"
+      ]
+    }
+  },
+  "references": [
+    {
+      "kind": "hexdocs",
+      "ref": "Ash Monitoring (v3.x)",
+      "url": "https://hexdocs.pm/ash/monitoring.html"
+    },
+    {
+      "kind": "hexdocs",
+      "ref": "Ash Design Principles (v3.x)",
+      "url": "https://hexdocs.pm/ash/design-principles.html"
+    },
+    {
+      "kind": "hexdocs",
+      "ref": "AshOban Triggers and Scheduled Actions",
+      "url": "https://hexdocs.pm/ash_oban/triggers-and-scheduled-actions.html"
+    },
+    {
+      "kind": "otel_best_practices",
+      "ref": "OpenTelemetry Sampling Best Practices",
+      "url": "https://isitobservable.io/open-telemetry/traces/trace-sampling-best-practices"
+    },
+    {
+      "kind": "k8s_policy",
+      "ref": "OPA Gatekeeper: Policy and Governance for Kubernetes",
+      "url": "https://kubernetes.io/blog/2019/08/06/opa-gatekeeper-policy-and-governance-for-kubernetes/"
+    },
+    {
+      "kind": "otel_docs",
+      "ref": "OpenTelemetry Sampling",
+      "url": "https://opentelemetry.io/docs/languages/go/sampling/"
+    },
+    {
+      "kind": "otel_spec_discussion",
+      "ref": "Overriding sampler decisions (sampling.priority)",
+      "url": "https://github.com/open-telemetry/opentelemetry-specification/discussions/3725"
+    },
+    {
+      "kind": "otel_metrics",
+      "ref": "OpenTelemetry Metrics Best Practices",
+      "url": "https://opentelemetry.io/docs/languages/dotnet/metrics/best-practices/"
+    },
+    {
+      "kind": "otel_histograms",
+      "ref": "OpenTelemetry Histograms with Prometheus",
+      "url": "https://www.asserts.ai/blog/opentelemetry-histograms-with-prometheus/"
+    }
+  ],
+  "routing_registry": {
+    "config_source": "runtime:file:routing_registry.json",
+    "expected_roles_keyspace": [
+      "finance_incidents",
+      "observability_team",
+      "sre_primary_checkout",
+      "sre_primary_security",
+      "security_incident_commander",
+      "platform_auth_oncall"
+    ],
+    "roles": [
+      {
+        "description": "Finance/SRE incident channel for payout, settlement, and revenue-impacting incidents.",
+        "id": "finance_incidents"
+      },
+      {
+        "description": "Observability owners for telemetry pipeline failures and instrumentation drift.",
+        "id": "observability_team"
+      },
+      {
+        "description": "SRE primary for checkout funnel, cart/checkout and payment-adjacent incidents.",
+        "id": "sre_primary_checkout"
+      },
+      {
+        "description": "Primary security incident responder for auth, containment, and security-plane alerts.",
+        "id": "sre_primary_security"
+      },
+      {
+        "description": "Incident commander role for high-severity cross-domain security events.",
+        "id": "security_incident_commander"
+      },
+      {
+        "description": "On-call owner for auth/session/identity-plane failures and revocation backpressure issues.",
+        "id": "platform_auth_oncall"
+      }
+    ],
+    "verification_task": "obs1.verify_routing_registry"
+  },
+  "rules": [
+    {
+      "applies_to": [
+        "contract_artifacts",
+        "ci_validation"
+      ],
+      "category": "governance",
+      "rationale": "Deterministic CI enforcement; prevents drift.",
+      "rule_id": "OBS-1-META-001",
+      "severity": "P0",
+      "text": "OBS-1 and OBS-1-GATE MUST be JSON-only normative artifacts; repacks are forbidden; metadata must match filenames and manifest pins."
+    },
+    {
+      "applies_to": [
+        "burn_rate_policies"
+      ],
+      "category": "slo",
+      "rationale": "Separates policy shape from tunable thresholds while preventing silent disablement.",
+      "rule_id": "OBS-1-BURN-001",
+      "severity": "P0",
+      "text": "Burn-rate alerting MUST use a short and long window and burn_factor per severity, with thresholds provided by runtime configuration within contract-defined sanity bounds."
+    },
+    {
+      "applies_to": [
+        "trace_sampling"
+      ],
+      "category": "tracing",
+      "rationale": "Prevents observability from becoming the bottleneck during spikes while preserving error and money-path visibility.",
+      "references_contracts": [
+        "PSC-1"
+      ],
+      "rule_id": "OBS-1-TRACE-001",
+      "severity": "P0",
+      "text": "Trace sampling MUST be defined for each PSC-1 load profile, with reduced sampling under spikes and adaptive fallback when profile flags lag reality, including Ash-level sampling that honors force-keep criteria."
+    },
+    {
+      "applies_to": [
+        "alert_classes",
+        "routing_registry",
+        "alerting_config_integration"
+      ],
+      "category": "alerting",
+      "rationale": "Prevents alerts from routing into the void due to missing or unmapped roles or deleted targets.",
+      "rule_id": "OBS-1-ALERT-ROUTE-001",
+      "severity": "P0",
+      "text": "Every alert_class MUST define a logical notification_role that exists in the governed routing_registry, is reflected in alerting configuration, and maps to a live provider destination."
+    },
+    {
+      "applies_to": [
+        "telemetry_dependencies",
+        "telemetry_contract_lifecycle"
+      ],
+      "category": "contracts",
+      "rationale": "Prevents stale or hallucinated signal contracts while allowing emergency patches.",
+      "rule_id": "OBS-1-SURFACES-001",
+      "severity": "P0",
+      "text": "Telemetry dependencies MUST target versioned signal contracts exposed by producers and be validated against producer artifacts in CI, following lifecycle policies with emergency bypass for P0 fixes."
+    },
+    {
+      "applies_to": [
+        "signal_standards.logs.ash_integration"
+      ],
+      "category": "framework",
+      "rationale": "Aligns observability semantics with current Ash 3.x design principles.",
+      "rule_id": "OBS-1-ASH3-001",
+      "severity": "P0",
+      "text": "Ash-based services MUST use Ash 3.x monitoring (Ash.Tracer + :telemetry) and MUST NOT rely on Ash 2.x-specific APIs."
+    },
+    {
+      "applies_to": [
+        "trace_sampling.force_keep",
+        "signal_standards.traces.required_attributes"
+      ],
+      "category": "finance_observability",
+      "rationale": "Prevents loss of forensic evidence during high-traffic events where money-path failures are rare but material.",
+      "references_contracts": [
+        "ERR-1"
+      ],
+      "rule_id": "OBS-1-FIN-TRACE-001",
+      "severity": "P0",
+      "text": "Any trace containing a money-critical operation_id prefix or a money-critical error_code prefix MUST be force-kept by setting sampling.priority to the configured high-priority value."
+    },
+    {
+      "applies_to": [
+        "signal_standards.metrics.histogram_bucket_policies"
+      ],
+      "category": "finance_observability",
+      "rationale": "Money distributions require different bucket boundaries than latency histograms for materiality detection.",
+      "rule_id": "OBS-1-FIN-MET-001",
+      "severity": "P0",
+      "text": "Metrics ending in _amount_minor MUST use the financial histogram bucket policy defined in signal_standards.metrics.histogram_bucket_policies."
+    },
+    {
+      "applies_to": [
+        "signal_standards.metrics.cardinality_rules",
+        "signal_standards.metrics.cardinality_budget"
+      ],
+      "category": "metrics",
+      "rationale": "Prevents metrics storage overload from cardinality explosions in multi-tenant systems.",
+      "rule_id": "OBS-1-MET-CARD-001",
+      "severity": "P0",
+      "text": "org_id/actor_id MUST NOT be used as metric labels by default. Any exception MUST be explicitly allowlisted and MUST have separate retention <= 24h with a hard cap on distinct label values."
+    },
+    {
+      "applies_to": [
+        "alert_aggregation",
+        "alerting_config_integration"
+      ],
+      "category": "alerting",
+      "rationale": "Reduces alert storms and prevents notification channels from being muted during real incidents.",
+      "rule_id": "OBS-1-ALERT-GROUP-001",
+      "severity": "P1",
+      "text": "Alerts with the same alert_name and env MUST be grouped into a single notification window of 300 seconds before routing."
+    },
+    {
+      "applies_to": [
+        "logs",
+        "traces"
+      ],
+      "category": "context",
+      "rationale": "Event pages and multi-occurrence sales require attribution by occurrence and content revision to be auditable.",
+      "rule_id": "OBS-1-CTX-001",
+      "severity": "must",
+      "text": "For any operation that is scoped to an event or occurrence (e.g., event landing page render, seat hold, checkout, order finalize), producers MUST emit event context fields on logs and spans when known: event_id, occurrence_id, and content_revision_id. When an experiment is active, experiment_id and experiment_variant_key MUST also be emitted. When pricing phases/program revisions are involved, price_program_revision_id and price_phase_key MUST be emitted."
+    },
+    {
+      "applies_to": [
+        "metrics"
+      ],
+      "category": "context",
+      "rationale": "High-cardinality labels can destroy metric systems if unconstrained.",
+      "rule_id": "OBS-1-CTX-002",
+      "severity": "must",
+      "text": "Metrics MUST NOT label by event_id or occurrence_id by default. Per-event/occurrence metrics MAY exist only via the high-cardinality metrics allowlist, with retention <= 24h and an explicit cap on distinct event_id values per metric."
+    },
+    "Security incident signal families MUST emit enough context to bind vector_class, scope_ref, correlation/request identifiers, and incident_id or provisional incident reference in privileged observability sinks.",
+    "Edge shedding activated under incident posture MUST emit aggregate telemetry back into the central observability stack; attack traffic MUST NOT disappear simply because mitigation moved to the edge.",
+    "Provider quarantine backlog, replay disposition, and side-effect suppression outcomes MUST be observable as first-class security recovery signals.",
+    "Revocation waves and boot barrier degraded states MUST emit backlog, readiness_state, and rejection metrics sufficient to distinguish graceful degradation from silent collapse.",
+    "IR-linked security alert classes MUST have runbooks containing Contain, Release, and Post_Incident_Review sections in addition to standard fast checks and verification.",
+    {
+      "applies_to": [
+        "operation_registry"
+      ],
+      "category": "operation_identity",
+      "rule_id": "OBS-1-T0-OPERATION-ID-001",
+      "severity": "P0",
+      "text": "Each T0 action MUST use one stable operation_id equal to its canonical contract_id.action_id. The operation_id MUST remain the same across logs, traces, and metrics."
+    }
+  ],
+  "runbook_requirements": {
+    "must_include_sections": [
+      "Summary",
+      "Customer_Impact",
+      "Symptoms",
+      "Fast_Checks",
+      "Mitigations",
+      "Rollback",
+      "Verification",
+      "Contain",
+      "Release",
+      "Post_Incident_Review"
+    ]
+  },
+  "schema_version": "contract-suite/1.0",
+  "signal_standards": {
+    "logs": {
+      "ash_integration": {
+        "ash_version_requirement": ">=3.0.0",
+        "notes": [
+          "Ash resources and actions MUST emit :telemetry events and be wired through Ash.Tracer for structured logging and tracing integration, per Ash 3 monitoring.",
+          "Ash 2.x-specific observability APIs are forbidden; only Ash 3.x monitoring patterns are allowed."
+        ],
+        "tracer_module": "Ash.Tracer",
+        "uses_telemetry": true
+      },
+      "cardinality_rules": [
+        "Logs may include org_id/actor_id (high cardinality allowed in logs).",
+        "Do NOT include raw request/response bodies except in controlled debug environments with explicit sampling + redaction.",
+        "Logs for event/occurrence-scoped operations MUST include event_id and occurrence_id; when rendering or selling against a specific content revision, include content_revision_id; when an experiment is active include experiment_id and experiment_variant_key; when pricing phase/program applies include price_program_revision_id and price_phase_key."
+      ],
+      "format": "json",
+      "pii_redaction_policy": [
+        "Never log secrets, auth tokens, webhook secrets, payment instrument data, raw QR payloads, or full ticket identifiers.",
+        "Log only last4 / masked identifiers when unavoidable.",
+        "Prefer error_code over raw exception strings; exception messages must be scrubbed.",
+        "Logs MUST NOT contain pii_direct or pii_sensitive fields (email, phone, gov_id, address, full_name with contact, payment_instrument, tokens).",
+        "DSAR export retrieval tokens MUST NOT be logged; only export_hash and dsar_case_id MAY be logged.",
+        "subject_key MAY be logged only as a pseudonymous identifier and MUST be org_id-scoped (no cross-tenant joins).",
+        "Joinable identifiers (e.g., user_id, order_id, ticket_id, payment_intent_id, provider_charge_id) MUST NOT be logged in general application logs. If correlation is required, logs MUST use tenant-scoped pseudonymous keys (actor_key / subject_key) or short-lived request_id.",
+        "Data exports (DATA-1) MUST NOT log filter values, exported row samples, or record-level payloads. Only export_id, export_profile_id, export_hash, row_count, status_class, and error_code MAY appear in general logs.",
+        "Export and DSAR pipelines MUST emit audit events to an append-only audit sink (separate from general logs). The audit sink MAY contain joinable identifiers only if encrypted at rest and access-controlled via break-glass policies (PII-1 + IAM-2)."
+      ],
+      "required_fields": [
+        "timestamp",
+        "level",
+        "message",
+        "service",
+        "env",
+        "version",
+        "service_instance_id",
+        "request_id",
+        "trace_id",
+        "span_id",
+        "org_id",
+        "actor_id",
+        "actor_type",
+        "operation_id",
+        "error_code"
+      ],
+      "service_identity_mapping": {
+        "alignment_notes": "Producer identity mapping is defined by OBS-1.signal_standards.logs.service_identity_mapping.maps. If PROD-1 is locked, it MUST match these mappings exactly.",
+        "maps": [
+          {
+            "must_match": true,
+            "producer_field": "producer.service",
+            "telemetry_field": "service"
+          },
+          {
+            "must_match": true,
+            "producer_field": "producer.version",
+            "telemetry_field": "version"
+          },
+          {
+            "must_match": true,
+            "producer_field": "producer.instance_id",
+            "telemetry_field": "service_instance_id"
+          },
+          {
+            "must_match": true,
+            "producer_field": "producer.deployment_env",
+            "telemetry_field": "env"
+          }
+        ],
+        "rule": "Telemetry fields service/version/service_instance_id/env MUST reflect the runtime producer identity."
+      }
+    },
+    "metrics": {
+      "cardinality_budget": {
+        "forbidden_labels_default": [
+          "org_id",
+          "actor_id",
+          "user_id",
+          "session_id",
+          "event_id",
+          "occurrence_id"
+        ],
+        "high_cardinality_exceptions": {
+          "allowlist_path": "signal_standards.metrics.cardinality_budget.high_cardinality_metrics_allowlist",
+          "default_retention_hours": 24,
+          "enabled": true,
+          "requires_allowlist": true
+        },
+        "high_cardinality_metrics_allowlist": [],
+        "max_label_values_per_dimension": 64,
+        "max_timeseries_per_metric": 20000
+      },
+      "cardinality_rules": [
+        "Metrics MUST NOT label by org_id/actor_id (unbounded cardinality).",
+        "Allowed labels are bounded: env, service, operation_id, status_class, provider, region.",
+        "Metrics MUST NOT label by service_instance_id (high-cardinality).",
+        "Allowed labels are bounded: env, service, operation_id, status_class, provider, region, currency.",
+        "org_id MAY be used only for explicitly approved per-tenant metrics with separate retention <= 24h and a hard cap on distinct org_id values per metric.",
+        "Metrics MUST NOT label by event_id/occurrence_id (high-cardinality) unless allowlisted with short retention (<= 24h) and hard caps.",
+        "Metrics MUST NOT label by export_id, dsar_case_id, or export_hash (high-cardinality). Use export_profile_id and status_class instead.",
+        "Metrics MUST NOT label by any joinable identifier (user_id, order_id, ticket_id) even if pseudonymous; use bounded buckets (e.g., actor_type, provider, region)."
+      ],
+      "financial_metrics_required": [
+        "*_amount_minor",
+        "*_fees_amount_minor",
+        "*_payout_amount_minor"
+      ],
+      "histogram_bucket_policies": {
+        "applies_to_suffixes": [
+          "_amount_minor"
+        ],
+        "bucket_boundaries_minor_units": [
+          1,
+          100,
+          1000,
+          5000,
+          10000,
+          50000
+        ],
+        "notes": [
+          "Metrics ending in _amount_minor MUST use the bucket_boundaries_minor_units defined here.",
+          "Bucket boundaries are expressed in minor currency units (e.g., cents)."
+        ],
+        "policy_id": "financial_amount_minor_v1"
+      },
+      "otel_semantic_conventions": true,
+      "slo_metrics_required": [
+        "request_latency_ms",
+        "request_error_rate",
+        "operation_success_rate",
+        "queue_depth",
+        "db_pool_saturation",
+        "lock_wait_ms"
+      ],
+      "style": "telemetry->metrics (Prometheus/OpenTelemetry exporter)"
+    },
+    "security_incident": {
+      "operator_truth_boundary": "Security incident signals MAY contain internal scope, incident_id, and containment details in privileged observability sinks; public/client surfaces MUST remain generic per ERR-1.",
+      "quiet_period_controls": {
+        "required_logs": [
+          "security.incident.quiet_period.started",
+          "security.incident.quiet_period.completed"
+        ],
+        "required_metrics": [
+          "security.incident.quiet_period.seconds",
+          "security.incident.release_window.remaining_seconds"
+        ],
+        "rule": "Release quiet periods and detector cooldowns MUST be observable; silent timers are forbidden."
+      },
+      "required_signal_families": [
+        {
+          "default_alert_class": "security_auth_anomaly",
+          "required_fields": [
+            "occurred_at",
+            "org_id_or_null",
+            "actor_id_or_null",
+            "request_id",
+            "risk_score",
+            "evidence_ref"
+          ],
+          "signal": "security.auth.login_velocity_anomaly"
+        },
+        {
+          "default_alert_class": "security_auth_anomaly",
+          "required_fields": [
+            "occurred_at",
+            "org_id_or_null",
+            "request_id",
+            "source_cluster_ref",
+            "risk_score",
+            "evidence_ref"
+          ],
+          "signal": "security.auth.credential_stuffing_suspected"
+        },
+        {
+          "default_alert_class": "security_session_replay",
+          "required_fields": [
+            "occurred_at",
+            "org_id_or_null",
+            "session_id",
+            "request_id",
+            "device_id_or_null",
+            "risk_score",
+            "evidence_ref"
+          ],
+          "signal": "security.session.replay_suspected"
+        },
+        {
+          "default_alert_class": "security_privilege_escalation",
+          "required_fields": [
+            "occurred_at",
+            "org_id_or_null",
+            "actor_id",
+            "target_role_or_capability",
+            "request_id",
+            "risk_score",
+            "evidence_ref"
+          ],
+          "signal": "security.admin.privilege_escalation_anomaly"
+        },
+        {
+          "default_alert_class": "security_integration_degraded",
+          "required_fields": [
+            "occurred_at",
+            "org_id_or_null",
+            "api_key_id",
+            "request_id",
+            "risk_score",
+            "evidence_ref"
+          ],
+          "signal": "security.api.key_abuse_suspected"
+        },
+        {
+          "default_alert_class": "security_privilege_escalation",
+          "required_fields": [
+            "occurred_at",
+            "request_id",
+            "actor_id_or_null",
+            "target_org_id_or_pattern",
+            "risk_score",
+            "evidence_ref"
+          ],
+          "signal": "security.tenancy.cross_tenant_probe_suspected"
+        },
+        {
+          "default_alert_class": "security_incident_active",
+          "required_fields": [
+            "occurred_at",
+            "material_class",
+            "request_id_or_incident_id",
+            "risk_score",
+            "evidence_ref"
+          ],
+          "signal": "security.secret.signing_material_exposure_suspected"
+        },
+        {
+          "default_alert_class": "security_edge_shedding_active",
+          "required_fields": [
+            "occurred_at",
+            "rule_id",
+            "vector_class",
+            "scope_ref",
+            "dropped_request_count",
+            "time_window",
+            "collateral_estimate"
+          ],
+          "signal": "security.edge.shedding.active"
+        },
+        {
+          "default_alert_class": "security_provider_quarantine_backlog",
+          "required_fields": [
+            "occurred_at",
+            "provider",
+            "queue_depth",
+            "oldest_age_seconds",
+            "incident_id_or_null"
+          ],
+          "signal": "security.provider.unverified_quarantine_backlog"
+        },
+        {
+          "default_alert_class": "security_boot_barrier_degraded",
+          "required_fields": [
+            "occurred_at",
+            "node_id",
+            "readiness_state",
+            "authoritative_posture_loaded",
+            "incident_id_or_null"
+          ],
+          "signal": "security.runtime.boot_barrier.degraded"
+        },
+        {
+          "default_alert_class": "security_revocation_backpressure",
+          "required_fields": [
+            "occurred_at",
+            "wave_id",
+            "backlog",
+            "disconnect_latency_ms",
+            "scheduler_pressure",
+            "incident_id_or_null"
+          ],
+          "signal": "security.session.revocation.backpressure"
+        }
+      ]
+    },
+    "traces": {
+      "context_propagation": {
+        "format": "w3c_tracecontext",
+        "notes": [
+          "Trace context MUST propagate across HTTP and async boundaries; custom channels MUST propagate context manually if auto-instrumentation is insufficient.",
+          "When available, propagate and attach event context fields to spans: event_id, occurrence_id, content_revision_id, experiment_id, experiment_variant_key, price_program_revision_id, price_phase_key."
+        ]
+      },
+      "required_attributes": [
+        "org_id",
+        "actor_id",
+        "actor_type",
+        "operation_id",
+        "error_code",
+        "idempotency_key_present",
+        "sampling.priority"
+      ],
+      "required_resource_attributes": [
+        "service.name",
+        "service.version",
+        "service.instance.id"
+      ],
+      "required_spans": [
+        "phoenix.request",
+        "ash.action",
+        "ecto.query",
+        "queue.job",
+        "external.http"
+      ],
+      "resource_attribute_notes": [
+        "service.name/service.version/service.instance.id MUST map to OBS-1 producer identity mapping.",
+        "Do not emit org_id as resource attributes; they belong on spans/logs only."
+      ],
+      "standard": "OpenTelemetry"
+    }
+  },
+  "slo_targets": {
+    "description": "SLOs for core user journeys and platform availability.",
+    "slos": [
+      {
+        "id": "checkout_success_rate",
+        "metric": "ratio: successful_checkouts / checkout_attempts",
+        "operation_ids": [
+          "checkouts.create_intent",
+          "checkouts.finalize"
+        ],
+        "scope": "HOT_SALE",
+        "source_contracts": [
+          "PSC-1"
+        ],
+        "target": 0.9995,
+        "window": "hot_sale_window_plus_30m"
+      },
+      {
+        "id": "normal_success_rate_per_operation",
+        "metric": "ratio: successes / total_requests",
+        "operation_ids": [],
+        "operation_ids_semantics": "EMPTY_MEANS_ALL_OPERATIONS_IN_SCOPE",
+        "scope": "NORMAL",
+        "source_contracts": [
+          "PSC-1"
+        ],
+        "target": 0.999,
+        "window": "rolling_28d"
+      },
+      {
+        "id": "scanning_peak_validate_success_rate",
+        "metric": "ratio: successful_scans / scan_attempts",
+        "operation_ids": [
+          "scans.validate",
+          "scans.redeem"
+        ],
+        "scope": "SCANNING_PEAK",
+        "source_contracts": [
+          "PSC-1"
+        ],
+        "target": 0.9995,
+        "window": "scan_window_plus_15m"
+      },
+      {
+        "id": "platform_availability",
+        "metric": "uptime of public and scanning endpoints",
+        "operation_ids": [],
+        "operation_ids_semantics": "EMPTY_MEANS_ALL_OPERATIONS_IN_SCOPE",
+        "scope": "GLOBAL",
+        "source_contracts": [
+          "PSC-1",
+          "V42-0"
+        ],
+        "target": 0.999,
+        "window": "rolling_30d"
+      }
+    ],
+    "windows": {
+      "hot_sale_window_plus_30m": {
+        "event": "HOT_SALE_MODE=true",
+        "padding": "30m",
+        "type": "event_scoped"
+      },
+      "rolling_28d": {
+        "duration": "28d",
+        "type": "rolling"
+      },
+      "rolling_30d": {
+        "duration": "30d",
+        "type": "rolling"
+      },
+      "scan_window_plus_15m": {
+        "event": "SCANNING_PEAK",
+        "padding": "15m",
+        "type": "event_scoped"
+      }
+    }
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines mandatory signals, SLOs, burn-rate and routing policies, and Ash/OpenTelemetry integration with Ash 3.x monitoring, including incident-response security signal taxonomy, edge-shed visibility, and runtime evidence requirements.",
+  "telemetry_contract_lifecycle": {
+    "deprecation_policy": "A telemetry contract version MAY be removed only after all dependent contracts have moved to a successor version for at least min_overlap_releases.",
+    "emergency_bypass": {
+      "allowed": true,
+      "notes": [
+        "In emergency patch pipelines explicitly marked P0, telemetry lifecycle violations MAY be downgraded to non-blocking warnings.",
+        "All bypasses MUST be logged and followed by a remediation change that restores lifecycle invariants."
+      ],
+      "scope": "P0 security/financial fixes only"
+    },
+    "min_overlap_releases": 2,
+    "verification_task": "obs1.verify_telemetry_lifecycle"
+  },
+  "telemetry_dependencies": [
+    {
+      "contract_id": "LED-1",
+      "logical_signals": [
+        "payout_blocker_state",
+        "payout_freeze_flag"
+      ],
+      "min_version": "2.2.0",
+      "signal_contract_id": "led1.telemetry.v1",
+      "verification_task": "obs1.verify_signal_contracts"
+    },
+    {
+      "contract_id": "PSC-1",
+      "logical_signals": [
+        "request_latency_ms",
+        "db_pool_saturation"
+      ],
+      "min_version": "1.6.0",
+      "signal_contract_id": "psc1.telemetry.v1",
+      "verification_task": "obs1.verify_signal_contracts"
+    }
+  ],
+  "tier": 2,
+  "title": "Observability, Alerting, and Runbooks Contract",
+  "trace_sampling": {
+    "adaptive_fallback": {
+      "always_sample_errors": true,
+      "cpu_high_threshold": 0.8,
+      "cpu_metric_name": "system.cpu.utilization",
+      "cpu_window_seconds": 30,
+      "enabled": true,
+      "fallback_sample_rate": 0.005,
+      "notes": [
+        "If HOT_SALE, SCANNING_PEAK, or WEBHOOK_STORM flags lag reality, nodes MUST auto-throttle tracing when CPU or RPS exceed thresholds based on rolling windows.",
+        "Adaptive throttling MUST never disable error sampling; only reduce success/low-value traces.",
+        "Implementation MUST prefer parent-based and tail sampling in collectors for high-traffic services, while still honouring per-service caps.",
+        "Parent-based head sampling is REQUIRED at the SDK/agent boundary; tail sampling is PERMITTED in collectors for high-value traces."
+      ],
+      "requests_per_second_high_threshold": 1000,
+      "rps_metric_name": "http.server.request_per_second",
+      "rps_window_seconds": 10
+    },
+    "ash_engine_sampling": {
+      "enabled": true,
+      "notes": [
+        "Ash.Tracer MUST support sampling at the Ash engine level, not only at the exporter/collector level.",
+        "Under SCANNING_PEAK and WEBHOOK_STORM, Ash action span creation MUST be selectively reduced for low-value operations, while always creating spans for errors and slow transactions.",
+        "Sampling decisions MUST follow OpenTelemetry best practices (parent-based head sampling with tail sampling for high-value traces).",
+        "Ash engine sampling MUST honor force_keep rules by setting sampling.priority before deciding to drop spans."
+      ]
+    },
+    "default_sample_rate": 0.1,
+    "force_keep": {
+      "enabled": true,
+      "force_keep_on_error": true,
+      "high_priority_value": 1,
+      "invariant": "Any trace containing a money-critical operation_id prefix or a money-critical error_code prefix MUST be kept, regardless of baseline sampling rate.",
+      "money_critical_error_code_prefixes": [
+        "PAY",
+        "ORD",
+        "LED"
+      ],
+      "money_critical_operation_id_prefixes": [
+        "checkouts.",
+        "payments.",
+        "refunds.",
+        "payouts.",
+        "orders.",
+        "ledger."
+      ],
+      "notes": [
+        "When a trace matches any force-keep criteria, instrumentation MUST set sampling.priority to the high_priority_value on the root span and propagate it to child spans.",
+        "Collectors MAY apply tail-sampling, but force-keep traces MUST remain eligible for export."
+      ],
+      "sampling_priority_attribute": "sampling.priority"
+    },
+    "profiles": [
+      {
+        "always_sample_errors": true,
+        "max_traces_per_minute_per_service": 2000,
+        "profile": "NORMAL",
+        "target_sample_rate": 0.1
+      },
+      {
+        "always_sample_errors": true,
+        "max_traces_per_minute_per_service": 1000,
+        "profile": "HOT_SALE",
+        "target_sample_rate": 0.01
+      },
+      {
+        "always_sample_errors": true,
+        "max_traces_per_minute_per_service": 1500,
+        "profile": "SCANNING_PEAK",
+        "target_sample_rate": 0.02
+      },
+      {
+        "always_sample_errors": true,
+        "max_traces_per_minute_per_service": 1000,
+        "profile": "WEBHOOK_STORM",
+        "target_sample_rate": 0.01
+      },
+      {
+        "always_sample_errors": true,
+        "max_traces_per_minute_per_service": 5000,
+        "profile": "SECURITY_INCIDENT",
+        "target_sample_rate": 1.0
+      }
+    ]
+  },
+  "version": "2.9.0",
+  "operation_registry": {
+    "EVT-2.close_occurrence_sales": {
+      "operation_id": "EVT-2.close_occurrence_sales",
+      "contract_id": "EVT-2",
+      "action_id": "close_occurrence_sales"
+    },
+    "EVT-2.create_event": {
+      "operation_id": "EVT-2.create_event",
+      "contract_id": "EVT-2",
+      "action_id": "create_event"
+    },
+    "EVT-2.create_occurrence": {
+      "operation_id": "EVT-2.create_occurrence",
+      "contract_id": "EVT-2",
+      "action_id": "create_occurrence"
+    },
+    "EVT-2.open_occurrence_sales": {
+      "operation_id": "EVT-2.open_occurrence_sales",
+      "contract_id": "EVT-2",
+      "action_id": "open_occurrence_sales"
+    },
+    "EVT-2.publish_event": {
+      "operation_id": "EVT-2.publish_event",
+      "contract_id": "EVT-2",
+      "action_id": "publish_event"
+    },
+    "OFFER-1.activate_offer": {
+      "operation_id": "OFFER-1.activate_offer",
+      "contract_id": "OFFER-1",
+      "action_id": "activate_offer"
+    },
+    "OFFER-1.activate_product": {
+      "operation_id": "OFFER-1.activate_product",
+      "contract_id": "OFFER-1",
+      "action_id": "activate_product"
+    },
+    "OFFER-1.archive_offer": {
+      "operation_id": "OFFER-1.archive_offer",
+      "contract_id": "OFFER-1",
+      "action_id": "archive_offer"
+    },
+    "OFFER-1.archive_product": {
+      "operation_id": "OFFER-1.archive_product",
+      "contract_id": "OFFER-1",
+      "action_id": "archive_product"
+    },
+    "OFFER-1.build_cart_quote": {
+      "operation_id": "OFFER-1.build_cart_quote",
+      "contract_id": "OFFER-1",
+      "action_id": "build_cart_quote"
+    },
+    "OFFER-1.create_offer": {
+      "operation_id": "OFFER-1.create_offer",
+      "contract_id": "OFFER-1",
+      "action_id": "create_offer"
+    },
+    "OFFER-1.create_offer_window": {
+      "operation_id": "OFFER-1.create_offer_window",
+      "contract_id": "OFFER-1",
+      "action_id": "create_offer_window"
+    },
+    "OFFER-1.create_product": {
+      "operation_id": "OFFER-1.create_product",
+      "contract_id": "OFFER-1",
+      "action_id": "create_product"
+    },
+    "OFFER-1.create_product_revision": {
+      "operation_id": "OFFER-1.create_product_revision",
+      "contract_id": "OFFER-1",
+      "action_id": "create_product_revision"
+    },
+    "OFFER-1.emit_ord_line_items": {
+      "operation_id": "OFFER-1.emit_ord_line_items",
+      "contract_id": "OFFER-1",
+      "action_id": "emit_ord_line_items"
+    },
+    "ORD-1.create_checkout": {
+      "operation_id": "ORD-1.create_checkout",
+      "contract_id": "ORD-1",
+      "action_id": "create_checkout"
+    },
+    "PRICE-1.activate_revision": {
+      "operation_id": "PRICE-1.activate_revision",
+      "contract_id": "PRICE-1",
+      "action_id": "activate_revision"
+    },
+    "PRICE-1.activate_snapshot": {
+      "operation_id": "PRICE-1.activate_snapshot",
+      "contract_id": "PRICE-1",
+      "action_id": "activate_snapshot"
+    },
+    "PRICE-1.consume_snapshot": {
+      "operation_id": "PRICE-1.consume_snapshot",
+      "contract_id": "PRICE-1",
+      "action_id": "consume_snapshot"
+    },
+    "PRICE-1.create_phase": {
+      "operation_id": "PRICE-1.create_phase",
+      "contract_id": "PRICE-1",
+      "action_id": "create_phase"
+    },
+    "PRICE-1.create_program": {
+      "operation_id": "PRICE-1.create_program",
+      "contract_id": "PRICE-1",
+      "action_id": "create_program"
+    },
+    "PRICE-1.create_revision": {
+      "operation_id": "PRICE-1.create_revision",
+      "contract_id": "PRICE-1",
+      "action_id": "create_revision"
+    },
+    "PRICE-1.create_rule": {
+      "operation_id": "PRICE-1.create_rule",
+      "contract_id": "PRICE-1",
+      "action_id": "create_rule"
+    },
+    "PRICE-1.create_snapshot": {
+      "operation_id": "PRICE-1.create_snapshot",
+      "contract_id": "PRICE-1",
+      "action_id": "create_snapshot"
+    },
+    "SEAT-1.claim_bucket_inventory": {
+      "operation_id": "SEAT-1.claim_bucket_inventory",
+      "contract_id": "SEAT-1",
+      "action_id": "claim_bucket_inventory"
+    },
+    "SEAT-1.create_inventory_bucket": {
+      "operation_id": "SEAT-1.create_inventory_bucket",
+      "contract_id": "SEAT-1",
+      "action_id": "create_inventory_bucket"
+    },
+    "SEAT-1.expire_bucket_holds": {
+      "operation_id": "SEAT-1.expire_bucket_holds",
+      "contract_id": "SEAT-1",
+      "action_id": "expire_bucket_holds"
+    },
+    "SEAT-1.extend_bucket_hold_grace": {
+      "operation_id": "SEAT-1.extend_bucket_hold_grace",
+      "contract_id": "SEAT-1",
+      "action_id": "extend_bucket_hold_grace"
+    },
+    "SEAT-1.release_bucket_hold": {
+      "operation_id": "SEAT-1.release_bucket_hold",
+      "contract_id": "SEAT-1",
+      "action_id": "release_bucket_hold"
+    },
+    "SEAT-1.verify_bucket_hold_proofs": {
+      "operation_id": "SEAT-1.verify_bucket_hold_proofs",
+      "contract_id": "SEAT-1",
+      "action_id": "verify_bucket_hold_proofs"
+    }
+  },
+  "operation_id_binding": {
+    "source": "canonical contract_id.action_id",
+    "uniqueness": "one stable operation_id per T0 action",
+    "t0_operation_ids": [
+      "EVT-2.create_event",
+      "EVT-2.create_occurrence",
+      "EVT-2.publish_event",
+      "EVT-2.open_occurrence_sales",
+      "EVT-2.close_occurrence_sales",
+      "ORD-1.create_checkout",
+      "SEAT-1.claim_bucket_inventory",
+      "OFFER-1.create_offer",
+      "OFFER-1.create_product",
+      "OFFER-1.create_product_revision",
+      "OFFER-1.create_offer_window",
+      "OFFER-1.activate_offer",
+      "OFFER-1.activate_product",
+      "OFFER-1.build_cart_quote",
+      "OFFER-1.emit_ord_line_items",
+      "PRICE-1.create_program",
+      "PRICE-1.create_revision",
+      "PRICE-1.activate_revision",
+      "PRICE-1.create_phase",
+      "PRICE-1.create_rule",
+      "PRICE-1.create_snapshot",
+      "PRICE-1.activate_snapshot",
+      "PRICE-1.consume_snapshot",
+      "SEAT-1.create_inventory_bucket",
+      "SEAT-1.verify_bucket_hold_proofs",
+      "SEAT-1.extend_bucket_hold_grace",
+      "SEAT-1.release_bucket_hold",
+      "SEAT-1.expire_bucket_holds",
+      "OFFER-1.archive_offer",
+      "OFFER-1.archive_product"
+    ]
+  }
+}

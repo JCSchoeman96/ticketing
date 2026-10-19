@@ -1,0 +1,1449 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "RUST-1",
+    "version": "1.4.0"
+  },
+  "doc_id": "RUST-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.0 across contract, gates, and manifest.",
+      "failure_message": "Bundle suite_schema drift detected; RUST-1 artifacts are not aligned to CS-0@3.0.0.",
+      "id": "RUST-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle suite schema parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json filename and manifest file list MUST match the bundle contents exactly.",
+      "failure_message": "Manifest filename or manifest file inventory does not match the actual bundle contents.",
+      "id": "RUST-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest filename and contents"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "RUST-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.4.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "RUST-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.4.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "RUST-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.4.0",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "RUST-1",
+            "json_pointer": "/bundle/bundle_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "1.4.0",
+            "json_pointer": "/bundle/bundle_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract, gates, and manifest linkage MUST agree on doc_id, version, and bundle identity.",
+      "failure_message": "Contract, test gates, or manifest linkage does not match RUST-1 bundle identity.",
+      "id": "RUST-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "Artifact linkage and version parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Native code MAY accelerate and verify; it MUST NOT become authoritative for tenant authorization, policy evaluation, inventory truth, price authority, order finalization, ledger posting, refund approval, payout eligibility, or admission truth.",
+            "json_pointer": "/purpose_and_boundaries/native_truth_rule"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "TENANT_AUTHORIZATION_OR_POLICY_DECISION",
+              "ORDER_FINALIZATION_OR_PAYMENT_STATE_AUTHORITY",
+              "PRICE_RULE_EVALUATION_AUTHORITY",
+              "SEAT_HOLD_OR_ALLOCATION_TRUTH",
+              "LEDGER_POSTING_OR_BALANCE_AUTHORITY",
+              "REFUND_APPROVAL_OR_PAYOUT_RELEASE_AUTHORITY",
+              "WAITING_ROOM_OR_QUEUE_POSITION_AUTHORITY",
+              "FINAL_RISK_BAN_OR_ACCOUNT_ENFORCEMENT_AUTHORITY",
+              "EDGE_PRIVATE_KEY_SIGNING",
+              "DIRECT_DATABASE_OR_PROVIDER_SIDE_EFFECT_ORCHESTRATION"
+            ],
+            "json_pointer": "/capability_classes/prohibited"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RUST-1 MUST explicitly forbid native code from becoming business authority for core platform truth domains.",
+      "failure_message": "RUST-1 no longer keeps native code subordinate to the governed core platform contracts.",
+      "id": "RUST-1-GATE-040",
+      "level": "P0",
+      "must": true,
+      "title": "Boundary authority remains in core contracts"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Normal",
+            "json_pointer": "/execution_tiers/normal_nif/scheduler"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 1,
+            "json_pointer": "/execution_tiers/normal_nif/maximum_hot_path_p99_ms"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/execution_tiers/normal_nif/db_network_io_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "DirtyCpu",
+            "json_pointer": "/execution_tiers/dirty_cpu_nif/scheduler"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/execution_tiers/dirty_cpu_nif/blocking_external_io_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/execution_tiers/external_worker/inside_beam"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Normal and DirtyCpu execution tiers MUST remain side-effect-free and scheduler-safe, with unbounded or blocking work pushed outside the BEAM.",
+      "failure_message": "RUST-1 scheduler discipline drifted; a dangerous NIF execution mode may now be permitted.",
+      "id": "RUST-1-GATE-050",
+      "level": "P0",
+      "must": true,
+      "title": "Scheduler and NIF boundary discipline"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "public_key_verify_only",
+            "json_pointer": "/edge_key_management/edge_verification_mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/edge_key_management/edge_private_signing_keys_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "backend_vault_only",
+            "json_pointer": "/edge_key_management/backend_master_signing_key_location"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Edge and scanner native code MUST remain verification-only and MUST NOT receive private signing authority.",
+      "failure_message": "RUST-1 no longer enforces public-key-only verification on edge devices.",
+      "id": "RUST-1-GATE-060",
+      "level": "P0",
+      "must": true,
+      "title": "Public-key-only edge verification"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "raw_16_byte",
+            "json_pointer": "/id_surface_and_uuid_rules/uuid_preimage_sort/normalization"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "unsigned_lexicographic_raw_16_byte_ascending",
+            "json_pointer": "/id_surface_and_uuid_rules/uuid_preimage_sort/sort_order"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/id_surface_and_uuid_rules/uuid_preimage_sort/string_sort_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Native hash and signature preimages MUST preserve the platform UUID ordering constitution.",
+      "failure_message": "RUST-1 no longer preserves deterministic raw-byte UUID ordering for cryptographic and tie-break surfaces.",
+      "id": "RUST-1-GATE-070",
+      "level": "P0",
+      "must": true,
+      "title": "UUID preimage ordering discipline"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/supply_chain_policy/cargo_lock_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/supply_chain_policy/build_network_access_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "forbidden",
+            "json_pointer": "/supply_chain_policy/unsafe_rust_default"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/supply_chain_policy/sbom_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Native code supply-chain controls and unsafe-default bans MUST remain enforced.",
+      "failure_message": "RUST-1 no longer enforces the minimum native supply-chain and unsafe-code controls.",
+      "id": "RUST-1-GATE-080",
+      "level": "P0",
+      "must": true,
+      "title": "Supply-chain and unsafe-code discipline"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "off",
+            "json_pointer": "/economic_defense_policy/adaptive_pow_default_mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/economic_defense_policy/adaptive_pow_authenticated_good_standing_default"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Proof-of-work and other compute taxes MUST remain adaptive controls, not default friction for good-standing authenticated users.",
+      "failure_message": "RUST-1 now allows proof-of-work to become default user friction rather than an adaptive abuse control.",
+      "id": "RUST-1-GATE-090",
+      "level": "P1",
+      "must": true,
+      "title": "Economic defense remains adaptive, not default"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "fail_closed",
+            "json_pointer": "/error_and_fallback_policy/security_critical_native_failure_mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/error_and_fallback_policy/silent_success_on_native_failure_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Security-critical native failures MUST remain fail-closed and visible; silent bypass is forbidden.",
+      "failure_message": "RUST-1 no longer forces fail-closed and observable behavior for security-relevant native failures.",
+      "id": "RUST-1-GATE-100",
+      "level": "P0",
+      "must": true,
+      "title": "Native failures remain fail-closed where security matters"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "T\\s*O\\s*D\\s*O",
+              "T\\s*B\\s*D",
+              "F\\s*I\\s*X\\s*M\\s*E",
+              "R\\s*E\\s*P\\s*L\\s*A\\s*C\\s*E\\s*_\\s*M\\s*E",
+              "\\btenant_id\\b",
+              "\\borganization_id\\b",
+              "\\borgid\\b",
+              "\\butc_datetime\\b",
+              "\\bUUIDv4\\b",
+              "\\bUUIDv5\\b",
+              "V42\\."
+            ],
+            "json_pointers": [
+              "/summary",
+              "/purpose_and_boundaries",
+              "/capability_classes",
+              "/execution_tiers",
+              "/edge_key_management",
+              "/id_surface_and_uuid_rules",
+              "/economic_defense_policy",
+              "/supply_chain_policy",
+              "/error_and_fallback_policy",
+              "/observability_requirements",
+              "/review_and_rollout_requirements",
+              "/invariants",
+              "/native_state_rules",
+              "/fallback_and_loader_rules",
+              "/android_edge_and_jni_rules",
+              "/verification_keyset_lifecycle",
+              "/native_error_surface",
+              "/resource_budget_and_parser_rules",
+              "/testing_requirements",
+              "/runtime_harness_requirements",
+              "/repo_lint_enforcement"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "RUST-1 canonical content MUST avoid placeholders and banned vocabulary that would drift away from project conventions.",
+      "failure_message": "RUST-1 contains placeholder text or banned vocabulary in canonical sections.",
+      "id": "RUST-1-GATE-110",
+      "level": "P0",
+      "must": true,
+      "title": "Canonical terminology and placeholder bans"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0",
+            "json_pointer": "/dependencies/0/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.0.0",
+            "json_pointer": "/dependencies/0/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "BP-0",
+            "json_pointer": "/dependencies/1/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "V42-0",
+            "json_pointer": "/lineage/foundation_refs/0/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RUST-1 dependency and lineage floors MUST anchor the contract to CS-0, BP-0, and V42-0.",
+      "failure_message": "RUST-1 dependency floors or foundation references drifted away from the intended constitutional anchors.",
+      "id": "RUST-1-GATE-120",
+      "level": "P0",
+      "must": true,
+      "title": "Dependency and foundation floor discipline"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/native_state_rules/mutable_global_native_state_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/native_state_rules/request_or_tenant_derived_cache_allowed_in_v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/native_state_rules/static_mut_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RUST-1 MUST explicitly forbid mutable global native state, request-derived runtime caches, and shared verifier pools in v1.",
+      "failure_message": "RUST-1 no longer bans mutable native state strongly enough for v1.",
+      "id": "RUST-1-GATE-130",
+      "level": "P0",
+      "must": true,
+      "title": "Mutable native state remains banned in v1"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/fallback_and_loader_rules/every_exported_native_entrypoint_must_have_loader_stub"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/fallback_and_loader_rules/pure_elixir_fallback_required_for_performance_only_capabilities"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/fallback_and_loader_rules/fallback_selection_must_be_deterministic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Security-critical native load failure MUST fail closed or fail boot, and fallback behavior MUST remain deterministic and observable.",
+      "failure_message": "RUST-1 no longer governs native loader and fallback semantics tightly enough.",
+      "id": "RUST-1-GATE-140",
+      "level": "P0",
+      "must": true,
+      "title": "Loader and fallback semantics remain fail-closed"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/android_edge_and_jni_rules/jni_surface_must_be_minimal"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/android_edge_and_jni_rules/chatty_micro_calls_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/android_edge_and_jni_rules/network_calls_in_jni_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/android_edge_and_jni_rules/android_keystore_usage_for_master_ticket_signing_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Android native integration MUST stay inside a minimal governed JNI bridge and MUST NOT gain business workflow or network authority.",
+      "failure_message": "RUST-1 no longer constrains JNI tightly enough for edge-native verification.",
+      "id": "RUST-1-GATE-150",
+      "level": "P0",
+      "must": true,
+      "title": "Android JNI boundary remains minimal and governed"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/verification_keyset_lifecycle/kid_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/verification_keyset_lifecycle/keyset_version_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/verification_keyset_lifecycle/revoked_key_hard_fail_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/verification_keyset_lifecycle/offline_verification_after_hard_fail_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Edge verification keysets MUST remain kid-addressable, versioned, time-bounded, and revocation-aware.",
+      "failure_message": "RUST-1 no longer defines an explicit governed verification-key lifecycle for offline verification.",
+      "id": "RUST-1-GATE-160",
+      "level": "P0",
+      "must": true,
+      "title": "Verification keyset lifecycle remains explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "NATIVE_",
+            "json_pointer": "/native_error_surface/error_prefix"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/native_error_surface/raw_payload_logging_allowed_on_panic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/native_error_surface/secret_material_logging_allowed_on_panic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RUST-1 MUST keep an explicit native error surface and forbid raw panic payload logging.",
+      "failure_message": "RUST-1 no longer defines or protects the governed native error surface.",
+      "id": "RUST-1-GATE-170",
+      "level": "P1",
+      "must": true,
+      "title": "Native-specific error surface remains governed"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/resource_budget_and_parser_rules/unbounded_allocation_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/resource_budget_and_parser_rules/parser_recursion_allowed_by_default"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/resource_budget_and_parser_rules/secret_zeroization_required_when_secret_material_present"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Native boundaries MUST keep explicit input, output, parser, and allocation ceilings.",
+      "failure_message": "RUST-1 no longer maintains bounded native resource and parser rules.",
+      "id": "RUST-1-GATE-180",
+      "level": "P1",
+      "must": true,
+      "title": "Resource ceilings and parser rules remain bounded"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/testing_requirements/fuzzing_required_for_hostile_parser_surfaces"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/testing_requirements/golden_vectors_required_for_signature_and_envelope_verification"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/runtime_harness_requirements/runtime_harness_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/runtime_harness_requirements/benchmark_artifact_required_before_enablement"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Native verification, parser, and canonicalization surfaces MUST retain fuzzing, golden vectors, and runtime-harness declarations.",
+      "failure_message": "RUST-1 no longer requires sufficient test and runtime evidence for native activation.",
+      "id": "RUST-1-GATE-190",
+      "level": "P1",
+      "must": true,
+      "title": "Testing and runtime evidence remain mandatory"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/repo_lint_enforcement/governance_lint_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "forbidden_except_explicit_security_reviewed_exception",
+            "json_pointer": "/repo_lint_enforcement/waiver_default"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RUST-1 MUST keep repo-level governance lint hooks for native-boundary anti-patterns.",
+      "failure_message": "RUST-1 no longer requires repo-level lint enforcement for native-boundary anti-patterns.",
+      "id": "RUST-1-GATE-200",
+      "level": "P1",
+      "must": true,
+      "title": "Repo lint hooks remain part of native governance"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "signal": "native_call_completed"
+          },
+          "mode": "automated",
+          "type": "telemetry_signal_emitted"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "signal": "native_call_failed"
+          },
+          "mode": "automated",
+          "type": "error_envelope_correlation"
+        }
+      ],
+      "description": "RUST-1 SHOULD declare runtime-harness assertions for telemetry and error-envelope linkage even though static CI cannot execute them alone.",
+      "failure_message": "Runtime-harness declarations for native telemetry and error correlation are missing.",
+      "id": "RUST-1-GATE-210",
+      "level": "P1",
+      "must": false,
+      "title": "Runtime telemetry declarations exist for native paths"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "eligible_but_forbidden_until_downstream_adoption",
+            "json_pointer": "/adoption_control_model/default_capability_status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/adoption_control_model/downstream_contract_must_explicitly_adopt_capability"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/adoption_control_model/direct_repo_activation_without_downstream_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/adoption_control_model/authority_transfer_by_implementation_choice_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RUST-1 MUST keep all native capability classes in an eligible-only state until a downstream owner contract explicitly adopts and budgets them.",
+      "failure_message": "RUST-1 now allows native capabilities to be activated without explicit downstream contract adoption and budgeting.",
+      "id": "RUST-1-GATE-220",
+      "level": "P0",
+      "must": true,
+      "title": "Capability enablement requires explicit downstream adoption"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EDGE_PUBLIC_KEY_VERIFY",
+            "json_pointer": "/capability_adoption_matrix/0/capability_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "eligible_but_forbidden_until_adopted",
+            "json_pointer": "/capability_adoption_matrix/0/default_status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CONSTANT_TIME_COMPARE_AND_SIGNATURE_VERIFY",
+            "json_pointer": "/capability_adoption_matrix/1/capability_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CANONICAL_PREIMAGE_AND_HASH",
+            "json_pointer": "/capability_adoption_matrix/2/capability_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "BOUNDED_DETERMINISTIC_MATH",
+            "json_pointer": "/capability_adoption_matrix/3/capability_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "HOSTILE_BINARY_PARSE",
+            "json_pointer": "/capability_adoption_matrix/4/capability_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PASSWORD_KDF_OR_CRYPTO_WORKER",
+            "json_pointer": "/capability_adoption_matrix/5/capability_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "forbidden_until_amended",
+            "json_pointer": "/capability_adoption_matrix/5/default_status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PRIVATE_KEY_SIGNING_INSIDE_NATIVE_BOUNDARY",
+            "json_pointer": "/capability_adoption_matrix/6/capability_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "forbidden_until_amended",
+            "json_pointer": "/capability_adoption_matrix/6/default_status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RUST-1 MUST keep an explicit per-capability adoption matrix so native usage cannot spread by implication or undocumented convention.",
+      "failure_message": "RUST-1 no longer keeps an explicit capability adoption matrix with governed default statuses.",
+      "id": "RUST-1-GATE-230",
+      "level": "P1",
+      "must": true,
+      "title": "Capability adoption matrix remains explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/err1_integration_requirements/native_err1_subcode_registration_required_before_suite_use"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/err1_integration_requirements/downstream_contract_must_declare_error_mapping_before_enablement"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/err1_integration_requirements/unknown_err1_subcode_usage_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "NATIVE_",
+            "json_pointer": "/err1_integration_requirements/local_native_code_prefix"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Native-path enablement MUST remain blocked until ERR-1 registration and downstream error mapping discipline are explicit.",
+      "failure_message": "RUST-1 no longer requires ERR-1 registration discipline before native-specific error usage reaches the suite.",
+      "id": "RUST-1-GATE-240",
+      "level": "P0",
+      "must": true,
+      "title": "ERR-1 registration remains mandatory before suite use"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/capability_budget_binding/global_ceilings_are_enablement_only"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/capability_budget_binding/downstream_capability_budget_required_before_enablement"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/capability_budget_binding/enablement_without_downstream_budget_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/capability_budget_binding/downstream_budget_may_exceed_rust1_ceiling"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RUST-1 global ceilings MUST remain enablement guards only; each adopted capability still needs a tighter downstream contract budget.",
+      "failure_message": "RUST-1 no longer forces downstream capability budgets or now allows downstream budgets to exceed native hard ceilings.",
+      "id": "RUST-1-GATE-250",
+      "level": "P0",
+      "must": true,
+      "title": "RUST-1 budgets remain hard ceilings only"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TG-0",
+            "json_pointer": "/dependencies/14/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LINT-0",
+            "json_pointer": "/dependencies/15/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "GOV-0",
+            "json_pointer": "/dependencies/16/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RUST-1 MUST remain anchored to TG-0, LINT-0, and GOV-0 so native-boundary lint and waiver discipline cannot drift into convention-only governance.",
+      "failure_message": "RUST-1 no longer keeps explicit governance-floor dependencies for test-gate, lint, and waiver discipline.",
+      "id": "RUST-1-GATE-260",
+      "level": "P1",
+      "must": true,
+      "title": "Governance floor dependencies remain explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/capability_adoption_matrix/0/owning_contract_remains_authoritative"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/capability_adoption_matrix/0/native_may_be_authoritative"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/capability_adoption_matrix_rules/matrix_entries_must_name_owner_authority_fields"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Capability matrix entries MUST explicitly state that the owning contract remains authoritative and native code does not become authority by implementation choice.",
+      "failure_message": "RUST-1 capability matrix no longer states ownership authority explicitly, reintroducing semantic ambiguity around native authority.",
+      "id": "RUST-1-GATE-270",
+      "level": "P1",
+      "must": true,
+      "title": "Capability matrix authority terminology remains explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/verification_keyset_lifecycle/monotonic_version_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/verification_keyset_lifecycle/anti_rollback_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/verification_keyset_lifecycle/signed_keyset_bundle_required_for_remote_update"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/verification_keyset_lifecycle/rollback_to_older_trusted_keyset_allowed_without_exception"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Verification keysets MUST remain monotonic, signed for remote updates, and rollback-protected for offline trust.",
+      "failure_message": "RUST-1 no longer enforces explicit keyset anti-rollback and signed update discipline.",
+      "id": "RUST-1-GATE-280",
+      "level": "P0",
+      "must": true,
+      "title": "Keyset anti-rollback and signed update discipline remain explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/android_edge_and_jni_rules/release_manifest_must_declare_supported_abis"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "coarse_grained_request_response_only",
+            "json_pointer": "/android_edge_and_jni_rules/jni_call_style"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "forbidden",
+            "json_pointer": "/android_edge_and_jni_rules/rust_to_java_callbacks_default"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/android_edge_and_jni_rules/legacy_32bit_support_requires_exception"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Android-native releases MUST declare supported ABIs and keep JNI communication coarse-grained and governed.",
+      "failure_message": "RUST-1 no longer governs Android ABI packaging and JNI call-shape discipline explicitly.",
+      "id": "RUST-1-GATE-290",
+      "level": "P1",
+      "must": true,
+      "title": "Android ABI packaging and JNI discipline remain explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/runtime_harness_requirements/runtime_activation_without_declared_harness_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/resource_budget_and_parser_rules/runtime_budget_rejection_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/capability_budget_binding/release_block_if_capability_budget_fields_missing"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Native capability activation MUST remain blocked by missing runtime proof, mapping, or budgets, and budget rejection telemetry MUST remain governed.",
+      "failure_message": "RUST-1 no longer makes runtime activation blockers and budget rejection signals explicit.",
+      "id": "RUST-1-GATE-300",
+      "level": "P1",
+      "must": true,
+      "title": "Runtime activation blockers and budget rejection signals remain explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "RUST_NO_FALLBACK_BYPASS",
+            "json_pointer": "/repo_lint_enforcement/required_rule_ids/6"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "RUST_NO_ERR1_BYPASS",
+            "json_pointer": "/repo_lint_enforcement/required_rule_ids/7"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "RUST_NO_NATIVE_AUTHORITY_TRANSFER",
+            "json_pointer": "/repo_lint_enforcement/required_rule_ids/8"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "RUST_NO_KEYSET_ROLLBACK_BYPASS",
+            "json_pointer": "/repo_lint_enforcement/required_rule_ids/9"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RUST-1 MUST keep repo-lint hooks for fallback bypass, ERR-1 bypass, native authority transfer, and keyset rollback bypass.",
+      "failure_message": "RUST-1 no longer keeps the expanded repo-lint governance hooks required to police native-boundary drift.",
+      "id": "RUST-1-GATE-310",
+      "level": "P1",
+      "must": true,
+      "title": "Expanded native-boundary lint hooks remain explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.4.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "SCAN-1",
+              "TKT-1",
+              "ORD-1",
+              "PRICE-1"
+            ],
+            "json_pointer": "/capability_adoption_matrix/0/candidate_owner_contracts"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "SCAN-1",
+              "TKT-1",
+              "PAY-1",
+              "PAY-2",
+              "PAY-3",
+              "PAY-4",
+              "IAM-1"
+            ],
+            "json_pointer": "/capability_adoption_matrix/1/candidate_owner_contracts"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "TKT-1",
+              "LOCKS-1",
+              "ORD-1",
+              "PRICE-1"
+            ],
+            "json_pointer": "/capability_adoption_matrix/2/candidate_owner_contracts"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "SCAN-1",
+              "TKT-1",
+              "PAY-1",
+              "PAY-2",
+              "PAY-3",
+              "PAY-4"
+            ],
+            "json_pointer": "/capability_adoption_matrix/4/candidate_owner_contracts"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "ticket_issuance_authority",
+              "payment_validity_or_order_finalization",
+              "inventory_or_seat_truth",
+              "admission_or_redemption_acceptance",
+              "revocation_or_supersession_business_decision",
+              "transfer_approval",
+              "refund_or_chargeback_outcome"
+            ],
+            "json_pointer": "/tkt_native_credential_boundary/rust_must_not_own"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "forbidden_until_separate_amendment",
+            "json_pointer": "/tkt_native_credential_boundary/private_key_signing_inside_native_boundary"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "TKT-1 MAY be a candidate owner only for credential-envelope parse, canonicalization, fingerprinting, and public-key verification. Native code MUST NOT become authority for issuance, payment, inventory, admission, transfer, refund, or revocation decisions.",
+      "failure_message": "TKT-1 native eligibility drifted beyond credential-envelope computation or native authority bans were weakened.",
+      "id": "RUST-1-GATE-320",
+      "level": "P0",
+      "must": true,
+      "title": "TKT-1 credential-envelope eligibility remains narrow"
+    }
+  ],
+  "generated_at_utc": "2026-04-24T06:00:14Z",
+  "last_updated_utc": "2026-04-24T06:00:14Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "RUST-1 Test Gates",
+  "version": "1.4.0"
+}

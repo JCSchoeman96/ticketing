@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/SCAN-1_bundle_v1.6.3_refactored.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/SCAN-1_bundle_v1.6.3_refactored.zip",
+  "source_zip_sha256": "a3111df52ffe792b0389075c2050ce0f26d689469e4603f8c105e045bdb197e3",
+  "source_zip_bytes": 14660,
+  "source_version": "1.6.3",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "SCAN-1_bundle_v1.6.3/SCAN-1_Contract_v1.6.3.json",
+      "sha256": "a7978b25b2f7cd86002bdfb4b10303ba27f2dcd0a517168c16e8001b6b557b84",
+      "bytes": 62122
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "SCAN-1_bundle_v1.6.3/SCAN-1-GATE_TestGates_v1.6.3.json",
+      "sha256": "66665488efc603d4aae0e5d3a960c5e2db3af71773325fd62a865e1401534ef1",
+      "bytes": 9586
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "SCAN-1_bundle_v1.6.3/SCAN-1_Contract_v1.6.3.json",
+      "sha256": "20d37686a55e5db03bd35a0230bfc1e6c220003cf701b1c40e6c116b37309f07",
+      "bytes": 62285
+    },
+    {
+      "source_member_path": "SCAN-1_bundle_v1.6.3/SCAN-1-GATE_TestGates_v1.6.3.json",
+      "sha256": "5ce9e24919800c839f60aa876d0ea5694f5e3e78d0b9cda605e48043c73a0478",
+      "bytes": 9585
+    }
+  ]
+}

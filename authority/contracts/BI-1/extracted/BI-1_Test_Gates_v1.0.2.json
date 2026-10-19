@@ -1,0 +1,485 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "BI-1",
+    "version": "1.0.2"
+  },
+  "doc_id": "BI-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "BI-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.0.2",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract identity and schema anchored.",
+      "failure_message": "Contract identity and schema anchored.",
+      "id": "BI-1-GATE-META-001",
+      "level": "P1",
+      "must": true,
+      "title": "BI-1-GATE-META-001"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "V42-0",
+            "json_pointer": "/dependencies/0/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0",
+            "json_pointer": "/dependencies/1/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TG-0",
+            "json_pointer": "/dependencies/2/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "BP-0",
+            "json_pointer": "/dependencies/3/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CG-0",
+            "json_pointer": "/dependencies/4/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN-1",
+            "json_pointer": "/dependencies/5/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IAM-1",
+            "json_pointer": "/dependencies/6/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PII-1",
+            "json_pointer": "/dependencies/7/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CONSENT-1",
+            "json_pointer": "/dependencies/8/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "DSAR-1",
+            "json_pointer": "/dependencies/9/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR-1",
+            "json_pointer": "/dependencies/10/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LOCKS-1",
+            "json_pointer": "/dependencies/11/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PSC-1",
+            "json_pointer": "/dependencies/12/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OBS-1",
+            "json_pointer": "/dependencies/13/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ARCH-1",
+            "json_pointer": "/dependencies/14/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "DATA-1",
+            "json_pointer": "/dependencies/15/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ORD-1",
+            "json_pointer": "/dependencies/16/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LED-1",
+            "json_pointer": "/dependencies/17/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PRICE-1",
+            "json_pointer": "/dependencies/18/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TRK-1",
+            "json_pointer": "/dependencies/19/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.3.0",
+            "json_pointer": "/dependencies/6/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "4.1.2",
+            "json_pointer": "/dependencies/17/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Dependencies present with required minimum versions (stable ordering).",
+      "failure_message": "Dependencies present with required minimum versions (stable ordering).",
+      "id": "BI-1-GATE-DEPS-001",
+      "level": "P1",
+      "must": true,
+      "title": "BI-1-GATE-DEPS-001"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "led_settled",
+            "json_pointer": "/metric_registry/metric_definitions/0/truth_source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "led_settled",
+            "json_pointer": "/metric_registry/metric_definitions/1/truth_source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "led_settled",
+            "json_pointer": "/metric_registry/metric_definitions/2/truth_source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ord_committed",
+            "json_pointer": "/metric_registry/metric_definitions/3/truth_source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ord_committed",
+            "json_pointer": "/metric_registry/metric_definitions/4/truth_source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ord_committed",
+            "json_pointer": "/metric_registry/metric_definitions/5/truth_source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ord_committed",
+            "json_pointer": "/metric_registry/metric_definitions/6/truth_source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ord_committed",
+            "json_pointer": "/metric_registry/metric_definitions/7/truth_source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Core metrics use allowed truth_sources (no tracking-derived finance).",
+      "failure_message": "Core metrics use allowed truth_sources (no tracking-derived finance).",
+      "id": "BI-1-GATE-TRUTH-001",
+      "level": "P1",
+      "must": true,
+      "title": "BI-1-GATE-TRUTH-001"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "hour",
+            "json_pointer": "/metric_registry/metric_definitions/5/time_bucket"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/metric_registry/metric_definitions/5/dimensions_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "hour",
+            "json_pointer": "/metric_registry/metric_definitions/6/time_bucket"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/metric_registry/metric_definitions/6/dimensions_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "hour",
+            "json_pointer": "/metric_registry/metric_definitions/7/time_bucket"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/metric_registry/metric_definitions/7/dimensions_allowed"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Hourly metrics are totals only (no breakdown dimensions).",
+      "failure_message": "Hourly metrics are totals only (no breakdown dimensions).",
+      "id": "BI-1-GATE-HOURLY-001",
+      "level": "P1",
+      "must": true,
+      "title": "BI-1-GATE-HOURLY-001"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "dash.org.live_sales_overview",
+            "json_pointer": "/dashboards/dashboards/0/dashboard_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ops.gross_revenue_committed.hour_total",
+            "json_pointer": "/dashboards/dashboards/0/tiles/0/metric_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "dash.org.settled_finance",
+            "json_pointer": "/dashboards/dashboards/1/dashboard_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "platform_finance_admin",
+            "json_pointer": "/dashboards/dashboards/2/required_actor_kinds/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Dashboards exist and reference core metrics.",
+      "failure_message": "Dashboards exist and reference core metrics.",
+      "id": "BI-1-GATE-DASH-001",
+      "level": "P1",
+      "must": true,
+      "title": "BI-1-GATE-DASH-001"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "BI-1 MUST remain an explicit non-producer with no outbox events.",
+      "failure_message": "BI-1 MUST be an explicit non-producer (emits_events=false and outbox_events=[]).",
+      "id": "BI-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P1",
+      "must": true,
+      "title": "BI-1-GATE-ASSERT-NON-PRODUCER"
+    }
+  ],
+  "generated_at_utc": "2026-02-02T11:27:58Z",
+  "generated_by": {
+    "tool": "ci_contract_gate_strict",
+    "version": "2.7.0"
+  },
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "BI-1 Test Gates",
+  "version": "1.0.2"
+}

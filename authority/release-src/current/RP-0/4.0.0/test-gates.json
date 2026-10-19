@@ -1,0 +1,706 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "RP-0",
+    "version": "4.0.0"
+  },
+  "doc_id": "RP-0-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST be pinned consistently across contract, gates, and manifest.",
+      "id": "RP-0-GATE-010",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json MUST exist and MUST match the bundle file list.",
+      "id": "RP-0-GATE-020",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "RP-0",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "4.0.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "RP-0-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "4.0.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "RP-0",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "4.0.0",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "bundle_manifest",
+            "equals": "RP-0_bundle_v3.1.0",
+            "json_pointer": "/bundle/bundle_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "bundle_manifest",
+            "equals": "4.0.0",
+            "json_pointer": "/bundle/bundle_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Artifact linkage MUST be consistent (doc_id, version, contract_ref, manifest.bundle.*).",
+      "id": "RP-0-GATE-030",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0",
+            "json_pointer": "/dependencies/0/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.0.0",
+            "json_pointer": "/dependencies/0/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TG-0",
+            "json_pointer": "/dependencies/1/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.3.0",
+            "json_pointer": "/dependencies/1/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "BP-0",
+            "json_pointer": "/dependencies/2/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.0.6",
+            "json_pointer": "/dependencies/2/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "GOV-0",
+            "json_pointer": "/dependencies/3/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.0.10",
+            "json_pointer": "/dependencies/3/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LINT-0",
+            "json_pointer": "/dependencies/4/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.0.11",
+            "json_pointer": "/dependencies/4/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN-1",
+            "json_pointer": "/dependencies/5/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.7.4",
+            "json_pointer": "/dependencies/5/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR-1",
+            "json_pointer": "/dependencies/6/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.4.10",
+            "json_pointer": "/dependencies/6/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEC-1",
+            "json_pointer": "/dependencies/7/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.2.0",
+            "json_pointer": "/dependencies/7/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LOCKS-1",
+            "json_pointer": "/dependencies/8/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.1.0",
+            "json_pointer": "/dependencies/8/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "DP-1",
+            "json_pointer": "/dependencies/9/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.1.0",
+            "json_pointer": "/dependencies/9/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SM-0",
+            "json_pointer": "/dependencies/10/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.2.0",
+            "json_pointer": "/dependencies/10/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-1",
+            "json_pointer": "/dependencies/11/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.7.0",
+            "json_pointer": "/dependencies/11/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Dependencies MUST be pinned deterministically (doc_id + min_version).",
+      "id": "RP-0-GATE-040",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "T\\s*O\\s*D\\s*O",
+              "T\\s*B\\s*D",
+              "F\\s*I\\s*X\\s*M\\s*E",
+              "R\\s*E\\s*P\\s*L\\s*A\\s*C\\s*E\\s*_\\s*M\\s*E"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "T\\s*O\\s*D\\s*O",
+              "T\\s*B\\s*D",
+              "F\\s*I\\s*X\\s*M\\s*E",
+              "R\\s*E\\s*P\\s*L\\s*A\\s*C\\s*E\\s*_\\s*M\\s*E"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholder markers may exist in lockable artifacts.",
+      "id": "RP-0-GATE-050",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/timestamps/type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/data_model/identifiers/tenant_key/type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)tenant_id|orgid|uuid_v5|V42\\."
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Contract MUST enforce core constitutional shapes via deterministic structural assertions (org_id uuid_v7 tenant key, utc_datetime_usec timestamps) and MUST NOT use banned legacy terms.",
+      "id": "RP-0-GATE-060",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "Attempt to model tenancy with tenant_id MUST be rejected (contract forbids the term).",
+        "Any occurrence of orgid MUST be treated as drift and fail CI.",
+        "Any occurrence of uuid_v5 MUST be treated as drift and fail CI.",
+        "Any occurrence of V42. module prefix MUST be treated as drift and fail CI."
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/data_model/identifiers/tenant_key/type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenant key MUST be uuid_v7 (org_id is constitutional and typed).",
+      "id": "RP-0-GATE-061",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "Setting tenant_key.type to string MUST fail."
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "domains": [
+              "tenancy",
+              "authorization",
+              "idempotency"
+            ],
+            "required": true
+          },
+          "mode": "manual",
+          "type": "negative_tests"
+        }
+      ],
+      "description": "High-risk domains MUST include explicit denial tests (tenancy/authorization/idempotency).",
+      "id": "RP-0-GATE-070",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "Cross-tenant read MUST return ERRNOTFOUND (hide existence) per TEN-1.",
+        "Missing org_id context MUST fail closed as ERRFORBIDDEN.",
+        "Replay of Idempotency-Key with different parameters MUST return ERRCONFLICT."
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact": "contract",
+            "json_pointer": "/data_model/integration_identities/provider_event/identity/db_unique_index_fields",
+            "equals": [
+              "org_id",
+              "provider",
+              "provider_account_ref",
+              "provider_event_id"
+            ]
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact": "contract",
+            "json_pointer": "/data_model/integration_identities/provider_event/identity/fields",
+            "equals": [
+              "provider",
+              "provider_account_ref",
+              "provider_event_id"
+            ]
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact": "contract",
+            "json_pointer": "/banned_anti_patterns/AP-PROVIDER-ID-WITHOUT-ACCOUNT-SCOPE/severity",
+            "equals": "P0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RP-0 MUST require provider_account_ref scoping for ProviderEvent identity (align with SEC-1 triple-key dedupe).",
+      "id": "RP-0-GATE-080",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact": "contract",
+            "json_pointer": "/dependencies_pinned/SEC-1/min_version",
+            "equals": "3.2.0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RP-0 MUST pin SEC-1 minimum version that introduced provider_account_ref scoping.",
+      "id": "RP-0-GATE-081",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "P0",
+            "json_pointer": "/tenancy/tenant_resolution/severity"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "RP-0-TEN-RES-001",
+            "json_pointer": "/tenancy/tenant_resolution/rule_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenant resolution MUST be credential-context derived; payload org_id trust is forbidden.",
+      "id": "RP-0-GATE-082",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-1",
+            "json_pointer": "/events_and_ordering/event_registry_authority/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/events_and_ordering/event_registry_authority/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.webhook.received.v1",
+            "json_pointer": "/events_and_ordering/event_registry_authority/required_registered_event_types/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.identity.linked.v1",
+            "json_pointer": "/events_and_ordering/event_registry_authority/required_registered_event_types/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "RP-0 MUST declare EVT-1 event registry authority and required event types.",
+      "id": "RP-0-GATE-083",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "P0",
+            "json_pointer": "/banned_anti_patterns/AP-ORGID-FROM-UNVERIFIED-PAYLOAD/severity"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "P0",
+            "json_pointer": "/banned_anti_patterns/AP-DEDUPE-WITHOUT-ACCOUNT-SCOPE/severity"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Banned anti-patterns MUST include payload-derived org_id and dedupe without account scope.",
+      "id": "RP-0-GATE-084",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Asserts RP-0 declares emits_events=false and has an explicit empty outbox_events list. Prevents CI theatre on empty producer surfaces.",
+      "failure_message": "RP-0 non-producer declaration drift detected; emits_events or outbox_events no longer matches the explicit non-producer contract.",
+      "id": "RP-0-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "RP-0 MUST be an explicit non-producer"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "%{id: uuid_v7, type: :human | :service | :system}",
+            "json_pointer": "/domain_actions/invocation_context_required/actor_shape"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Invocation actor shape MUST use the IAM-1 canonical human, service, and system actor vocabulary.",
+      "failure_message": "RP-0 invocation actor shape drifted from the IAM-1 canonical actor vocabulary.",
+      "id": "RP-0-GATE-090",
+      "level": "P0",
+      "must": true,
+      "title": "Invocation context uses the canonical actor vocabulary"
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_dependency_floor_consistency.py::test_ord_and_rp_dependency_minima_match_floors"
+          }
+        }
+      ],
+      "description": "RP-0's EVT-1 dependency and event registry authority minimum MUST match its dependency floor.",
+      "failure_message": "RP-0 EVT-1 dependency or event registry authority minimum drifted from its declared floor.",
+      "id": "RP-0-GATE-EVT-DEPENDENCY-FLOOR-CONSISTENCY-001",
+      "level": "P0",
+      "must": true,
+      "title": "EVT-1 dependency minima match floor"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "RP-0 Test Gates (CS-0@2.2.0 aligned)",
+  "version": "4.0.0"
+}

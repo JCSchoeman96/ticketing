@@ -1,0 +1,722 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "EXT-1",
+    "version": "2.1.7"
+  },
+  "doc_id": "EXT-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST match the CS bundle used by CI.",
+      "enforced_by": "ci_contract_gate_strict_v2.6.x",
+      "failure_message": "Ensure suite_schema is CS-0@2.2.0",
+      "id": "EXT-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "suite_schema MUST match the CS bundle used by CI."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "Bundle manifest filename MUST be canonical.",
+      "enforced_by": "ci_contract_gate_strict_v2.6.x",
+      "failure_message": "Use bundle.manifest.json",
+      "id": "EXT-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle manifest filename MUST be canonical."
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json MUST exactly match the JSON files in the bundle (sha256 + bytes).",
+      "enforced_by": "ci_contract_gate_strict_v2.6.x",
+      "failure_message": "Recompute manifest hashes",
+      "id": "EXT-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "bundle.manifest.json MUST exactly match the JSON files in the bundle (sha256 + bytes)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "contract-suite/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "contract",
+            "json_pointer": "/artifact_kind"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EXT-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.1.7",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "EXT-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "2.1.7",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract and gates MUST expose required metadata at stable JSON pointers.",
+      "enforced_by": "ci_contract_gate_strict_v2.6.x",
+      "failure_message": "Verify doc_id, version, artifact_kind, schema_version",
+      "id": "EXT-1-GATE-040",
+      "level": "P0",
+      "must": true,
+      "title": "Contract and gates MUST expose required metadata at stable JSON pointers."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bTODO\\b",
+              "\\bTBD\\b",
+              "\\bto be decided\\b",
+              "\\bFIXME\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No unresolved placeholders allowed in required sections.",
+      "enforced_by": "ci_contract_gate_strict_v2.6.x",
+      "failure_message": "Remove TODO/TBD/FIXME tokens",
+      "id": "EXT-1-GATE-050",
+      "level": "P0",
+      "must": true,
+      "title": "No unresolved placeholders allowed in required sections."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bERRBADREQUEST\\b",
+              "\\bERRNOTFOUND\\b",
+              "\\bERRCONFLICT\\b",
+              "\\bERRFORBIDDEN\\b",
+              "\\bERRUNAUTHENTICATED\\b",
+              "\\bERRINTERNAL\\b",
+              "\\bERRPRECONDITION\\b",
+              "\\bERRRATELIMITED\\b",
+              "\\bERRTHIRDPARTY\\b",
+              "\\bERRTIMEOUT\\b",
+              "\\bERRUNAVAILABLE\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Contract MUST NOT contain legacy non-canonical ERR codes (enforcement of ERR-1 discipline).",
+      "enforced_by": "ci_contract_gate_strict_v2.6.x",
+      "failure_message": "Replace ERRBADREQUEST with ERR_BAD_REQUEST, ERRNOTFOUND with ERR_NOT_FOUND, etc.",
+      "id": "EXT-1-GATE-051",
+      "level": "P0",
+      "must": true,
+      "title": "Contract MUST NOT contain legacy non-canonical ERR codes (enforcement of ERR-1 discipline)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "explicit_projection_or_allowlist",
+            "json_pointer": "/resource_projection/policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Projection Mandatory policy MUST be explicit (deny-by-default).",
+      "failure_message": "Use explicit_projection_or_allowlist",
+      "id": "EXT-1-GATE-100",
+      "level": "P0",
+      "must": true,
+      "title": "Projection Mandatory policy MUST be explicit (deny-by-default)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "explicit_allowlist",
+            "json_pointer": "/filter_standards/policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_BAD_REQUEST",
+            "json_pointer": "/filter_standards/unlisted_filter_error/code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EXTFILTERNOTALLOWED",
+            "json_pointer": "/filter_standards/unlisted_filter_error/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_BAD_REQUEST",
+            "json_pointer": "/error_contract/subcode_registry/EXTFILTERNOTALLOWED/code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Filter allowlist policy MUST be explicit and must map to ERR_BAD_REQUEST + EXT_FILTER_NOT_ALLOWED (canonical ERR-1 codes).",
+      "failure_message": "Use canonical ERR_BAD_REQUEST spelling",
+      "id": "EXT-1-GATE-110",
+      "level": "P0",
+      "must": true,
+      "title": "Filter allowlist policy MUST be explicit and must map to ERR_BAD_REQUEST + EXT_FILTER_NOT_ALLOWED (canonical ERR-1 codes"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "always",
+            "json_pointer": "/http_api/required_response_headers/X-Trace-Id/must_be_present"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "always",
+            "json_pointer": "/http_api/required_response_headers/X-Request-Id/must_be_present"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Header Reflection MUST require X-Trace-Id and X-Request-Id for all responses.",
+      "failure_message": "Set must_be_present to 'always' for both headers",
+      "id": "EXT-1-GATE-120",
+      "level": "P0",
+      "must": true,
+      "title": "Header Reflection MUST require X-Trace-Id and X-Request-Id for all responses."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 10000,
+            "json_pointer": "/http_api/pagination/offset/max_rows_threshold"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 1000,
+            "json_pointer": "/http_api/pagination/offset/max_offset"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EXTOFFSETFORBIDDENUSECURSOR",
+            "json_pointer": "/http_api/pagination/offset/exceeds_threshold_error/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_BAD_REQUEST",
+            "json_pointer": "/error_contract/subcode_registry/EXTOFFSETFORBIDDENUSECURSOR/code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Cursor-only pagination policy MUST include thresholds + correct EXT_OFFSET_FORBIDDEN_USE_CURSOR mapping (canonical ERR-1 codes).",
+      "failure_message": "Use ERR_BAD_REQUEST spelling",
+      "id": "EXT-1-GATE-130",
+      "level": "P0",
+      "must": true,
+      "title": "Cursor-only pagination policy MUST include thresholds + correct EXT_OFFSET_FORBIDDEN_USE_CURSOR mapping (canonical ERR-1"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "X-ET-Source",
+            "json_pointer": "/http_api/internal_loop_protection/source_header"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "X-ET-Source",
+            "json_pointer": "/webhooks/delivery_headers/source_header"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "platform-webhook-worker",
+            "json_pointer": "/webhooks/delivery_headers/source_value"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_RATE_LIMITED",
+            "json_pointer": "/error_contract/subcode_registry/EXTWEBHOOKLOOPDETECTED/code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Webhook loop protection MUST define X-ET-Source and the internal source value platform-webhook-worker (canonical ERR-1 codes).",
+      "failure_message": "Webhook loop protection MUST define X-ET-Source and the internal source value platform-webhook-worker (canonical ERR-1 codes).",
+      "id": "EXT-1-GATE-140",
+      "level": "P1",
+      "must": true,
+      "title": "Webhook loop protection MUST define X-ET-Source and the internal source value platform-webhook-worker (canonical ERR-1 c"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": ":forbidden_to_not_found",
+            "json_pointer": "/public_projections/error_handling/tenant_boundary_mapping"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "error_handler:\\s*:forbidden_to_forbidden"
+            ],
+            "json_pointers": [
+              "/public_projections"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Automated hide-existence enforcement: forbid forbidden→forbidden mapping; require forbidden→not_found mapping for tenant boundary errors.",
+      "failure_message": "Replace any error_handler: :forbidden_to_forbidden mapping with forbidden→not_found (hide-existence) in public projections.",
+      "id": "EXT-1-GATE-150",
+      "level": "P0",
+      "must": true,
+      "title": "Automated hide-existence enforcement: forbid forbidden→forbidden mapping; require forbidden→not_found mapping for tenant"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "keyset",
+            "json_pointer": "/pagination_policy/tier_3_list_actions/mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/pagination_policy/tier_3_list_actions/cursor_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/pagination_policy/tier_3_list_actions/offset_forbidden"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)\\\\boffset\\\\b",
+              "(?i)\\\\bpage\\\\b"
+            ],
+            "json_pointers": [
+              "/pagination_policy/tier_3_list_actions"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Tier 3 list actions require cursor-first keyset pagination; offset-based pagination is forbidden.",
+      "failure_message": "Ensure all tier 3 list endpoints use keyset pagination and do not accept offset/page parameters.",
+      "id": "EXT-1-GATE-160",
+      "level": "P0",
+      "must": true,
+      "title": "Tier 3 list actions require cursor-first keyset pagination; offset-based pagination is forbidden."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 300,
+            "json_pointer": "/webhooks/signing/max_timestamp_drift_seconds"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Webhook signature replay protection is enforced via a max timestamp drift window.",
+      "failure_message": "Validate the t= timestamp and reject signatures outside the drift window to prevent replay attacks.",
+      "id": "EXT-1-GATE-170",
+      "level": "P0",
+      "must": true,
+      "title": "Webhook signature replay protection is enforced via a max timestamp drift window."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/webhooks/signing/constant_time_comparison_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Webhook signature verification MUST use constant-time comparison (security hardening).",
+      "failure_message": "Set constant_time_comparison_required to true in webhooks.signing",
+      "id": "EXT-1-GATE-171",
+      "level": "P0",
+      "must": true,
+      "title": "Webhook signature verification MUST use constant-time comparison (security hardening)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/webhooks/egress/target_url_policy/https_only"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "http://"
+            ],
+            "json_pointers": [
+              "/webhooks/egress/target_url_policy"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Webhook target_url MUST be HTTPS-only (http:// forbidden).",
+      "failure_message": "Reject or migrate any http:// webhook targets to https:// and enforce HTTPS-only validation.",
+      "id": "EXT-1-GATE-180",
+      "level": "P0",
+      "must": true,
+      "title": "Webhook target_url MUST be HTTPS-only (http:// forbidden)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/limits_and_budgets/rate_limits/scope_tuple/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "actor_id",
+            "json_pointer": "/limits_and_budgets/rate_limits/scope_tuple/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Rate limits are scoped at (org_id, actor_id) tuple level.",
+      "failure_message": "Ensure rate limit keys include both org_id and actor_id to avoid tenant-wide DOS by one actor.",
+      "id": "EXT-1-GATE-190",
+      "level": "P1",
+      "must": true,
+      "title": "Rate limits are scoped at (org_id, actor_id) tuple level."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/gateway_security/hsts/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Strict-Transport-Security",
+            "json_pointer": "/gateway_security/hsts/header"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 31536000,
+            "json_pointer": "/gateway_security/hsts/max_age_seconds_min"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/gateway_security/hsts/include_subdomains_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Gateway enforces HSTS via Strict-Transport-Security with required directives.",
+      "failure_message": "Configure the API gateway to set Strict-Transport-Security with max-age >= 31536000 and includeSubDomains on all HTTPS responses.",
+      "id": "EXT-1-GATE-200",
+      "level": "P0",
+      "must": true,
+      "title": "Gateway enforces HSTS via Strict-Transport-Security with required directives."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/idempotency/high_risk_writes/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\"key_ttl_seconds\"\\s*:"
+            ],
+            "json_pointers": [
+              "/idempotency/high_risk_writes"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "High-risk write idempotency keys inherit TTL from http_api.idempotency.ttl_seconds (86400s for financial safety).",
+      "failure_message": "Remove ambiguous key_ttl_seconds field; use single authoritative TTL",
+      "id": "EXT-1-GATE-210",
+      "level": "P0",
+      "must": true,
+      "title": "High-risk write idempotency keys inherit TTL from http_api.idempotency.ttl_seconds (86400s for financial safety)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "X-Idempotency-Key",
+            "json_pointer": "/http_api/idempotency/header"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_BAD_REQUEST",
+            "json_pointer": "/http_api/idempotency/missing_error/code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EXTIDEMPOTENCYKEYREQUIRED",
+            "json_pointer": "/http_api/idempotency/missing_error/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 400,
+            "json_pointer": "/error_contract/http_mapping_baseline/ERR_BAD_REQUEST"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "High-risk mutations MUST require the X-Idempotency-Key header; requests without it must return 400 via ERR_BAD_REQUEST + EXT_IDEMPOTENCY_KEY_REQUIRED (canonical ERR-1 codes).",
+      "enforced_by": "ci_contract_gate_strict_v2.6.x",
+      "failure_message": "Require and validate X-Idempotency-Key on all high-risk write endpoints; return ERR_BAD_REQUEST with EXT_IDEMPOTENCY_KEY_REQUIRED when missing.",
+      "id": "EXT-1-GATE-215",
+      "level": "P0",
+      "must": true,
+      "title": "High-risk mutations MUST require the X-Idempotency-Key header; requests without it must return 400 via ERR_BAD_REQUEST +"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "failure_message": "EXT-1 MUST be an explicit non-producer (emits_events=false and outbox_events=[]).",
+      "id": "EXT-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P1",
+      "title": "EXT-1-GATE-ASSERT-NON-PRODUCER",
+      "description": "EXT-1-GATE-ASSERT-NON-PRODUCER",
+      "must": false
+    }
+  ],
+  "generated_at_utc": "2026-01-09T07:21:33Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "EXT-1 Test Gates",
+  "version": "2.1.7"
+}

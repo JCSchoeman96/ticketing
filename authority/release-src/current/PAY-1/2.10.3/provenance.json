@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/PAY-1_bundle_v2.10.2_refactored.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/PAY-1_bundle_v2.10.2_refactored.zip",
+  "source_zip_sha256": "facb080f7160a8d6888a1b92cfc9e3d72d841956d3992aaa105c5489eb5a0183",
+  "source_zip_bytes": 19142,
+  "source_version": "2.10.2",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "PAY-1_bundle_v2.10.2/PAY-1_Contract_v2.10.2.json",
+      "sha256": "2e487d52cb974b9c07f91867730bd19149e279f6ca7202996e530e4b39ba6797",
+      "bytes": 53376
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "PAY-1_bundle_v2.10.2/PAY-1_Test_Gates_v2.10.2.json",
+      "sha256": "89d3ef3948ccfa57568508cabaa2431e44ab8fd50417c8f3ba097e2866c84958",
+      "bytes": 32502
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "PAY-1_bundle_v2.10.2/PAY-1_Contract_v2.10.2.json",
+      "sha256": "5eb51766e260dd25137ff77fcc4f816f87e84f90b37e14cdc03c25d90f14be5b",
+      "bytes": 53604
+    },
+    {
+      "source_member_path": "PAY-1_bundle_v2.10.2/PAY-1_Test_Gates_v2.10.2.json",
+      "sha256": "20e6de530ce71a57e0869153dfdba6115013665151887984fa3bce737f3446c6",
+      "bytes": 32166
+    }
+  ]
+}

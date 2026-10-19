@@ -1,0 +1,764 @@
+{
+  "actions_and_workflows": {
+    "error_codes": [
+      "ERR-1 envelope required for denials and operational failures."
+    ],
+    "idempotency_keys": [
+      "backfill_id is the idempotency key for backfill execution within an org_id scope."
+    ],
+    "input_validation": [
+      "org_id, trace_id, and request_id MUST be explicitly provided for tenant-scoped operations."
+    ],
+    "side_effects_separation": [
+      "Backfills MUST run asynchronously via OBQC-1 bounded queues; avoid hot-path side effects during migrations."
+    ]
+  },
+  "artifact_kind": "contract",
+  "artifact_name": "DMSC-1_Contract_v2.2.2.json",
+  "banned_anti_patterns": {
+    "DMSC_AP_001": {
+      "enforced_by": [
+        "migration_review_tooling",
+        "ci_ops_safety_tests"
+      ],
+      "must": "FORBIDDEN",
+      "pattern": "Data backfills inside schema migrations"
+    },
+    "DMSC_AP_002": {
+      "enforced_by": [
+        "migration_review_tooling"
+      ],
+      "must": "FORBIDDEN",
+      "pattern": "NOT NULL on hot columns without expand+backfill+validate phases"
+    },
+    "DMSC_AP_003": {
+      "enforced_by": [
+        "migration_review_tooling"
+      ],
+      "must": "FORBIDDEN",
+      "pattern": "Dropping/renaming columns in Expand phase"
+    },
+    "DMSC_AP_004": {
+      "enforced_by": [
+        "authorization_layer",
+        "audit_event_enforcement"
+      ],
+      "must": "FORBIDDEN",
+      "pattern": "Running global_ops migrations with a user actor"
+    },
+    "DMSC_AP_005": {
+      "enforced_by": [
+        "release_blockers",
+        "ops_runbooks"
+      ],
+      "must": "FORBIDDEN",
+      "pattern": "Long-running locks on tenant tables during payout-sensitive windows"
+    },
+    "DMSC_AP_006": {
+      "enforced_by": [
+        "release_blockers",
+        "deployment_interlocks",
+        "automated_backfills"
+      ],
+      "must": "FORBIDDEN",
+      "pattern": "Manual quarantine of financial events (any workflow that parks or reroutes ledger-affecting events for human review or ad-hoc replay)."
+    }
+  },
+  "data_model": {
+    "identifiers": {
+      "primary_key": {
+        "required": true,
+        "type": "uuid_v7"
+      },
+      "tenant_key": {
+        "field": "org_id",
+        "required": true,
+        "type": "uuid_v7"
+      }
+    },
+    "timestamps": {
+      "required": true,
+      "type": "utc_datetime_usec"
+    }
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Schema envelopes and validation for contract/test_gates/bundle_manifest artifacts."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Gate authoring rules, baseline mandatory gates, and denial-test requirements for high-risk domains."
+    },
+    {
+      "doc_id": "BP-0",
+      "edge_type": "governance_floor",
+      "min_version": "3.0.0",
+      "reason": "Bundle layout, manifest expectations, and deterministic CI posture."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "CI strict enforcement expectations for JSON-only bundles."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.9",
+      "reason": "Tenant isolation rules; org_id as tenant key; hide-existence posture."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.0.13",
+      "reason": "Idempotency and concurrency primitives for retriable deploy/backfill workflows."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.0",
+      "reason": "Operational SLOs/runbooks and release blockers during risky deploy windows."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "governance_floor",
+      "min_version": "1.4.0",
+      "reason": "Queue taxonomy, backpressure, and bounded concurrency/rate limits for backfills."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.3.1",
+      "reason": "Money correctness invariants; deploys must not create payout ambiguity."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "registry_floor",
+      "min_version": "1.3.23",
+      "reason": "Includes DMSC_* subcodes required by this contract."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Registry floor parity for type safety even as non-producer."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "registry_floor",
+      "min_version": "2.4.0",
+      "reason": "Schema_ref token normalization context."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0"
+  },
+  "doc_id": "DMSC-1",
+  "domain_actions": {
+    "deploy_contract": {
+      "audit_event_required": true,
+      "authorization": {
+        "capabilities_required": [
+          "dmsc:deploy"
+        ],
+        "required_actor_type": "system"
+      },
+      "inputs_required": [
+        "release_version",
+        "registry_version_sha_expected",
+        "migration_batch_id",
+        "precondition_proof",
+        "actor",
+        "trace_id",
+        "request_id",
+        "tenant_scope"
+      ],
+      "inputs_schema": {
+        "actor": {
+          "additional_properties": false,
+          "properties": {
+            "id": {
+              "format": "uuid_v7",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "user",
+                "system",
+                "service"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "type"
+          ],
+          "type": "object"
+        },
+        "migration_batch_id": {
+          "format": "uuid_v7",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "precondition_proof": {
+          "additional_properties": false,
+          "properties": {
+            "event_drain_proof": {
+              "additional_properties": false,
+              "properties": {
+                "drain_assertion": {
+                  "enum": [
+                    "empty"
+                  ],
+                  "type": "string"
+                },
+                "evidence_ref": {
+                  "min_length": 1,
+                  "type": "string"
+                },
+                "family": {
+                  "enum": [
+                    "ticketing.ledger"
+                  ],
+                  "type": "string"
+                },
+                "observed_at_utc": {
+                  "format": "utc_datetime_usec",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "family",
+                "drain_assertion",
+                "evidence_ref",
+                "observed_at_utc"
+              ],
+              "type": "object"
+            },
+            "led_payout_window_state": {
+              "enum": [
+                "closed"
+              ],
+              "type": "string"
+            },
+            "obs_release_blockers": {
+              "items": {
+                "additional_properties": false,
+                "properties": {
+                  "id": {
+                    "min_length": 1,
+                    "type": "string"
+                  },
+                  "state": {
+                    "enum": [
+                      "green"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "state"
+                ],
+                "type": "object"
+              },
+              "min_items": 1,
+              "type": "array"
+            },
+            "observed_at_utc": {
+              "format": "utc_datetime_usec",
+              "type": "string"
+            }
+          },
+          "required": [
+            "observed_at_utc",
+            "led_payout_window_state",
+            "obs_release_blockers",
+            "event_drain_proof"
+          ],
+          "type": "object"
+        },
+        "registry_version_sha_expected": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "release_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        },
+        "request_id": {
+          "format": "uuid_v7",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "tenant_scope": {
+          "enum": [
+            "global_ops"
+          ],
+          "type": "string"
+        },
+        "trace_id": {
+          "description": "Lowercase 32-hex trace id (W3C-compatible).",
+          "pattern": "^[0-9a-f]{32}$",
+          "type": "string"
+        }
+      },
+      "output_minimum": [
+        "migration_batch_id"
+      ],
+      "purpose": "Apply destructive schema changes (Contract) only after explicit safety preconditions are satisfied.",
+      "tenant_scope": "global_ops",
+      "validation_rules": [
+        "Contract-phase migrations MUST supply precondition_proof with observed_at_utc (utc_datetime_usec), led_payout_window_state=='closed', and obs_release_blockers[*].state=='green'.",
+        "Contract-phase migrations MUST record the full precondition_proof in the deploy audit event and MUST NOT run if any predicate fails."
+      ]
+    },
+    "deploy_expand": {
+      "audit_event_required": true,
+      "authorization": {
+        "capabilities_required": [
+          "dmsc:deploy"
+        ],
+        "required_actor_type": "system"
+      },
+      "inputs_required": [
+        "release_version",
+        "migration_batch_id",
+        "actor",
+        "trace_id",
+        "request_id",
+        "tenant_scope"
+      ],
+      "inputs_schema": {
+        "actor": {
+          "additional_properties": false,
+          "properties": {
+            "id": {
+              "format": "uuid_v7",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "user",
+                "system",
+                "service"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "type"
+          ],
+          "type": "object"
+        },
+        "migration_batch_id": {
+          "format": "uuid_v7",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "release_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        },
+        "request_id": {
+          "format": "uuid_v7",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "tenant_scope": {
+          "enum": [
+            "global_ops"
+          ],
+          "type": "string"
+        },
+        "trace_id": {
+          "description": "Lowercase 32-hex trace id (W3C-compatible).",
+          "pattern": "^[0-9a-f]{32}$",
+          "type": "string"
+        }
+      },
+      "output_minimum": [
+        "migration_batch_id"
+      ],
+      "purpose": "Apply additive schema changes (Expand) compatible with both N and N-1 releases.",
+      "tenant_scope": "global_ops",
+      "validation_rules": [
+        "Expand MUST be additive only (no drops, no narrowing types, no NOT NULL on existing hot columns).",
+        "Expand MUST preserve compatibility for a rolling deploy (N and N-1 concurrently)."
+      ]
+    },
+    "run_backfill": {
+      "audit_event_required": true,
+      "authorization": {
+        "capabilities_required": [
+          "dmsc:backfill"
+        ],
+        "required_actor_type": [
+          "system",
+          "service"
+        ]
+      },
+      "inputs_optional": [
+        "release_version",
+        "migration_batch_id"
+      ],
+      "inputs_required": [
+        "org_id",
+        "backfill_id",
+        "actor",
+        "trace_id",
+        "request_id"
+      ],
+      "inputs_schema": {
+        "actor": {
+          "additional_properties": false,
+          "properties": {
+            "id": {
+              "format": "uuid_v7",
+              "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+              "type": "string"
+            },
+            "type": {
+              "enum": [
+                "user",
+                "system",
+                "service"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "type"
+          ],
+          "type": "object"
+        },
+        "backfill_id": {
+          "format": "uuid_v7",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "migration_batch_id": {
+          "format": "uuid_v7",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "org_id": {
+          "format": "uuid_v7",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "release_version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        },
+        "request_id": {
+          "format": "uuid_v7",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "trace_id": {
+          "pattern": "^[0-9a-f]{32}$",
+          "type": "string"
+        }
+      },
+      "output_minimum": [
+        "backfill_id"
+      ],
+      "purpose": "Execute resumable, rate-limited backfills outside schema migrations.",
+      "validation_rules": [
+        "org_id MUST be explicit and MUST be uuid_v7 (no nullable or ambient tenancy).",
+        "backfill_id MUST be uuid_v7.",
+        "All persisted timestamps MUST use utc_datetime_usec.",
+        "Backfills MUST be idempotent, pausable/resumable, and bounded by OBQC-1 queue limits.",
+        "Backfills MUST execute outside schema migrations; data backfills inside schema migrations are forbidden."
+      ]
+    }
+  },
+  "emits_events": false,
+  "errors": {
+    "canonical_envelope": true,
+    "error_code_registry": "ERR-1",
+    "mapping": {
+      "deploy_contract": {
+        "precondition_failed": "DMSC_DEPLOY_PRECONDITION_FAILED",
+        "scope_violation": "DMSC_GLOBAL_OPS_SCOPE_VIOLATION"
+      },
+      "deploy_expand": {
+        "lock_busy_or_serialization": "LOCKS_DEADLOCK_OR_SERIALIZATION",
+        "missing_actor": "AUTH_ACTOR_CONTEXT_MISSING"
+      },
+      "run_backfill": {
+        "idempotency_violation": "DMSC_BACKFILL_IDEMPOTENCY_VIOLATION",
+        "rate_limited": "EXT_RATE_LIMITED",
+        "tenant_context_missing": "TEN_TENANT_CONTEXT_MISSING"
+      }
+    },
+    "retryability": {
+      "policy": "Retryable failures MUST be expressed via ERR-1 retryable=true taxonomy; otherwise retryable=false."
+    },
+    "subcodes": [
+      "AUTH_ACTOR_CONTEXT_MISSING",
+      "TEN_TENANT_CONTEXT_MISSING",
+      "EXT_RATE_LIMITED",
+      "LOCKS_ADVISORY_LOCK_BUSY",
+      "LOCKS_DEADLOCK_OR_SERIALIZATION",
+      "DMSC_DEPLOY_PRECONDITION_FAILED",
+      "DMSC_GLOBAL_OPS_SCOPE_VIOLATION",
+      "DMSC_BACKFILL_IDEMPOTENCY_VIOLATION",
+      "DMSC_MIGRATION_UNSAFE_OPERATION"
+    ]
+  },
+  "events_and_ordering": {
+    "event_names": [
+      "ticketing.deploy.expand.started",
+      "ticketing.deploy.expand.completed",
+      "ticketing.deploy.expand.failed",
+      "ticketing.deploy.contract.started",
+      "ticketing.deploy.contract.completed",
+      "ticketing.deploy.contract.failed",
+      "ticketing.backfill.started",
+      "ticketing.backfill.checkpointed",
+      "ticketing.backfill.completed",
+      "ticketing.backfill.failed"
+    ],
+    "ordering_guarantees": [
+      "Backfill progress is tracked via persisted checkpoints; retry/replay MUST be idempotent."
+    ],
+    "payload_shapes": [
+      {
+        "event": "ticketing.deploy.*",
+        "notes": [
+          "precondition_proof MUST be present for deploy.contract.* events."
+        ],
+        "required_keys": [
+          "actor",
+          "request_id",
+          "trace_id",
+          "release_version",
+          "migration_batch_id",
+          "tenant_scope",
+          "precondition_proof_if_contract"
+        ]
+      },
+      {
+        "event": "ticketing.backfill.*",
+        "notes": [
+          "Checkpoint events MUST include a monotonic checkpoint_token and progress counters."
+        ],
+        "required_keys": [
+          "actor",
+          "request_id",
+          "trace_id",
+          "backfill_id",
+          "org_id"
+        ]
+      }
+    ],
+    "replay_and_idempotency": [
+      "Replays with the same backfill_id MUST NOT duplicate writes."
+    ]
+  },
+  "generated_at_utc": "2026-02-04T18:46:33Z",
+  "invariants": {
+    "consistency_guarantees": [
+      "No oversell, even in partial failure.",
+      "No duplicate payout and no payout on uncertain state.",
+      "Rollback must work after Expand migrations.",
+      "Migrations must fail fast rather than stall hot paths."
+    ],
+    "constitution_mapping": [
+      "TEN-1: org_id tenancy discipline and hide-existence posture.",
+      "LOCKS-1: idempotency/concurrency primitives for retries and backfills.",
+      "LED-1: money correctness and release-window safety.",
+      "ERR-1: canonical error envelope."
+    ],
+    "immutability_rules": [
+      "Contract-phase migrations MUST NOT be executed without explicit safety preconditions."
+    ]
+  },
+  "last_updated_utc": "2026-02-04T18:46:33Z",
+  "migration_backward_compatibility": {
+    "compat_strategy": "Expand/Contract discipline; patch updates are schema-compliance only.",
+    "data_backfills": [
+      "Backfills MUST be resumable, idempotent, and queue-bounded (OBQC-1).",
+      "LED-1-REC-001: Synthetic versioning of legacy ledger events via LedgerCursor ground truth. Backfill worker MUST (a) read LedgerCursor.current_version and LedgerEntry order, (b) assign monotonic version per (org_id, ledger_id), (c) re-emit corrected events under the target registry_version_sha_expected. Human/manual reconciliation loops are forbidden."
+    ],
+    "rolling_deploy_safety": [
+      "Expand migrations MUST be compatible with N and N-1 running concurrently.",
+      "If required_data_keys are tightened for any event family, legacy events MUST be routed to an automated backfill (run_backfill). Manual quarantine is FORBIDDEN."
+    ]
+  },
+  "normative_source": "json",
+  "observability": {
+    "backfill_telemetry_required_fields": [
+      {
+        "field": "backfill_id",
+        "type": "uuid_v7"
+      },
+      {
+        "field": "org_id",
+        "nullable": true,
+        "type": "uuid_v7"
+      },
+      {
+        "field": "started_at_utc",
+        "type": "utc_datetime_usec"
+      },
+      {
+        "field": "last_checkpoint_at_utc",
+        "type": "utc_datetime_usec"
+      }
+    ],
+    "required_dimensions": [
+      "org_id",
+      "trace_id",
+      "request_id"
+    ]
+  },
+  "observability_and_ops_gates": {
+    "alerts": [
+      "Contract migrations MUST only run when payout blockers and DB saturation alerts are green (OBS-1)."
+    ],
+    "logs": {
+      "notes": [
+        "org_id MUST be present in logs/traces for run_backfill.",
+        "trace_id and request_id MUST be present in logs for all domain_actions."
+      ],
+      "required_fields": [
+        "actor",
+        "request_id",
+        "trace_id",
+        "migration_batch_id",
+        "release_version",
+        "backfill_id",
+        "org_id"
+      ]
+    },
+    "metrics": [
+      "Backfill runs MUST emit low-cardinality metrics. Labels MAY include backfill_type, stage, result, queue, release_version.",
+      "Metrics MUST NOT include tenant identifiers or per-request identifiers. Put those in logs/traces only."
+    ],
+    "obs_active_incidents_preflight": {
+      "blocking_severities": [
+        "SEV1"
+      ],
+      "errors": {
+        "blocked_by_incident": {
+          "subcode": "MIGRATION_BLOCKED_BY_INCIDENT",
+          "top_level": "ERR_PRECONDITION"
+        }
+      },
+      "required_tag_intersections": [
+        [
+          "tier:finance"
+        ],
+        [
+          "tier:inventory"
+        ]
+      ],
+      "rule": "Before applying a schema migration, the migrator MUST query OBS-1.ActiveIncidents. If ANY incident exists with severity SEV1 AND tags include 'tier:finance' or 'tier:inventory', the migration MUST be blocked (fail-closed) until cleared.",
+      "source": "OBS-1.ActiveIncidents",
+      "strict": true
+    },
+    "release_blocks": [
+      "Contract migrations are blocked unless preconditions in domain_actions.deploy_contract are satisfied."
+    ],
+    "runbooks": [
+      "OBS-1 runbooks govern release blockers for money-sensitive windows."
+    ]
+  },
+  "outbox_events": [],
+  "planned_dependencies": [
+    {
+      "doc_id": "PROD-1",
+      "min_version": "1.0.0",
+      "planned": true,
+      "reason": "Producer contract not present/locked in suite; enforcement deferred until PROD-1 lands."
+    }
+  ],
+  "platform_invariants": [
+    "No oversell, even in partial failure.",
+    "No duplicate payout and no payout on uncertain state.",
+    "Rollback must work after Expand migrations.",
+    "Migrations must fail fast rather than stall hot paths."
+  ],
+  "project_namespace": {
+    "db_namespace": "ticketing",
+    "forbid_module_prefixes": [
+      "V42."
+    ],
+    "otp_app": ":ticketing",
+    "root_namespace": "Ticketing"
+  },
+  "purpose_and_boundaries": {
+    "never_owns": [
+      "Business-domain migration content for any specific subsystem.",
+      "Ledger posting semantics (delegated to LED-1)."
+    ],
+    "out_of_scope": [
+      "Runtime tooling implementation for orchestrating deploy phases.",
+      "Performance benchmarking beyond declared limits."
+    ],
+    "owns": [
+      "Deterministic safety invariants for deploys/migrations (global_ops scope) and tenant-scoped backfills under explicit org_id tenancy."
+    ]
+  },
+  "schema_version": "contract-suite/1.0",
+  "security": {
+    "data_access_constraints": [
+      "Tenant context must be explicit; ambient tenancy is forbidden."
+    ],
+    "least_privilege": true,
+    "policy_boundaries": [
+      "Ash.Policy.Authorizer"
+    ]
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "Safety invariants for deploys, migrations, backfills, and money-sensitive release windows under explicit org_id tenancy.",
+  "tenancy": {
+    "forbid_ambient_tenancy": true,
+    "leakage_policy": "hide_existence",
+    "scope_model": {
+      "scope_inference_forbidden": true,
+      "scope_key": "tenant_scope",
+      "scopes": {
+        "global_ops": {
+          "actor_type_required": "system",
+          "capabilities_required": [
+            "dmsc:deploy"
+          ],
+          "forbid_tenant_key": true,
+          "tenant_key_required": false
+        },
+        "org": {
+          "tenant_key": "org_id",
+          "tenant_key_required": true
+        }
+      }
+    },
+    "strategy": "ash_attribute",
+    "tenant_key": "org_id",
+    "tenant_required": true
+  },
+  "tenancy_model": {
+    "cross_tenant_hard_fail": true,
+    "injection_method": "ash_attribute",
+    "rls_expectations": "Fail-closed when tenant context is missing; hide-existence for cross-tenant reads.",
+    "tenant_identifier": "org_id"
+  },
+  "tier": 2,
+  "title": "Deployment & Migrations Safety Contract",
+  "version": "2.2.2"
+}

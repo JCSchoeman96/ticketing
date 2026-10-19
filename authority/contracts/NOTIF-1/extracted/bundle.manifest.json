@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "NOTIF-1",
+    "bundle_version": "1.0.5"
+  },
+  "doc_id": "NOTIF-1",
+  "files": [
+    {
+      "bytes": 32115,
+      "path": "NOTIF-1_Contract_v1.0.5.json",
+      "sha256": "8e005915ce0cf78473f87f1cd0d96d0fdd33492c6442e981748aebe3bdca686d"
+    },
+    {
+      "bytes": 25740,
+      "path": "NOTIF-1_Test_Gates_v1.0.5.json",
+      "sha256": "90e95b1c844c5308162451d567092bdfa7ff4389633831aa46d09598f4561dd1"
+    }
+  ],
+  "generated_at_utc": "2026-06-03T15:30:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.0",
+  "version": "1.0.5"
+}

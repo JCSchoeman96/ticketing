@@ -1,0 +1,2962 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "SEAT-1_Contract_v3.7.2.json",
+  "banned_anti_patterns": {
+    "AP-ASH2-DRIFT": {
+      "ban": true,
+      "rule": "Ash 2.x API terminology MUST NOT be used; use Ash 3.x Domain/Resource/Action semantics.",
+      "severity": "P0"
+    },
+    "AP-IMPLICIT": {
+      "ban": true,
+      "rule": "No implicit tenancy or timing assumptions; org_id and utc_datetime_usec semantics MUST be explicit.",
+      "severity": "P0"
+    },
+    "AP-KEY-NAMING": {
+      "ban": true,
+      "rule": "Do not use api_actions/apiActions key naming; use domain_actions.",
+      "severity": "P0"
+    },
+    "AP-NO-CANON-DEP": {
+      "ban": true,
+      "rule": "Do not declare CANON-1 as a dependency.",
+      "severity": "P0"
+    },
+    "AP-PLACEHOLDERS": {
+      "ban": true,
+      "rule": "No TODO/TBD/FIXME/REPLACEME placeholders in lockable artifacts.",
+      "severity": "P0"
+    },
+    "AP-RMW": {
+      "ban": true,
+      "rule": "No read-modify-write for seat acquisition or allocation correctness; use atomic DB predicates and constraints.",
+      "severity": "P0"
+    }
+  },
+  "change_log": [
+    "3.1.5: Standardize SeatAllocationReversal.request_id/trace_id as string (observability IDs are opaque); require admin_case_id for ALL reversals as a universal case/correlation id (system-generated allowed) to avoid nullable fields; align reverse_allocation inputs to require admin_case_id; tighten validations: lock_window_override MUST be false unless reversal_authority='admin' and admin override action used.",
+    {
+      "changes": [
+        "Align dependency floors to patched suite (TEN-1@1.7.4, ERR-1@1.4.10, REFUND-1@1.2.2, EVT-2@2.3.1, RP-0@3.0.1).",
+        "Switch outbox_events schema reference from EVT-1 to EVT-2 (EVT-2 is the authoritative outbox schema owner)."
+      ],
+      "date_utc": "2026-01-26",
+      "version": "3.1.4"
+    },
+    "3.1.2: Normalize invariants list entries into structured objects (category/rule_id/severity/text) for machine-addressability; no semantic change.",
+    "3.1.1: Expand EVT-2 admission lock window enforcement to ALL automated reversal authorities (refund/cancel/dispute/chargeback/system). Add explicit admin override actions with auditable lock_window_override + admin_case_id. Enterprise boring: fail-closed by default; override is explicit and logged.",
+    "3.0.4: lock-ready corrections (bundle repack, graph hygiene, actor model, partial unique hold identity, order_id persistence, ERR-1 subcodes, observability cardinality, expiry timestamp, denial test matrix).",
+    "3.0.5: Add verify_hold_proofs read action for ORD checkout validation; align hold_signature derivation formula and signature_security derived_from (include actor_id/actor_type/expires_at_utc); bump ORD-1 downstream consumer min_version.",
+    "3.1.0: Add explicit allocation reversal with monotonic SeatAllocation status (active→reversed) + SeatAllocationReversal audit record; allow safe reallocation via partial-unique active allocation identity; bind reversal to EVT-2 admission lock window + REFUND-1 finalization; extend errors to ERR-1 v1.4.1 refund/seat subcodes; add outbox event ticketing.seat.allocation.reversed.v1.",
+    {
+      "changes": [
+        "Bind SeatAllocation and SeatAllocationReversal to ORD-1 checkout_group_id for cross-org/multi-event checkout traceability; propagate checkout_group_id into allocate_hold inputs and persisted records.",
+        "Bind SeatAllocation (and reversal) to PRICE-1 via pricing_snapshot_id and price_line_id for deterministic line-level allocation, refund/dispute mapping, and audit.",
+        "Add outbox events ticketing.seat.allocated.v2 and ticketing.seat.allocation.reversed.v2 carrying checkout_group_id + pricing_snapshot_id + price_line_id (v1 remains defined for transitional consumers).",
+        "Align dependency floors to patched suite (TEN-1@1.7.5, ERR-1@1.4.14, REFUND-1@1.3.0, ORD-1@3.3.6, PRICE-1@3.0.17)."
+      ],
+      "date_utc": "2026-01-27",
+      "version": "3.1.6"
+    },
+    {
+      "at_utc": "2026-01-27T18:50:34Z",
+      "change": "Version bump to 3.1.7 (semantics-first patch)."
+    },
+    {
+      "changes": [
+        "GC-001 support: add extend_hold_grace action to ensure a bounded payment-grace window without reallocating or issuing seats.",
+        "Add SeatHold.expired_at_utc attribute (nullable) and require expire_holds to set it; align data model with existing expire_holds rule + outbox event payload.",
+        "Stabilize hold_signature across grace extension by removing expires_at_utc from signature derivation (signature remains actor-bound and tenant-bound).",
+        "Add observability metrics for holds.extended and extend_hold_grace latency; extend limits/rate budgets for new action.",
+        "Bump ERR-1 dependency floor to 1.4.15 (GC-001 subcode registry)."
+      ],
+      "date_utc": "2026-01-28",
+      "version": "3.2.0"
+    },
+    {
+      "changes": [
+        "Align dependency floors to patched suite heads (TEN-1@1.7.7, ERR-1@1.4.17, REFUND-1@1.4.2, ORD-1@3.5.5, PRICE-1@3.1.2).",
+        "Hard-enforce tenant scoping on allocate_hold: order_id and SeatHold MUST belong to org_id; mismatches are hidden as ERR_NOT_FOUND/TEN_CROSS_TENANT_HIDDEN.",
+        "Hard-enforce reversal single-authority: reversal_authority MUST imply exactly one causal reference id (refund_id/cancel_id/dispute_id/chargeback_id/system_job_id), and stray IDs are forbidden (fail-closed).",
+        "Complete error subcode declaration set for all subcodes referenced by validation_rules (prevent drift)."
+      ],
+      "date_utc": "2026-01-30",
+      "version": "3.2.1"
+    },
+    {
+      "changes": [
+        "Pin LOCKS-1 to >=2.1.0 and require no split lock/write across DB connections; prefer xact-scoped advisory locks.",
+        "Add SM-0 dependency >=1.2.0 and require CAS fencing on all SeatHold/SeatAllocation transitions.",
+        "Add non-null lock_version to SeatHold and SeatAllocation required attributes for optimistic concurrency control.",
+        "Align EVT-1 >=2.7.0 and EVT-2 >=2.4.0 baselines for governed event drift policy."
+      ],
+      "date_utc": "2026-02-03",
+      "summary": "Physics-layer hardening: session-affine advisory locks + SM-0 fenced transitions for seat inventory.",
+      "version": "3.3.0"
+    },
+    "3.5.7: Semantic hardening: define deterministic LOCKS-1 advisory key derivation for inventory bucket (namespace 103, sha256_v1_first8_signed_int64_be over org_id|namespace|entity_key). Make SeatHold.idempotency_hash non-null (required) to prevent ghost-idempotency. Bump suite_schema to CS-0@2.3.0.",
+    {
+      "date": "2026-02-10",
+      "summary": "Introduce authoritative bucket inventory (InventoryBucket + shards + holds/allocations), rewrite InventoryBucketCursor identity to include occurrence_id, and mandate shard overflow routing with integer effective_capacity_ceiling.",
+      "type": "minor"
+    },
+    {
+      "changes": [
+        "Add SEAT-1-V362-001 (shard_count immutability once held/sold exists).",
+        "Add SEAT-1-LAW-REBALANCING-DISTRIBUTION (deterministic floor+remainder capacity_limit allocation)."
+      ],
+      "date_utc": "2026-02-10",
+      "summary": "Ban shard_count mutation after inventory activity, and pin deterministic shard capacity distribution algorithm for atomic rebalancing.",
+      "version": "3.6.2"
+    },
+    {
+      "version": "3.7.0",
+      "date_utc": "2026-10-09",
+      "summary": "Add governed GA bucket setup, bucket proofs, bucket lifecycle and bounded grace; align exhaustion error with ERR-1."
+    },
+    "3.7.1: Correct T0 lifecycle, quote binding, inventory proof, or publication semantics; align release identity metadata.",
+    "3.7.2: Advance corrected T0 successor identity under monotonic release policy."
+  ],
+  "created_at_utc": "2026-02-04T20:08:01Z",
+  "data_model": {
+    "resources": [
+      {
+        "constraints": [
+          {
+            "kind": "check",
+            "rule": "expires_at_utc > created_at_utc"
+          },
+          {
+            "kind": "check",
+            "rule": "hold_ttl_seconds >= 0"
+          },
+          {
+            "kind": "invariant",
+            "rule": "If status = expired then expired_at_utc MUST be non-null AND expired_at_utc <= now_utc_usec at write time; if status != expired then expired_at_utc MUST be null."
+          },
+          {
+            "kind": "invariant",
+            "rule": "grace_extension_count MUST be >= 0 and MUST be <= hold_grace_extension_count_max."
+          },
+          {
+            "kind": "invariant",
+            "rule": "idempotency_hash MUST be non-null and MUST be a lowercase hex SHA-256 digest (64 chars)."
+          }
+        ],
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "hold_id"
+            ],
+            "name": "seat_hold_pk",
+            "why": "Primary identity for idempotent references."
+          },
+          {
+            "fields": [
+              "org_id",
+              "occurrence_id",
+              "seat_id"
+            ],
+            "name": "seat_active_hold_unique",
+            "where": {
+              "status": "active"
+            },
+            "why": "Uniqueness for ACTIVE holds only (partial unique)."
+          }
+        ],
+        "immutability": {
+          "rule": "SeatHold state transitions MUST occur via explicit actions with deterministic predicates; ad-hoc updates are forbidden."
+        },
+        "name": "SeatHold",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "bucket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "hold_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "seat_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "active",
+              "released",
+              "expired",
+              "allocated"
+            ],
+            "name": "status",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "expires_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "expired_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "released_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "allocated_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "hold_ttl_seconds",
+            "nullable": false,
+            "type": "bigint"
+          },
+          {
+            "name": "grace_extension_count",
+            "nullable": false,
+            "type": "int"
+          },
+          {
+            "name": "grace_extended_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "hold_signature",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "idempotency_hash",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "request_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "trace_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "enum": [
+              "user",
+              "system",
+              "service"
+            ],
+            "name": "actor_type",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "checkout_group_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "lock_version",
+            "nullable": false,
+            "type": "int32"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "allocation_id"
+            ],
+            "name": "seat_allocation_pk",
+            "why": "Primary identity for allocations."
+          },
+          {
+            "fields": [
+              "org_id",
+              "occurrence_id",
+              "seat_id"
+            ],
+            "name": "seat_allocation_unique",
+            "where": {
+              "status": "active"
+            },
+            "why": "A seat is allocated at most once per occurrence per tenant."
+          }
+        ],
+        "immutability": "SeatAllocation rows MUST NOT be deleted. Allowed mutation is strictly monotonic: status may transition active→reversed exactly once (set reversed_at_utc), and MUST create a SeatAllocationReversal record in the same commit. Any other updates are forbidden.",
+        "name": "SeatAllocation",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "bucket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "bucket_version",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "allocation_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "hold_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "seat_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "order_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "allocated_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "user",
+              "system",
+              "service"
+            ],
+            "name": "actor_type",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "request_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "trace_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "enum": [
+              "active",
+              "reversed"
+            ],
+            "name": "status",
+            "type": "enum"
+          },
+          {
+            "name": "reversed_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "checkout_group_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "pricing_snapshot_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "price_line_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "lock_version",
+            "nullable": false,
+            "type": "int32"
+          }
+        ],
+        "required_db_constraints": [
+          {
+            "constraint_id": "seat_allocation_bucket_version_positive",
+            "expression": "bucket_version > 0",
+            "type": "check"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "identities": [
+          {
+            "name": "pk",
+            "unique": [
+              "org_id",
+              "reversal_id"
+            ]
+          },
+          {
+            "name": "allocation_reversal_unique",
+            "unique": [
+              "org_id",
+              "allocation_id"
+            ]
+          }
+        ],
+        "immutability": "SeatAllocationReversal is append-only audit truth. Rows MUST NOT be updated or deleted.",
+        "name": "SeatAllocationReversal",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "reversal_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "allocation_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "seat_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "order_id",
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "refund",
+              "cancel",
+              "dispute",
+              "chargeback",
+              "admin",
+              "system"
+            ],
+            "name": "reversal_authority",
+            "type": "enum"
+          },
+          {
+            "name": "reason_subcode",
+            "type": "string"
+          },
+          {
+            "name": "reversed_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "actor_id",
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "user",
+              "system",
+              "service"
+            ],
+            "name": "actor_type",
+            "type": "enum"
+          },
+          {
+            "name": "request_id",
+            "type": "string"
+          },
+          {
+            "name": "trace_id",
+            "type": "string"
+          },
+          {
+            "name": "lock_window_override",
+            "nullable": false,
+            "type": "boolean"
+          },
+          {
+            "name": "admin_case_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "checkout_group_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "pricing_snapshot_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "price_line_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "occurrence_id",
+              "bucket_id"
+            ],
+            "name": "inventory_bucket_head"
+          }
+        ],
+        "name": "InventoryBucketCursor",
+        "purpose": "Monotonic version head for bucketized inventory authority. Provides atomic sequencing per {org_id, occurrence_id, bucket_id}.",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "bucket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "current_version",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "updated_at_utc_usec",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "required_db_constraints": [
+          {
+            "constraint_id": "seat_bucket_cursor_version_non_negative",
+            "expression": "current_version >= 0",
+            "type": "check"
+          }
+        ]
+      },
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "occurrence_id",
+              "bucket_id"
+            ],
+            "name": "inventory_bucket_pk"
+          },
+          {
+            "fields": [
+              "org_id",
+              "occurrence_id",
+              "bucket_external_ref_digest_sha256"
+            ],
+            "name": "inventory_bucket_external_ref_unique"
+          }
+        ],
+        "name": "InventoryBucket",
+        "purpose": "Authoritative capacity pool for general-admission / bucketized inventory anchored to a single EVT-2 occurrence. All bucket claims MUST flow through shard-level atomic predicates.",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "bucket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "bucket_external_ref_digest_sha256",
+            "nullable": false,
+            "type": "sha256_hex"
+          },
+          {
+            "name": "base_capacity",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "oversell_allowance_fixed",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "effective_capacity_ceiling",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "shard_count",
+            "nullable": false,
+            "type": "int32"
+          },
+          {
+            "name": "created_at_utc_usec",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "updated_at_utc_usec",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "required_db_constraints": [
+          {
+            "constraint_id": "seat_inv_bucket_capacity_non_negative",
+            "expression": "base_capacity >= 0",
+            "type": "check"
+          },
+          {
+            "constraint_id": "seat_inv_bucket_allowance_non_negative",
+            "expression": "oversell_allowance_fixed >= 0",
+            "type": "check"
+          },
+          {
+            "constraint_id": "seat_inv_bucket_ceiling_matches",
+            "expression": "effective_capacity_ceiling = (base_capacity + oversell_allowance_fixed)",
+            "type": "check"
+          },
+          {
+            "constraint_id": "seat_inv_bucket_shard_count_positive",
+            "expression": "shard_count >= 1",
+            "type": "check"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "occurrence_id",
+              "bucket_id",
+              "shard_index"
+            ],
+            "name": "inventory_bucket_shard_pk"
+          }
+        ],
+        "name": "InventoryBucketShard",
+        "purpose": "Concurrency-partitioned shard row for InventoryBucket. All increment predicates MUST operate on shard rows, not the bucket row.",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "bucket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "shard_index",
+            "nullable": false,
+            "type": "int32"
+          },
+          {
+            "name": "capacity_limit",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "sold_count",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "held_count",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "updated_at_utc_usec",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "required_db_constraints": [
+          {
+            "constraint_id": "seat_inv_shard_index_non_negative",
+            "expression": "shard_index >= 0",
+            "type": "check"
+          },
+          {
+            "constraint_id": "seat_inv_shard_counts_non_negative",
+            "expression": "sold_count >= 0 AND held_count >= 0",
+            "type": "check"
+          },
+          {
+            "constraint_id": "seat_inv_shard_capacity_non_negative",
+            "expression": "capacity_limit >= 0",
+            "type": "check"
+          },
+          {
+            "constraint_id": "seat_inv_shard_not_over_capacity",
+            "expression": "(sold_count + held_count) <= capacity_limit",
+            "type": "check"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "occurrence_id",
+              "bucket_id",
+              "hold_id"
+            ],
+            "name": "inventory_bucket_hold_pk"
+          }
+        ],
+        "name": "InventoryBucketHold",
+        "purpose": "Track per-request bucket holds (GA style). Holds MUST be backed by shard-level held_count increments and are released by shard-level decrements.",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "bucket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "hold_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "quantity",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "shard_index",
+            "nullable": false,
+            "type": "int32"
+          },
+          {
+            "enum": [
+              "active",
+              "released",
+              "expired",
+              "allocated"
+            ],
+            "name": "status",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "created_at_utc_usec",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "expires_at_utc_usec",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "released_at_utc_usec",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "expired_at_utc_usec",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "allocated_at_utc_usec",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "hold_signature",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "idempotency_hash",
+            "nullable": false,
+            "type": "sha256_hex"
+          },
+          {
+            "name": "actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "human",
+              "service",
+              "system"
+            ],
+            "name": "actor_type",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "request_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "trace_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "lock_version",
+            "nullable": false,
+            "type": "int32"
+          },
+          {
+            "name": "grace_extension_count",
+            "nullable": false,
+            "type": "int32"
+          },
+          {
+            "name": "grace_extended_at_utc_usec",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "required_db_constraints": [
+          {
+            "constraint_id": "seat_inv_hold_qty_positive",
+            "expression": "quantity > 0",
+            "type": "check"
+          },
+          {
+            "constraint_id": "seat_inv_hold_grace_count_bounded",
+            "expression": "grace_extension_count >= 0 AND grace_extension_count <= hold_grace_extension_count_max",
+            "type": "check"
+          },
+          {
+            "constraint_id": "seat_inv_hold_expiry_after_create",
+            "expression": "expires_at_utc_usec > created_at_utc_usec",
+            "type": "check"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "occurrence_id",
+              "bucket_id",
+              "allocation_id"
+            ],
+            "name": "inventory_bucket_alloc_pk"
+          }
+        ],
+        "name": "InventoryBucketAllocation",
+        "purpose": "Terminal allocation of bucket units to an order/line item. MUST be backed by shard-level sold_count increments and held_count decrements when converting from a hold.",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "bucket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "allocation_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "hold_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "quantity",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "shard_index",
+            "nullable": false,
+            "type": "int32"
+          },
+          {
+            "name": "order_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "created_at_utc_usec",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "required_db_constraints": [
+          {
+            "constraint_id": "seat_inv_alloc_qty_positive",
+            "expression": "quantity > 0",
+            "type": "check"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "name": "InventoryBucketIdempotencyReservation",
+        "purpose": "Persist the stable claim idempotency identity separately from the normalized effect-determining request hash. The reservation and linked hold commit or roll back together.",
+        "identities": [
+          {
+            "name": "inventory_bucket_idempotency_identity",
+            "fields": [
+              "org_id",
+              "operation_id",
+              "idempotency_key"
+            ]
+          }
+        ],
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "operation_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "idempotency_key",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "request_hash_sha256",
+            "nullable": false,
+            "type": "sha256_hex"
+          },
+          {
+            "name": "hold_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "created_at_utc_usec",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "required_db_constraints": [
+          {
+            "constraint_id": "seat_bucket_idempotency_reservation_request_hash_format",
+            "expression": "request_hash_sha256 is lowercase SHA-256 hex",
+            "type": "check"
+          }
+        ],
+        "tenant_scoped": true,
+        "transaction_rule": "A reservation with hold_id=null MUST NOT commit. The successful claim sets hold_id to the inserted InventoryBucketHold.hold_id in the same transaction."
+      }
+    ]
+  },
+  "denial_test_matrix": {
+    "cases": [
+      "Cross-tenant seat hold creation MUST be hidden as ERR_NOT_FOUND/TEN_CROSS_TENANT_HIDDEN.",
+      "Invalid hold_signature or actor mismatch on release_hold MUST fail as ERR_FORBIDDEN/SEAT_HOLD_TOKEN_INVALID.",
+      "Concurrent create_hold for the same (org_id, occurrence_id, seat_id) MUST allow exactly one success; losers MUST return ERR_CONFLICT/SEAT_ALREADY_HELD.",
+      "allocate_hold at now_utc_usec >= expires_at_utc MUST fail as ERR_PRECONDITION/SEAT_HOLD_EXPIRED.",
+      "allocate_hold MUST fail if expire_holds already transitioned the hold to expired (race safety) as ERR_PRECONDITION/SEAT_HOLD_EXPIRED.",
+      "reverse_allocation during EVT-2 check-in window (check_in_open_utc <= now_utc < check_in_close_utc) MUST fail as ERR_PRECONDITION/REFUND_LOCK_WINDOW_ACTIVE for reversal_authority in {refund, cancel, dispute, chargeback, system, admin}.",
+      "reverse_allocation_admin_override during EVT-2 check-in window MUST succeed ONLY when reversal_authority=admin and inputs include lock_window_override=true and admin_case_id; it MUST set SeatAllocationReversal.lock_window_override=true and persist admin_case_id. Missing admin_case_id or lock_window_override=true MUST fail as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+      "reverse_allocation when SeatAllocation.status != 'active' MUST fail as ERR_CONFLICT/SEAT_STALE_RECORD (idempotent-safe).",
+      "reverse_allocation MUST require reason_subcode to be a valid ERR-1 registry subcode; invalid MUST fail as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+      "reverse_allocation with reversal_authority=refund MUST require refund_id; missing MUST fail as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+      "extend_hold_grace MUST deny actor mismatch or hold_signature mismatch as ERR_FORBIDDEN/SEAT_HOLD_TOKEN_INVALID.",
+      "extend_hold_grace MUST deny expired holds as ERR_PRECONDITION/SEAT_HOLD_EXPIRED.",
+      "extend_hold_grace MUST deny cross-tenant access as ERR_NOT_FOUND/TEN_CROSS_TENANT_HIDDEN."
+    ],
+    "harness": "FIXT-1"
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Schema compliance for contract-suite/1.0, test-gates/1.0, bundle-manifest/1.0."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Mandatory gate sets and denial-test posture."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "CI strict bundle integrity and schema validation expectations."
+    },
+    {
+      "doc_id": "BP-0",
+      "edge_type": "foundation_floor",
+      "min_version": "3.0.0",
+      "reason": "Blueprint baseline structure and deterministic gate posture."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.7.7",
+      "reason": "Tenant isolation discipline using org_id and RLS session variable app.current_org_id."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "integration_floor",
+      "min_version": "1.4.17",
+      "reason": "Canonical error envelope and stable subcode discipline (includes GC-001 late capture registry updates)."
+    },
+    {
+      "doc_id": "REFUND-1",
+      "edge_type": "paired_contract",
+      "min_version": "1.4.2",
+      "reason": "Refund finalization MUST release seat allocations deterministically (compensating reversal) and enforce lock window consistent with EVT-2 admission windows."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "governance_floor",
+      "min_version": "2.1.0",
+      "reason": "Concurrency conflict taxonomy for high-contention operations."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "governance_floor",
+      "min_version": "2.7.6",
+      "reason": "Trace/request propagation and bounded-label observability requirements."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "governance_floor",
+      "min_version": "2.1.4",
+      "reason": "Queue taxonomy and concurrency posture for hold expiry workers."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "integration_floor",
+      "min_version": "2.16.4",
+      "reason": "Registry head alignment for seating v3 ordering + bucket cursor governance."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "integration_floor",
+      "min_version": "2.4.1",
+      "reason": "Event envelope schema_ref token normalization and occurrence governance baseline."
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "foundation_floor",
+      "min_version": "3.0.1",
+      "reason": "Ash 3.x resource patterns and policy enforcement posture for the Domain/Resource boundary."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "paired_contract",
+      "min_version": "3.7.10",
+      "reason": "Seat allocation binds to org-scoped orders and handover/idempotency invariants under flash sale."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "paired_contract",
+      "min_version": "3.5.4",
+      "reason": "Seat allocation binds to pricing_snapshot_id and price_line_id for deterministic line-level allocation/refunds."
+    },
+    {
+      "doc_id": "SM-0",
+      "edge_type": "governance_floor",
+      "min_version": "1.2.0",
+      "reason": "Requires CAS fencing semantics for all state transitions."
+    },
+    {
+      "doc_id": "API-0",
+      "edge_type": "integration_floor",
+      "min_version": "1.1.1",
+      "reason": "Public ingress and overload semantics MUST obey API-0 (wire protocol law)."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "governance_floor",
+      "min_version": "1.8.2",
+      "reason": "Flash-sale physics (timeouts, bulkheads, pagination) MUST obey PSC-1."
+    },
+    {
+      "doc_id": "PROD-1",
+      "edge_type": "governance_floor",
+      "min_version": "1.1.3",
+      "reason": "Production survival and break-glass laws MUST obey PROD-1."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "paired_contract",
+      "min_version": "4.4.4",
+      "reason": "Ledger posting boundary depends on allocation and reversal semantics (ledger-first truth)."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4"
+  },
+  "dependency_pins": {
+    "API-0": {
+      "artifact": "API-0_Contract_v1.1.1.json",
+      "doc_id": "API-0",
+      "sha256": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991",
+      "version": "1.1.1"
+    },
+    "PROD-1": {
+      "artifact": "PROD-1_Contract_v1.1.3.json",
+      "doc_id": "PROD-1",
+      "sha256": "1b53890c44a5387244d6d2eac803180e77b716629bfc00d294d500e79a70194f",
+      "version": "1.1.3"
+    },
+    "PSC-1": {
+      "artifact": "PSC-1_Contract_v1.8.2.json",
+      "doc_id": "PSC-1",
+      "sha256": "d29f4e93d95677713d2b16d6e2e60a5916f5f3a99da1ff24e70b50303f10c9a1",
+      "version": "1.8.2"
+    }
+  },
+  "doc_id": "SEAT-1",
+  "domain_actions": {
+    "allocate_hold": {
+      "concurrency_protocol": {
+        "locks_1_namespace": 103,
+        "sequence": [
+          "Acquire LOCKS-1 transaction-scoped advisory lock on the inventory bucket: pg_advisory_xact_lock(103, K_bucket).",
+          "SELECT InventoryBucketCursor FOR UPDATE for {org_id, event_id, bucket_id}.",
+          "Compute v_next = current_version + 1 (monotonic per bucket).",
+          "Write SeatHold/SeatAllocation and corresponding OutboxEvent in the same transaction, with version=v_next.",
+          "UPDATE InventoryBucketCursor.current_version = v_next and updated_at_utc_usec=now().",
+          "Before commit, assert pg_advisory_lock_held(103, K_bucket); if false -> rollback."
+        ]
+      },
+      "inputs_required": [
+        "org_id",
+        "hold_id",
+        "hold_signature",
+        "order_id",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id",
+        "checkout_group_id",
+        "pricing_snapshot_id",
+        "price_line_id"
+      ],
+      "output_minimum": [
+        "allocation_id",
+        "hold_id",
+        "allocated_at_utc"
+      ],
+      "purpose": "Convert an active, unexpired SeatHold into a SeatAllocation as part of the atomic checkout boundary.",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "hold_signature MUST be derived and verified as HMAC(secret, org_id || hold_id || occurrence_id || seat_id || actor_id || actor_type) so that a mismatched actor_id/actor_type MUST fail verification; verification failure MUST map to ERR_FORBIDDEN/SEAT_HOLD_TOKEN_INVALID.",
+        "actor_id and actor_type provided to this action MUST match the persisted SeatHold.actor_id and SeatHold.actor_type for the target hold. Mismatch MUST map to ERR_FORBIDDEN/SEAT_HOLD_TOKEN_INVALID.",
+        "Allocation MUST fail if now_utc_usec >= expires_at_utc.",
+        "Allocation MUST be implemented as an Ash 3.x Atomic Changeset with commit-time predicates guarding status and expiry, and it MUST insert SeatAllocation and mark SeatHold as allocated in the same commit.",
+        "Allocation MUST be safe under the expire_holds worker; if expire_holds wins first, allocation MUST return ERR_PRECONDITION/SEAT_HOLD_EXPIRED; partial allocation is forbidden.",
+        "order_id MUST be persisted on SeatAllocation as a required attribute and MUST be emitted in the ticketing.seat.allocated.v1 outbox event payload.",
+        "If an atomic allocate transition affects 0 rows, implementation MUST either: (a) return a single deterministic failure ERR_PRECONDITION/SEAT_HOLD_EXPIRED, OR (b) perform a bounded follow-up read within the same transaction solely to classify the failure; classification MUST NOT perform read-modify-write and MUST NOT change the state beyond the original atomic attempt.",
+        "SeatAllocation.status MUST be set to 'active' at creation.",
+        "Allocation MUST rely on the database-enforced active-unique identity (status='active') to prevent double-sell under concurrency; pre-check queries MUST NOT be relied on for correctness.",
+        "order_id MUST belong to org_id AND the target SeatHold.org_id MUST equal org_id. If either mismatch, action MUST fail-closed and hide existence as ERR_NOT_FOUND/TEN_CROSS_TENANT_HIDDEN (do NOT leak whether the order/hold exists in another tenant).",
+        "checkout_group_id MUST equal the ORD-1 checkout_group_id for the provided order_id. Mismatch MUST fail-closed and map to ERR_VALIDATION/ORD_SEAT_ALLOCATION_INVALID (hidden as ERR_NOT_FOUND for cross-tenant).",
+        "pricing_snapshot_id MUST refer to a PRICE-1 price snapshot that is bound to the provided order_id (ORD-1) and MUST be immutable at allocation time. Missing/expired snapshot MUST map to ERR_PRECONDITION/ORD_PRICE_SNAPSHOT_REQUIRED or ERR_PRECONDITION/ORD_PRICE_SNAPSHOT_EXPIRED.",
+        "price_line_id MUST refer to a PRICE-1 price line within pricing_snapshot_id. The price line occurrence_id MUST equal the hold occurrence_id; mismatch MUST map to ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "Concurrency MUST be protected by session-affine, transaction-scoped advisory locks per LOCKS-1 (no lock on conn A + write on conn B).",
+        "All state transitions MUST be SM-0 fenced (CAS): assert expected prior status and lock_version, bump lock_version atomically."
+      ]
+    },
+    "claim_bucket_inventory": {
+      "concurrency_protocol": {
+        "atomic_predicate": "UPDATE inventory_bucket_shards SET held_count = held_count + :qty WHERE {pk} AND (sold_count + held_count + :qty) <= capacity_limit",
+        "initial_shard_index": "sha256_hex(request_id) mod shard_count",
+        "overflow_routing": "MUST probe remaining shards using a secondary hash-based permutation (no linear stacking).",
+        "probe_sequence": "Let step = (hex_to_int(secondary_probe_salt) mod (shard_count-1)) + 1. Probe shard indexes: (initial + k*step) mod shard_count for k=1..(shard_count-1) until success or all exhausted.",
+        "secondary_probe_salt": "sha256_hex(request_id + '|' + bucket_id)",
+        "cursor": "Lock InventoryBucketCursor for update in the claim transaction; advance current_version exactly once after every claim write succeeds.",
+        "required_sequence": [
+          "Reserve {org_id, operation_id, key} and request hash in InventoryBucketIdempotencyReservation inside the transaction.",
+          "Lock InventoryBucketCursor row for update.",
+          "Apply the conditional shard capacity mutation using the existing atomic predicate.",
+          "Insert the hold, link the reservation to the hold_id, and advance the cursor once before commit.",
+          "Advance InventoryBucketCursor.current_version exactly once before commit."
+        ],
+        "cursor_advance": "Advance once per committed change to authoritative capacity, claimability, allocation, availability, or hold-derived availability. A rollback or replay does not advance it.",
+        "version_separation": "InventoryBucketCursor.current_version is separate from the individual hold lock_version."
+      },
+      "idempotency": {
+        "boundary_header": "Idempotency-Key",
+        "identity": [
+          "org_id",
+          "operation_id",
+          "key"
+        ],
+        "operation_id": "SEAT-1.claim_bucket_inventory",
+        "key_source": "The Idempotency-Key boundary header supplies key.",
+        "normalized_effect_request_fields": [
+          "org_id",
+          "occurrence_id",
+          "bucket_id",
+          "quantity",
+          "hold_ttl_seconds",
+          "actor_id",
+          "actor_type"
+        ],
+        "request_hash": "sha256_hex_lower(canonicalize(normalized_effect_determining_request))",
+        "reservation_store": "InventoryBucketIdempotencyReservation.request_hash_sha256",
+        "hold_request_hash_store": "InventoryBucketHold.idempotency_hash",
+        "key_and_request_hash_are_separate": true,
+        "replay_behavior": "For the same {org_id, operation_id, key}, return the linked existing hold only when the normalized request hash matches. A different request hash fails with ERR_CONFLICT and creates no mutation."
+      },
+      "inputs_required": [
+        "org_id",
+        "occurrence_id",
+        "bucket_id",
+        "quantity",
+        "hold_ttl_seconds",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "hold_id",
+        "hold_signature",
+        "expires_at_utc_usec",
+        "bucket_id",
+        "occurrence_id",
+        "quantity",
+        "shard_index"
+      ],
+      "purpose": "Acquire a bucket inventory hold for quantity units (GA). MUST use shard-level atomic predicates and shard overflow routing.",
+      "validation_rules": [
+        "quantity MUST be > 0.",
+        "InventoryBucket MUST exist for {org_id, occurrence_id, bucket_id}; its occurrence MUST exist in EVT-2 and belong to org_id.",
+        "effective_capacity_ceiling is derived by this contract as base_capacity + oversell_allowance_fixed.",
+        "On complete shard exhaustion return ERR_CONFLICT / SEAT_CAPACITY_EXHAUSTED.",
+        "The result MUST return the persisted hold_signature and the authoritative occurrence, bucket, quantity, shard, status, and expiry.",
+        "hold_ttl_seconds MUST be > 0 and <= limits_and_budgets.hold_ttl_seconds_max_initial; this validated value is the governed initial TTL.",
+        "claim_bucket_inventory MUST copy actor_type unchanged from authenticated tenancy context into the normalized idempotency request hash, InventoryBucketHold.actor_type, and bucket_hold_signature transcript. For human actors, the persisted and signed value MUST be \"human\"; runtime translation to \"user\" is forbidden."
+      ],
+      "errors": {
+        "capacity_exhausted": {
+          "top_level": "ERR_CONFLICT",
+          "subcode": "SEAT_CAPACITY_EXHAUSTED"
+        }
+      },
+      "atomicity_boundary": {
+        "scope": "One database transaction on one connection.",
+        "writes_in_order": [
+          "Reserve {org_id, operation_id, key} in InventoryBucketIdempotencyReservation with the normalized effect-determining request hash.",
+          "Lock InventoryBucketCursor for update.",
+          "Apply the conditional shard capacity mutation using the existing atomic predicate.",
+          "Create the hold identity and insert the hold with the normalized request hash, database creation time, expiry equal to database time plus the validated governed hold_ttl_seconds, status=active, lock_version=1, grace_extension_count=0, and the hold signature.",
+          "Set InventoryBucketIdempotencyReservation.hold_id to the inserted hold_id and advance InventoryBucketCursor.current_version once."
+        ],
+        "rollback": "Any failure rolls back the reservation, shard mutation, hold insert, reservation-to-hold link, and cursor update.",
+        "ttl": "Compute created_at_utc_usec from the database clock and expires_at_utc_usec as that database time plus the validated governed hold_ttl_seconds."
+      },
+      "actor_type_example": {
+        "authenticated_tenancy_context": {
+          "actor_type": "human"
+        },
+        "normalized_idempotency_request": {
+          "actor_type": "human"
+        },
+        "inventory_bucket_hold": {
+          "actor_type": "human"
+        },
+        "bucket_hold_signature": {
+          "actor_type": "human"
+        },
+        "human_to_user_translation": false
+      }
+    },
+    "create_hold": {
+      "concurrency_protocol": {
+        "locks_1_namespace": 103,
+        "sequence": [
+          "Acquire LOCKS-1 transaction-scoped advisory lock on the inventory bucket: pg_advisory_xact_lock(103, K_bucket).",
+          "SELECT InventoryBucketCursor FOR UPDATE for {org_id, event_id, bucket_id}.",
+          "Compute v_next = current_version + 1 (monotonic per bucket).",
+          "Write SeatHold/SeatAllocation and corresponding OutboxEvent in the same transaction, with version=v_next.",
+          "UPDATE InventoryBucketCursor.current_version = v_next and updated_at_utc_usec=now().",
+          "Before commit, assert pg_advisory_lock_held(103, K_bucket); if false -> rollback."
+        ]
+      },
+      "idempotency": {
+        "key_header": "Idempotency-Key",
+        "persisted_hash": "SeatHold.idempotency_hash = sha256_hex_lower(utf8(Idempotency-Key || '|' || org_id || '|' || occurrence_id || '|' || seat_id || '|' || actor_id || '|' || actor_type || '|' || (checkout_group_id||'')))",
+        "replay_behavior": "return_original_or_ERR_CONFLICT_on_mismatch",
+        "required": true
+      },
+      "inputs_required": [
+        "org_id",
+        "occurrence_id",
+        "seat_id",
+        "hold_ttl_seconds",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id",
+        "checkout_group_id"
+      ],
+      "output_minimum": [
+        "hold_id",
+        "status",
+        "expires_at_utc",
+        "hold_signature"
+      ],
+      "purpose": "Acquire an authoritative SeatHold for (org_id, occurrence_id, seat_id) with a microsecond-precision expiry.",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "hold_ttl_seconds MUST be a signed 64-bit integer (bigint). hold_ttl_seconds MUST be >= 0 AND MUST be <= hold_ttl_seconds_max_initial (limits_and_budgets).",
+        "expires_at_utc MUST be computed server-side as now_utc_usec + hold_ttl_seconds and persisted as utc_datetime_usec.",
+        "Seat acquisition MUST be enforced as a single atomic DB operation; pre-check availability queries are forbidden.",
+        "If the seat is already held or allocated, action MUST fail with ERR_CONFLICT and a stable subcode.",
+        "create_hold MUST succeed only if the seat exists for the (org_id, occurrence_id, seat_id) and there is no existing SeatAllocation for that seat+occurrence within the same org_id; this MUST be enforced atomically in the same DB statement/transaction as the hold creation.",
+        "If the seat is already held (active hold exists), action MUST fail with ERR_CONFLICT/SEAT_ALREADY_HELD. If the seat is already allocated, action MUST fail with ERR_CONFLICT/SEAT_ALREADY_ALLOCATED. If the seat does not exist, action MUST fail with ERR_NOT_FOUND/TEN_CROSS_TENANT_HIDDEN (hide_existence).",
+        "Concurrency MUST be protected by session-affine, transaction-scoped advisory locks per LOCKS-1 (no lock on conn A + write on conn B).",
+        "All state transitions MUST be SM-0 fenced (CAS): assert expected prior status and lock_version, bump lock_version atomically."
+      ]
+    },
+    "expire_holds": {
+      "inputs_required": [
+        "org_id",
+        "cutoff_utc",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "expired_count"
+      ],
+      "purpose": "Expire holds whose expires_at_utc has elapsed using a bounded worker queue.",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "Expiration MUST be implemented using an atomic update predicate where status=active AND expires_at_utc <= cutoff_utc.",
+        "Expiration MUST be safe under concurrency with allocate_hold; allocate_hold is allowed only if its atomic predicate still matches at commit time.",
+        "expire_holds MUST be attributable: actor_type MUST be system or service, actor_id MUST be uuid_v7, and request_id/trace_id MUST be present (synthetic IDs are allowed).",
+        "expire_holds MUST set expired_at_utc = cutoff_utc (utc_datetime_usec) on transitioned holds and include expired_at_utc in the outbox event payload.",
+        "Concurrency MUST be protected by session-affine, transaction-scoped advisory locks per LOCKS-1 (no lock on conn A + write on conn B).",
+        "All state transitions MUST be SM-0 fenced (CAS): assert expected prior status and lock_version, bump lock_version atomically.",
+        "For each hold transitioned to expired, persist the corresponding ticketing.seat.hold.expired.v1 OutboxEvent in the same database transaction as the state mutation; dispatch to publishers only after that transaction commits."
+      ]
+    },
+    "extend_hold_grace": {
+      "inputs_required": [
+        "org_id",
+        "seat_hold_proofs",
+        "min_remaining_seconds",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "holds"
+      ],
+      "purpose": "Ensure SeatHold expiry provides a bounded payment-grace window for checkout handoff to PSPs; extends expires_at_utc up to a capped total lifetime without reallocating seats.",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "min_remaining_seconds MUST be a non-negative integer and MUST be <= hold_grace_extension_seconds_max.",
+        "For each hold proof, the hold MUST exist in org_id, MUST be status=active, and MUST satisfy now_utc_usec < expires_at_utc; otherwise the action MUST fail with ERR_PRECONDITION/SEAT_HOLD_EXPIRED.",
+        "hold_signature MUST be derived and verified as HMAC(secret, org_id || hold_id || occurrence_id || seat_id || actor_id || actor_type) and MUST match persisted SeatHold.hold_signature; mismatch MUST map to ERR_FORBIDDEN/SEAT_HOLD_TOKEN_INVALID.",
+        "extend_hold_grace MUST be implemented using an atomic update predicate where status=active AND now_utc_usec < expires_at_utc AND grace_extension_count < hold_grace_extension_count_max.",
+        "extend_hold_grace MUST set expires_at_utc to max(expires_at_utc, now_utc_usec + min_remaining_seconds) but MUST NOT exceed created_at_utc + hold_total_ttl_seconds_cap.",
+        "When expires_at_utc is extended, grace_extension_count MUST be incremented and grace_extended_at_utc MUST be set to now_utc_usec. When no extension is needed, the hold MUST remain unchanged and grace_extension_count MUST NOT increment.",
+        "extend_hold_grace MUST be safe under concurrency with allocate_hold and expire_holds; partial updates are forbidden."
+      ]
+    },
+    "release_hold": {
+      "inputs_required": [
+        "org_id",
+        "hold_id",
+        "hold_signature",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "hold_id",
+        "status",
+        "released_at_utc"
+      ],
+      "purpose": "Release an active SeatHold; release MUST be idempotent and MUST NOT resurrect expired/allocated holds.",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "hold_signature MUST be derived and verified as HMAC(secret, org_id || hold_id || occurrence_id || seat_id || actor_id || actor_type) so that a mismatched actor_id/actor_type MUST fail verification; verification failure MUST map to ERR_FORBIDDEN/SEAT_HOLD_TOKEN_INVALID.",
+        "actor_id and actor_type provided to this action MUST match the persisted SeatHold.actor_id and SeatHold.actor_type for the target hold. Mismatch MUST map to ERR_FORBIDDEN/SEAT_HOLD_TOKEN_INVALID.",
+        "hold_signature MUST be verified and MUST match the persisted hold_signature for the hold.",
+        "Release MUST be an atomic state transition from active -> released; attempts from expired/allocated MUST return ERR_PRECONDITION.",
+        "Cross-tenant access MUST be hidden (ERR_NOT_FOUND).",
+        "Concurrency MUST be protected by session-affine, transaction-scoped advisory locks per LOCKS-1 (no lock on conn A + write on conn B).",
+        "All state transitions MUST be SM-0 fenced (CAS): assert expected prior status and lock_version, bump lock_version atomically.",
+        "For each hold transitioned to released, persist the corresponding ticketing.seat.hold.released.v1 OutboxEvent in the same database transaction as the state mutation; dispatch to publishers only after that transaction commits."
+      ]
+    },
+    "reverse_allocation": {
+      "concurrency_protocol": {
+        "locks_1_namespace": 103,
+        "sequence": [
+          "Acquire LOCKS-1 transaction-scoped advisory lock on the inventory bucket: pg_advisory_xact_lock(103, K_bucket).",
+          "SELECT InventoryBucketCursor FOR UPDATE for {org_id, event_id, bucket_id}.",
+          "Compute v_next = current_version + 1 (monotonic per bucket).",
+          "Write SeatHold/SeatAllocation and corresponding OutboxEvent in the same transaction, with version=v_next.",
+          "UPDATE InventoryBucketCursor.current_version = v_next and updated_at_utc_usec=now().",
+          "Before commit, assert pg_advisory_lock_held(103, K_bucket); if false -> rollback."
+        ]
+      },
+      "inputs_required": [
+        "org_id",
+        "allocation_id",
+        "reversal_authority",
+        "reason_subcode",
+        "admin_case_id",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "allocation_id",
+        "status",
+        "reversed_at_utc",
+        "reversal_id"
+      ],
+      "purpose": "Reverse an active SeatAllocation as a compensating action (refund/cancel/dispute/chargeback/admin/system). This MUST release the seat for potential reallocation when allowed, without deleting audit truth.",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "admin_case_id MUST be present and MUST be a valid uuid_v7. Missing MUST fail as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "lock_window_override MUST be false for this action. True MUST be rejected; admin override requires reverse_allocation_admin_override.",
+        "SeatAllocation MUST be tenant-scoped by org_id; cross-tenant access MUST be hidden (ERR_NOT_FOUND).",
+        "Target SeatAllocation MUST exist and MUST have status='active' to be reversed. If already reversed, action MUST be idempotent and MUST return the existing reversal_id and SeatAllocation.status='reversed' (ERR_CONFLICT/SEAT_STALE_RECORD may be used when strict idempotency is not implemented).",
+        "reason_subcode MUST reference an ERR-1 registry subcode. Invalid subcode MUST fail as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "reversal_authority MUST be one of {refund, cancel, dispute, chargeback, admin, system}.",
+        "Exactly one causal reference id MUST be provided and MUST match reversal_authority: refund=>refund_id, cancel=>cancel_id, dispute=>dispute_id, chargeback=>chargeback_id, system=>system_job_id. Providing multiple causal ids or providing a causal id that does not match reversal_authority MUST fail-closed as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "If reversal_authority=refund then refund_id MUST be provided. If reversal_authority=cancel then cancel_id MUST be provided. If reversal_authority=system then system_job_id MUST be provided. Missing required causal id MUST fail-closed as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "If reversal_authority is in {refund, cancel, dispute, chargeback, system}, the reversal MUST enforce the EVT-2 admission lock window (check_in_open_utc <= now < check_in_close_utc) for the SeatAllocation. Reversal during this window MUST fail as ERR_PRECONDITION/REFUND_LOCK_WINDOW_ACTIVE.",
+        "If reversal_authority=admin, reversal MUST also enforce the EVT-2 admission lock window by default. Attempting an admin reversal during this window via reverse_allocation MUST fail as ERR_PRECONDITION/REFUND_LOCK_WINDOW_ACTIVE; bypass is allowed ONLY via reverse_allocation_admin_override.",
+        "If reversal_authority=dispute or chargeback, the request MUST provide dispute_id/chargeback_id (causal reference) and MUST fail-closed if the dispute workflow indicates 'no_release' (integration point with PAY-3/REFUND-1).",
+        "Reversal MUST be an atomic state transition SeatAllocation.status: active -> reversed and MUST set reversed_at_utc exactly once.",
+        "Reversal MUST create exactly one SeatAllocationReversal record (append-only) in the same commit, and MUST emit ticketing.seat.allocation.reversed.v1 after commit.",
+        "Concurrency MUST be protected by session-affine, transaction-scoped advisory locks per LOCKS-1 (no lock on conn A + write on conn B).",
+        "All state transitions MUST be SM-0 fenced (CAS): assert expected prior status and lock_version, bump lock_version atomically."
+      ]
+    },
+    "reverse_allocation_admin_override": {
+      "inputs_required": [
+        "org_id",
+        "allocation_id",
+        "reversal_authority",
+        "reason_subcode",
+        "admin_case_id",
+        "lock_window_override",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "allocation_id",
+        "status",
+        "reversed_at_utc",
+        "reversal_id"
+      ],
+      "purpose": "Admin-only explicit override path to reverse an active SeatAllocation during the EVT-2 admission lock window. This exists to prevent accidental weakening of fail-closed automation while still enabling audited human intervention.",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "reversal_authority MUST be 'admin'. Any other value MUST fail as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "lock_window_override MUST be true. False MUST fail as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "admin_case_id MUST be present and MUST be a valid uuid_v7. Missing MUST fail as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "Action MUST enforce the same idempotency guarantees as reverse_allocation (one reversal per allocation_id).",
+        "Action MAY bypass the EVT-2 admission lock window, but MUST record lock_window_override=true and admin_case_id on the SeatAllocationReversal audit record.",
+        "Authorization MUST require an org-scoped admin capability (IAM-1 integration point); unauthorized MUST be hidden as ERR_NOT_FOUND."
+      ]
+    },
+    "reverse_allocations_for_order": {
+      "inputs_required": [
+        "org_id",
+        "order_id",
+        "reversal_authority",
+        "reason_subcode",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "order_id",
+        "reversed_allocation_ids",
+        "reversal_ids"
+      ],
+      "purpose": "Reverse all ACTIVE SeatAllocations for a given order_id in a single orchestration step (used by REFUND-1 inventory_releasing).",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "Exactly one causal reference id MUST be provided and MUST match reversal_authority: refund=>refund_id, cancel=>cancel_id, dispute=>dispute_id, chargeback=>chargeback_id, system=>system_job_id. Providing multiple causal ids or providing a causal id that does not match reversal_authority MUST fail-closed as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "If reversal_authority=refund then refund_id MUST be provided. If reversal_authority=cancel then cancel_id MUST be provided. If reversal_authority=system then system_job_id MUST be provided. Missing required causal id MUST fail-closed as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "Action MUST enumerate SeatAllocations by (org_id, order_id) with status='active' and reverse each using the same atomic guarantees as reverse_allocation.",
+        "If there are zero active allocations, action MUST be idempotent and return an empty list (NOT an error).",
+        "For each reversal, SeatAllocationReversal MUST include the original occurrence_id and seat_id so downstream reconciliation is possible.",
+        "Admission lock window rules MUST be enforced per allocation using EVT-2 occurrence windows; any lock violation MUST fail the whole action (fail-closed) unless the explicit admin override batch action is used."
+      ]
+    },
+    "reverse_allocations_for_order_admin_override": {
+      "inputs_required": [
+        "org_id",
+        "order_id",
+        "reversal_authority",
+        "reason_subcode",
+        "admin_case_id",
+        "lock_window_override",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "order_id",
+        "reversed_allocation_ids",
+        "reversal_ids"
+      ],
+      "purpose": "Admin-only batch override to reverse all active SeatAllocations for an order during the EVT-2 admission lock window, with explicit audit and a single admin_case_id.",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "reversal_authority MUST be 'admin'. Any other value MUST fail as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "lock_window_override MUST be true. False MUST fail as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "admin_case_id MUST be present and MUST be a valid uuid_v7. Missing MUST fail as ERR_VALIDATION/SEAT_INVALID_REQUEST.",
+        "Action MUST enumerate SeatAllocations by (org_id, order_id) with status='active' and reverse each using the same atomic guarantees as reverse_allocation.",
+        "Action MUST allow bypassing the admission lock window ONLY because it is an explicit admin override. Each SeatAllocationReversal MUST record lock_window_override=true and admin_case_id.",
+        "If there are zero active allocations, action MUST be idempotent and return an empty list (NOT an error).",
+        "Authorization MUST require an org-scoped admin capability (IAM-1 integration point); unauthorized MUST be hidden as ERR_NOT_FOUND."
+      ]
+    },
+    "verify_hold_proofs": {
+      "inputs_required": [
+        "org_id",
+        "seat_hold_proofs",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "holds"
+      ],
+      "purpose": "Validate and resolve a batch of SeatHold proofs for checkout without allocating seats; used by ORD-1 to bind holds to occurrence_id and seat_id prior to finalization.",
+      "side_effects_separation": "read_only",
+      "validation_rules": [
+        "seat_hold_proofs MUST be a non-empty list of objects {hold_id: uuid_v7, hold_signature: string}.",
+        "Each hold_signature MUST be derived and verified as HMAC(secret, org_id || hold_id || occurrence_id || seat_id || actor_id || actor_type) and MUST match the persisted SeatHold.hold_signature for that hold.",
+        "actor_id and actor_type MUST match the persisted SeatHold.actor_id and SeatHold.actor_type for every hold; mismatch MUST map to ERR_FORBIDDEN/SEAT_HOLD_TOKEN_INVALID.",
+        "Each hold MUST exist within org_id and MUST be tenant-scoped; cross-tenant access MUST be hidden (ERR_NOT_FOUND).",
+        "Each hold MUST be status=active and MUST satisfy now_utc_usec < expires_at_utc; otherwise the batch MUST fail with ERR_PRECONDITION/SEAT_HOLD_EXPIRED.",
+        "The response holds list MUST include, per hold: hold_id, occurrence_id, seat_id, status, expires_at_utc."
+      ]
+    },
+    "create_inventory_bucket": {
+      "inputs_required": [
+        "org_id",
+        "occurrence_id",
+        "bucket_id",
+        "bucket_external_ref_digest_sha256",
+        "base_capacity",
+        "oversell_allowance_fixed",
+        "shard_count",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "bucket_id",
+        "effective_capacity_ceiling",
+        "shard_count",
+        "cursor_version",
+        "shards[]"
+      ],
+      "purpose": "Atomically create an InventoryBucket, its zero-version cursor and all deterministically distributed shard rows.",
+      "validation_rules": [
+        "Actor MUST be authenticated and authorized to manage org_id.",
+        "Occurrence MUST exist in EVT-2 under org_id and inventory_mode MUST support GA capacity.",
+        "effective_capacity_ceiling MUST be computed as base_capacity + oversell_allowance_fixed; caller MUST NOT supply effective_capacity_ceiling.",
+        "base_capacity and oversell_allowance_fixed MUST be non-negative and sum without overflow.",
+        "shard_count MUST be a positive integer.",
+        "Create bucket, cursor with current_version=0, and exactly shard_count shards in one transaction.",
+        "Each shard capacity_limit MUST use bucket_shard_capacity_distribution; shard_index is ascending from zero and every sold_count and held_count initializes to zero.",
+        "Duplicate bucket identity or external reference digest MUST fail without partial rows."
+      ],
+      "errors": [
+        "ERR_FORBIDDEN",
+        "ERR_NOT_FOUND",
+        "ERR_VALIDATION"
+      ],
+      "concurrency_protocol": {
+        "locks_1_namespace": 103,
+        "sequence": [
+          "Acquire LOCKS-1 transaction-scoped advisory lock for {org_id, occurrence_id, bucket_id}.",
+          "Verify tenant-bound EVT-2 occurrence authority.",
+          "Insert InventoryBucket with derived effective capacity.",
+          "Insert InventoryBucketCursor with current_version=0.",
+          "Insert each InventoryBucketShard with deterministic capacity_limit and sold_count=held_count=0.",
+          "Assert all expected shards exist and advisory lock is held before commit; rollback every row on failure."
+        ]
+      }
+    },
+    "verify_bucket_hold_proofs": {
+      "inputs_required": [
+        "org_id",
+        "bucket_hold_proofs",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "holds[]"
+      ],
+      "purpose": "Read-only verification of tenant-bound, actor-bound GA bucket hold proofs.",
+      "validation_rules": [
+        "bucket_hold_proofs MUST be non-empty objects {hold_id, hold_signature}.",
+        "For each proof, resolve InventoryBucketHold using org_id, hold_id; hide cross-tenant existence as ERR_NOT_FOUND / TEN_CROSS_TENANT_HIDDEN.",
+        "Verify the canonical bucket_hold_signature in constant time against persisted org, hold, occurrence, bucket, quantity and actor fields.",
+        "Provided actor_id and actor_type MUST match persisted hold actor fields.",
+        "The hold MUST be active and database now MUST be before expires_at_utc_usec.",
+        "Expiry is not included in signature basis, so a valid hold proof remains valid across a governed grace extension.",
+        "Return only authoritative hold_id, occurrence_id, bucket_id, quantity, status and expires_at_utc_usec. No seat_id is returned or inferred."
+      ],
+      "errors": [
+        "ERR_FORBIDDEN",
+        "ERR_NOT_FOUND",
+        "ERR_PRECONDITION"
+      ],
+      "side_effects_separation": "read_only"
+    },
+    "release_bucket_hold": {
+      "inputs_required": [
+        "org_id",
+        "hold_id",
+        "hold_signature",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "hold_id",
+        "status",
+        "released_at_utc_usec"
+      ],
+      "purpose": "Release an active GA bucket hold.",
+      "validation_rules": [
+        "Proof MUST verify with bucket signing basis and actor binding.",
+        "Tenant mismatch MUST be hidden.",
+        "Only active -> released is legal.",
+        "Use session-affine transaction-scoped advisory lock namespace 103 and SM-0 CAS on expected status and lock_version.",
+        "A failed CAS MUST not partially change hold or shard counters.",
+        "Terminal holds MUST NOT be resurrected."
+      ],
+      "errors": [
+        "ERR_PRECONDITION",
+        "ERR_NOT_FOUND",
+        "ERR_FORBIDDEN"
+      ],
+      "side_effects_separation": "after_commit_only",
+      "concurrency_protocol": {
+        "locks_1_namespace": 103,
+        "required_sequence": [
+          "Acquire LOCKS-1 transaction-scoped advisory lock for bucket identity.",
+          "Lock InventoryBucketCursor row for update.",
+          "Attempt one status=active, expected lock_version CAS update.",
+          "Update shard counters, terminal hold state, and lock_version in the same transaction; advance InventoryBucketCursor.current_version exactly once for this successful transition.",
+          "Assert advisory lock held and rollback all writes if any predicate fails.",
+          "Fence the hold state change with SM-0 CAS on expected status and lock_version."
+        ],
+        "cursor_advance": "A successful release, expiry, or allocation transition advances the cursor once. A rollback, failed CAS, terminal replay, or no-op does not advance it.",
+        "version_separation": "InventoryBucketCursor.current_version is separate from the individual hold lock_version."
+      },
+      "state_transition": {
+        "from": "active",
+        "terminal": true
+      },
+      "side_effects": [
+        "Set released_at_utc_usec and decrement the exact shard held_count by hold.quantity."
+      ]
+    },
+    "expire_bucket_holds": {
+      "inputs_required": [
+        "org_id",
+        "cutoff_utc_usec",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "expired_count"
+      ],
+      "purpose": "Expire active GA bucket holds whose expiry is at or before cutoff.",
+      "validation_rules": [
+        "Actor type MUST be system or service.",
+        "Only active holds with expires_at_utc_usec <= cutoff_utc_usec may transition.",
+        "Use session-affine transaction-scoped advisory lock namespace 103 and SM-0 CAS on expected status and lock_version.",
+        "A failed CAS MUST not partially change hold or shard counters.",
+        "Terminal holds MUST NOT be resurrected."
+      ],
+      "errors": [
+        "ERR_PRECONDITION",
+        "ERR_NOT_FOUND",
+        "ERR_FORBIDDEN"
+      ],
+      "side_effects_separation": "after_commit_only",
+      "concurrency_protocol": {
+        "locks_1_namespace": 103,
+        "required_sequence": [
+          "Acquire LOCKS-1 transaction-scoped advisory lock for bucket identity.",
+          "Lock InventoryBucketCursor row for update.",
+          "Attempt one status=active, expected lock_version CAS update.",
+          "Update shard counters, terminal hold state, and lock_version in the same transaction; advance InventoryBucketCursor.current_version exactly once for this successful transition.",
+          "Assert advisory lock held and rollback all writes if any predicate fails.",
+          "Fence the hold state change with SM-0 CAS on expected status and lock_version."
+        ],
+        "cursor_advance": "A successful release, expiry, or allocation transition advances the cursor once. A rollback, failed CAS, terminal replay, or no-op does not advance it.",
+        "version_separation": "InventoryBucketCursor.current_version is separate from the individual hold lock_version."
+      },
+      "state_transition": {
+        "from": "active",
+        "terminal": true
+      },
+      "side_effects": [
+        "Set expired_at_utc_usec to cutoff_utc_usec and decrement each exact shard held_count by quantity."
+      ]
+    },
+    "allocate_bucket_hold": {
+      "inputs_required": [
+        "org_id",
+        "hold_id",
+        "hold_signature",
+        "order_id",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "allocation_id",
+        "hold_id",
+        "quantity",
+        "occurrence_id",
+        "bucket_id",
+        "allocated_at_utc_usec"
+      ],
+      "purpose": "Convert a verified active GA bucket hold into an InventoryBucketAllocation for a draft Order.",
+      "validation_rules": [
+        "Proof MUST verify tenant and actor binding.",
+        "Hold MUST be active and unexpired at commit time.",
+        "Order MUST exist in the same org_id and contain the bound line item for matching occurrence, bucket and quantity.",
+        "Insert InventoryBucketAllocation and transition hold active -> allocated atomically.",
+        "Use session-affine transaction-scoped advisory lock namespace 103 and SM-0 CAS on expected status and lock_version.",
+        "A failed CAS MUST not partially change hold or shard counters.",
+        "Terminal holds MUST NOT be resurrected."
+      ],
+      "errors": [
+        "ERR_PRECONDITION",
+        "ERR_NOT_FOUND",
+        "ERR_FORBIDDEN"
+      ],
+      "side_effects_separation": "after_commit_only",
+      "concurrency_protocol": {
+        "locks_1_namespace": 103,
+        "required_sequence": [
+          "Acquire LOCKS-1 transaction-scoped advisory lock for bucket identity.",
+          "Lock InventoryBucketCursor row for update.",
+          "Attempt one status=active, expected lock_version CAS update.",
+          "Update shard counters, terminal hold state, and lock_version in the same transaction; advance InventoryBucketCursor.current_version exactly once for this successful transition.",
+          "Assert advisory lock held and rollback all writes if any predicate fails.",
+          "Fence the hold state change with SM-0 CAS on expected status and lock_version."
+        ],
+        "cursor_advance": "A successful release, expiry, or allocation transition advances the cursor once. A rollback, failed CAS, terminal replay, or no-op does not advance it.",
+        "version_separation": "InventoryBucketCursor.current_version is separate from the individual hold lock_version."
+      },
+      "state_transition": {
+        "from": "active",
+        "terminal": true
+      },
+      "side_effects": [
+        "Insert allocation; decrement exact shard held_count and increment sold_count by hold.quantity; persist allocated_at_utc_usec."
+      ]
+    },
+    "extend_bucket_hold_grace": {
+      "inputs_required": [
+        "org_id",
+        "bucket_hold_proofs",
+        "min_remaining_seconds",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "holds[]"
+      ],
+      "purpose": "Secure the bounded payment grace required by ORD-1 for active bucket holds.",
+      "validation_rules": [
+        "min_remaining_seconds MUST be <= hold_grace_extension_seconds_max.",
+        "Use hold_grace_extension_count_max, hold_grace_extension_seconds_max and hold_total_ttl_seconds_cap from SEAT-1 limits.",
+        "Hold MUST remain active and unexpired; proof MUST verify with tenant and actor binding.",
+        "New expiry MUST be max(current expiry, database now + requested minimum) and MUST NOT exceed created_at + hold_total_ttl_seconds_cap.",
+        "When expiry changes, increment grace_extension_count once and set grace_extended_at_utc_usec. If no extension is needed, do not update count or timestamp.",
+        "Use session-affine transaction-scoped advisory lock namespace 103 and SM-0 CAS on expected status and lock_version.",
+        "A failed CAS MUST not partially change hold or shard counters.",
+        "Terminal holds MUST NOT be resurrected."
+      ],
+      "errors": [
+        "ERR_PRECONDITION",
+        "ERR_NOT_FOUND",
+        "ERR_FORBIDDEN"
+      ],
+      "side_effects_separation": "after_commit_only",
+      "concurrency_protocol": {
+        "locks_1_namespace": 103,
+        "required_sequence": [
+          "Acquire the session-affine LOCKS-1 transaction-scoped advisory lock for {org_id, occurrence_id, bucket_id}.",
+          "Lock InventoryBucketCursor for this bucket and compute the next monotonic version.",
+          "Use one SM-0 CAS update guarded by status=active, expected lock_version, now < expires_at_utc_usec, grace_extension_count < hold_grace_extension_count_max, and the total-TTL cap.",
+          "When expiry increases, update expires_at_utc_usec, increment grace_extension_count, set grace_extended_at_utc_usec, and bump lock_version atomically. When expiry does not increase, leave the hold and grace fields unchanged.",
+          "If expiry increases, advance InventoryBucketCursor.current_version exactly once in this transaction. Do not change shard counters. If expiry does not increase, do not advance the cursor.",
+          "Assert the advisory lock is held before commit; on a lost CAS or any failure, roll back all updates."
+        ],
+        "cursor_advance": "A successful grace extension advances the cursor once only when it increases expiry and changes availability. A rollback, failed CAS, or no-op does not advance it.",
+        "version_separation": "InventoryBucketCursor.current_version is separate from the individual hold lock_version."
+      },
+      "state_transition": {
+        "from": "active",
+        "terminal": false
+      },
+      "side_effects": [
+        "Only expires_at_utc_usec and bounded grace metadata change; inventory counters remain unchanged."
+      ]
+    }
+  },
+  "downstream_consumers": [
+    {
+      "doc_id": "ORD-1",
+      "min_version": "3.3.6",
+      "normative_dependency": false,
+      "reason": "Checkout finalization depends on authoritative SEAT-1 holds and expiry semantics."
+    },
+    {
+      "doc_id": "LED-1",
+      "min_version": "4.1.1",
+      "normative_dependency": false,
+      "reason": "Ledger posting boundary depends on allocation truth for downstream revenue flows."
+    },
+    {
+      "doc_id": "REFUND-1",
+      "min_version": "1.3.0",
+      "normative_dependency": false,
+      "reason": "Refund finalization must reverse seat allocations deterministically and within lock window semantics."
+    },
+    {
+      "doc_id": "TKT-1",
+      "min_version": "1.2.0",
+      "normative_dependency": false,
+      "reason": "Ticket credential revocation and fulfillment must align with seat allocation truth and reversal on refund."
+    }
+  ],
+  "enforcement_tooling": {
+    "seat1_conformance_runner": {
+      "artifact_kind": "zip_tools",
+      "artifact_name": "SEAT1_active_conformance_runner_tools_v1.1.0.zip",
+      "artifact_sha256": "5b9b9a429f0be35ac6056fa947328bbd7d57daad404f25a7ba32c7e85ce7d7f8",
+      "evidence_required_for_deploy": true,
+      "evidence_schema": "seat1-conformance-evidence/1.0",
+      "evidence_schema_file": "seat1_conformance_evidence_schema_v1.json",
+      "required_impl_ops": [
+        "seat.sign_single",
+        "seat.verify_single",
+        "seat.sign_batch",
+        "seat.verify_batch",
+        "seat.tie_break",
+        "seat.build_id",
+        "seat.attest"
+      ],
+      "runner_entrypoint": "ci_seat1_conformance_runner_v1.1.0.py"
+    }
+  },
+  "errors": {
+    "primary_codes_used": [
+      "ERR_BAD_REQUEST",
+      "ERR_CONFLICT",
+      "ERR_FORBIDDEN",
+      "ERR_NOT_FOUND",
+      "ERR_PRECONDITION",
+      "ERR_TIMEOUT",
+      "ERR_UNAVAILABLE",
+      "ERR_VALIDATION"
+    ],
+    "registry": "ERR-1",
+    "subcodes": [
+      {
+        "base": "ERR_PRECONDITION",
+        "retryable": false,
+        "subcode": "ORD_PRICE_SNAPSHOT_EXPIRED"
+      },
+      {
+        "base": "ERR_PRECONDITION",
+        "retryable": false,
+        "subcode": "ORD_PRICE_SNAPSHOT_REQUIRED"
+      },
+      {
+        "base": "ERR_VALIDATION",
+        "retryable": false,
+        "subcode": "ORD_SEAT_ALLOCATION_INVALID"
+      },
+      {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false,
+        "subcode": "REFUND_AFTER_ENTRY_FORBIDDEN"
+      },
+      {
+        "base": "ERR_PRECONDITION",
+        "retryable": false,
+        "subcode": "REFUND_LOCK_WINDOW_ACTIVE"
+      },
+      {
+        "base": "ERR_CONFLICT",
+        "retryable": false,
+        "subcode": "SEAT_ALREADY_ALLOCATED"
+      },
+      {
+        "base": "ERR_CONFLICT",
+        "retryable": true,
+        "subcode": "SEAT_ALREADY_HELD"
+      },
+      {
+        "base": "ERR_PRECONDITION",
+        "retryable": false,
+        "subcode": "SEAT_HOLD_EXPIRED"
+      },
+      {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false,
+        "subcode": "SEAT_HOLD_TOKEN_INVALID"
+      },
+      {
+        "base": "ERR_VALIDATION",
+        "retryable": false,
+        "subcode": "SEAT_INVALID_REQUEST"
+      },
+      {
+        "base": "ERR_CONFLICT",
+        "retryable": true,
+        "subcode": "SEAT_STALE_RECORD"
+      },
+      {
+        "base": "ERR_NOT_FOUND",
+        "retryable": false,
+        "subcode": "TEN_CROSS_TENANT_HIDDEN"
+      },
+      {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false,
+        "subcode": "TEN_TENANT_CONTEXT_MISSING"
+      }
+    ]
+  },
+  "generated_at_utc": "2026-10-09T15:51:00Z",
+  "invariants": [
+    {
+      "category": "temporal_precision",
+      "rule_id": "SEAT-1-P0-TEMPORAL-001",
+      "severity": "P0",
+      "text": "All authoritative timestamps in SEAT-1 MUST use utc_datetime_usec semantics."
+    },
+    {
+      "category": "datatypes",
+      "rule_id": "SEAT-1-P0-COUNTERS-001",
+      "severity": "P0",
+      "text": "All counters and durations (including hold_ttl_seconds) MUST be signed 64-bit integers (bigint)."
+    },
+    {
+      "category": "atomicity",
+      "rule_id": "SEAT-1-P0-ATOMICITY-001",
+      "severity": "P0",
+      "text": "Seat acquisition and allocation MUST be enforced via atomic DB predicates/constraints; read-modify-write availability checks are forbidden."
+    },
+    {
+      "category": "atomicity",
+      "rule_id": "SEAT-1-P0-ATOMICITY-002",
+      "severity": "P0",
+      "text": "SeatHold → SeatAllocation MUST be implemented as an Ash 3.x Atomic Changeset with commit-time predicates for status and expiry, preventing allocate-vs-expire races."
+    },
+    {
+      "category": "signature_security",
+      "rule_id": "SEAT-1-P0-SIGNATURE-001",
+      "severity": "P0",
+      "text": "hold_signature MUST be HMAC-SHA256 (or stronger) over canonical hold state + secret key; weak/guessable tokens are forbidden."
+    },
+    {
+      "category": "tenancy",
+      "rule_id": "SEAT-1-P0-TENANCY-001",
+      "severity": "P0",
+      "text": "All actions MUST require org_id. Missing org_id MUST fail closed with ERR_FORBIDDEN at the internal action/Ash layer; TEN_TENANT_CONTEXT_MISSING MUST remain internal causal/audit information. Neither the internal error classification nor its causal subcode may be serialized to HTTP/API. HTTP/API serialization MUST apply TEN-1-BOUNDARY-UNIFORM-404 and TEN-1-BOUNDARY-OMIT-SUBCODE: return uniform HTTP 404 with top-level ERR_NOT_FOUND, omit the subcode, omit detail or use a constant generic detail, and keep response fields and headers uniform across hidden reasons. Cross-tenant access MUST be hidden (ERR_NOT_FOUND)."
+    },
+    {
+      "category": "allocation_durability",
+      "rule_id": "SEAT-1-P0-ALLOCATION-001",
+      "severity": "P0",
+      "text": "SeatAllocation records MUST be durable (no deletes). The only allowed state transition is status: active → reversed, and it MUST be accompanied by a SeatAllocationReversal record created in the same transaction."
+    },
+    {
+      "category": "allocation_truth",
+      "rule_id": "SEAT-1-P0-ALLOCATION-002",
+      "severity": "P0",
+      "text": "Seat truth is derived from ACTIVE allocations only: a seat is allocated iff exactly one SeatAllocation with status='active' exists for (org_id, occurrence_id, seat_id). Reversed allocations MUST NOT block reallocation."
+    },
+    {
+      "category": "reversal_lock_window",
+      "rule_id": "SEAT-1-P0-REVERSAL-001",
+      "severity": "P0",
+      "text": "For reversal_authority in {refund, cancel, dispute, chargeback, system}, seat allocation reversal MUST be fail-closed during the EVT-2 admission window (check_in_open_utc <= now < check_in_close_utc) using ERR_PRECONDITION/REFUND_LOCK_WINDOW_ACTIVE. For reversal_authority=admin, reversal MUST also be fail-closed by default during this window; only the explicit admin override action MAY bypass the window, and it MUST record lock_window_override=true and a non-null admin_case_id in SeatAllocationReversal."
+    },
+    {
+      "category": "checkout_orchestration",
+      "rule_id": "SEAT-1-P0-CHECKOUT-001",
+      "severity": "P0",
+      "text": "When a SeatHold or SeatAllocation participates in a checkout_group (ORD-1), the record MUST carry checkout_group_id. allocate_hold MUST require checkout_group_id and MUST persist it on SeatAllocation and SeatAllocationReversal for audit/traceability."
+    },
+    {
+      "category": "pricing_binding",
+      "rule_id": "SEAT-1-P0-PRICING-001",
+      "severity": "P0",
+      "text": "SeatAllocation MUST be bound to PRICE-1 via pricing_snapshot_id and price_line_id. allocate_hold MUST require these references and MUST validate occurrence_id consistency (price_line.occurrence_id MUST equal hold.occurrence_id); mismatch MUST fail-closed."
+    },
+    {
+      "category": "orchestration",
+      "rule_id": "SEAT-1-P0-ORCH-001",
+      "severity": "P0",
+      "text": "Checkout orchestration that acquires multiple holds across one checkout_group_id MUST be all-or-nothing: if any hold acquisition or allocation fails, the orchestrator MUST release or expire any acquired holds immediately and MUST NOT leave partial allocations in an active state."
+    },
+    {
+      "category": "runtime_integrity",
+      "rule_id": "SEAT-1-INV-090-SESSION-AFFINITY",
+      "severity": "P0",
+      "text": "Any advisory lock used to guard SeatHold or SeatAllocation mutations MUST be acquired and held within the same Postgres backend session/transaction that performs the protected write. Implementations MUST NOT lock on connection A and write on connection B (LOCKS-1-INV-010). Use transaction-scoped advisory locks (pg_advisory_xact_lock / pg_try_advisory_xact_lock) where applicable (LOCKS-1-INV-011).",
+      "title": "Runtime integrity invariant"
+    },
+    {
+      "category": "runtime_integrity",
+      "rule_id": "SEAT-1-INV-091-FENCED-TRANSITIONS",
+      "severity": "P0",
+      "text": "All SeatHold and SeatAllocation state transitions MUST be fenced using SM-0 CAS semantics: the write MUST assert the expected prior status AND the expected lock_version (or equivalent fencing token) in the same statement, and MUST increment lock_version on success. Any 0-row update MUST be treated as a conflict (SM-0).",
+      "title": "Runtime integrity invariant"
+    },
+    {
+      "category": "runtime_integrity",
+      "rule_id": "SEAT-1-INV-092-LOCK-VERSION-PRESENT",
+      "severity": "P0",
+      "text": "SeatHold and SeatAllocation resources MUST include a non-null lock_version integer used for optimistic concurrency control. All update paths MUST require an expected_lock_version input (or internal equivalent) and MUST bump lock_version atomically.",
+      "title": "Runtime integrity invariant"
+    },
+    {
+      "category": "governance",
+      "rule_id": "SEAT-1-INV-REGISTRY-BINDING-001",
+      "severity": "P0",
+      "text": "SEAT-1 producers MUST NOT hardcode the registry_version_sha. Producers MUST resolve the SHA at runtime from V42_RUNTIME_REGISTRY_SHA configuration. If missing or malformed (not 64-hex), the producer MUST fail to start or refuse to emit events. LEGACY_SHA_SENTINEL (64 zeros) MAY be used only in explicit backfill/migration mode.",
+      "title": "Runtime integrity invariant"
+    },
+    {
+      "category": "security",
+      "rule_id": "SEAT-1-INV-BUCKET-CURSOR-001",
+      "severity": "P0",
+      "text": "Any process that writes a SeatHold or SeatAllocation MUST hold the LOCKS-1 advisory transaction lock for the corresponding {org_id, event_id, bucket_id} inventory bucket using namespace 103. Before commit, the producer MUST assert pg_advisory_lock_held(103, K_bucket) (or an equivalent capability) and MUST rollback if the lock is not held. This prevents optimistic inventory writes under connection flaps/timeouts.",
+      "title": "Hold signature canonicalization"
+    },
+    {
+      "category": "advisory_locks",
+      "rule_id": "SEAT-1-P0-LOCKKEY-001",
+      "severity": "P0",
+      "text": "Inventory bucket advisory lock key derivation MUST be deterministic and cross-language stable. K_bucket MUST be derived per lock_key_derivation.inventory_bucket_lock (LOCKS-1 sha256_v1_first8_signed_int64_be over utf8(org_id|namespace|entity_key) with namespace='seat' and entity_key_template event_id:{event_id}|bucket_id:{bucket_id})."
+    },
+    {
+      "category": "security",
+      "rule_id": "SEAT-1-P0-HOLD-SIGNATURE-CANONICAL-001",
+      "severity": "P0",
+      "text": "SeatHold.hold_signature MUST be computed as HMAC-SHA256 over UTF-8 bytes of the canonical string: org_id|hold_id|occurrence_id|seat_id|actor_id|actor_type where all UUIDs are lowercase RFC4122 strings and actor_type is lowercase snake_case. The '|' separator is literal and no whitespace is permitted. Verification MUST use constant-time comparison. CI MUST execute the SEAT-1 hold_signature_test_vectors to prove byte-identical behavior across implementations.",
+      "title": "Hold signature must use canonical string + constant-time compare"
+    },
+    {
+      "rule_id": "SEAT-1-P0-HOLD-SIGNATURE-TTL-002",
+      "severity": "P0",
+      "text": "Hold signatures MUST bind expires_at_utc (utc_datetime_usec). Any request that presents a signature not binding expires_at_utc MUST be rejected.",
+      "title": "Hold signatures are time-bound"
+    },
+    {
+      "rule_id": "SEAT-1-P0-BATCH-HOLD-SORT-003",
+      "severity": "P0",
+      "text": "For multi-seat hold/extend operations, seat_ids MUST be provided already sorted in canonical order (uuid_v7 raw 16-byte value, memcmp semantics). The verifier MUST reject any request where seat_ids are not sorted (even if the signature would validate after sorting).",
+      "title": "Deterministic batch hold signature"
+    },
+    {
+      "rule_id": "SEAT-1-P0-INVENTORY-TRUTH-004",
+      "severity": "P0",
+      "text": "If Redis and Postgres disagree, resolve to SOLD/ALLOCATED. Redis is acceleration only; Postgres is authority.",
+      "title": "Postgres inventory truth; fail-closed"
+    },
+    {
+      "rule_id": "SEAT-1-P0-HANDOVER-TOMBSTONE-005",
+      "severity": "P0",
+      "text": "Do not delete Redis holds until a terminal allocation marker is durably written to Postgres. Availability MUST consult Postgres terminal markers and Redis holds.",
+      "title": "No availability micro-window"
+    },
+    {
+      "rule_id": "SEAT-1-P0-EXTEND-GC-ATOMICITY-006",
+      "severity": "P0",
+      "text": "extend_hold and expired-hold cleanup MUST be mutually exclusive for a hold_id. Use a single-writer lock or SELECT ... FOR UPDATE within one transaction.",
+      "title": "Extend vs GC atomicity"
+    },
+    {
+      "rule_id": "SEAT-1-P0-COLLISION-TIEBREAKER-007",
+      "severity": "P0",
+      "text": "If two hold requests for the same seat arrive within the same microsecond bucket, winner is lowest actor_id (uuid_v7 raw 16-byte value (memcmp semantics on bytes) order). Losers get conflict. Comparison MUST be performed on the 16-byte UUID payload (RFC 9562) using unsigned byte-wise lexicographic comparison; do NOT use locale/collation string ordering.",
+      "title": "Deterministic collision tie-breaker"
+    },
+    {
+      "id": "SEAT-1-V36-001",
+      "level": "P0",
+      "must": "InventoryBucket.effective_capacity_ceiling MUST equal base_capacity + oversell_allowance_fixed and MUST be stored as an integer. Percent allowances MUST NOT appear in the OLTP path."
+    },
+    {
+      "id": "SEAT-1-V36-002",
+      "level": "P0",
+      "must": "Concurrency partitioning: If InventoryBucket.effective_capacity_ceiling > 5000 then InventoryBucket.shard_count MUST be > 1."
+    },
+    {
+      "id": "SEAT-1-V36-003",
+      "level": "P0",
+      "must": "For every InventoryBucket, Σ InventoryBucketShard.capacity_limit (by {org_id, occurrence_id, bucket_id}) MUST equal InventoryBucket.effective_capacity_ceiling."
+    },
+    {
+      "id": "SEAT-1-V36-004",
+      "level": "P0",
+      "must": "Bucket claims MUST be enforced by shard-level atomic predicates. Read-Modify-Write patterns are forbidden."
+    },
+    {
+      "id": "SEAT-1-V36-005",
+      "level": "P0",
+      "must": "Shard Overflow Routing: claim_bucket_inventory MUST probe alternative shards if the initial shard is exhausted before returning ERR_CONFLICT / SEAT_CAPACITY_EXHAUSTED."
+    },
+    {
+      "id": "SEAT-1-V36-006",
+      "level": "P0",
+      "must": "Policy recalculation: Any mutation of base_capacity or oversell_allowance_fixed MUST atomically recompute effective_capacity_ceiling and rebalance shard capacity_limit values so Σ capacity_limit == effective_capacity_ceiling in the same transaction."
+    },
+    {
+      "id": "SEAT-1-V36-007",
+      "level": "P0",
+      "must": "InventoryBucketCursor identity MUST be {org_id, occurrence_id, bucket_id}. event_id MUST NOT be part of the cursor identity."
+    },
+    {
+      "id": "SEAT-1-V362-001",
+      "level": "P0",
+      "must": "InventoryBucket.shard_count MUST be immutable once any inventory activity exists: if (Σ InventoryBucketShard.sold_count + Σ InventoryBucketShard.held_count) > 0 for a given {org_id, occurrence_id, bucket_id}, then shard_count MUST NOT change. Any attempt MUST be rejected."
+    }
+  ],
+  "last_updated_utc": "2026-10-09T15:51:00Z",
+  "law_constants": {
+    "bucket_shard_capacity_distribution": {
+      "formula": "capacity_limit_i = floor(total_ceiling / shard_count) + (1 if i < (total_ceiling mod shard_count) else 0)",
+      "ordering": "shard_index ascending (0..shard_count-1)"
+    },
+    "bucket_shard_overflow": {
+      "initial_index": "sha256_hex(request_id) mod shard_count",
+      "max_probes": "shard_count",
+      "secondary_salt": "sha256_hex(request_id + '|' + bucket_id)",
+      "step": "(hex_to_int(secondary_salt) mod (shard_count-1)) + 1",
+      "strategy": "secondary_hash_permutation"
+    },
+    "bucket_sharding_threshold_effective_capacity_ceiling_gt": 5000,
+    "max_shard_probe_attempts": "shard_count (probe all shards exactly once)"
+  },
+  "limits_and_budgets": {
+    "concurrency_limit": 20,
+    "hold_grace_extension_count_max": 1,
+    "hold_grace_extension_seconds_max": 180,
+    "hold_total_ttl_seconds_cap": 1080,
+    "hold_ttl_seconds_max_initial": 900,
+    "p99_latency_ms": {
+      "allocate_hold": 600,
+      "create_hold": 300,
+      "expire_holds": 2000,
+      "extend_hold_grace": 400,
+      "release_hold": 300
+    },
+    "rate_limit_per_tenant": {
+      "allocate_hold_per_min": 300,
+      "create_hold_per_min": 600,
+      "extend_hold_grace_per_min": 300,
+      "release_hold_per_min": 600
+    }
+  },
+  "lock_key_derivation": {
+    "inventory_bucket_lock": {
+      "algorithm": "sha256_v1_first8_signed_int64_be",
+      "canonical_namespace": "seat",
+      "canonical_string_template": "org_id|namespace|entity_key",
+      "delimiter": "|",
+      "encoding": "utf-8",
+      "entity_key_template": "event_id:{event_id}|bucket_id:{bucket_id}",
+      "int64_interpretation": "signed_big_endian",
+      "locks_1_namespace_id": 103,
+      "rule": "K_bucket used in pg_advisory_xact_lock(103, K_bucket) MUST be derived deterministically using LOCKS-1 lock_keying.format: hash64 = first8bytes(sha256(utf8(org_id|namespace|entity_key))) interpreted as signed big-endian int64; namespace MUST be 'seat' and entity_key MUST match entity_key_template."
+    }
+  },
+  "normative_source": "json",
+  "observability": {
+    "bounded_labels": {
+      "forbid_org_id_as_label": true,
+      "forbid_user_identifiers_as_labels": true,
+      "max_label_values_per_dim": 64
+    },
+    "metrics": {
+      "counters": [
+        {
+          "labels_allowed": [],
+          "name": "ticketing.seat.holds.created.total"
+        },
+        {
+          "labels_allowed": [],
+          "name": "ticketing.seat.holds.released.total"
+        },
+        {
+          "labels_allowed": [],
+          "name": "ticketing.seat.holds.expired.total"
+        },
+        {
+          "labels_allowed": [],
+          "name": "ticketing.seat.allocations.created.total"
+        },
+        {
+          "labels_allowed": [
+            "code",
+            "subcode"
+          ],
+          "name": "ticketing.seat.hold.errors.total"
+        },
+        {
+          "labels_allowed": [],
+          "name": "ticketing.seat.holds.extended.total"
+        }
+      ],
+      "histograms": [
+        {
+          "labels_allowed": [],
+          "name": "ticketing.seat.create_hold.duration_ms"
+        },
+        {
+          "labels_allowed": [],
+          "name": "ticketing.seat.allocate_hold.duration_ms"
+        },
+        {
+          "labels_allowed": [],
+          "name": "ticketing.seat.extend_hold_grace.duration_ms"
+        }
+      ]
+    },
+    "namespace": "ticketing.seat",
+    "release_blocks": [
+      {
+        "block_release": true,
+        "id": "seat1.create_hold.p99",
+        "p99_latency_ms": 300,
+        "window": "rolling30m"
+      }
+    ],
+    "request_id_propagation": {
+      "field": "request_id",
+      "required": true
+    },
+    "trace_id_propagation": {
+      "field": "trace_id",
+      "required": true
+    }
+  },
+  "outbox_events": [
+    {
+      "event_name": "ticketing.seat.hold.created.v1",
+      "required_keys": [
+        "hold_id",
+        "occurrence_id",
+        "seat_id",
+        "expires_at_utc"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    },
+    {
+      "event_name": "ticketing.seat.hold.released.v1",
+      "required_keys": [
+        "hold_id",
+        "occurrence_id",
+        "seat_id",
+        "released_at_utc"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    },
+    {
+      "event_name": "ticketing.seat.hold.expired.v1",
+      "required_keys": [
+        "hold_id",
+        "occurrence_id",
+        "seat_id",
+        "expired_at_utc"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    },
+    {
+      "event_name": "ticketing.seat.allocated.v1",
+      "required_keys": [
+        "allocation_id",
+        "hold_id",
+        "order_id",
+        "occurrence_id",
+        "seat_id",
+        "allocated_at_utc"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    },
+    {
+      "event_name": "ticketing.seat.allocation.reversed.v1",
+      "required_keys": [
+        "reversal_id",
+        "allocation_id",
+        "occurrence_id",
+        "seat_id",
+        "order_id",
+        "reversal_authority",
+        "reason_subcode",
+        "reversed_at_utc"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "event_name": "ticketing.seat.allocated.v2",
+      "required_keys": [
+        "allocation_id",
+        "hold_id",
+        "occurrence_id",
+        "seat_id",
+        "order_id",
+        "checkout_group_id",
+        "pricing_snapshot_id",
+        "price_line_id",
+        "allocated_at_utc"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    },
+    {
+      "event_name": "ticketing.seat.allocation.reversed.v2",
+      "required_keys": [
+        "reversal_id",
+        "allocation_id",
+        "occurrence_id",
+        "seat_id",
+        "order_id",
+        "checkout_group_id",
+        "pricing_snapshot_id",
+        "price_line_id",
+        "reversal_authority",
+        "reason_subcode",
+        "reversed_at_utc"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    },
+    {
+      "banned_keys": [
+        "geo_hash",
+        "manifest_signature",
+        "hydration_payload_hash"
+      ],
+      "event_name": "ticketing.seat.allocation.created.v3",
+      "required_keys": [
+        "event_id",
+        "bucket_id",
+        "version",
+        "seat_id",
+        "occurrence_id",
+        "hold_id",
+        "allocation_id",
+        "allocated_at_utc",
+        "pricing_snapshot_id",
+        "total_minor",
+        "currency"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    },
+    {
+      "banned_keys": [
+        "geo_hash",
+        "manifest_signature",
+        "hydration_payload_hash"
+      ],
+      "event_name": "ticketing.seat.allocation.reversed.v3",
+      "required_keys": [
+        "event_id",
+        "bucket_id",
+        "version",
+        "seat_id",
+        "occurrence_id",
+        "hold_id",
+        "allocation_id",
+        "allocated_at_utc",
+        "pricing_snapshot_id",
+        "total_minor",
+        "currency"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    }
+  ],
+  "purpose_and_boundaries": {
+    "never_owns": [
+      "Order pricing authority (PRICE-1).",
+      "Checkout and payment finalization (ORD-1, PAY-*).",
+      "Ledger posting correctness (LED-1)."
+    ],
+    "out_of_scope": [
+      "Seat map rendering and client UX.",
+      "Venue layout ingestion and seat labeling taxonomy.",
+      "Ticket issuance mechanics beyond allocation truth."
+    ],
+    "owns": [
+      "Authoritative SeatHold lifecycle (create, release, expire).",
+      "Authoritative conversion from SeatHold to SeatAllocation.",
+      "Atomic seat acquisition constraints (one active hold per org_id/occurrence_id/seat_id)."
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "SEAT-1-P0-ALLOC-UUID7",
+      "severity": "P0",
+      "text": "SeatHold/SeatAllocation IDs and org_id MUST be uuid_v7 and backed by unique (org_id, occurrence_id, seat_id) constraints."
+    },
+    {
+      "rule_id": "SEAT-1-P0-ALLOC-ATOMIC",
+      "severity": "P0",
+      "text": "allocate_hold MUST rely on an atomic state transition predicate on SeatHold(status='active' and now_utc_usec < expires_at_utc) and MUST create SeatAllocation in the same commit. If the atomic transition affects 0 rows, implementation MUST either return a single deterministic failure (ERR_PRECONDITION/SEAT_HOLD_EXPIRED) OR perform a bounded follow-up read within the same transaction solely for classification. Partial allocation is forbidden."
+    },
+    {
+      "rule_id": "SEAT-1-TIME-EXPIRE-001",
+      "severity": "P0",
+      "text": "expire_holds cutoff_utc input MUST be utc_datetime_usec and interpreted as cutoff_at_utc."
+    },
+    {
+      "rule_id": "SEAT-1-ACTOR-001",
+      "severity": "P0",
+      "text": "actor_id MUST be uuid_v7 and actor_type MUST be present in authenticated tenancy context for all domain_actions (including system jobs). For T0 GA bucket actions, actor_type MUST be one of the IAM-1 actor_kind values {human, service, system}. Legacy seated-inventory actor_type fields and signature transcripts remain outside this T0 bucket alignment."
+    },
+    {
+      "rule_id": "SEAT-1-P0-ALLOC-REVERSAL-001",
+      "severity": "P0",
+      "text": "SeatAllocation MUST support monotonic reversal (active→reversed) and MUST NOT be deleted. reverse_allocation MUST update SeatAllocation.status and set reversed_at_utc exactly once, and MUST create exactly one SeatAllocationReversal record in the same commit."
+    },
+    {
+      "rule_id": "SEAT-1-P0-ALLOC-ACTIVE-UNIQ-001",
+      "severity": "P0",
+      "text": "SeatAllocation uniqueness MUST apply only to ACTIVE allocations: at most one SeatAllocation with status='active' may exist for a given (org_id, occurrence_id, seat_id). Reallocation after reversal is allowed and MUST be safe under concurrency via a database-enforced partial-unique constraint."
+    },
+    {
+      "rule_id": "SEAT-1-P0-REFUND-LOCK-001",
+      "severity": "P0",
+      "text": "reverse_allocation MUST enforce the inventory/admission lock window using EVT-2 occurrence admission windows (check_in_open_utc/check_in_close_utc): for reversal_authority in {refund, cancel, dispute, chargeback, system}, reversals during the check-in window MUST fail closed as ERR_PRECONDITION/REFUND_LOCK_WINDOW_ACTIVE. Admin reversals MUST also fail closed by default; bypass is allowed ONLY via the explicit admin override action(s) which MUST be auditable."
+    },
+    {
+      "rule_id": "SEAT-1-P0-REV-REASON-001",
+      "severity": "P0",
+      "text": "SeatAllocationReversal.reason_subcode MUST reference an ERR-1 registry subcode; free-form enums/strings are forbidden. reversal_authority MUST be one of {refund, cancel, dispute, chargeback, admin, system}."
+    },
+    {
+      "rule_id": "SEAT-1-LAW-SHARD-THRESHOLD",
+      "severity": "P0",
+      "text": "Buckets with effective_capacity_ceiling > 5000 MUST set shard_count > 1. Shards are required for stadium-scale GA to avoid single-row lock contention."
+    },
+    {
+      "rule_id": "SEAT-1-LAW-SHARD-OVERFLOW-ROUTING",
+      "severity": "P0",
+      "text": "Shard selection MUST start at sha256(request_id) % shard_count. If the atomic predicate fails on the initial shard, the system MUST probe remaining shards (linear or randomized) before failing."
+    },
+    {
+      "rule_id": "SEAT-1-LAW-ATOMIC-PREDICATE-SHARD",
+      "severity": "P0",
+      "text": "The only legal increment pattern for bucket holds is: UPDATE inventory_bucket_shards SET held_count = held_count + :qty WHERE {pk} AND (sold_count + held_count + :qty) <= capacity_limit. Any read-modify-write is forbidden."
+    },
+    {
+      "rule_id": "SEAT-1-LAW-SHARD-REBAlANCE",
+      "severity": "P0",
+      "text": "When base_capacity or oversell_allowance_fixed changes, shard capacity_limit values MUST be atomically rebalanced so Σ capacity_limit == effective_capacity_ceiling."
+    },
+    {
+      "applies_to": [
+        "InventoryBucketShard",
+        "InventoryBucket"
+      ],
+      "rule_id": "SEAT-1-LAW-DETERMINISTIC-LOCK-ORDER",
+      "severity": "P0",
+      "text": "Capacity rebalance MUST lock shards in ascending shard_index order; claim_bucket_inventory MUST lock at most one shard per attempt. Rebalance MUST NOT interleave lock acquisition with per-shard updates in a way that could reverse lock order."
+    },
+    {
+      "level": "P0",
+      "rule_id": "SEAT-1-LAW-REBALANCING-DISTRIBUTION",
+      "text": "When base_capacity or oversell_allowance_fixed changes, shard capacity_limit values MUST be deterministically recomputed using shard_index ordering: capacity_limit_i = floor(effective_capacity_ceiling / shard_count) + (1 if shard_index < (effective_capacity_ceiling mod shard_count) else 0). This recomputation MUST occur atomically in the same transaction as the capacity mutation."
+    },
+    {
+      "level": "P0",
+      "rule_id": "SEAT-1-LAW-SHARD_COUNT-IMMUTABILITY",
+      "text": "Resharding physics: shard_count MUST NOT be mutated once any sold_count or held_count exists for the bucket (Σ sold_count+held_count > 0 across shards). If shard_count changes are required, they MUST occur only when the bucket has zero activity (all shard sold_count=0 and held_count=0) or via a future explicit drain/migrate protocol (not defined in this version)."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "security_posture": {
+    "auth_boundary": "RP-0",
+    "data_retention_days": 365,
+    "pii_fields": []
+  },
+  "signature_security": {
+    "hold_signature": {
+      "algorithm": "HMAC-SHA256",
+      "canonical_string_spec": {
+        "actor_type_normalization": "lowercase_snake_case",
+        "encoding": "utf8",
+        "format": "org_id|hold_id|occurrence_id|seat_id|actor_id|actor_type|expires_at_utc",
+        "separator": "|",
+        "uuid_normalization": "lowercase_rfc4122"
+      },
+      "compare": "constant_time",
+      "derived_from": [
+        "org_id",
+        "hold_id",
+        "occurrence_id",
+        "seat_id",
+        "actor_id",
+        "actor_type",
+        "expires_at_utc"
+      ],
+      "encoding": "base64url",
+      "forbid_weak_tokens": true,
+      "required": true,
+      "rule": "hold_signature MUST be computed as HMAC-SHA256 over UTF-8 bytes of the canonical string org_id|hold_id|occurrence_id|seat_id|actor_id|actor_type|expires_at_utc (all UUIDs lowercase; actor_type lowercase; expires_at_utc is utc_datetime_usec RFC3339 with 6 fractional digits, Z suffix). The '|' separator is literal; no whitespace; no key reordering. Verification MUST use constant-time compare. Any change to expires_at_utc MUST change signature (TTL-bound; replay after expiry invalid).",
+      "test_vectors": {
+        "test_key_note": "This key is for CI conformance only and MUST NOT be used in production.",
+        "test_key_utf8": "SEAT-1_TEST_SECRET_V1",
+        "vectors": [
+          {
+            "actor_id": "018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3",
+            "actor_type": "customer",
+            "canonical_string": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1|0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8aa|0192d7c0-1a2b-7c3d-9e4f-1234567890ab|018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2|018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3|customer|2026-02-09T18:45:12.123456Z",
+            "expected_hmac_sha256_hex": "1b122caf517152c24989354de2f76e0ed088ee2a5af2ef65945d651425b8db00",
+            "expires_at_utc": "2026-02-09T18:45:12.123456Z",
+            "hold_id": "0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8aa",
+            "occurrence_id": "0192d7c0-1a2b-7c3d-9e4f-1234567890ab",
+            "org_id": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1",
+            "seat_id": "018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2"
+          },
+          {
+            "actor_id": "018f2f70-4444-7b2a-8c6b-7a9c77b8b3f5",
+            "actor_type": "org_support",
+            "canonical_string": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1|0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8ab|0192d7c0-1a2b-7c3d-9e4f-1234567890ab|018f2f70-3333-7b2a-8c6b-7a9c77b8b3f4|018f2f70-4444-7b2a-8c6b-7a9c77b8b3f5|org_support|2026-02-09T18:45:12.123456Z",
+            "expected_hmac_sha256_hex": "db17fd9420f440ea1338dc69889376254e3f0388edbc516a55254844ef4767ee",
+            "expires_at_utc": "2026-02-09T18:45:12.123456Z",
+            "hold_id": "0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8ab",
+            "occurrence_id": "0192d7c0-1a2b-7c3d-9e4f-1234567890ab",
+            "org_id": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1",
+            "seat_id": "018f2f70-3333-7b2a-8c6b-7a9c77b8b3f4"
+          },
+          {
+            "actor_id": "01b6c9d0-eeee-7b2a-8c6b-7a9c77b8b3f5",
+            "actor_type": "scanner_device",
+            "canonical_string": "01b6c9d0-aaaa-7b2a-8c6b-7a9c77b8b3f1|01b6c9d0-bbbb-7b2a-8c6b-7a9c77b8b3f2|01b6c9d0-cccc-7b2a-8c6b-7a9c77b8b3f3|01b6c9d0-dddd-7b2a-8c6b-7a9c77b8b3f4|01b6c9d0-eeee-7b2a-8c6b-7a9c77b8b3f5|scanner_device|2026-02-09T18:45:12.123456Z",
+            "expected_hmac_sha256_hex": "b3694cc66acceb25e5c72fc640620231e4c09c23e2eaf0b207ad0ba09c5145b1",
+            "expires_at_utc": "2026-02-09T18:45:12.123456Z",
+            "hold_id": "01b6c9d0-bbbb-7b2a-8c6b-7a9c77b8b3f2",
+            "occurrence_id": "01b6c9d0-cccc-7b2a-8c6b-7a9c77b8b3f3",
+            "org_id": "01b6c9d0-aaaa-7b2a-8c6b-7a9c77b8b3f1",
+            "seat_id": "01b6c9d0-dddd-7b2a-8c6b-7a9c77b8b3f4"
+          }
+        ]
+      }
+    },
+    "hold_signature_batch": {
+      "algorithm": "HMAC-SHA256",
+      "canonical_string_spec": {
+        "actor_type_normalization": "lowercase_snake_case",
+        "encoding": "utf8",
+        "expires_at_utc_format": "rfc3339_utc_datetime_usec",
+        "format": "org_id|hold_id|occurrence_id|seat_ids_csv|actor_id|actor_type|expires_at_utc",
+        "seat_ids_separator": ",",
+        "seat_ids_sorting": "lexicographic_uuid_v7_string",
+        "separator": "|",
+        "uuid_normalization": "lowercase_rfc4122"
+      },
+      "compare": "constant_time",
+      "derived_from": [
+        "org_id",
+        "hold_id",
+        "occurrence_id",
+        "seat_ids",
+        "actor_id",
+        "actor_type",
+        "expires_at_utc"
+      ],
+      "encoding": "base64url",
+      "required_if": "multi_seat_hold_operation == true",
+      "rule": "hold_signature_batch MUST be computed as HMAC-SHA256 over UTF-8 bytes of the canonical string org_id|hold_id|occurrence_id|seat_ids_csv|actor_id|actor_type|expires_at_utc, where seat_ids_csv is the comma-joined list of seat_id values PROVIDED BY THE CALLER in canonical sorted order (uuid_v7 raw 16-byte value, memcmp semantics); no whitespace. The verifier MUST (1) validate seat_ids are sorted, then (2) compute/verify the signature over the provided seat_ids_csv exactly as received (no re-sorting). This signature is REQUIRED for any operation that holds/extends multiple seats in one request.",
+      "test_vectors": {
+        "test_key_note": "This key is for CI conformance only and MUST NOT be used in production.",
+        "test_key_utf8": "SEAT-1_TEST_SECRET_V1",
+        "vectors": [
+          {
+            "actor_id": "018f2f70-4444-7b2a-8c6b-7a9c77b8b3f5",
+            "actor_type": "customer",
+            "canonical_string": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1|0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8ac|0192d7c0-1a2b-7c3d-9e4f-1234567890ab|018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2,018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3,018f2f70-3333-7b2a-8c6b-7a9c77b8b3f4|018f2f70-4444-7b2a-8c6b-7a9c77b8b3f5|customer|2026-02-09T18:45:12.123456Z",
+            "expected_hmac_sha256_hex": "5b7bcb7a7e2ee438cd924b6c0b16cfce2f587ed52341f06b22df3bc7658f366f",
+            "expires_at_utc": "2026-02-09T18:45:12.123456Z",
+            "hold_id": "0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8ac",
+            "occurrence_id": "0192d7c0-1a2b-7c3d-9e4f-1234567890ab",
+            "org_id": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1",
+            "seat_ids": [
+              "018f2f70-3333-7b2a-8c6b-7a9c77b8b3f4",
+              "018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2",
+              "018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3"
+            ],
+            "seat_ids_csv": "018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2,018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3,018f2f70-3333-7b2a-8c6b-7a9c77b8b3f4",
+            "seat_ids_sorted": [
+              "018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2",
+              "018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3",
+              "018f2f70-3333-7b2a-8c6b-7a9c77b8b3f4"
+            ]
+          }
+        ]
+      }
+    },
+    "bucket_hold_signature": {
+      "algorithm": "HMAC-SHA256",
+      "encoding": "base64url",
+      "compare": "constant_time",
+      "canonical_string_spec": {
+        "format": "org_id|hold_id|occurrence_id|bucket_id|quantity|actor_id|actor_type",
+        "separator": "|",
+        "encoding": "utf8",
+        "uuid_normalization": "lowercase_rfc4122",
+        "actor_type_normalization": "lowercase_snake_case",
+        "quantity_format": "base10_no_leading_zeroes"
+      },
+      "derived_from": [
+        "org_id",
+        "hold_id",
+        "occurrence_id",
+        "bucket_id",
+        "quantity",
+        "actor_id",
+        "actor_type"
+      ],
+      "rule": "InventoryBucketHold.hold_signature MUST be HMAC-SHA256 over UTF-8 bytes of org_id|hold_id|occurrence_id|bucket_id|quantity|actor_id|actor_type using normalized lower-case UUIDs, base-10 quantity, and the exact persisted IAM-1 actor_type value. For T0 human actors, the actor_type transcript component MUST be \"human\"; implementations MUST NOT translate it to \"user\". Verification MUST use constant-time comparison and MUST match the persisted actor and tenant. Expiry is intentionally excluded so a permitted grace extension does not invalidate the proof.",
+      "test_vectors": {
+        "test_key_note": "This key is for CI conformance only and MUST NOT be used in production.",
+        "test_key_utf8": "SEAT-1_TEST_SECRET_V1",
+        "vectors": [
+          {
+            "org_id": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1",
+            "hold_id": "0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8ad",
+            "occurrence_id": "0192d7c0-1a2b-7c3d-9e4f-1234567890ab",
+            "bucket_id": "018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2",
+            "quantity": 2,
+            "actor_id": "018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3",
+            "actor_type": "human",
+            "canonical_string": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1|0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8ad|0192d7c0-1a2b-7c3d-9e4f-1234567890ab|018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2|2|018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3|human",
+            "expected_hmac_sha256_hex": "126ab05638c4c319cce19c20005362cc08f323ffa1fb2b280378d43a28865611"
+          },
+          {
+            "org_id": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1",
+            "hold_id": "0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8ad",
+            "occurrence_id": "0192d7c0-1a2b-7c3d-9e4f-1234567890ab",
+            "bucket_id": "018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2",
+            "quantity": 2,
+            "actor_id": "018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3",
+            "actor_type": "service",
+            "canonical_string": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1|0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8ad|0192d7c0-1a2b-7c3d-9e4f-1234567890ab|018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2|2|018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3|service",
+            "expected_hmac_sha256_hex": "32b07378be5116cc29092cf7caeaeb488f941e0565380c5e0ff37d6139cc62e3"
+          },
+          {
+            "org_id": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1",
+            "hold_id": "0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8ad",
+            "occurrence_id": "0192d7c0-1a2b-7c3d-9e4f-1234567890ab",
+            "bucket_id": "018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2",
+            "quantity": 2,
+            "actor_id": "018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3",
+            "actor_type": "system",
+            "canonical_string": "018f2f6f-3d54-7b2a-8c6b-7a9c77b8b3f1|0193a3e2-0b3c-7b11-8a1b-66c2b4d7f8ad|0192d7c0-1a2b-7c3d-9e4f-1234567890ab|018f2f70-1111-7b2a-8c6b-7a9c77b8b3f2|2|018f2f70-2222-7b2a-8c6b-7a9c77b8b3f3|system",
+            "expected_hmac_sha256_hex": "c3d5d400699b8354fb7419782a22d8717d54153111386611a194d3b4315854f3"
+          }
+        ]
+      }
+    }
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines tenant-scoped seat holds and allocation with microsecond timestamp precision, deterministic denials, explicit org_id tenancy, and an Ash 3.x Atomic Changeset hold→allocation transition safe under expiry races.",
+  "tenancy": {
+    "context_required": [
+      "org_id",
+      "actor_id",
+      "actor_type",
+      "request_id",
+      "trace_id"
+    ],
+    "cross_tenant_lookup": {
+      "error_code": "ERR_NOT_FOUND",
+      "retryable": false
+    },
+    "forbid_ambient_tenancy": true,
+    "leakage_policy": "hide_existence",
+    "missing_tenant_context": {
+      "error_code": "ERR_FORBIDDEN",
+      "retryable": false,
+      "subcode": "TEN_TENANT_CONTEXT_MISSING",
+      "error_layer": "internal_action_ash",
+      "subcode_layer": "internal_causal_audit",
+      "http_boundary": {
+        "authority": "TEN-1",
+        "external_response": {
+          "detail_policy": "omitted_or_constant_generic",
+          "http_status": 404,
+          "omit_subcode": true,
+          "top_level_code": "ERR_NOT_FOUND",
+          "uniform_by_hidden_reason": true,
+          "uniform_headers_by_hidden_reason": true
+        },
+        "redaction_rule_id": "TEN-1-BOUNDARY-OMIT-SUBCODE",
+        "rule_id": "TEN-1-BOUNDARY-UNIFORM-404"
+      }
+    },
+    "rls": {
+      "postgres_session_variable": "app.current_org_id"
+    },
+    "strategy": "ash_attribute",
+    "tenant_key": "org_id"
+  },
+  "tier": 3,
+  "title": "SEAT-1 Seat Holds and Allocation Contract (Ash 3.x, utc_datetime_usec)",
+  "updated_at": "2026-10-09T15:51:00Z",
+  "updated_at_utc": "2026-10-09T15:51:00Z",
+  "version": "3.7.2",
+  "bucket_hold_lifecycle": {
+    "states": [
+      "active",
+      "released",
+      "expired",
+      "allocated"
+    ],
+    "transitions": [
+      {
+        "from": "absent",
+        "to": "active",
+        "action": "claim_bucket_inventory",
+        "initiator": "buyer actor",
+        "guards": [
+          "tenant-owned GA bucket",
+          "positive quantity",
+          "valid initial TTL",
+          "atomic shard capacity predicate"
+        ],
+        "side_effects": "increment held_count; persist signed hold",
+        "invalid_behavior": "ERR_CONFLICT / SEAT_CAPACITY_EXHAUSTED or fail-closed validation",
+        "terminal": false
+      },
+      {
+        "from": "active",
+        "to": "released",
+        "action": "release_bucket_hold",
+        "initiator": "proof-bound hold actor",
+        "guards": [
+          "valid tenant-bound actor-bound proof",
+          "active status",
+          "CAS"
+        ],
+        "side_effects": "decrement held_count once",
+        "invalid_behavior": "ERR_PRECONDITION with no partial write",
+        "terminal": true
+      },
+      {
+        "from": "active",
+        "to": "expired",
+        "action": "expire_bucket_holds",
+        "initiator": "system/service",
+        "guards": [
+          "expiry <= cutoff",
+          "CAS"
+        ],
+        "side_effects": "decrement held_count once",
+        "invalid_behavior": "race resolved by one CAS winner",
+        "terminal": true
+      },
+      {
+        "from": "active",
+        "to": "allocated",
+        "action": "allocate_bucket_hold",
+        "initiator": "ORD finalization",
+        "guards": [
+          "verified proof",
+          "unexpired",
+          "matching order claim",
+          "CAS"
+        ],
+        "side_effects": "decrement held_count, increment sold_count, create InventoryBucketAllocation atomically",
+        "invalid_behavior": "ERR_PRECONDITION with rollback",
+        "terminal": true
+      },
+      {
+        "from": "active",
+        "to": "active",
+        "action": "extend_bucket_hold_grace",
+        "initiator": "ORD checkout",
+        "guards": [
+          "tenant-bound actor-bound bucket proof",
+          "active unexpired hold",
+          "existing SEAT bounded grace counters and total TTL",
+          "SM-0 CAS"
+        ],
+        "side_effects": "Extend expiry and bounded grace metadata if needed; inventory counters do not change.",
+        "invalid_behavior": "ERR_PRECONDITION with no partial update",
+        "terminal": false
+      }
+    ]
+  },
+  "t0_bucket_cursor_rule": {
+    "initial_value": 0,
+    "advance": "Advance once for each committed mutation to authoritative capacity, claimability, allocation, or availability, including claim, release, expiry, capacity or availability change, and hold changes that affect availability.",
+    "no_advance": "Rollback and idempotent replay do not advance the cursor.",
+    "separate_version": "The bucket cursor version is independent of each hold lock_version."
+  },
+  "t0_authority_corrections": {
+    "bucket_claim_transaction": "claim_bucket_inventory reserves the stable idempotency tuple with a separate normalized request hash, applies the existing conditional capacity predicate, inserts and links the hold, records database creation time and expiry using database time plus governed TTL, stores active status, lock_version=1, grace_extension_count=0 and signature, and advances the bucket cursor in one transaction. Any failure rolls back every write.",
+    "final_unit_predicate": "Preserve the current conditional shard capacity predicate for the final unit.",
+    "claim_proof": "ORD proof verification resolves persisted tenant, actor, quantity, bucket, and hold state. Caller-supplied facts do not replace persisted values."
+  }
+}

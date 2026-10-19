@@ -1,0 +1,182 @@
+{
+  "source_repository": "JCSchoeman96/ticketing-contracts",
+  "semantic_authority_source_ref": "origin/authority/t0-hardening",
+  "semantic_authority_source_commit": "1befb05226901be610e438f2c47cb709cda6b824",
+  "governance_source_ref": "origin/main",
+  "governance_source_commit": "e03bb424c12762102b1f9994e3fad254ccc58d28",
+  "canon_doc_id": "CANON-1",
+  "canon_version": "2.0.14",
+  "migration_purpose": "Consolidate canonical Ticketing authority into JCSchoeman96/ticketing",
+  "branch_reconciliation": {
+    "decision": "Use the latest merged authority branch for canonical semantics and the newer main commit only for repository governance. No contract bodies were merged or rewritten during import.",
+    "main": {
+      "commit": "e03bb424c12762102b1f9994e3fad254ccc58d28",
+      "canon_version": "2.0.10",
+      "use": "Governance source only"
+    },
+    "authority_t0_hardening": {
+      "commit": "1befb05226901be610e438f2c47cb709cda6b824",
+      "canon_version": "2.0.14",
+      "use": "Selected semantic authority",
+      "history": "First-parent history includes planning refresh PR #31 and accepted IAM-1 closure PR #32."
+    },
+    "planning_t0_post_release_refresh_resume": {
+      "commit": "3c10b25e9f90baa5b2d24f74b0fee8b3c21b1dbe",
+      "canon_version": "2.0.13",
+      "relationship": "Ancestor of the selected semantic authority commit"
+    },
+    "authority_t0_successor_release": {
+      "commit": "8b033dee8488933c6e68af3ef0d6cfa0630d3ea5",
+      "canon_version": "2.0.11",
+      "relationship": "Earlier accepted release branch included in the hardening branch history"
+    },
+    "authority_t0_delta_integration": {
+      "commit": "461f966dc688a4447c0d3872914e0d325aaf04b6",
+      "canon_version": "2.0.10",
+      "relationship": "Earlier integration branch; not selected"
+    }
+  },
+  "source_classification": {
+    "AGENTS.md": {
+      "decision": "PORT",
+      "rationale": "Adapted current authority governance from governance_source_commit for the authority/ subtree."
+    },
+    "README.md": {
+      "decision": "PORT",
+      "rationale": "Adapted release and validation instructions to the monorepo paths."
+    },
+    ".gitattributes": {
+      "decision": "PORT",
+      "rationale": "Copied source text and binary handling to the monorepo root."
+    },
+    ".gitignore": {
+      "decision": "PORT",
+      "rationale": "Merged authority staging and Python cache ignores into the monorepo root rules."
+    },
+    ".github": {
+      "decision": "PORT",
+      "rationale": "Moved authority checks into a root GitHub Actions workflow."
+    },
+    "contracts/": {
+      "decision": "MIGRATE",
+      "rationale": "Contains installed canonical ZIPs, extracted artifacts, CANON, and manifest."
+    },
+    "planning/": {
+      "decision": "MIGRATE",
+      "rationale": "Contains the active ROADMAP and tracer."
+    },
+    "release-src/": {
+      "decision": "MIGRATE",
+      "rationale": "Required to validate and construct future successor releases."
+    },
+    "tools/": {
+      "decision": "MIGRATE",
+      "rationale": "Required to validate, reconcile, and author releases; Git-root handling was ported for the nested authority directory."
+    },
+    "tests/": {
+      "decision": "MIGRATE",
+      "rationale": "Required to preserve authority release and reconciliation coverage; nested-root tests were added."
+    },
+    "governance/": {
+      "decision": "MIGRATE",
+      "rationale": "Retains authority governance source documents."
+    },
+    "requirements-release.txt": {
+      "decision": "MIGRATE",
+      "rationale": "Retains the exact release-tool dependency set."
+    },
+    "authority-staging/": {
+      "decision": "MIGRATE",
+      "rationale": "Current T0 authority test gates consume these transition candidate files as fixtures. They are retained byte-for-byte for validation only and do not select or define installed authority."
+    },
+    "reports/": {
+      "decision": "ARCHIVE_ONLY",
+      "rationale": "Historical cleanup and quarantine reports are not required to validate or author current authority."
+    },
+    ".staging/": {
+      "decision": "OMIT",
+      "rationale": "Local ignored raw-material scratch data, absent from the selected source Git tree."
+    },
+    ".venv/ and .pytest_cache/": {
+      "decision": "OMIT",
+      "rationale": "Local runtime and test-cache data, absent from the selected source Git tree."
+    }
+  },
+  "source_tree_ids": {
+    "contracts/": "27bec6f9f8d2ddd3d2391659c3b212e4ee01649c",
+    "planning/": "f46d4ce547e6c61718c112a1282d6c16d6a8f8d1",
+    "release-src/": "cfca2c6e8993092dc369a0a0372193f3eecb386b",
+    "tools/": "d232f4a2a32e714b8074a25d1cb1ba1e9c704e29",
+    "tests/": "ecb5b75677eea3deac2f3f57761b80cea0e30665",
+    "governance/": "45a5e8bb46f4f1c2042d05c249843ce4309c9884",
+    "authority-staging/": "42b8dececf27459d904d13c5526a82ed7d30e236",
+    "requirements-release.txt": "db107d890268f20fd565a432d286150652af8245",
+    "README.md": "e21d12f7489db7c6804d5431443d5433fd2ecf47",
+    "governance_source_AGENTS.md": "73fba1df5e6b6982f9647b54425018dc93cbfaef"
+  },
+  "import_time_equivalence": {
+    "method": "Compared source and imported file sets and bytes immediately after copy, before monorepo path adaptations and documentation edits.",
+    "directories": {
+      "contracts/": {
+        "files": 233,
+        "sha256_tree_digest": "be32aa57a5c0cd6a9b665945bba0e36edd83e5dfe1a51b4e74970112958947da"
+      },
+      "planning/": {
+        "files": 35,
+        "sha256_tree_digest": "21d1f4888d9f911b87e84b41f035979423ded07ac068600f273240e223b8ba00"
+      },
+      "release-src/": {
+        "files": 302,
+        "sha256_tree_digest": "7b6b4acf95fc46951d1d35ef2368c1c85b3e26722b4cf14e7849383b7d8c2358"
+      },
+      "tools/": {
+        "files": 14,
+        "sha256_tree_digest": "9f2006aae6ad6f6c4fd6a9d3756a6cde4e834571add2c81e1a89dba30868859e"
+      },
+      "tests/": {
+        "files": 14,
+        "sha256_tree_digest": "4e45fde0a9280ce12ed6707651f3c66fae96ecc1fd08ac1b024251da84543826"
+      },
+      "governance/": {
+        "files": 3,
+        "sha256_tree_digest": "d9405a68286dcb14c3ccb56f8416f3c9504811b17efe015d9988807aad9f79d2"
+      },
+      "authority-staging/": {
+        "files": 40,
+        "sha256_tree_digest": "f0d2d3e166904bce10108ef5bc77aa955b5e26a2251b36c99576990acd4d0713"
+      },
+      "requirements-release.txt": {
+        "bytes": 107,
+        "sha256": "5bf6d53930534ae6cbfe3242813b04d60c69599efe0b8bd7b8168ed6330615f0"
+      }
+    }
+  },
+  "source_validation": {
+    "python_version": "3.13.16",
+    "commands": [
+      "python -m pytest -q -p no:cacheprovider",
+      "python tools/contract_manifest.py verify --root .",
+      "python tools/generate_canon.py verify --root .",
+      "python tools/reconcile_contracts.py audit --canonical --strict --root ."
+    ],
+    "results": {
+      "pytest": "273 passed",
+      "manifest": {
+        "status": "VALID",
+        "contract_count": 58,
+        "sha256": "4a8f19982a25563d93a407a4800c086f530f60575ec11f1b91894f66adaf953c"
+      },
+      "canon": {
+        "status": "VALID",
+        "version": "2.0.14",
+        "pin_count": 56,
+        "zip_sha256": "da7e647a752d30ad6db40a3391aba6f7d543aca13f8ede21c7a8c58b31e6eed0"
+      },
+      "strict_audit": {
+        "status": "PASS",
+        "zip_count": 58,
+        "dependency_edge_count": 728
+      }
+    }
+  }
+}

@@ -1,0 +1,434 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "RP-0_Contract_v3.2.2.json",
+  "authorization": {
+    "actor_required_for_external_calls": true,
+    "authorizer": "Ash.Policy.Authorizer",
+    "bypass_policy_posture": {
+      "allowed": true,
+      "constraints": {
+        "audit_required": true,
+        "justification_required": true,
+        "must_be_reviewed": true,
+        "system_actor_only": true
+      },
+      "governance_contract": "GOV-0"
+    },
+    "default_deny": true,
+    "forbid_authorize_false_in_external_boundaries": true,
+    "hide_existence": {
+      "notes": "Prefer hide-existence semantics aligned with TEN-1 and ERR-1.",
+      "required": true
+    },
+    "required": true
+  },
+  "banned_anti_patterns": {
+    "AP-ASH2-DRIFT": {
+      "ban": "Using Ash 2.x API-centric abstractions as the primary boundary (e.g., Ash.Api) instead of Ash.Domain.",
+      "severity": "P0"
+    },
+    "AP-DEDUPE-WITHOUT-ACCOUNT-SCOPE": {
+      "ban": "Deduplicating inbound provider events using only (provider, provider_event_id) without provider_account_ref.",
+      "rationale": "Prevents cross-merchant collisions when providers reuse event ids across accounts/environments.",
+      "severity": "P0"
+    },
+    "AP-IMPLICIT-TENANCY": {
+      "ban": "Relying on ambient/process-global tenancy; org_id MUST be explicit in every public action context.",
+      "severity": "P0"
+    },
+    "AP-KEY-NAMING": {
+      "ban": "Using api_actions naming in contracts; use domain_actions.",
+      "severity": "P0"
+    },
+    "AP-ORGID-FROM-UNVERIFIED-PAYLOAD": {
+      "ban": "Deriving org_id (tenant) from unverified/mutable inbound payload fields for integration processing (webhooks, callbacks).",
+      "rationale": "Prevents tenant leakage and cross-account misattribution; org_id must be derived from authenticated credential context.",
+      "severity": "P0"
+    },
+    "AP-PLACEHOLDERS": {
+      "ban": "Placeholder markers in lockable artifacts.",
+      "severity": "P0"
+    },
+    "AP-PROVIDER-ID-WITHOUT-ACCOUNT-SCOPE": {
+      "ban": "Using a provider-native identifier (e.g., provider_event_id) for dedupe/identity without including provider_account_ref in both the Ash identity and the DB unique index.",
+      "rationale": "Prevents silent cross-account collisions when the same provider issues identical IDs across separate integration accounts.",
+      "severity": "P0"
+    },
+    "AP-RMW": {
+      "ban": "Read-modify-write for correctness-critical invariants; require atomic database predicates for money/inventory/idempotency.",
+      "severity": "P0"
+    }
+  },
+  "canonical": true,
+  "changelog": [
+    {
+      "changes": [
+        "P0: Explicit tenant resolution rule (org_id from authenticated credential context; payload trust forbidden).",
+        "P0: Triple-key dedupe mandate (provider, provider_account_ref, provider_event_id).",
+        "P0: EVT-1 registry authority linkage for RP-0 produced events.",
+        "P0: Dependency floors raised to Physics-hardened versions (LOCKS-1@2.1.0, DP-1@2.1.0, SM-0@1.2.0, EVT-1@2.7.0, ERR-1@1.4.10, TEN-1@1.7.4)."
+      ],
+      "date": "2026-02-03",
+      "version": "3.2.0"
+    }
+  ],
+  "concurrency": {
+    "database_first_correctness": true,
+    "forbid_in_memory_locks_as_truth": true,
+    "integration_contract": "LOCKS-1",
+    "optimistic_locking": {
+      "notes": "Use optimistic locks for high-contention updates; still enforce invariants via atomic predicates.",
+      "recommended": true
+    },
+    "row_locks": {
+      "allowed": true,
+      "notes": "Use query locks only inside transactions; avoid long lock-holding transactions.",
+      "transaction_required": true
+    }
+  },
+  "data_model": {
+    "identifiers": {
+      "primary_key": {
+        "required": true,
+        "type": "uuid_v7"
+      },
+      "tenant_key": {
+        "field": "org_id",
+        "required": true,
+        "type": "uuid_v7"
+      }
+    },
+    "identities_and_constraints": {
+      "global_identity_review_required": true,
+      "notes": "If an identity is globally unique across tenants, it MUST explicitly declare all_tenants? true and be reviewed under GOV-0.",
+      "provider_account_ref_required_for_provider_ids": true,
+      "provider_id_scoping_rule": "For any third-party provider-native identifier used for idempotency or identity, resources MUST include provider_account_ref and MUST incorporate it into identities and unique indexes. Unscoped provider IDs are FORBIDDEN.",
+      "tenant_scoped_identities_default": true
+    },
+    "integration_identities": {
+      "provider_event": {
+        "identity": {
+          "db_unique_index_fields": [
+            "org_id",
+            "provider",
+            "provider_account_ref",
+            "provider_event_id"
+          ],
+          "fields": [
+            "provider",
+            "provider_account_ref",
+            "provider_event_id"
+          ],
+          "name": "unique_event",
+          "notes": "Third-party provider event IDs MUST be scoped to integration account to prevent cross-account collisions.",
+          "tenant_scoped": true
+        },
+        "required": true,
+        "required_attributes": [
+          {
+            "field": "provider",
+            "required": true,
+            "type": "atom"
+          },
+          {
+            "field": "provider_account_ref",
+            "notes": "Opaque integration account reference derived from verified integration context; MUST NOT be client-controlled.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "field": "provider_event_id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tenant_key": {
+          "field": "org_id",
+          "required": true,
+          "type": "uuid_v7"
+        }
+      },
+      "triple_key_mandate": {
+        "rule_id": "RP-0-ID-TRIPLE-KEY",
+        "severity": "P0",
+        "text": "Inbound provider events MUST be scoped and deduplicated by (provider, provider_account_ref, provider_event_id). Dedupe keys that omit provider_account_ref are FORBIDDEN.",
+        "tuple": [
+          "provider",
+          "provider_account_ref",
+          "provider_event_id"
+        ]
+      }
+    },
+    "timestamps": {
+      "notes": "All persisted timestamps MUST use utc_datetime_usec to preserve ordering correctness for events and audits.",
+      "required": true,
+      "type": "utc_datetime_usec"
+    }
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Suite schema baseline."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Test gate schema baseline."
+    },
+    {
+      "doc_id": "BP-0",
+      "edge_type": "governance_floor",
+      "min_version": "1.0.6",
+      "reason": "Bundle packaging baseline."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.10",
+      "reason": "Governance and severity semantics."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.11",
+      "reason": "Static lint rules for suite hygiene."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.4",
+      "reason": "Multi-tenant identity, org_id lifecycle, RLS expectations."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.10",
+      "reason": "Error codes and severity registry for protocol failures."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.2.0",
+      "reason": "Ingress security + webhook durability + outbox requirements."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "reason": "Session-affine advisory lock governance."
+    },
+    {
+      "doc_id": "DP-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "reason": "Bulkhead / pool isolation expectations for traffic classes."
+    },
+    {
+      "doc_id": "SM-0",
+      "edge_type": "requires",
+      "min_version": "1.2.0",
+      "reason": "CAS fencing requirements for state transitions."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Governed event registry and drift governance."
+    }
+  ],
+  "dependencies_pinned": {
+    "SEC-1": {
+      "min_version": "3.2.0",
+      "reason": "SEC-1 defines provider webhook ingestion and ProviderEvent dedupe identity. RP-0 patterns MUST align on provider_account_ref scoping."
+    }
+  },
+  "dependency_floors": {
+    "EVT-1": "2.16.4"
+  },
+  "doc_id": "RP-0",
+  "domain_actions": {
+    "invocation_context_notes": [
+      "tenant MUST be set via Ash multitenancy (strategy=attribute) using the org_id tenant key.",
+      "actor MUST be provided as Ash actor option; implementations MUST NOT trust client-supplied tenancy or actor fields inside request bodies.",
+      "request_id/trace_id MUST be injected into telemetry/log context; they MUST NOT be persisted as domain attributes unless explicitly required by a domain contract."
+    ],
+    "invocation_context_required": {
+      "actor_shape": "%{id: uuid_v7, type: :human | :service | :system}",
+      "must_be_passed_as": "Ash invocation context/options (tenant:/actor:/context), not action arguments, unless a field is true business data.",
+      "request_id": "opaque_string",
+      "tenant_key": "org_id",
+      "trace_id": "opaque_string"
+    },
+    "output_minimum": [
+      "request_id",
+      "trace_id"
+    ],
+    "purpose": "Define allowed design patterns for externally reachable Domain actions and internal actions.",
+    "validation_rules": [
+      "External side-effecting actions MUST support Idempotency-Key and parameter-consistent replay semantics (LOCKS-1).",
+      "Action names MUST be explicit (create/register/open, update/edit/set, destroy/archive/retire).",
+      "List/read actions MUST expose explicit allowlisted filter/sort inputs to prevent query abuse."
+    ],
+    "audit_context_requirements": {
+      "transition_audit_record": "Internal audit record, written atomically with a successful CAS transition.",
+      "required_context": [
+        "tenant",
+        "actor",
+        "request_id",
+        "trace_id",
+        "contract_id",
+        "action_id"
+      ],
+      "event_posture": "Transition audit records are not domain events; RP-0 does not authorize an EVT-1 event or outbox write."
+    }
+  },
+  "emits_events": false,
+  "error_handling": {
+    "canonical_contract": "ERR-1",
+    "rules": {
+      "no_new_subcodes_outside_registry": true,
+      "tenant_missing_or_cross_tenant_mapping": "TEN-1 hide-existence posture"
+    }
+  },
+  "events_and_ordering": {
+    "event_envelope_required_keys": [
+      "org_id",
+      "request_id",
+      "trace_id"
+    ],
+    "event_registry_authority": {
+      "doc_id": "EVT-1",
+      "min_version": "2.16.4",
+      "required_registered_event_types": [
+        "ticketing.webhook.received.v1",
+        "ticketing.identity.linked.v1"
+      ],
+      "severity": "P0",
+      "text": "RP-0 implementations that emit events MUST ensure those event types are registered in EVT-1 and comply with EVT-1 governance (including schema_governance pointers where applicable)."
+    },
+    "ordering": "Per-entity ordering MUST be tenant-partitioned by org_id.",
+    "ordering_notes": [
+      "Outbox dispatch MUST be implemented per DP-1 to guarantee exactly-once side-effect emission under retry.",
+      "Per-entity ordering MUST be tenant-partitioned by org_id."
+    ],
+    "outbox_authority": {
+      "doc_id": "DP-1",
+      "min_version": "2.0.3"
+    },
+    "outbox_required": true
+  },
+  "generated_at_utc": "2026-02-03T05:37:32.855103Z",
+  "last_updated_utc": "2026-02-03T05:37:32.855103Z",
+  "migration_backward_compatibility": {
+    "compat_strategy": "Breaking changes to tenant key naming or timestamp/id conventions require major version bump.",
+    "data_backfills": [
+      "If migrating from utc_datetime to utc_datetime_usec, backfill microseconds as 0 for historical rows and rebuild indexes."
+    ],
+    "rolling_deploy_safety": [
+      "Idempotency-Key replay semantics MUST remain stable across N and N-1 versions."
+    ]
+  },
+  "normative_source": "json",
+  "observability": {
+    "metrics": {
+      "bounded_labels_required": true,
+      "forbid_user_identifiers_as_labels": true,
+      "max_label_values_per_dim": 64
+    },
+    "trace_id_propagation": {
+      "fields": [
+        "trace_id",
+        "request_id"
+      ],
+      "required": true
+    }
+  },
+  "outbox_events": [],
+  "purpose_and_boundaries": {
+    "never_owns": [
+      "Subsystem feature semantics (orders, seats, scanning, payments, payouts).",
+      "Repo-wide scanning rules (delegated to LINT-0/GOV-0 governance-class bundles).",
+      "SLO budgets and queue policy definitions (delegated to OBS-1/OBQC-1)."
+    ],
+    "out_of_scope": [
+      "Public API route taxonomy.",
+      "Migration choreography and runtime harness specifics beyond what can be asserted deterministically in CI."
+    ],
+    "owns": [
+      "Ash 3.x Domain-first registration conventions.",
+      "Resource structure invariants (attributes, identities, actions, policies, multitenancy declarations).",
+      "Multitenancy posture: org_id is tenant key; tenant required for tenant-scoped resources; global reads forbidden by default.",
+      "Authorization posture: Ash.Policy.Authorizer; default-deny; constrained break-glass under GOV-0.",
+      "Idempotency posture for retriable external mutations: Idempotency-Key semantics via LOCKS-1 patterns.",
+      "Timestamp + identifier conventions: UUIDv7 and utc_datetime_usec for persisted time fields."
+    ]
+  },
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Canonical Ash 3.x resource/domain guardrails for Ticketing: multitenancy via org_id, explicit Policies, atomic correctness, and ERR-1/LOCKS-1 alignment.\n\nv3.1.0: Adds mandatory provider_account_ref scoping rules for provider-native identities (aligns with SEC-1 triple-key dedupe).",
+  "tags": [
+    "ash-3.x",
+    "resource-patterns",
+    "multitenancy",
+    "authorization",
+    "contracts",
+    "enterprise",
+    "org_id",
+    "uuidv7",
+    "utc_datetime_usec"
+  ],
+  "tenancy": {
+    "cross_tenant_reads": {
+      "error_code": "ERRNOTFOUND",
+      "must_hide_existence": true
+    },
+    "forbid_ambient_tenancy": true,
+    "global_reads": {
+      "allowed": false,
+      "ban_reason": "global? enables cross-tenant footguns; only explicitly global resources may allow it under TEN-1."
+    },
+    "leakage_policy": "hide_existence",
+    "missing_tenant_context": {
+      "error_code": "ERRFORBIDDEN",
+      "must_fail_closed": true
+    },
+    "required_action_context_keys": [],
+    "strategy": "attribute",
+    "strategy_allowed": [
+      "attribute",
+      "context"
+    ],
+    "strategy_notes": "Ticketing tenancy is strategy=attribute with org_id as uuid_v7; strategy=context is reserved for future explicit contracts.",
+    "tenant_key": "org_id",
+    "tenant_resolution": {
+      "allowed_sources": [
+        "verified_webhook_secret_binding",
+        "authenticated_api_key_context",
+        "verified_provider_account_mapping"
+      ],
+      "forbidden_sources": [
+        "raw_payload_org_id",
+        "client_supplied_headers_without_auth",
+        "unverified_query_params"
+      ],
+      "rule_id": "RP-0-TEN-RES-001",
+      "severity": "P0",
+      "text": "For any inbound integration message (e.g., webhooks/callbacks), org_id MUST be resolved from authenticated credential context (validated secret/API key/verified provider account binding). org_id MUST NOT be trusted from mutable payload fields."
+    },
+    "tenant_set_invariant": "Tenant MUST be set for every tenant-scoped operation; cross-tenant reads are forbidden unless explicitly authorized by a domain contract and audited.",
+    "tenant_set_mechanisms_non_exhaustive_examples": [
+      "Ash.Query.set_tenant/2",
+      "Ash.Changeset.set_tenant/2",
+      "Ash.PlugHelpers.set_tenant/2",
+      "Ash.Scope"
+    ],
+    "tenant_set_mechanisms_notes": "This list is guidance only; the invariant is mandatory regardless of framework edge (HTTP, GraphQL, background jobs, etc.)."
+  },
+  "tier": 1,
+  "title": "RP-0 Ash 3.x Resource Patterns (org_id, UUIDv7, utc_datetime_usec)",
+  "version": "3.2.2"
+}

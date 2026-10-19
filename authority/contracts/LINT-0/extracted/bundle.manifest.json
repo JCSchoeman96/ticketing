@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "LINT-0",
+    "bundle_version": "2.1.1"
+  },
+  "doc_id": "LINT-0",
+  "files": [
+    {
+      "bytes": 10075,
+      "path": "LINT-0_Contract_v2.1.1.json",
+      "sha256": "0bbb41276c02428ca7a6340b5da94c97bded997a58e8c8a38f8a823f613ce380"
+    },
+    {
+      "bytes": 6746,
+      "path": "LINT-0_Test_Gates_v2.1.1.json",
+      "sha256": "feb4b68337effe59e39f0489470c0a069a3eaff9b3515742cebf5158b58250c4"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.1.1"
+}

@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "INT-1",
+    "bundle_version": "1.0.4"
+  },
+  "doc_id": "INT-1",
+  "files": [
+    {
+      "bytes": 30823,
+      "path": "INT-1_Contract_v1.0.4.json",
+      "sha256": "f89aafd4a03a4be3fe70ed0a3bdda50331f3f91480e3b2bc3ec46917fa4e8afa"
+    },
+    {
+      "bytes": 17019,
+      "path": "INT-1_Test_Gates_v1.0.4.json",
+      "sha256": "3e66582966d27275164e69bbebcf414874c31f2e2580dbc890f540febf5047ee"
+    }
+  ],
+  "generated_at_utc": "2026-06-03T14:50:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.0",
+  "version": "1.0.4"
+}

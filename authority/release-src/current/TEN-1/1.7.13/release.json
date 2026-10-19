@@ -1,0 +1,13 @@
+{
+  "doc_id": "TEN-1",
+  "version": "1.7.13",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch successor preserving TEN-1 semantics while repairing the recorded CS-0/gate/manifest identity defects.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "d210295733c5ebae19ec5545abf2baadc93356778f7b25aaa1dbb9688a7cb609"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "class": "CI",
+  "files": [
+    "00_FEATURE_PLAN.md",
+    "01_CODING_AGENT_PROMPT.md",
+    "02_EVIDENCE_CHECKLIST.md"
+  ],
+  "folder": "0020_CI-001_deterministic-uuid-binary-sort",
+  "mvp_blocker": "yes",
+  "next": "0030_CI-002_migration-safety-baseline",
+  "order": "0020",
+  "pack_id": "FP-CI-001-deterministic-uuid-binary-sort",
+  "release_phase": "foundation",
+  "source_row": "CI-001",
+  "title": "Deterministic UUID Binary Sort"
+}

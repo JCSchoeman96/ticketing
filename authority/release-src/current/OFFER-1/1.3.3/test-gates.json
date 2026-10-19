@@ -1,0 +1,566 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "OFFER-1",
+    "version": "1.3.3"
+  },
+  "doc_id": "OFFER-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "Suite schema pin",
+      "id": "OFFER-1.GATE.0001",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0001 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "Manifest filename required",
+      "id": "OFFER-1.GATE.0002",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0002 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle files must match manifest",
+      "id": "OFFER-1.GATE.0003",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0003 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.3.2",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "OFFER-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Doc/version pointers",
+      "id": "OFFER-1.GATE.0004",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0004 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)\\bTBD\\b",
+              "(?i)\\bTODO\\b",
+              "(?i)\\bFIXME\\b",
+              "\\?\\?"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "(?i)\\bTBD\\b",
+              "(?i)\\bTODO\\b",
+              "(?i)\\bFIXME\\b",
+              "\\?\\?"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders (contract + gates)",
+      "id": "OFFER-1.GATE.0005",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0005 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-ANCHOR-001",
+            "json_pointer": "/invariants/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-TAX-001",
+            "json_pointer": "/invariants/1/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-CURRENCY-001",
+            "json_pointer": "/invariants/2/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Anchor + tax + currency invariants exist",
+      "id": "OFFER-1.GATE.0006",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0006 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-BREADCRUMB",
+            "json_pointer": "/invariants/5/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-LEAD-TIE-BREAKER",
+            "json_pointer": "/invariants/6/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ORD-1 breadcrumb invariant + bundle lead tie-breaker invariant exist",
+      "id": "OFFER-1.GATE.0007",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0007 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-PREREQ-001",
+            "json_pointer": "/invariants/7/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OfferWindow",
+            "json_pointer": "/data_model/resources/3/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "prerequisite_policy",
+            "json_pointer": "/data_model/resources/3/required_attributes/8/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Prerequisite proof invariant exists and OfferWindow exposes prerequisite_policy field",
+      "id": "OFFER-1.GATE.0008",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0008 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-LAW-KEY-SOVEREIGNTY",
+            "json_pointer": "/rules/3/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Key sovereignty law present (key rotation event for SCAN sync)",
+      "id": "OFFER-1.GATE.0009",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0009 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "entitlement_grant_id",
+            "json_pointer": "/data_model/resources/4/required_attributes/11/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "consumption_nonce",
+            "json_pointer": "/data_model/resources/4/required_attributes/12/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "SignedEligibilityClaim MUST require both entitlement_grant_id and consumption_nonce.",
+      "id": "OFFER-1-P0-CLAIM-NONCE-AND-GRANT-REQUIRED-0001",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1-P0-CLAIM-NONCE-AND-GRANT-REQUIRED-0001 failed."
+    },
+    {
+      "id": "OFFER-1-T0-SETUP-ACTIONS",
+      "title": "OFFER-1-T0-SETUP-ACTIONS",
+      "level": "P0",
+      "must": true,
+      "description": "Governed organizer create actions exist.",
+      "failure_message": "OFFER-1-T0-SETUP-ACTIONS failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_offer/purpose",
+            "equals": "Create an Offer in draft state for organizer-managed occurrences."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_product/purpose",
+            "equals": "Create a Product in draft state under an authorized same-tenant Offer."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_product_revision/inputs_required",
+            "equals": [
+              "org_id",
+              "product_id",
+              "revision_seq",
+              "anchor_occurrence_ids",
+              "inventory_claim_specs",
+              "entitlement_specs",
+              "pricing_program_revision_id",
+              "is_bundle",
+              "bundle_apportionment_map",
+              "rounding_strategy",
+              "primary_entitlement_id",
+              "currency_code",
+              "tax_context_id",
+              "actor_id",
+              "request_id",
+              "trace_id"
+            ]
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_offer_window/purpose",
+            "equals": "Create an OfferWindow for an existing same-tenant Offer."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_product_revision/persisted_attribute_sources/is_bundle",
+            "equals": "inputs.is_bundle"
+          }
+        }
+      ]
+    },
+    {
+      "id": "OFFER-1-T0-ACTIVATION-GUARDS",
+      "title": "OFFER-1-T0-ACTIVATION-GUARDS",
+      "level": "P0",
+      "must": true,
+      "description": "Offer and Product activation transitions are guarded and terminal archival is explicit.",
+      "failure_message": "OFFER-1-T0-ACTIVATION-GUARDS failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/activate_offer/state_transition/to",
+            "equals": "active"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/activate_product/state_transition/to",
+            "equals": "active"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/archive_offer/state_transition/terminal",
+            "equals": true
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/archive_product/state_transition/terminal",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "OFFER-1-T0-PRICE-BINDING",
+      "title": "OFFER-1-T0-PRICE-BINDING",
+      "level": "P0",
+      "must": true,
+      "description": "Reusable product pricing points to a program revision, never a consumable snapshot.",
+      "failure_message": "OFFER-1-T0-PRICE-BINDING failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/outputs",
+            "equals": [
+              "quote_id",
+              "pricing_snapshot_id",
+              "line_quotes[]",
+              "tax_context_id",
+              "currency_code",
+              "expires_at_utc"
+            ]
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/invariants/9/id",
+            "equals": "OFFER-1-INV-PRICE-REUSABLE-001"
+          }
+        }
+      ]
+    },
+    {
+      "id": "OFFER-1-T0-QUOTE-GUARDS",
+      "title": "OFFER-1-T0-QUOTE-GUARDS",
+      "level": "P0",
+      "must": true,
+      "description": "Quotes require active same-tenant selling state, a live OfferWindow, eligible occurrences, and the active PRICE revision.",
+      "failure_message": "OFFER-1-T0-QUOTE-GUARDS failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/quote_preconditions/offer_status",
+            "equals": "active"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/quote_preconditions/product_status",
+            "equals": "active"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/quote_preconditions/offer_window/database_utc_interval",
+            "equals": "starts_at_utc <= now < ends_at_utc"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/quote_preconditions/invalid_behavior/quote_created",
+            "equals": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "OFFER-1-T0-ARCHIVE-TIMESTAMP",
+      "title": "OFFER-1-T0-ARCHIVE-TIMESTAMP",
+      "level": "P0",
+      "must": true,
+      "description": "Offer and Product archive transitions persist database time.",
+      "failure_message": "OFFER-1-T0-ARCHIVE-TIMESTAMP failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/archive_offer/state_transition/side_effects",
+            "equals": "Persist status=archived and archived_at_utc=database_now atomically; preserve all history."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/archive_product/state_transition/side_effects",
+            "equals": "Persist status=archived and archived_at_utc=database_now atomically; preserve all history."
+          }
+        }
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/inputs/4",
+            "equals": "idempotency_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/price_snapshot_input_mapping/idempotency_key",
+            "equals": "inputs.idempotency_key (pass through unchanged)"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/idempotency_semantics/mismatch",
+            "equals": "If the key matches but canonical PRICE inputs differ, fail with ERR_CONFLICT / EXT_IDEMPOTENCY_REPLAY and create no replacement quote or snapshot."
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/dependencies/4/min_version",
+            "equals": "3.8.3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/ord_checkout_binding/persisted_order_field",
+            "equals": "Order.price_snapshot_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Quote creation supplies PRICE idempotency authority and binds the exact quote to ORD.",
+      "id": "OFFER-1-T0-PRICE-IDEMPOTENCY-ORD-BINDING",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1-T0-PRICE-IDEMPOTENCY-ORD-BINDING failed."
+    }
+  ],
+  "generated_at_utc": "2026-10-09T16:33:00Z",
+  "last_updated_utc": "2026-10-09T16:33:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "OFFER-1 Test Gates",
+  "updated_at": "2026-10-09T16:33:00Z",
+  "version": "1.3.3"
+}

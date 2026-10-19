@@ -1,0 +1,757 @@
+{
+  "access_control": {
+    "capability_gated_exports": true,
+    "default_deny": true,
+    "export_controls": {
+      "async_auth_recheck": {
+        "audit_event_on_abort": "ticketing.data.export.aborted_revoked",
+        "checkpoints": [
+          "job_perform_start",
+          "download_link_issue"
+        ],
+        "must_abort_if_revoked": true,
+        "must_destroy_partial_artifacts_on_abort": true,
+        "required": true
+      },
+      "audit_events": {
+        "aborted_revoked": {
+          "name": "ticketing.data.export.aborted_revoked",
+          "required_payload_keys": [
+            "org_id",
+            "actor_id",
+            "export_id",
+            "aborted_at_utc",
+            "abort_reason",
+            "destroyed_at_utc"
+          ]
+        },
+        "delivered": {
+          "name": "ticketing.data.export.delivered",
+          "required_payload_keys": [
+            "org_id",
+            "actor_id",
+            "export_id",
+            "delivered_at_utc",
+            "delivery_channel",
+            "object_path"
+          ]
+        },
+        "requested": {
+          "name": "ticketing.data.export.requested",
+          "required_payload_keys": [
+            "org_id",
+            "actor_id",
+            "export_id",
+            "projection_allowlist_hash",
+            "data_class_max",
+            "requested_at_utc"
+          ]
+        }
+      },
+      "capabilities": {
+        "export_break_glass": "pii.export",
+        "export_c2": "data.export",
+        "export_c3": "data.export.c3",
+        "export_c4": "data.export.c4"
+      },
+      "capability_required": "data.export",
+      "default_export_profile_id": "c2_standard",
+      "download_link_policy": {
+        "max_ttl_seconds": 900,
+        "public_acl_forbidden": true,
+        "signed_url_required": true,
+        "single_use_preferred": true
+      },
+      "export_profiles": [
+        {
+          "capability": "data.export",
+          "direct_identifiers": "forbidden",
+          "id": "c2_standard",
+          "joinable_identifiers": "forbidden",
+          "label": "c2_standard",
+          "max_data_class": "c2",
+          "notes": "Use for operational exports that MUST NOT include c3/c4. Suitable for most order/seat/pricing exports when identifiers are non-joinable or aggregated.",
+          "requires_projection_allowlist": true,
+          "requires_reason": false
+        },
+        {
+          "capability": "data.export.c3",
+          "direct_identifiers": "controlled",
+          "id": "c3_attendee_pii",
+          "joinable_identifiers": "controlled",
+          "label": "c3_attendee_pii",
+          "max_data_class": "c3",
+          "notes": "Use only when business need requires attendee PII. Must apply PII-1 joinable identifier ceiling rules and log audit reason codes.",
+          "requires_projection_allowlist": true,
+          "requires_reason": true
+        },
+        {
+          "capability": "data.export.c4",
+          "direct_identifiers": "controlled",
+          "id": "c4_regulated",
+          "joinable_identifiers": "controlled",
+          "label": "c4_regulated",
+          "max_data_class": "c4",
+          "notes": "Reserved for regulated/high-risk exports. Must require super_admin workflow and governance break-glass (GOV-0 waiver_id).",
+          "requires_projection_allowlist": true,
+          "requires_reason": true
+        },
+        {
+          "capability": "pii.export",
+          "direct_identifiers": "controlled",
+          "id": "break_glass_pii",
+          "joinable_identifiers": "controlled",
+          "label": "break_glass_pii",
+          "max_data_class": "c4",
+          "notes": "Emergency export path (investigation/incident). Requires break-glass approvals per IAM-2/DSAR-1 and must be time-boxed + audited.",
+          "requires_projection_allowlist": true,
+          "requires_reason": true
+        }
+      ],
+      "job_args_policy": {
+        "args_must_be_ids_only": true,
+        "max_args_bytes": 2048,
+        "prohibit_embedding_actor_pii": true,
+        "prohibit_embedding_authz_snapshot": true
+      }
+    },
+    "projection_allowlist_spec": {
+      "enforcement": {
+        "ash_mechanisms_allowed": [
+          "action_select_list",
+          "input_projection_allowlist_applied_to_select"
+        ],
+        "default_select_all_forbidden": true
+      },
+      "required": true,
+      "shape": {
+        "projection_allowlist": {
+          "items": "string",
+          "min_items": 1,
+          "type": "array",
+          "unique_items": true
+        }
+      }
+    },
+    "projection_allowlists_required": true
+  },
+  "actor_model": {
+    "actor": {
+      "required": true,
+      "shape": "%{id: uuid_v7, type: :user|:system|:service}"
+    }
+  },
+  "anti_patterns": {
+    "forbidden": [
+      {
+        "id": "DATA-1-ANTI-001",
+        "pattern": "Returning full records without projection allowlists",
+        "reason": "Excessive data exposure / bola risk."
+      },
+      {
+        "id": "DATA-1-ANTI-002",
+        "pattern": "Logging raw pii (c3/c4)",
+        "reason": "Irreversible breach impact; violates minimization."
+      },
+      {
+        "id": "DATA-1-ANTI-003",
+        "pattern": "Caching c3/c4 in redis or shared cache",
+        "reason": "Cross-tenant/cross-request leak risk."
+      }
+    ]
+  },
+  "applies_to": [
+    "all_services",
+    "postgres",
+    "redis",
+    "object_storage",
+    "queues",
+    "logs_tracing",
+    "exports",
+    "webhooks_api"
+  ],
+  "artifact_kind": "contract",
+  "artifact_name": "DATA-1_Contract_v2.0.3.json",
+  "change_log": [
+    {
+      "changes": [
+        "CS-0 SCHEMA FIX: Removed remediation_hint from all gates (not allowed in CS-0@2.2.0 test_gates schema).",
+        "Retained CANON-pinned dependencies: SEC-1@3.0.6 and OBS-1@2.7.5 are both in CANON-1@0.9.33.",
+        "All gate assertions now strictly conform to CS-0 gate schema (id, level, must, description, assertions only).",
+        "Negative tests gate (DATA-1-GATE-NEG-001) uses only CS-0 allowed fields.",
+        "Manifest regenerated with deterministic SHA256 hashing."
+      ],
+      "date_utc": "2026-01-08T15:31:00.000000Z",
+      "type": "patch",
+      "version": "1.1.3"
+    },
+    {
+      "changes": [
+        "Fixed test gate DATA-1-GATE-005 to avoid invalid json_pointer_equals/pattern structure and enforce dependency pin hygiene via deterministic forbid_regex gate.",
+        "Normalized forbid_regex_in_artifact assertions to use forbid_regex list (removed non-standard regex field).",
+        "Removed non-schema top-level negative_tests field from DATA-1-GATE-NEG-001 (tests remain in assertion details).",
+        "Regenerated bundle.manifest.json with correct sha256/bytes after file rewrite."
+      ],
+      "date_utc": "2026-01-08T17:29:27.778670Z",
+      "type": "patch",
+      "version": "1.1.4"
+    },
+    {
+      "changes": [
+        "Locked DATA-1 as the single source of truth for retention taxonomy across the suite.",
+        "Declared ARCH-1 RetentionPolicy MUST use DATA-1 ids directly (data_class c0–c4, retention_profile p0–p4).",
+        "Updated linkage metadata for version bump and regenerated manifest."
+      ],
+      "date_utc": "2026-01-26T06:38:49Z",
+      "type": "patch",
+      "version": "1.1.6"
+    },
+    {
+      "changes": [
+        "Removed non-executable 'negative_tests' assertion gate to avoid CI strict whitelist issues; moved scenarios into contract.qa_scenarios for implementation-time test planning."
+      ],
+      "date_utc": "2026-01-28T11:00:14Z",
+      "type": "patch",
+      "version": "1.1.8"
+    },
+    {
+      "date_utc": "2026-01-28T17:13:44Z",
+      "notes": [
+        "export_controls.capability_required -> 'pii.export' (IAM-1 canonical capability).",
+        "Added mandatory audit event for abort-on-revoke and pinned async recheck checkpoints.",
+        "Expanded test gates to prevent capability drift and require abort audit linkage."
+      ],
+      "summary": "Harden async export authorization re-check (GC-032) and align export capability naming with IAM-1.",
+      "version": "1.2.0"
+    },
+    {
+      "date_utc": "2026-01-28T19:36:03Z",
+      "summary": "Patch: fix stale gate version pins and forbid_regex shape; no semantic changes.",
+      "version": "1.2.1"
+    },
+    {
+      "date_utc": "2026-01-29T16:29:38Z",
+      "summary": "Patch: introduce export profiles and split export capabilities into c2/c3/c4 tiers; add PII-1 dependency for joinable identifier ceilings.",
+      "version": "1.3.0"
+    }
+  ],
+  "classification": {
+    "classes": [
+      {
+        "id": "c0",
+        "label": "public"
+      },
+      {
+        "id": "c1",
+        "label": "internal"
+      },
+      {
+        "id": "c2",
+        "label": "confidential"
+      },
+      {
+        "id": "c3",
+        "label": "restricted_pii"
+      },
+      {
+        "id": "c4",
+        "label": "regulated_high_risk"
+      }
+    ],
+    "labeling": {
+      "mechanism": {
+        "ash_attribute_metadata": {
+          "enforced_by": "ci_ash_governance_lint_v1.2.0",
+          "namespace": "metadata",
+          "required_keys": [
+            "data_class",
+            "retention_profile"
+          ]
+        },
+        "value_domains": {
+          "data_class_ids": [
+            "c0",
+            "c1",
+            "c2",
+            "c3",
+            "c4"
+          ],
+          "retention_profile_ids": [
+            "p0_public",
+            "p1_operational",
+            "p2_audit_evidence",
+            "p3_attendee_pii",
+            "p4_finance_records"
+          ]
+        }
+      },
+      "required": true,
+      "rule": "Every Ash Resource attribute MUST declare both metadata.data_class (c0–c4) and metadata.retention_profile (p0–p4). Missing labels are forbidden."
+    },
+    "storage_tier_rules": {
+      "logs": {
+        "allowed": [
+          "c0",
+          "c1",
+          "c2"
+        ],
+        "exceptions": "hashed_identifiers_only",
+        "forbidden": [
+          "c3",
+          "c4"
+        ]
+      },
+      "object_storage": {
+        "allowed": [
+          "c0",
+          "c1",
+          "c2",
+          "c3",
+          "c4"
+        ],
+        "org_id_required_in_path": true,
+        "requires": [
+          "tenant_scoped_paths",
+          "encryption",
+          "auditing"
+        ],
+        "tenant_scoped_path_format": "ticketing/org/{org_id}/...",
+        "wildcards_forbidden": true
+      },
+      "postgres": {
+        "allowed": [
+          "c0",
+          "c1",
+          "c2",
+          "c3",
+          "c4"
+        ],
+        "notes": "c3/c4 require encryption_at_rest and strict_access_controls"
+      },
+      "redis": {
+        "allowed": [
+          "c0",
+          "c1",
+          "c2"
+        ],
+        "exceptions_require": [
+          "waiver_id",
+          "ttl_max_seconds",
+          "approval_actor_id"
+        ],
+        "forbidden": [
+          "c3",
+          "c4"
+        ],
+        "ttl_max_seconds_cap": 900,
+        "waiver_registry": "GOV-0"
+      }
+    }
+  },
+  "dependencies": [
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "Strict CI bundle integrity validation."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Schema envelopes for contract/test_gates/bundle_manifest artifacts."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.3.21",
+      "reason": "Canonical error envelope and stable error codes/subcodes."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.10",
+      "reason": "Deterministic governance waivers for cache/export exceptions (waiver_id registry)."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "foundation_floor",
+      "min_version": "3.2.0",
+      "reason": "Defines canonical export capabilities (data.export, data.export.c3, data.export.c4, pii.export) used by DATA-1 export profiles."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.11",
+      "reason": "Governance lint ruleset for enforceable Ash metadata labeling and drift prevention."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.1.6",
+      "reason": "Defines worker/queue norms for export jobs including fresh authorization check at execution time."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.7.5",
+      "reason": "Observability redaction and audit requirements."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.1.0",
+      "reason": "Defines joinable identifier ceiling rules and PII↔data_class interop constraints used by DATA-1 export hardening."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "foundation_floor",
+      "min_version": "3.0.6",
+      "reason": "Security posture requiring minimization, redaction, and audited exports."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.9",
+      "reason": "Canonical org_id multitenancy, hide-existence semantics, and fail-closed tenant posture."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Gate authoring rules and CI enforcement posture."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "integration_floor",
+      "min_version": "2.16.4",
+      "reason": "Registry floor parity for type safety even as non-producer."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "integration_floor",
+      "min_version": "2.4.0",
+      "reason": "Schema_ref token normalization context."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0"
+  },
+  "doc_id": "DATA-1",
+  "domain_actions": {
+    "label_field": {
+      "inputs_required": [
+        "actor",
+        "org_id",
+        "resource",
+        "field",
+        "class_id",
+        "retention_profile_id"
+      ],
+      "output_minimum": [
+        "resource",
+        "field",
+        "class_id",
+        "retention_profile_id"
+      ],
+      "purpose": "Associate a classification class and retention profile with a field/attribute.",
+      "validation_rules": [
+        "class_id MUST be one of c0,c1,c2,c3,c4",
+        "retention_profile_id MUST be one of p0_public,p1_operational,p2_audit_evidence,p3_attendee_pii,p4_finance_records",
+        "actor.id MUST be uuid_v7",
+        "actor.type MUST be one of :user, :system, :service"
+      ]
+    },
+    "purge_expired": {
+      "inputs_required": [
+        "actor",
+        "org_id",
+        "as_of_utc"
+      ],
+      "output_minimum": [
+        "org_id",
+        "as_of_utc",
+        "purge_count"
+      ],
+      "purpose": "Apply retention rules to purge/tombstone expired records and artifacts within org_id scope.",
+      "validation_rules": [
+        "as_of_utc MUST be utc_datetime_usec",
+        "actor.id MUST be uuid_v7",
+        "actor.type MUST be one of :user, :system, :service",
+        "System purges MUST run with actor.type == :system"
+      ]
+    }
+  },
+  "emits_events": false,
+  "generated_at_utc": "2026-01-29T16:29:38Z",
+  "identity_standards": {
+    "id_type": "uuid_v7",
+    "timestamp_type": "utc_datetime_usec"
+  },
+  "last_updated_utc": "2026-01-29T16:29:38Z",
+  "minimization_and_redaction": {
+    "hashing": {
+      "recommended": "hmac_based_stable_hash_keyed_per_environment",
+      "rule": "When logging identifiers, use keyed hashes to prevent reversal."
+    },
+    "logging_policy": [
+      "Logs MUST NOT include c3/c4 values.",
+      "Allowed exception: stable hashes or last4 where explicitly approved."
+    ],
+    "no_pii_in_logs_by_default": true,
+    "no_raw_card_data": true
+  },
+  "normative_source": "json",
+  "outbox_events": [],
+  "platform_invariants": {
+    "rules": [
+      "Tenant isolation MUST be enforced for all c1+ data at rest and in transit.",
+      "Exports containing c3/c4 MUST be capability-gated and audited; org_id MUST be enforced for all export selection and delivery.",
+      "Ledger/journal entries and payout evidence MUST NOT be hard-purged; only additive corrections are permitted.",
+      "Retention taxonomy MUST be single-source-of-truth: use DATA-1 classification.classes (c0–c4) and retention.profiles (p0–p4). Domain contracts MUST NOT define parallel taxonomies.",
+      "ARCH-1 RetentionPolicy MUST use DATA-1 ids directly: RetentionPolicy.data_class MUST be one of c0–c4, and RetentionPolicy.retention_profile MUST be one of p0_public..p4_finance_records."
+    ],
+    "tenant_isolation_required": true,
+    "tenant_key_is_org_id": true
+  },
+  "project_namespace": {
+    "db_namespace": "ticketing",
+    "forbid_module_prefixes": [
+      "V42."
+    ],
+    "otp_app": ":ticketing",
+    "root_namespace": "Ticketing"
+  },
+  "qa_scenarios": {
+    "negative": [
+      {
+        "description": "Attempting to write c3/c4 data to a Redis-backed cache MUST be rejected.",
+        "id": "DATA-1-NEG-001"
+      },
+      {
+        "description": "Retention jobs MUST NOT purge records flagged with 'legal_hold: true'.",
+        "id": "DATA-1-NEG-002"
+      },
+      {
+        "description": "Data export requests missing 'projection_allowlist' MUST return ERR_BAD_REQUEST.",
+        "id": "DATA-1-NEG-003"
+      },
+      {
+        "description": "If actor is revoked or loses 'pii.export' capability after request but before job execution, worker MUST abort, delete partial artifacts, emit ticketing.data.export.aborted_revoked, and MUST NOT issue any download link.",
+        "id": "DATA-1-NEG-004"
+      }
+    ]
+  },
+  "references": [
+    {
+      "kind": "ash_multitenancy",
+      "ref": "https://hexdocs.pm/ash/multitenancy.html"
+    },
+    {
+      "kind": "ash_policies",
+      "ref": "https://hexdocs.pm/ash/policies.html"
+    },
+    {
+      "kind": "owasp_api_security_2023",
+      "ref": "https://owasp.org/API-Security/editions/2023/en/0x11-t10/"
+    }
+  ],
+  "retention": {
+    "canonical_fields": {
+      "expires_at_utc": {
+        "applies_to": [
+          "postgres_records",
+          "object_storage_artifacts",
+          "queue_messages_where_applicable"
+        ],
+        "notes": "Unknown/no expiry is forbidden unless the retention profile explicitly sets expires_at_required=false.",
+        "required_when": "retention_profile.expires_at_required == true",
+        "type": "utc_datetime_usec"
+      },
+      "legal_hold": {
+        "default": false,
+        "notes": "When true, deletion/tombstone/hard_purge MUST be skipped.",
+        "type": "boolean"
+      },
+      "legal_hold_reason": {
+        "max_bytes": 2048,
+        "required_when": "legal_hold == true",
+        "type": "string"
+      },
+      "legal_hold_set_at_utc": {
+        "required_when": "legal_hold == true",
+        "type": "utc_datetime_usec"
+      }
+    },
+    "deletion_semantics": {
+      "hard_purge_requires": [
+        "db_delete",
+        "cache_invalidation",
+        "object_deletes",
+        "audit_entry"
+      ],
+      "legal_hold_overrides_deletion": true,
+      "soft_delete_allowed_for_ux_only": true
+    },
+    "object_storage_metadata_requirements": {
+      "required_metadata_keys": [
+        "org_id",
+        "data_class",
+        "retention_profile",
+        "expires_at_utc",
+        "legal_hold"
+      ],
+      "tenant_scoped_path_required": true
+    },
+    "profiles": [
+      {
+        "default_action": "tombstone",
+        "description": "Public data",
+        "expires_at_required": true,
+        "id": "p0_public"
+      },
+      {
+        "default_action": "tombstone",
+        "description": "Short-lived operational data retained for no more than 90 days, unless legal hold applies.",
+        "expires_at_required": true,
+        "id": "p1_operational",
+        "max_retention_days": 90
+      },
+      {
+        "default_action": "tombstone",
+        "description": "Security/audit/delivery metadata",
+        "expires_at_required": true,
+        "id": "p2_audit_evidence",
+        "min_hot_months": 24
+      },
+      {
+        "default_action": "tombstone",
+        "description": "Attendee/customer pii (jurisdiction configurable)",
+        "expires_at_required": true,
+        "id": "p3_attendee_pii"
+      },
+      {
+        "default_action": "tombstone",
+        "description": "Finance evidence (ledger/journal entries, payout proofs). MUST NOT be hard-purged. Tombstone, if used, means suppress from operational APIs while retaining immutable audit evidence.",
+        "expires_at_required": false,
+        "hard_purge_forbidden": true,
+        "id": "p4_finance_records",
+        "min_retention_months": 84
+      }
+    ]
+  },
+  "rules": [
+    {
+      "category": "governance",
+      "rationale": "Prevents drift and makes CI enforcement deterministic.",
+      "rule_id": "DATA-1-META-001",
+      "severity": "P0",
+      "text": "DATA-1 bundle MUST be JSON-only normative artifacts with deterministic manifest hashing; repacks are forbidden."
+    },
+    {
+      "category": "tenant",
+      "rationale": "Prevents cross-tenant leakage and ambiguous behavior.",
+      "rule_id": "DATA-1-TEN-001",
+      "severity": "P0",
+      "text": "org_id MUST be explicit and required for all tenant-scoped behaviors; missing org_id MUST fail closed."
+    },
+    {
+      "category": "classification",
+      "rationale": "Without labeling, minimization and retention cannot be enforced.",
+      "rule_id": "DATA-1-CLS-001",
+      "severity": "P0",
+      "text": "Every Ash Resource attribute/field MUST be labeled via metadata.data_class (c0–c4) and metadata.retention_profile (p0–p4). ci_ash_governance_lint MUST fail if any attribute is missing either metadata key."
+    },
+    {
+      "category": "minimization",
+      "rationale": "Logs are long-lived and widely accessible; avoid irreversible exposure.",
+      "rule_id": "DATA-1-LOG-001",
+      "severity": "P0",
+      "text": "Logs/telemetry MUST NOT contain c3/c4 values; only hashed identifiers (or explicitly approved limited forms) are allowed."
+    },
+    {
+      "category": "api_surface",
+      "rationale": "Prevents excessive data exposure and broken object property level authorization.",
+      "rule_id": "DATA-1-API-001",
+      "severity": "P0",
+      "text": "API responses MUST use explicit projection allowlists. Default 'select all' is forbidden. All read/list actions MUST either define an action-level select list or require an input projection_allowlist (array of field names) applied to the Ash select."
+    },
+    {
+      "category": "api_surface",
+      "rationale": "Defense-in-depth against leakage and privilege mistakes.",
+      "rule_id": "DATA-1-API-002",
+      "severity": "P0",
+      "text": "c3/c4 fields MUST NOT be returned by default; they require explicit allowlist + authorization + org_id tenant scope."
+    },
+    {
+      "category": "storage",
+      "rationale": "Cache leaks are common and hard to audit; class rules forbid it.",
+      "rule_id": "DATA-1-CACHE-001",
+      "severity": "P0",
+      "text": "redis/shared caches MUST NOT store c3/c4 data. Any exception MUST reference a governance waiver_id (GOV-0) and MUST specify ttl_max_seconds within the contract cap."
+    },
+    {
+      "category": "access_control",
+      "rationale": "Prevents privilege drift between request time and execution time (GC-032).",
+      "rule_id": "DATA-1-EXP-001",
+      "severity": "P0",
+      "text": "Async export workers MUST perform a live IAM authorization + liveness check at execution time (job_perform_start) and again before issuing any download link (download_link_issue). Workers MUST NOT trust queued auth context or snapshots."
+    },
+    {
+      "category": "retention",
+      "rationale": "Meets compliance needs and avoids accidental data loss.",
+      "rule_id": "DATA-1-RET-001",
+      "severity": "P0",
+      "text": "Retention profiles MUST be enforced by scheduled jobs. Entities subject to retention MUST define expires_at_utc: utc_datetime_usec when the retention profile requires expiry. legal_hold (with legal_hold_set_at_utc) MUST override tombstone/hard_purge for both records and artifacts."
+    },
+    {
+      "category": "retention",
+      "rationale": "Financial evidence is audit-grade and constitutionally immutable; deletion is forbidden.",
+      "rule_id": "DATA-1-FIN-001",
+      "severity": "P0",
+      "text": "Finance evidence (p4_finance_records) MUST NOT be hard-purged. Tombstone MAY only suppress access; evidence retention MUST be at least 84 months unless jurisdiction requires longer."
+    },
+    {
+      "category": "interop",
+      "rationale": "Prevents retention drift and conflicting interpretations across services.",
+      "rule_id": "DATA-1-INTEROP-010",
+      "severity": "P0",
+      "text": "Contracts that model retention MUST use DATA-1 taxonomy ids. Any contract-defined alternative taxonomy is forbidden."
+    },
+    {
+      "category": "interop",
+      "rationale": "Closes ARCH↔DATA taxonomy drift by eliminating ambiguous mapping.",
+      "rule_id": "DATA-1-INTEROP-011",
+      "severity": "P0",
+      "text": "ARCH-1 RetentionPolicy MUST include both data_class (c0–c4) and retention_profile (p0_public..p4_finance_records) and treat them as DATA-1 ids."
+    },
+    {
+      "category": "access_control",
+      "rationale": "Ensures revoked actors cannot receive or leave behind export artifacts.",
+      "rule_id": "DATA-1-EXP-002",
+      "severity": "P0",
+      "text": "If the live authorization check denies OR liveness fails, the export job MUST abort fail-closed, MUST destroy any partial artifacts, and MUST emit audit event ticketing.data.export.aborted_revoked."
+    },
+    {
+      "category": "access_control",
+      "rationale": "Aligns export permissions to the canonical IAM capability model and prevents accidental permissive exports.",
+      "rule_id": "DATA-1-EXP-003",
+      "severity": "P0",
+      "text": "Any export that can include data_class c3/c4 MUST require IAM capability 'pii.export' (as defined in IAM-1)."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Deterministic, enforceable rules for data classification (c0–c4), minimization, storage tier constraints, and retention profiles (p0–p4) for the Ticketing platform with explicit org_id multitenancy and utc_datetime_usec time discipline.",
+  "tenancy": {
+    "leakage_policy": "hide_existence",
+    "strategy": "ash_attribute",
+    "tenant_key": "org_id",
+    "tenant_required": true
+  },
+  "tier": 3,
+  "title": "Data Classification & Retention Contract (Ash 3.x)",
+  "version": "2.0.3"
+}

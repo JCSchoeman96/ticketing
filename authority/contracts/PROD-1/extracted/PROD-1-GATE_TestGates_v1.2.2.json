@@ -1,0 +1,727 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "PROD-1",
+    "version": "1.2.2"
+  },
+  "doc_id": "PROD-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@2.2.0 across contract, gates, and manifest.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-010",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "equals": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json filename and content MUST match the bundle contents.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-020",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PROD-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.2.2",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "PROD-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.2.2",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "PROD-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.2.2",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "PROD-1",
+            "json_pointer": "/bundle/bundle_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "1.2.2",
+            "json_pointer": "/bundle/bundle_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Artifact linkage MUST be consistent (doc_id, version, contract_ref, manifest.bundle).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-030",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^ticketing\\.[a-z0-9_]+(\\.[a-z0-9_]+)*$",
+            "json_pointer": "/invariants/producer_service_pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "ticketing.orders",
+              "ticketing.tickets",
+              "ticketing.seats",
+              "ticketing.ledger",
+              "ticketing.payments",
+              "ticketing.scanning",
+              "ticketing.memberships",
+              "ticketing.events",
+              "ticketing.auth",
+              "ticketing.webhooks",
+              "ticketing.integrations",
+              "ticketing.notifications",
+              "ticketing.observability",
+              "ticketing.admin"
+            ],
+            "json_pointer": "/invariants/producer_service_allowlist"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "api",
+              "worker",
+              "scheduler",
+              "webhook_consumer",
+              "outbox_publisher",
+              "reconciler",
+              "cli"
+            ],
+            "json_pointer": "/invariants/producer_kind_enum"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Namespace and allowlist invariants are pinned (ticketing.* only; explicit allowlist).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-040",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "T\\s*O\\s*D\\s*O",
+              "T\\s*B\\s*D",
+              "F\\s*I\\s*X\\s*M\\s*E",
+              "R\\s*E\\s*P\\s*L\\s*A\\s*C\\s*E\\s*_\\s*M\\s*E",
+              "\\\"api_actions\\\""
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "forbid_regex": [
+              "T\\s*O\\s*D\\s*O",
+              "T\\s*B\\s*D",
+              "F\\s*I\\s*X\\s*M\\s*E",
+              "R\\s*E\\s*P\\s*L\\s*A\\s*C\\s*E\\s*_\\s*M\\s*E"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders or forbidden key names allowed in contract or gates artifacts.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-050",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN-1",
+            "json_pointer": "/dependencies/3/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.7.12",
+            "json_pointer": "/dependencies/3/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\\"doc_id\\\"\\s*:\\s*\\\"CANON-1\\\""
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Dependency pin hygiene (TEN-1 must be >= 1.6.9; CANON-1 must not be a dependency).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-060",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Asserts PROD-1 declares emits_events=false and has an explicit empty outbox_events list. Prevents CI theatre on empty producer surfaces.",
+      "id": "PROD-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "PROD-1 MUST be an explicit non-producer"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 1,
+            "json_pointer": "/invariants/disaster_recovery/targets/local_ha/rpo_seconds"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 15,
+            "json_pointer": "/invariants/disaster_recovery/targets/local_ha/rto_minutes"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 60,
+            "json_pointer": "/invariants/disaster_recovery/targets/regional_dr/rpo_seconds"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 60,
+            "json_pointer": "/invariants/disaster_recovery/targets/regional_dr/rto_minutes"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Disaster recovery targets MUST remain pinned (local_ha RPO=1s/RTO=15m; regional_dr RPO=60s/RTO=60m).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-070-DR-TARGETS-PINNED",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "continuous",
+            "json_pointer": "/invariants/disaster_recovery/wal_archiving/mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "object_storage",
+            "json_pointer": "/invariants/disaster_recovery/wal_archiving/transport"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "pg_dump(\\s|$)"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "WAL archiving MUST be continuous to object storage; pg_dump-only patterns are forbidden.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-080-WAL-ARCHIVE-MODE",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/emergency_access_protocol/activation/two_person_rule"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 30,
+            "json_pointer": "/invariants/emergency_access_protocol/activation/max_duration_minutes"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/emergency_access_protocol/audit/must_emit_audit_record"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Break-glass protocol MUST enforce two-person rule and time-boxed activation.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-090-BREAKGLASS-PINNED",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "/health/liveness",
+            "json_pointer": "/invariants/health_checks/liveness/path"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "/health/readiness",
+            "json_pointer": "/invariants/health_checks/readiness/path"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Health endpoints MUST be present and pinned to canonical paths.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-100-HEALTH-ENDPOINTS",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/infrastructure_hygiene/mutable_infrastructure_forbidden"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/infrastructure_hygiene/ssh_access_forbidden_in_prod"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/infrastructure_hygiene/ephemeral_nodes_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Production infrastructure hygiene must forbid mutable nodes and SSH in production.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-110-INFRA-HYGIENE",
+      "level": "P2",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/legislative_bypass_protocol/enabled"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 86400,
+            "json_pointer": "/invariants/legislative_bypass_protocol/window_policy/max_window_seconds"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/legislative_bypass_protocol/approval_model/requires_quorum_signatures"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "dual_pin_then_cutover",
+            "json_pointer": "/invariants/legislative_bypass_protocol/dual_pin_policy/mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/legislative_bypass_protocol/dual_pin_policy/cleanup_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Legislative bypass protocol MUST be present and pinned (time-boxed dual-pin emergency window).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1-GATE-120-LEGISLATIVE-BYPASS-PROTOCOL",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "doc_id": "CS-0",
+                "edge_type": "requires",
+                "min_version": "2.2.0",
+                "reason": "Suite schema and envelope validation."
+              },
+              {
+                "doc_id": "BP-0",
+                "edge_type": "requires",
+                "min_version": "1.0.6",
+                "reason": "Blueprint baseline bundle structure + deterministic CI gates."
+              },
+              {
+                "doc_id": "TG-0",
+                "edge_type": "requires",
+                "min_version": "2.3.0",
+                "reason": "Gate authoring posture and enforcement boundary."
+              },
+              {
+                "doc_id": "TEN-1",
+                "edge_type": "requires",
+                "min_version": "1.7.12",
+                "reason": "Multi-tenant isolation and org_id truth; break-glass must not violate tenancy."
+              },
+              {
+                "doc_id": "IAM-1",
+                "edge_type": "requires",
+                "min_version": "3.4.5",
+                "reason": "Authorization model + emergency (break-glass) capabilities and actor identity."
+              },
+              {
+                "doc_id": "ERR-1",
+                "edge_type": "requires",
+                "min_version": "1.6.1",
+                "reason": "Canonical error envelope and code discipline for denials and incident flows."
+              },
+              {
+                "doc_id": "EVT-1",
+                "edge_type": "requires",
+                "min_version": "2.16.4",
+                "reason": "Producer metadata placement in event envelopes."
+              },
+              {
+                "doc_id": "OBS-1",
+                "edge_type": "requires",
+                "min_version": "2.7.17",
+                "reason": "OTel alignment, audit/event logging requirements, and bounded-label requirements."
+              },
+              {
+                "doc_id": "DMSC-1",
+                "edge_type": "requires",
+                "min_version": "2.1.1",
+                "reason": "Drain/deploy/maintenance coordination; graceful shutdown and incident freeze semantics."
+              },
+              {
+                "doc_id": "OBQC-1",
+                "edge_type": "requires",
+                "min_version": "2.1.8",
+                "reason": "Operational budgets and quality controls (latency/error/queue bounds)."
+              },
+              {
+                "doc_id": "LOCKS-1",
+                "edge_type": "requires",
+                "min_version": "2.1.1",
+                "reason": "Fail-fast lock discipline and hot-path concurrency expectations."
+              },
+              {
+                "doc_id": "SEC-1",
+                "edge_type": "requires",
+                "min_version": "3.3.1",
+                "reason": "Crypto primitives, offline hydration manifest envelope law, and signing/canonicalization pins."
+              },
+              {
+                "doc_id": "EXT-1",
+                "edge_type": "requires",
+                "min_version": "2.1.5",
+                "reason": "Public webhook/API surfaces must propagate producer + request_id consistently."
+              },
+              {
+                "doc_id": "RP-0",
+                "edge_type": "requires",
+                "min_version": "3.2.1",
+                "reason": "Ash 3.x terminology, multitenancy conventions, and resource boundary discipline."
+              },
+              {
+                "doc_id": "QUORUM-1",
+                "edge_type": "requires",
+                "min_version": "1.0.0",
+                "reason": "Legislative quorum identities for bypass authorization."
+              }
+            ],
+            "json_pointer": "/dependencies"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "doc_id": "QUORUM-1",
+              "min_version": "1.0.0",
+              "quorum_id": "ticketing.legislative.bypass.q1"
+            },
+            "json_pointer": "/invariants/legislative_bypass_protocol/approval_model/quorum_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "incident_id",
+              "window",
+              "targets",
+              "bypass_transcript_sha256",
+              "runner_sha256",
+              "contract_sha256"
+            ],
+            "json_pointer": "/invariants/legislative_bypass_protocol/approval_model/signatures_must_bind_fields"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "prod-1/legislative-bypass-evidence/2.0",
+            "json_pointer": "/invariants/legislative_bypass_protocol/evidence/schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Legislative bypass MUST be quorum-authorized via QUORUM-1 and bind transcript sha.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "PROD-1.GATE.0120",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "cfe68b4f0214998cf49a70d0ac732f07aae464c6b4720fa98d29b69e66322835",
+            "json_pointer": "/dependency_pins/QUORUM-1/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Gate PROD-1-GATE-QUORUM-SHA-PIN-001",
+      "id": "PROD-1-GATE-QUORUM-SHA-PIN-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "Postgres Row-Level Security (RLS) MUST NOT be disabled or bypassed in production under any circumstances.",
+              "Direct UPDATE/DELETE on immutable finance tables (LED-1 LedgerPosting/LedgerEntry; PAY-4 payout postings) is FORBIDDEN; corrections must be additive via reversing postings.",
+              "Ticket credential immutability (TKT-1 TicketCredential status history) MUST NOT be overwritten; revocation must be append-only and auditable.",
+              "Any break-glass bypass that would violate the above MUST fail-closed and emit an audit incident."
+            ],
+            "json_pointer": "/invariants/legislative_bypass_protocol/non_derogable_invariants"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Gate PROD-1-P0-NON-DEROGABLE-INVARIANTS-0001",
+      "id": "PROD-1-P0-NON-DEROGABLE-INVARIANTS-0001",
+      "level": "P0",
+      "must": true
+    }
+  ],
+  "generated_at_utc": "2026-02-08T17:09:44Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "PROD-1 Gates",
+  "updated_at": "2026-02-08T17:09:44Z",
+  "version": "1.2.2"
+}

@@ -1,0 +1,271 @@
+{
+  "artifact_kind": "test_gates",
+  "change_log": [
+    {
+      "changes": [
+        "Initial RECON-1 gates."
+      ],
+      "date": "2026-02-11T11:34:27Z",
+      "version": "1.0.0"
+    }
+  ],
+  "contract_ref": {
+    "doc_id": "RECON-1",
+    "version": "1.0.3"
+  },
+  "doc_id": "RECON-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "All artifacts MUST pin suite_schema to CS-0@2.2.0.",
+      "id": "P0_SUITE_SCHEMA_PIN",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\\\bTBD\\\\b",
+              "\\\\bTODO\\\\b",
+              "\\\\bWIP\\\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "forbid_regex": [
+              "\\\\bTBD\\\\b",
+              "\\\\bTODO\\\\b",
+              "\\\\bWIP\\\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Contract and gates MUST NOT contain placeholders (TBD/TODO/WIP).",
+      "id": "P0_NO_PLACEHOLDERS",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "UTC",
+            "json_pointer": "/reconciliation_matrix/windowing/timezone"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "day",
+            "json_pointer": "/reconciliation_matrix/targets/0/time_bucket"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Reconciliation matrix MUST define at least one target and required windowing rules.",
+      "id": "P0_RECONCILIATION_TARGETS_PRESENT",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "tolerance.exact_zero",
+            "json_pointer": "/matching_rules/tolerance_policies/0/tolerance_policy_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/matching_rules/join_keys_policies/0/join_keys/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Join keys policies and tolerance policies MUST be explicit and deterministic.",
+      "id": "P0_JOIN_KEYS_AND_TOLERANCES_PRESENT",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "none",
+              "tolerance_ok",
+              "rounding",
+              "timing_lag",
+              "expected_backfill",
+              "data_gap_missing_evidence",
+              "corruption_suspected",
+              "provider_mismatch",
+              "manual_override_applied"
+            ],
+            "json_pointer": "/variance_taxonomy/required_classes"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Variance taxonomy MUST include the required enterprise classes.",
+      "id": "P0_VARIANCE_TAXONOMY_REQUIRED_CLASSES",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "corruption_suspected",
+            "json_pointer": "/override_and_adjudication/two_person_rule/required_for_classes/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/override_and_adjudication/audit_requirements/append_only"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Override workflow MUST require audit fields and two-person rule for high-risk classes.",
+      "id": "P0_OVERRIDE_WORKFLOW_AUDITED",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "expected_backfill",
+            "json_pointer": "/close_and_payout_blockers/close_blocker_classes/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "expected_backfill",
+            "json_pointer": "/close_and_payout_blockers/payout_blocker_classes/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Close/payout blockers MUST be defined as variance classes.",
+      "id": "P0_BLOCKER_POLICY_PRESENT",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/run_model/run_identity/idempotency_key_fields/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Run idempotency key fields MUST be declared.",
+      "id": "P0_IDEMPOTENCY_KEY_DEFINED",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LOCKS-1",
+            "json_pointer": "/dependencies/10/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.1.3",
+            "json_pointer": "/dependencies/10/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "[window_start_iso8601]#[recon_profile_id]",
+            "json_pointer": "/run_model/locking/entity_key_encoding"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/run_model/admission_control/must_use_obqc_admission"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "LOCKS ordering + recon_window encoding + admission control pins",
+      "id": "RECON-1.GATE.0012",
+      "level": "P0",
+      "must": true
+    }
+  ],
+  "generated_at_utc": "2026-02-11T12:17:13Z",
+  "last_updated_utc": "2026-02-11T12:17:13Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "RECON-1 Gates",
+  "version": "1.0.3"
+}

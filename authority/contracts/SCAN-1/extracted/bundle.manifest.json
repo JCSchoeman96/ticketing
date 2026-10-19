@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "SCAN-1",
+    "bundle_version": "1.6.4"
+  },
+  "doc_id": "SCAN-1",
+  "files": [
+    {
+      "bytes": 62122,
+      "path": "SCAN-1_Contract_v1.6.4.json",
+      "sha256": "a7978b25b2f7cd86002bdfb4b10303ba27f2dcd0a517168c16e8001b6b557b84"
+    },
+    {
+      "bytes": 9586,
+      "path": "SCAN-1_Test_Gates_v1.6.4.json",
+      "sha256": "66665488efc603d4aae0e5d3a960c5e2db3af71773325fd62a865e1401534ef1"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.6.4"
+}

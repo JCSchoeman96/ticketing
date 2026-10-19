@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "IR-1",
+    "bundle_version": "1.5.0"
+  },
+  "doc_id": "IR-1",
+  "files": [
+    {
+      "bytes": 88192,
+      "path": "IR-1_Contract_v1.5.0.json",
+      "sha256": "5443debb2d09f29ce95e6e61212e708741fa8466ec0033a9c87521d17e07a697"
+    },
+    {
+      "bytes": 25619,
+      "path": "IR-1_Test_Gates_v1.5.0.json",
+      "sha256": "0b6b26ef9ba9568e4821e385382aa2f5fdc4e29e8569a083a467c0a3d986ff2b"
+    }
+  ],
+  "generated_at_utc": "2026-04-15T13:48:01Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.0",
+  "version": "1.5.0"
+}

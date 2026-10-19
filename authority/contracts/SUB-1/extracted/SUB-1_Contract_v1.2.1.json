@@ -1,0 +1,900 @@
+{
+  "artifact_kind": "contract",
+  "authorization": {
+    "actor_roles": {
+      "create_program": [
+        "org_admin",
+        "platform_tenant_manager",
+        "super_admin"
+      ],
+      "edit_program": [
+        "org_admin",
+        "platform_tenant_manager",
+        "super_admin"
+      ],
+      "grant_entitlement": [
+        "org_admin",
+        "platform_tenant_manager",
+        "super_admin"
+      ],
+      "revoke_entitlement": [
+        "org_admin",
+        "platform_tenant_manager",
+        "super_admin"
+      ],
+      "sync_external": [
+        "platform_tenant_manager",
+        "super_admin"
+      ]
+    },
+    "notes": [
+      "Authorization decisions MUST be enforced via IAM-1; SUB-1 only enumerates allowed actor roles.",
+      "Subscriber status MUST NOT be modeled as an IAM role. It is an entitlement evaluated at purchase time."
+    ]
+  },
+  "data_handling": {
+    "attribute_labels": [
+      {
+        "attribute": "created_at_utc",
+        "data_class": "c1",
+        "resource": "SubProgram",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "default_grace_period_days",
+        "data_class": "c1",
+        "resource": "SubProgram",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "program_id",
+        "data_class": "c2",
+        "resource": "SubProgram",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "name",
+        "data_class": "c1",
+        "resource": "SubProgram",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "org_id",
+        "data_class": "c1",
+        "notes": "Tenancy key; retain per platform compliance.",
+        "resource": "SubProgram",
+        "retention_profile": "p4_finance_records"
+      },
+      {
+        "attribute": "status",
+        "data_class": "c1",
+        "resource": "SubProgram",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "updated_at_utc",
+        "data_class": "c1",
+        "resource": "SubProgram",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "created_at_utc",
+        "data_class": "c1",
+        "resource": "SubTier",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "external_plan_ref",
+        "data_class": "c1",
+        "resource": "SubTier",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "tier_id",
+        "data_class": "c2",
+        "resource": "SubTier",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "metadata",
+        "data_class": "c1",
+        "resource": "SubTier",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "name",
+        "data_class": "c1",
+        "resource": "SubTier",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "program_id",
+        "data_class": "c1",
+        "resource": "SubTier",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "sort_order",
+        "data_class": "c1",
+        "resource": "SubTier",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "updated_at_utc",
+        "data_class": "c1",
+        "resource": "SubTier",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "abuse_flags",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "activated_at_utc",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "expires_at_utc",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "fingerprint",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "grace_until_utc",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "granted_at_utc",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "entitlement_grant_id",
+        "data_class": "c2",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "last_synced_at_utc",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "org_id",
+        "data_class": "c1",
+        "notes": "Tenancy key; retain per platform compliance.",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p4_finance_records"
+      },
+      {
+        "attribute": "program_id",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "revocation_reason",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "revoked_at_utc",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "source_system",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "status",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "subject_customer_id",
+        "data_class": "c2",
+        "notes": "Restricted identifier; treat as identity-adjacent.",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p3_attendee_pii"
+      },
+      {
+        "attribute": "subject_external_member_ref",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "tier_id",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "trial_consumed_at_utc",
+        "data_class": "c1",
+        "resource": "EntitlementGrant",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "applies_to",
+        "data_class": "c1",
+        "resource": "BenefitRule",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "benefit_type",
+        "data_class": "c1",
+        "resource": "BenefitRule",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "config",
+        "data_class": "c1",
+        "resource": "BenefitRule",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "effective_from_utc",
+        "data_class": "c1",
+        "resource": "BenefitRule",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "effective_to_utc",
+        "data_class": "c1",
+        "resource": "BenefitRule",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "benefit_rule_id",
+        "data_class": "c2",
+        "resource": "BenefitRule",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "program_id",
+        "data_class": "c1",
+        "resource": "BenefitRule",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "status",
+        "data_class": "c1",
+        "resource": "BenefitRule",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "target_ref",
+        "data_class": "c1",
+        "resource": "BenefitRule",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "tier_id",
+        "data_class": "c1",
+        "resource": "BenefitRule",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "version",
+        "data_class": "c1",
+        "resource": "BenefitRule",
+        "retention_profile": "p1_operational"
+      },
+      {
+        "attribute": "trace_id",
+        "data_class": "c1",
+        "notes": "Traceability header required on all outbox events.",
+        "resource": "OutboxEvent",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "request_id",
+        "data_class": "c1",
+        "notes": "Traceability header required on all outbox events.",
+        "resource": "OutboxEvent",
+        "retention_profile": "p2_audit_evidence"
+      },
+      {
+        "attribute": "version",
+        "data_class": "c1",
+        "notes": "Traceability header required on all outbox events.",
+        "resource": "OutboxEvent",
+        "retention_profile": "p2_audit_evidence"
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "requires",
+      "min_version": "1.3.0",
+      "reason": "Physics/Governance floor (War-Time hardening)."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.6.0",
+      "reason": "Central error/subcode registry"
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.10.0",
+      "reason": "Outbox events MUST be registered in EVT-1 (governed registry)."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "registry_floor",
+      "min_version": "2.4.0",
+      "reason": "Physics/Governance floor (War-Time hardening)."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.13",
+      "reason": "Physics/Governance floor (War-Time hardening)."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.0",
+      "reason": "Defines platform roles used to authorize grant/revoke operations"
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "reason": "Quota consumption MUST be serialized using session-affine xact-scoped advisory locks."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "Physics/Governance floor (War-Time hardening)."
+    },
+    {
+      "doc_id": "PROD-1",
+      "edge_type": "requires",
+      "min_version": "1.0.5",
+      "reason": "Physics/Governance floor (War-Time hardening)."
+    },
+    {
+      "doc_id": "SM-0",
+      "edge_type": "requires",
+      "min_version": "1.2.0",
+      "reason": "Domain mutations MUST be fenced (CAS) to prevent zombie writes."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.11",
+      "reason": "Defines org_id tenancy and tenant lifecycle rules"
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.8.0",
+      "reason": "Core conventions: snake_case, uuid_v7, utc_datetime_usec, immutability"
+    }
+  ],
+  "dependency_floors": {
+    "DATA-1": "1.3.0",
+    "ERR-1": "1.6.0",
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0",
+    "GOV-0": "2.0.13",
+    "LOCKS-1": "2.1.0",
+    "PII-1": "1.1.0",
+    "PROD-1": "1.0.5"
+  },
+  "doc_id": "SUB-1",
+  "domain_actions": {
+    "check_entitlement": {
+      "errors": [
+        "SUB_PROGRAM_NOT_FOUND",
+        "SUB_INVALID_INPUT"
+      ],
+      "inputs_required": [
+        "org_id",
+        "program_id",
+        "subject_customer_id",
+        "context"
+      ],
+      "notes": [
+        "This action may be called frequently. If emitting ticketing.sub.entitlement_checked.v1, it MUST support sampling controls."
+      ],
+      "outputs": [
+        "eligible",
+        "entitlement_grant_id",
+        "evaluated_at_utc"
+      ],
+      "summary": "Check entitlement eligibility for a subject for a given context."
+    },
+    "create_program": {
+      "errors": [
+        "SUB_FORBIDDEN",
+        "SUB_INVALID_INPUT"
+      ],
+      "inputs_required": [
+        "org_id",
+        "name",
+        "default_grace_period_days"
+      ],
+      "outputs": [
+        "sub_program"
+      ],
+      "summary": "Create an org-scoped subscriber program."
+    },
+    "grant_manual": {
+      "errors": [
+        "SUB_FORBIDDEN",
+        "SUB_INVALID_INPUT"
+      ],
+      "inputs_required": [
+        "org_id",
+        "program_id",
+        "tier_id",
+        "subject_customer_id",
+        "expires_at_utc",
+        "reason"
+      ],
+      "outputs": [
+        "entitlement_grant"
+      ],
+      "summary": "Grant or extend an entitlement grant manually (support ops)."
+    },
+    "revoke": {
+      "errors": [
+        "SUB_FORBIDDEN",
+        "SUB_NOT_FOUND",
+        "SUB_INVALID_STATE"
+      ],
+      "inputs_required": [
+        "entitlement_grant_id",
+        "revocation_reason",
+        "reason"
+      ],
+      "outputs": [
+        "entitlement_grant"
+      ],
+      "summary": "Revoke an entitlement grant with audited reason."
+    },
+    "sync_grant": {
+      "errors": [
+        "SUB_FORBIDDEN",
+        "SUB_INVALID_INPUT"
+      ],
+      "idempotency": "Idempotent by (org_id, program_id, subject_customer_id, subject_external_member_ref, source_system).",
+      "inputs_required": [
+        "org_id",
+        "program_id",
+        "tier_id",
+        "subject_customer_id",
+        "subject_external_member_ref",
+        "status",
+        "expires_at_utc"
+      ],
+      "outputs": [
+        "entitlement_grant"
+      ],
+      "summary": "Ingest subscription state from the external provider and upsert an entitlement grant."
+    },
+    "upsert_tier": {
+      "errors": [
+        "SUB_FORBIDDEN",
+        "SUB_TIER_CONFLICT",
+        "SUB_INVALID_INPUT"
+      ],
+      "inputs_required": [
+        "program_id",
+        "name",
+        "external_plan_ref"
+      ],
+      "outputs": [
+        "sub_tier"
+      ],
+      "summary": "Create or update a tier, mapping it to an external plan reference."
+    }
+  },
+  "events": {
+    "emits": [
+      {
+        "name": "ticketing.sub.program_created.v1",
+        "notes": "Lawful outbox event. Payload defined in outbox_events."
+      },
+      {
+        "name": "ticketing.sub.entitlement_granted.v1",
+        "notes": "Lawful outbox event. Payload defined in outbox_events."
+      },
+      {
+        "name": "ticketing.sub.entitlement_revoked.v1",
+        "notes": "Lawful outbox event. Payload defined in outbox_events."
+      },
+      {
+        "name": "ticketing.sub.entitlement_expired.v1",
+        "notes": "Lawful outbox event. Payload defined in outbox_events."
+      },
+      {
+        "name": "ticketing.sub.entitlement_checked.v1",
+        "notes": "Lawful outbox event. Payload defined in outbox_events."
+      },
+      {
+        "name": "ticketing.sub.offer_blocked.v1",
+        "notes": "Lawful outbox event. Payload defined in outbox_events."
+      }
+    ],
+    "topics": [
+      {
+        "applies_to_event_prefix": "ticketing.sub.",
+        "notes": "Canonical topic for subscription-domain events.",
+        "topic": "ticketing.sub"
+      }
+    ]
+  },
+  "generated_at_utc": "2026-02-06T15:35:36Z",
+  "last_updated_utc": "2026-02-06T15:35:36Z",
+  "lock_state": {
+    "notes": [
+      "Lock after EVT-2 / PRICE-1 / ORD-1 patches are merged and validated."
+    ],
+    "state": "open"
+  },
+  "observability": {
+    "logs_minimum": [
+      "Every grant/revoke MUST produce a structured audit log entry with actor_id, actor_role, reason, and before/after state hashes"
+    ],
+    "metrics_minimum": [
+      "sub_programs_active_total",
+      "sub_entitlements_active_total",
+      "sub_entitlements_grace_total",
+      "sub_entitlements_revoked_total",
+      "sub_offer_blocked_total"
+    ]
+  },
+  "open_questions": [],
+  "outbox_events": [
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "program_id"
+      },
+      "event_name": "ticketing.sub.program_created.v1",
+      "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+      "optional_keys": [],
+      "required_keys": [
+        "program_id",
+        "actor_id",
+        "actor_role",
+        "created_at_utc",
+        "version"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "entitlement_grant_id"
+      },
+      "event_name": "ticketing.sub.entitlement_granted.v1",
+      "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+      "optional_keys": [],
+      "required_keys": [
+        "program_id",
+        "tier_id",
+        "entitlement_grant_id",
+        "subject_customer_id",
+        "status",
+        "granted_at_utc",
+        "activated_at_utc",
+        "expires_at_utc",
+        "grace_until_utc",
+        "source_system",
+        "actor_id",
+        "actor_role",
+        "version"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "entitlement_grant_id"
+      },
+      "event_name": "ticketing.sub.entitlement_revoked.v1",
+      "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+      "optional_keys": [],
+      "required_keys": [
+        "program_id",
+        "entitlement_grant_id",
+        "subject_customer_id",
+        "revoked_at_utc",
+        "revocation_reason",
+        "actor_id",
+        "actor_role",
+        "version"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "entitlement_grant_id"
+      },
+      "event_name": "ticketing.sub.entitlement_expired.v1",
+      "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+      "optional_keys": [],
+      "required_keys": [
+        "program_id",
+        "entitlement_grant_id",
+        "subject_customer_id",
+        "expired_at_utc",
+        "version"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "subject_customer_id"
+      },
+      "event_name": "ticketing.sub.entitlement_checked.v1",
+      "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+      "optional_keys": [],
+      "required_keys": [
+        "program_id",
+        "subject_customer_id",
+        "eligible",
+        "entitlement_grant_id",
+        "evaluated_at_utc",
+        "version"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "subject_customer_id"
+      },
+      "event_name": "ticketing.sub.offer_blocked.v1",
+      "notes": "Lawful subscription outbox event. Payload chemistry is governed; no shadow keys.",
+      "optional_keys": [],
+      "required_keys": [
+        "program_id",
+        "subject_customer_id",
+        "offer_ref",
+        "blocked_reason",
+        "evaluated_at_utc",
+        "version"
+      ],
+      "schema_ref": "EVT-2"
+    }
+  ],
+  "producer_service": "ticketing.subscriptions",
+  "resource_model": {
+    "benefit_rule": {
+      "applies_to": "enum(event,occurrence,price_phase,price_item,seat_zone)",
+      "benefit_type": "enum(price_discount,exclusive_purchase,inventory_holdback,quota_limit,perk_access)",
+      "config": "map",
+      "effective_from_utc": "utc_datetime_usec",
+      "effective_to_utc": "utc_datetime_usec|null",
+      "id": "uuid_v7",
+      "program_id": "uuid_v7",
+      "status": "enum(active,paused,archived)",
+      "target_ref": "uuid_v7|string",
+      "tier_id": "uuid_v7|null",
+      "version": "integer"
+    },
+    "entitlement_grant": {
+      "abuse_flags": "array(enum(suspected_discount_churn,chargeback_risk,identity_mismatch,other))",
+      "activated_at_utc": "utc_datetime_usec|null",
+      "expires_at_utc": "utc_datetime_usec|null",
+      "fingerprint": "string",
+      "grace_until_utc": "utc_datetime_usec|null",
+      "granted_at_utc": "utc_datetime_usec",
+      "id": "uuid_v7",
+      "last_synced_at_utc": "utc_datetime_usec|null",
+      "org_id": "uuid_v7",
+      "program_id": "uuid_v7",
+      "revocation_reason": "enum(admin_action,non_payment,chargeback,fraud,policy_violation,other)|null",
+      "revoked_at_utc": "utc_datetime_usec|null",
+      "source_system": "enum(external_provider,manual_override)",
+      "status": "enum(pending_activation,active,grace,cancelled,expired,suspended,revoked)",
+      "subject_customer_id": "uuid_v7",
+      "subject_external_member_ref": "string",
+      "tier_id": "uuid_v7",
+      "trial_consumed_at_utc": "utc_datetime_usec|null"
+    },
+    "sub_program": {
+      "created_at_utc": "utc_datetime_usec",
+      "default_grace_period_days": 7,
+      "id": "uuid_v7",
+      "name": "string",
+      "org_id": "uuid_v7",
+      "status": "enum(active,paused,archived)",
+      "updated_at_utc": "utc_datetime_usec"
+    },
+    "sub_tier": {
+      "created_at_utc": "utc_datetime_usec",
+      "external_plan_ref": "string",
+      "id": "uuid_v7",
+      "metadata": "map",
+      "name": "string",
+      "program_id": "uuid_v7",
+      "sort_order": "integer",
+      "updated_at_utc": "utc_datetime_usec"
+    }
+  },
+  "rules": {
+    "grace_period": {
+      "default_days": 7,
+      "eligibility_during_grace": true
+    },
+    "no_retroactive_removal": {
+      "abuse_detection": "System SHOULD emit analytics signals when a subject rapidly cancels after discounted purchases. Enforcement policy is configurable later.",
+      "invariant": "Eligibility is snapshotted at purchase-finalize time and is not retroactively removed from already-finalized orders."
+    },
+    "quota": {
+      "concurrency": {
+        "ban_split_brain_pattern": "lock_on_conn_A_write_on_conn_B",
+        "lock_key_template": "sub_quota:{org_id}:{subject_id}:{entitlement_id}",
+        "lock_mechanism": "pg_advisory_xact_lock",
+        "lock_scope": "transaction",
+        "notes": "Quota decrements/increments MUST be guarded by a LOCKS-1 session-affine xact-scoped advisory lock taken inside the same DB transaction as the protected write. Alternative: atomic counter in the same transaction with a UNIQUE fence.",
+        "session_affinity_required": true
+      },
+      "default_scope": "per_subject_per_event",
+      "override_allowed": true,
+      "restore_on_refund": {
+        "condition": "Only restore quota after payment system confirms successful refund (PAY-3/PAY-4).",
+        "policy": "restore_on_full_refund"
+      }
+    },
+    "source_of_truth": {
+      "billing": "external_provider",
+      "eligibility_authority": "purchase_finalize_time"
+    },
+    "stacking": {
+      "note": "Subscriber pricing is configured per phase and per ticket (or price_item) using explicit subscriber_price fields; subscriber benefits do not stack with other discounts by default.",
+      "policy": "no_stacking"
+    },
+    "status_semantics": {
+      "active": "Eligible.",
+      "cancelled": "Not eligible (unless grace applies).",
+      "expired": "Not eligible.",
+      "grace": "Eligible until grace_until_utc.",
+      "pending_activation": "May be granted by sync or admin; not eligible for benefits.",
+      "revoked": "Not eligible. Must include revocation_reason.",
+      "suspended": "Not eligible."
+    },
+    "subject_identity": {
+      "allowed_subject_keys": [
+        "subject_customer_id",
+        "subject_external_member_ref"
+      ],
+      "beneficiary_proof_requirements": [
+        "If purchaser != subject, the order MUST store subject identifier + entitlement_grant_id snapshot per discounted line"
+      ],
+      "beneficiary_purchase_supported": true
+    },
+    "time_evaluation": {
+      "authority": "purchase_finalize_time_only",
+      "invariant": "All eligibility evaluations MUST be recorded with evaluated_at_utc in UTC timestamps. Display timezone is separate."
+    },
+    "trial_policy": {
+      "invariant": "A subject may consume at most one trial per program per org_id lifetime. The system MUST persist trial_consumed_at_utc when any trial benefit is used.",
+      "notes": [
+        "No separate trial_expired status required if trial_consumed_at_utc is recorded."
+      ],
+      "track_trial_consumption": true
+    },
+    "visibility_vs_purchase": {
+      "invariant": "An offer may be visible to the public but locked at purchase. Visibility is a UI concern; enforcement is at add_to_cart + finalize.",
+      "required_layers": [
+        "Event surface declares requires_entitlement (EVT-2 hint)",
+        "Add-to-cart block for UX (ORD-1)",
+        "Finalize hard-block for security (ORD-1)",
+        "Price signature binds entitlement context (PRICE-1)"
+      ]
+    }
+  },
+  "schema_version": "contract-suite/1.0",
+  "security_posture": {
+    "pii": {
+      "forbidden_event_keys": [
+        "name",
+        "surname",
+        "email",
+        "phone",
+        "id_number",
+        "passport_number",
+        "address",
+        "postal_address",
+        "notes",
+        "freeform_notes",
+        "geo_hash",
+        "device_firmware",
+        "device_boot_id",
+        "device_uptime_millis",
+        "manifest_signature",
+        "hydration_payload_hash"
+      ]
+    },
+    "threats": [
+      {
+        "id": "SUB_T1",
+        "mitigation": "Bind entitlement context in PRICE-1 signature and snapshot in ORD-1",
+        "risk": "Discount replay using stale price quote"
+      },
+      {
+        "id": "SUB_T2",
+        "mitigation": "Block at add_to_cart + finalize; emit offer_blocked events",
+        "risk": "Purchasing subscriber-only offer without entitlement"
+      },
+      {
+        "id": "SUB_T3",
+        "mitigation": "Persist trial_consumed_at_utc and enforce one-per-program invariant",
+        "risk": "Trial abuse"
+      }
+    ]
+  },
+  "status": "active",
+  "subcodes_declared": [
+    "SUB_FORBIDDEN",
+    "SUB_INVALID_INPUT",
+    "SUB_NOT_FOUND",
+    "SUB_INVALID_STATE",
+    "SUB_PROGRAM_NOT_FOUND",
+    "SUB_TIER_CONFLICT",
+    "SUB_ENTITLEMENT_REQUIRED",
+    "SUB_ENTITLEMENT_NOT_ELIGIBLE",
+    "SUB_QUOTA_EXCEEDED",
+    "SUB_OFFER_NOT_AVAILABLE"
+  ],
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "Problem: Define an org-scoped subscriber program that grants customers eligibility for special pricing, inventory access, and purchase restrictions, while keeping billing external (initially WordPress).\nGoals:\n- Treat subscriber as an entitlement (not an IAM role)\n- Make eligibility auditable and snapshot at purchase-finalize time\n- Support tiers, grace periods, pending_activation, and revocation\n- Support 'visible-but-locked' offers (upsell) without allowing purchase\n- Support per-customer quotas per event with override\n- Provide deterministic hooks for analytics, abuse detection, and DSAR\nNon-goals:\n- Running subscription billing or charging cards (delegated to external provider initially)\n- Replacing IAM-1 authorization model\n- Implementing seating maps (SEAT-2)",
+  "tenancy": {
+    "notes": [
+      "Programs are created per org_id. Cross-org benefits are out of scope for SUB-1 v1.0.0 (future extension)."
+    ],
+    "scope": "org_scoped",
+    "tenant_key": "org_id"
+  },
+  "terminology": {
+    "beneficiary": "Alias of subject when purchaser != subject.",
+    "entitlement_grant": "A time-bounded grant that proves a subject is eligible for benefits.",
+    "external_provider": "System of record for billing/subscription status (initially WordPress).",
+    "program": "An org-scoped subscriber program that defines tiers and benefit rules.",
+    "subject": "The customer receiving benefits. May differ from the purchaser when buying for a subscriber friend.",
+    "tier": "A named level within a program (often mirrored from an external billing plan)."
+  },
+  "tier": "enterprise",
+  "title": "Subscriber benefits and entitlements",
+  "version": "1.2.1"
+}

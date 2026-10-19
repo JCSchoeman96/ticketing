@@ -1,0 +1,256 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "API-0_Contract_v1.2.0.json",
+  "changelog": [
+    {
+      "changes": [
+        "P0 FIX: Gate assertion details corrected (required_filename → expected, regex → json_pointers + forbid_regex).",
+        "P0 FIX: Removed json_pointer_equals assertion with pattern field (non-deterministic).",
+        "P0 FIX: Removed negative_tests assertion type (not in strict CI whitelist); moved scenarios to contract rules as MUST requirements.",
+        "P1 FIX: Removed details.exclude from require_bundle_files_match_manifest (not honored by strict runner).",
+        "P1 FIX: Added baseline health/ready/metrics routes to registry (prevent deny-all enforcement theatre).",
+        "P1 FIX: Added allowlist_mode invariant to registry (empty list semantics clarified).",
+        "CLARIFICATION: route-registry/1.0 schema not yet in CS-0; registry validated via contract-level rules until CS-0 update."
+      ],
+      "date_utc": "2026-01-08T22:38:00.000000Z",
+      "type": "patch",
+      "version": "1.0.5"
+    },
+    {
+      "changes": [
+        "P0 FIX: Superseded earlier T0 idempotency delegation; API-0 owns the HTTP Idempotency-Key requirement, LOCKS-1 owns durable idempotency semantics, and ERR-1 owns registered error identifiers.",
+        "P0 FIX: Rescoped API-0 from 'global allowlist' to a standard; clarified API-0_Route_Registry is baseline platform routes only.",
+        "P0 ADD: Defined deterministic allowlist_mode semantics (active/shadow/bootstrap) to prevent deny-all theatre during rollout.",
+        "P0 ADD: Pinned non-tenant endpoint posture for /health, /ready, /metrics (no tenant leaks, no high-cardinality identifiers).",
+        "P0 FIX: Strengthened rate limiting requirements (HTTP 429 + ERR_RATE_LIMITED + Retry-After seconds).",
+        "P0 FIX: Deprecated endpoints now return ERR_NOT_FOUND (404) until ERR-1 registers a dedicated deprecation subcode.",
+        "P1 FIX: Added OBS-1 dependency and aligned /metrics route description."
+      ],
+      "date_utc": "2026-01-10T10:54:57.785017Z",
+      "type": "patch",
+      "version": "1.0.6"
+    },
+    {
+      "changes": [
+        "P1: Declared explicit non-producer surface (emits_events=false, outbox_events=[]).",
+        "P1: Added registry floor parity dependency pin on EVT-1@2.16.4.",
+        "P1: Added ASSERT-NON-PRODUCER gate to prevent CI theatre."
+      ],
+      "date_utc": "2026-02-07T00:00:00.000000Z",
+      "type": "patch",
+      "version": "1.0.7"
+    },
+    {
+      "changes": [
+        "Added Virtual Waiting Room / Admission Token protocol (API-0-ADMIT-001) with ERR-1 mapping and Retry-After semantics.",
+        "Added standardized overload response semantics and client retry posture (API-0-OVERLOAD-001).",
+        "Added keyset pagination law for public read endpoints (API-0-PAGINATION-001).",
+        "Added request timeout semantics and server deadline guidance (API-0-TIMEOUT-001).",
+        "Added rate-limit response header conventions (API-0-RATELIMIT-001).",
+        "Upgraded route registry schema to route-registry/1.1 with admission/rate-limit/timeout metadata fields."
+      ],
+      "date_utc": "2026-02-08",
+      "version": "1.1.0"
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "Strict CI bundle integrity validation."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "foundation_floor",
+      "min_version": "2.2.0",
+      "reason": "Schema envelopes for contract/test_gates/bundle_manifest artifacts."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.3.21",
+      "reason": "Canonical error envelope and stable error codes/subcodes for API responses."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Registry floor parity for Phase-5 Airlock."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Durable idempotency identity, request hash, replay/conflict behavior, and concurrency fencing referenced by API-0 mutation transport rules."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "governance_floor",
+      "min_version": "2.7.4",
+      "reason": "Observability posture for platform endpoints and audit signals referenced by the API route registry (/metrics) and allowlist shadow-mode reporting guidance."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "foundation_floor",
+      "min_version": "3.3.1",
+      "reason": "Pins Base64URL + JCS + Ed25519 primitives used across admission tokens and signed artifacts."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.9",
+      "reason": "Canonical org_id multitenancy and hide-existence semantics."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Gate authoring rules and CI enforcement posture."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4",
+    "LOCKS-1": "3.0.0"
+  },
+  "doc_id": "API-0",
+  "emits_events": false,
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "identity_standards": {
+    "id_type": "uuid_v7",
+    "timestamp_type": "utc_datetime_usec"
+  },
+  "last_updated_utc": "2026-02-08T04:58:53.413438Z",
+  "lineage": {
+    "supersedes": [
+      {
+        "doc_id": "API-0",
+        "reason": "Carries forward API-0 business intent while aligning the bundle to CS-0@3.0.0 and BP-0@3.0.0 canonical bundle discipline.",
+        "version": "1.1.1"
+      }
+    ]
+  },
+  "normative_source": "json",
+  "outbox_events": [],
+  "project_namespace": {
+    "db_namespace": "ticketing",
+    "forbid_module_prefixes": [
+      "V42."
+    ],
+    "otp_app": ":ticketing",
+    "root_namespace": "Ticketing"
+  },
+  "rules": [
+    {
+      "category": "governance",
+      "rationale": "Deterministic CI enforcement prevents drift.",
+      "rule_id": "API-0-META-001",
+      "severity": "P0",
+      "text": "API-0, API-0-GATE, and API-0_Route_Registry MUST be JSON-only normative artifacts; repacks (r1/r2) are forbidden; metadata must match filenames and manifest pins."
+    },
+    {
+      "category": "governance",
+      "rationale": "A single global allowlist is not feasible during bootstrap; enforcement must remain deterministic without creating deny-all theatre.",
+      "rule_id": "API-0-ALLOW-001",
+      "severity": "P0",
+      "text": "Endpoint allowlisting MUST be enforced by the applicable route registry for the surface/service that owns the endpoint. When allowlist_mode='active' for that registry, any inbound HTTP endpoint not listed in that registry is forbidden (MUST return the appropriate ERR-1 code, and MUST NOT leak whether the route exists). API-0_Route_Registry is NOT a global registry; it enumerates only baseline non-tenant platform routes."
+    },
+    {
+      "category": "governance",
+      "rationale": "Deterministic adoption path prevents theatre: partial registries must be enforceable without silent drift.",
+      "rule_id": "API-0-ALLOWMODE-001",
+      "severity": "P0",
+      "text": "allowlist_mode semantics MUST be deterministic for every route registry:\n- active: hard deny any unlisted route (enforced at the edge/gateway or in-service).\n- shadow: allow unlisted routes, but MUST emit an OBS-1 audit signal for every unlisted request (no sampling), including method, path template (not raw path), surface, and auth outcome.\n- bootstrap: same as shadow unless the registry explicitly declares a minimal_baseline set; if present, only baseline routes are hard-allowed and all other unlisted routes MUST be treated as shadow."
+    },
+    {
+      "category": "tenancy",
+      "rationale": "Stops tenant enumeration and cross-tenant leakage.",
+      "rule_id": "API-0-TEN-001",
+      "severity": "P0",
+      "text": "Tenant-scoped endpoints MUST be under /v1/orgs/{org_id} and MUST apply hide-existence semantics for cross-tenant access (ERR_NOT_FOUND)."
+    },
+    {
+      "category": "idempotency",
+      "rationale": "Prevents double-spend/double-redeem under retries.",
+      "rule_id": "API-0-IDEMP-001",
+      "severity": "P0",
+      "text": "Endpoints that mutate money, inventory, holds, scans, or ledger-relevant state MUST set idempotency_required=true in the owning route registry and MUST require the HTTP Idempotency-Key header. A missing or invalid key MUST return HTTP 400 with ERR_BAD_REQUEST and the ERR-1-registered EXT_IDEMPOTENCY_KEY_REQUIRED subcode. Durable idempotency identity, request hash, replay, mismatch/conflict, and concurrency semantics are governed solely by LOCKS-1."
+    },
+    {
+      "category": "idempotency",
+      "rationale": "Idempotency is mandatory for mutation operations where retries can cause duplicate side effects; GET does not require Idempotency-Key.",
+      "rule_id": "API-0-IDEMP-ALL-001",
+      "severity": "P0",
+      "text": "For surfaces 'business_rest' and 'scanning_rest', endpoints with method in [POST,PATCH,DELETE,PUT] MUST set idempotency_required=true and MUST require Idempotency-Key. Non-mutating GET endpoints MAY set idempotency_required=false."
+    },
+    {
+      "category": "security",
+      "rationale": "Lookup endpoints enable enumeration, leakage, and privilege escalation at the door. Scanning must be command-oriented (validate/redeem only).",
+      "rule_id": "API-0-SCAN-ENUM-001",
+      "severity": "P0",
+      "text": "Scanning API MUST NOT expose ticket lookup/list/read endpoints (e.g., /tickets, /orders, /attendees). The scanning surface may only expose: scan session, scan context, validate/redeem operations."
+    },
+    {
+      "category": "security",
+      "rationale": "Authentication and authorization failures MUST be enforced and return canonical ERR-1 codes. Moved from negative_tests gate to enforceable MUST rules.",
+      "rule_id": "API-0-SEC-DENY-001",
+      "severity": "P0",
+      "text": "Unauthenticated API requests MUST return HTTP 401 with ERR_UNAUTHENTICATED (ERR-1). Unauthorized/forbidden requests MUST return HTTP 403 with ERR_FORBIDDEN (ERR-1). Cross-tenant access to tenant-scoped endpoints MUST apply hide-existence semantics and MUST return HTTP 404 with ERR_NOT_FOUND (ERR-1). Rate-limited requests MUST return HTTP 429 with ERR_RATE_LIMITED (ERR-1) and MUST include a Retry-After header (seconds). Deprecated endpoints MUST NOT redirect; they MUST return HTTP 404 with ERR_NOT_FOUND (ERR-1) unless/until ERR-1 registers an explicit deprecation subcode."
+    },
+    {
+      "category": "tenancy",
+      "rationale": "Special endpoints are where leaks creep in; they must be specified deterministically.",
+      "rule_id": "API-0-NONTEN-001",
+      "severity": "P0",
+      "text": "Non-tenant endpoints are permitted ONLY for the baseline platform routes /health, /ready, /metrics as enumerated in API-0_Route_Registry. These endpoints MUST NOT include org_id in request or response bodies, MUST NOT leak build identifiers or configuration secrets, and MUST return uniform responses (no tenant-dependent variance). /metrics MAY be authenticated or network-restricted, but MUST NOT expose per-tenant identifiers or high-cardinality labels."
+    },
+    {
+      "category": "admission_control",
+      "rule_id": "API-0-ADMIT-001",
+      "severity": "P0",
+      "text": "Admission Control (Virtual Waiting Room): When a surface/service enters an overload profile (e.g., HOT_SALE) it MAY require an admission token for designated hot-path endpoints.\nRequirements:\n1) Admission tokens MUST be carried in the transport envelope (HTTP header) and MUST NOT appear in JSON bodies.\n2) Header name MUST be \"X-Ticketing-Admission\".\n3) Token format MUST be Base64URL (RFC 4648, URL-safe alphabet, no padding) and MUST be treated as opaque by clients.\n4) If a token is REQUIRED and missing/invalid, the service MUST respond with:\n   - HTTP 503\n   - ERR-1 top_level_code: ERR_UNAVAILABLE\n   - ERR-1 subcode: PROD_QUEUE_OVERLOADED\n   - Retry-After: <seconds> (integer)\n   - Optional error.details.queue_url string (absolute URL) to the waiting-room UI.\n5) Services MUST NOT log the raw admission token; logs MAY include a truncated hash for correlation."
+    },
+    {
+      "category": "overload_semantics",
+      "rule_id": "API-0-OVERLOAD-001",
+      "severity": "P0",
+      "text": "Overload Semantics: When returning overload responses (HTTP 503 / ERR_UNAVAILABLE) services MUST include Retry-After and MUST provide a stable machine-readable error envelope per ERR-1.\nClients MUST implement exponential backoff with jitter and MUST NOT 'retry-storm' by immediate refresh loops."
+    },
+    {
+      "category": "pagination",
+      "rule_id": "API-0-PAGINATION-001",
+      "severity": "P0",
+      "text": "Pagination Law: Any public read endpoint that can return collections MUST support keyset/cursor pagination. Offset pagination is FORBIDDEN beyond a shallow window (default: page <= 10) due to deep-paging DoS risk.\nEndpoints MUST expose a deterministic cursor token (opaque string) and MUST cap page_size (default max 100)."
+    },
+    {
+      "category": "timeouts",
+      "rule_id": "API-0-TIMEOUT-001",
+      "severity": "P1",
+      "text": "Timeout Contract: Public-facing endpoints MUST enforce a request processing deadline. If the deadline is exceeded, the service MUST fail fast and return an ERR-1 timeout-class error (top_level_code ERR_TIMEOUT or ERR_UNAVAILABLE per ERR-1 policy), and MUST NOT hold DB locks while timing out.\nServices MAY accept a client-provided deadline header (e.g., X-Request-Deadline-Ms) but MUST clamp it to server policy."
+    },
+    {
+      "category": "rate_limiting",
+      "rule_id": "API-0-RATELIMIT-001",
+      "severity": "P0",
+      "text": "Rate Limiting: When rate limiting is applied, services MUST return HTTP 429 or 503 (per policy), include Retry-After, and SHOULD include RateLimit-* response headers (RateLimit-Limit, RateLimit-Remaining, RateLimit-Reset) per RFC 9239.\nRate limiting MUST be keyed per org_id + subject (when available) + ip_hash (fallback), and MUST avoid global locks on hot paths."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "API contract laws (allowlisting, idempotency, admission control, pagination, timeouts, overload semantics) for Ticketing V42.",
+  "tenancy": {
+    "leakage_policy": "hide_existence",
+    "strategy": "ash_attribute",
+    "tenant_key": "org_id",
+    "tenant_required": true
+  },
+  "tier": 3,
+  "title": "API Governance & Surface Contract",
+  "version": "1.2.0",
+  "approved_authority_corrections": {
+    "error_identifier_authority": "ERR-1 alone defines external top-level error/subcode identifiers. Normalize API-0 references to registered ERR-1 identifiers.",
+    "idempotency_header": "Idempotency-Key",
+    "durable_idempotency_authority": "LOCKS-1"
+  }
+}
