@@ -76,6 +76,14 @@ Convenience, familiarity, speculative performance concerns or shorter code are n
 
 PR review MUST scrutinize direct Repo/Ecto/raw-SQL usage and require an explicit classification/justification for every such occurrence outside ordinary Ash/AshPostgres operation.
 
+## Local infrastructure
+
+Local DEV and TEST use the approved shared PostgreSQL endpoints and roles defined in the root `../AGENTS.md`: DEV at `127.0.0.1:55432` with `ticketing_dev` role/database, and TEST at `127.0.0.1:55433` with `ticketing_test` role/base database. They are separate physical clusters; tests MUST preserve `MIX_TEST_PARTITION` isolation and MUST NOT connect to or mutate DEV.
+
+Application code and tests MUST NOT lifecycle-manage workstation `dev-core`. Redis is not a current Ticketing prerequisite. After the infrastructure migration, direct local configuration MUST NOT silently fall back to legacy `postgres/postgres@localhost:5433` or legacy Redis defaults.
+
+Infrastructure-changing implementation MUST prove DEV/TEST separation, clean PostgreSQL 18 migration, non-superuser role behavior, and absence of secret leakage. It MUST leave legacy PostgreSQL 16 and Redis volumes untouched unless separately authorized.
+
 ## Implementation documentation duties
 
 Read ticket/JIP-listed `Context Docs` in addition to the authority, JIP and spec. Treat Context Docs as convenient descriptions of existing implementation, not as authority.

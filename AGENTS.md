@@ -198,6 +198,35 @@ Convenience, familiarity, speculative performance concerns or shorter code are n
 
 Every material domain JIP/spec MUST state the applicable Ash Domain, Resource, action/interface, policy/actor/tenant, AshPostgres, transaction and direct-database-access posture. Independent review MUST scrutinize direct Repo/Ecto/raw-SQL usage and reject unexplained bypasses.
 
+## Ticketing local infrastructure and Docker contract
+
+Each workload MUST have exactly one lifecycle and configuration owner.
+
+Workstation `dev-core` is external, workstation-owned infrastructure. Repository agents MUST NOT create, start, stop, recreate, delete, adopt into another manager, or otherwise lifecycle-manage `dev-core` services.
+
+Ticketing local PostgreSQL uses these shared endpoints and roles:
+
+| Purpose | Ownership | Endpoint | Role | Database |
+| --- | --- | --- | --- | --- |
+| DEV | `SHARED_LOCAL` | `127.0.0.1:55432` | `ticketing_dev` | `ticketing_dev` |
+| TEST | `SHARED_LOCAL` | `127.0.0.1:55433` | `ticketing_test` | `ticketing_test` base database |
+
+DEV and TEST MUST be separate physical PostgreSQL clusters. Tests MUST NOT connect to or mutate DEV. The TEST role may have `CREATEDB` only to create deterministic `MIX_TEST_PARTITION` test databases. Do not broaden its privileges for convenience.
+
+PostgreSQL 18.6 is the approved T0-00 baseline. Ordinary local Ticketing work MUST NOT create a repository-owned `pgdata18` service or volume.
+
+Redis is currently **N/A** for Ticketing. Do not add Redis/Redix, migrate to shared Redis, or treat the legacy Redis container as an application requirement unless a later approved JIP establishes a real use. If shared Redis is later approved, project/environment namespaces are mandatory and `FLUSHALL`/`FLUSHDB` are prohibited.
+
+CI infrastructure is `TOOL_OWNED` by the CI job and MUST NOT depend on workstation `dev-core`.
+
+Existing repository-local PostgreSQL 16 and Redis containers/volumes are legacy rollback/evidence assets. Migration completion alone does not authorize deletion, purge, or reuse; deletion requires separate explicit user authorization.
+
+Adopt the repository's non-secret `.devcore/` allocation contract when implemented. Real credentials remain workstation-local and ignored; secrets MUST NOT be committed. Agents MUST NOT run credential rotation, destructive bootstrap, or force/reinitialization operations (including bootstrap `rotate` or `init --force` equivalents) without explicit need and user authorization.
+
+Because Ticketing is independently deployable, the repository must ultimately own a canonical deployment `compose.yaml`/Dockerfile contract. That deployment contract MUST NOT duplicate workstation `dev-core` PostgreSQL/Redis services. Portainer is for observation/administration, not project configuration authority. Dockge owns only workloads deliberately assigned to it. Production PostgreSQL/Redis ownership is not defined by this local workstation contract.
+
+Before tenant/RLS domain implementation, JIT MUST explicitly decide migration-owner/runtime-role and FORCE-RLS posture. Local database ownership MUST NOT be assumed to model final runtime RLS enforcement.
+
 ## Modular implementation documentation
 
 `ticketing/docs/` describes merged implementation state. It is **DERIVED IMPLEMENTATION DOCUMENTATION**, never semantic authority.

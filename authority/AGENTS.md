@@ -267,6 +267,10 @@ If implementation documentation exposes missing or contradictory required semant
 
 Do not change authority merely to match implementation documentation without an independently justified product-authority change. Authority changes may make downstream documentation stale; refresh that documentation through normal JIT and implementation work.
 
+## Local infrastructure governance boundary
+
+Local infrastructure and ownership rules are downstream implementation governance. They MUST NOT create or override CANON semantics. An infrastructure or framework limitation that does not expose missing product semantics is a technical prerequisite or blocker, not automatically an `AUTHORITY_GAP`.
+
 ## Authority change PR boundary
 
 Agent-authored changes to `authority/`, repository governance, planning/tracers, release tooling or canonical release inputs MUST also be pushed on a branch and opened as a PR before they are treated as completed or merge-ready.
