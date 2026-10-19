@@ -9,3 +9,8 @@
 authority/governance/** whitespace=-blank-at-eol
 authority/planning/archive/** whitespace=-blank-at-eol
 authority/planning/reference/** whitespace=-blank-at-eol
+
+# Generated UsageRules references are preserved verbatim from package sources.
+.agents/skills/ash-framework/references/** whitespace=-blank-at-eol
+.agents/skills/elixir-otp/references/** whitespace=-blank-at-eol
+.agents/skills/phoenix-framework/references/** whitespace=-blank-at-eol

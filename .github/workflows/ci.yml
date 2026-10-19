@@ -48,4 +48,4 @@ jobs:
         run: mix ash.codegen --check
       - name: Run application verification
         working-directory: ticketing
-        run: mix precommit
+        run: mix check

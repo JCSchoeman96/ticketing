@@ -15,6 +15,16 @@ Before material product/domain implementation, confirm that:
 
 If this file conflicts with root governance, `../AGENTS.md` controls.
 
+## Required implementation skills
+
+Before implementing an approved READY application work item, load `../.agents/skills/ticketing-implementation/SKILL.md`.
+
+Load `../.agents/skills/ash-framework/SKILL.md` for Ash resources, domains, actions, policies, validations, persistence, errors, generators, or migrations. Load `../.agents/skills/phoenix-framework/SKILL.md` for Phoenix, LiveView, components, controllers, routers, plugs, endpoints, channels, or web-boundary work. Load `../.agents/skills/elixir-otp/SKILL.md` for material process, supervision, or concurrency work, not routine resource CRUD.
+
+Before handing repository-changing implementation to PR review, load `../.agents/skills/ticketing-verification/SKILL.md`.
+
+For documentation from installed package versions, use `mix usage_rules.docs Module.function` or search with `mix usage_rules.search_docs "search term" -p package`.
+
 ---
 
 ## Project identity
@@ -83,6 +93,12 @@ Local DEV and TEST use the approved shared PostgreSQL endpoints and roles define
 Application code and tests MUST NOT lifecycle-manage workstation `dev-core`. Redis is not a current Ticketing prerequisite. After the infrastructure migration, direct local configuration MUST NOT silently fall back to legacy `postgres/postgres@localhost:5433` or legacy Redis defaults.
 
 Infrastructure-changing implementation MUST prove DEV/TEST separation, clean PostgreSQL 18 migration, non-superuser role behavior, and absence of secret leakage. It MUST leave legacy PostgreSQL 16 and Redis volumes untouched unless separately authorized.
+
+### Development HTTP and Tidewave ports
+
+Ticketing DEV binds only to `127.0.0.1`. Its HTTP port comes from `TICKETING_DEV_HTTP_PORT`, with `4200` as the default. Reserve `4200` for the primary checkout and `4201–4219` for Ticketing worktrees. Do not use generic `PORT` as Ticketing's local development port contract.
+
+Tidewave uses the same Phoenix port at `/tidewave/mcp`; the primary endpoint is `http://127.0.0.1:4200/tidewave/mcp`. For a worktree, set an available Ticketing slot, for example `TICKETING_DEV_HTTP_PORT=4201 mix phx.server`, and use `mix tidewave.proxy` when worktree-aware MCP routing is useful. Do not change another project's port allocation.
 
 ## Implementation documentation duties
 

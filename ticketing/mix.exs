@@ -6,6 +6,7 @@ defmodule Ticketing.MixProject do
       app: :ticketing,
       version: "0.1.0",
       elixir: "~> 1.20.4",
+      usage_rules: usage_rules(),
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -28,7 +29,7 @@ defmodule Ticketing.MixProject do
 
   def cli do
     [
-      preferred_envs: [precommit: :test]
+      preferred_envs: [check: :test, precommit: :test]
     ]
   end
 
@@ -41,6 +42,8 @@ defmodule Ticketing.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:tidewave, "~> 0.9.1", only: :dev},
+      {:usage_rules, ">= 1.2.8 and < 2.0.0", only: [:dev, :test]},
       {:sourceror, "~> 1.8", only: [:dev, :test]},
       {:ash, "~> 3.0"},
       {:ash_phoenix, "~> 2.0"},
@@ -75,6 +78,33 @@ defmodule Ticketing.MixProject do
     ]
   end
 
+  defp usage_rules do
+    [
+      file: "AGENTS.md",
+      usage_rules: [],
+      skills: [
+        location: "../.agents/skills",
+        build: [
+          "ash-framework": [
+            description:
+              "Use when implementing or reviewing Ash resources, Ash Domains, actions, policies, validations, changes, preparations, calculations, aggregates, relationships, authorization, AshPostgres persistence, Ash errors, generators, code generation, or migrations.",
+            usage_rules: [:ash, ~r/^ash_/]
+          ],
+          "phoenix-framework": [
+            description:
+              "Use when implementing or reviewing Phoenix or LiveView code, including components, controllers, routers, plugs, endpoints, channels, request handling, and web boundaries.",
+            usage_rules: [:phoenix, ~r/^phoenix_/]
+          ],
+          "elixir-otp": [
+            description:
+              "Use for material Elixir/OTP process work involving GenServer, Supervisor, Task, process ownership, message passing, Registry, ETS, OTP lifecycle, supervision trees, or concurrency/process behavior. Do not load for routine resource CRUD.",
+            usage_rules: [{:elixir, main: false}, {:otp, main: false}]
+          ]
+        ]
+      ]
+    ]
+  end
+
   # Aliases are shortcuts or tasks specific to the current project.
   # For example, to install project dependencies and perform other setup tasks, run:
   #
@@ -94,7 +124,13 @@ defmodule Ticketing.MixProject do
         "esbuild ticketing --minify",
         "phx.digest"
       ],
-      precommit: ["compile --warnings-as-errors", "format --check-formatted", "test"]
+      check: [
+        "cmd env MIX_ENV=dev mix usage_rules.sync --check",
+        "format --check-formatted",
+        "compile --warnings-as-errors",
+        "test"
+      ],
+      precommit: ["check"]
     ]
   end
 end
