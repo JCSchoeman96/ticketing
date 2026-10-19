@@ -1,0 +1,819 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "PII-1",
+    "version": "2.0.0"
+  },
+  "doc_id": "PII-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "Suite schema pinned",
+      "failure_message": "Bundle suite_schema drift detected.",
+      "id": "PII-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "Suite schema pinned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle manifest exists and matches files",
+      "failure_message": "Manifest filename or manifest file inventory mismatch detected.",
+      "id": "PII-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle manifest exists and matches files"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "contract-suite/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "test-gates/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "PII-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": {
+              "doc_id": "PII-1",
+              "version": "2.0.0"
+            },
+            "json_pointer": "/contract_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Schema families and refs pinned",
+      "failure_message": "Artifact linkage or schema family parity mismatch detected.",
+      "id": "PII-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "Schema families and refs pinned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bTBD\\b",
+              "\\bTODO\\b",
+              "\\bWIP\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "\\bTBD\\b",
+              "\\bTODO\\b",
+              "\\bWIP\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders",
+      "failure_message": "Placeholder text detected in contract or gates artifact.",
+      "id": "PII-1-GATE-040",
+      "level": "P0",
+      "must": true,
+      "title": "No placeholders"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "doc_id": "BP-0",
+                "edge_type": "requires",
+                "min_version": "3.0.0",
+                "reason": "Blueprint baseline patterns and anti-pattern bans."
+              },
+              {
+                "doc_id": "CS-0",
+                "edge_type": "requires",
+                "min_version": "3.0.0",
+                "reason": "Suite schema source of truth for contract-suite/1.0, test-gates/1.0, bundle-manifest/1.0."
+              },
+              {
+                "doc_id": "TG-0",
+                "edge_type": "requires",
+                "min_version": "2.3.0",
+                "reason": "Test-gates schema + authoring constraints for CI strict."
+              },
+              {
+                "doc_id": "V42-0",
+                "edge_type": "requires",
+                "min_version": "1.6.0",
+                "reason": "Constitutional invariants: immutability boundaries, truth preservation, and platform-wide constraints."
+              },
+              {
+                "doc_id": "TEN-1",
+                "edge_type": "requires",
+                "min_version": "1.7.4",
+                "reason": "Multi-tenancy: org_id sealing, hide-existence semantics, and cross-tenant prohibition."
+              },
+              {
+                "doc_id": "IAM-1",
+                "edge_type": "requires",
+                "min_version": "3.1.0",
+                "reason": "Capability-based authorization model for PII access, export, and break-glass. (includes DSAR/PII capabilities and support roles)."
+              },
+              {
+                "doc_id": "SEC-1",
+                "edge_type": "requires",
+                "min_version": "3.0.7",
+                "reason": "Encryption/key management expectations required for PII vault and cryptoshred semantics."
+              },
+              {
+                "doc_id": "DATA-1",
+                "edge_type": "requires",
+                "min_version": "1.2.1",
+                "reason": "Classification tiers + minimization/redaction posture; retention class mapping."
+              },
+              {
+                "doc_id": "ARCH-1",
+                "edge_type": "requires",
+                "min_version": "3.0.1",
+                "reason": "Retention, archival, and destruction semantics; DSAR execution evidence expectations."
+              },
+              {
+                "doc_id": "CONSENT-1",
+                "edge_type": "requires",
+                "min_version": "1.1.0",
+                "reason": "Consent categories and withdrawal semantics that constrain identity mapping/linking."
+              },
+              {
+                "doc_id": "TRK-1",
+                "edge_type": "requires",
+                "min_version": "1.3.1",
+                "reason": "Tracking schema and payload constraints: PII-1 imposes hard MUST NOT rules on TRK events."
+              },
+              {
+                "doc_id": "LED-1",
+                "edge_type": "requires",
+                "min_version": "4.1.1",
+                "reason": "Immutable ledger boundary: cryptoshred MUST NOT mutate postings or financial truth."
+              },
+              {
+                "doc_id": "ORD-1",
+                "edge_type": "requires",
+                "min_version": "3.3.3",
+                "reason": "Immutable order truth boundary: snapshots MUST NOT be mutated by DSAR/consent actions."
+              },
+              {
+                "doc_id": "PRICE-1",
+                "edge_type": "requires",
+                "min_version": "3.0.15",
+                "reason": "Immutable price snapshot boundary: cryptoshred MUST NOT alter historical pricing truth."
+              },
+              {
+                "doc_id": "OBS-1",
+                "edge_type": "requires",
+                "min_version": "2.7.6",
+                "reason": "PII access anomaly monitoring expectations; detection and evidence posture."
+              },
+              {
+                "doc_id": "ERR-1",
+                "edge_type": "requires",
+                "min_version": "1.4.10",
+                "reason": "Canonical error envelope and subcode conventions for privacy/PII errors."
+              },
+              {
+                "doc_id": "PSC-1",
+                "edge_type": "requires",
+                "min_version": "1.7.0",
+                "reason": "Enforce anti-differencing controls for aggregate analytics surfaces (query normalization, caching windows, and rate limiting)."
+              }
+            ],
+            "json_pointer": "/dependencies"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Dependencies are explicit and locked",
+      "failure_message": "Dependency lock set drift detected.",
+      "id": "PII-1-GATE-050",
+      "level": "P0",
+      "must": true,
+      "title": "Dependencies are explicit and locked"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "pii_direct",
+              "pii_sensitive",
+              "pseudonymous",
+              "anonymous",
+              "aggregate"
+            ],
+            "json_pointer": "/domain_sections/pii_classification_taxonomy/class_ids"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "email",
+              "phone_e164",
+              "gov_id",
+              "full_name",
+              "street_address",
+              "subject_key",
+              "session_key",
+              "ip_address",
+              "user_agent",
+              "event_count_aggregate"
+            ],
+            "json_pointer": "/domain_sections/pii_classification_taxonomy/field_ids"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Classification registry exists and is stable",
+      "failure_message": "PII classification registry drift detected.",
+      "id": "PII-1-GATE-060",
+      "level": "P0",
+      "must": true,
+      "title": "Classification registry exists and is stable"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/tracking_integration/trk_payload_must_not_contain_direct_identifiers"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "email",
+              "phone_e164",
+              "gov_id",
+              "full_name",
+              "street_address"
+            ],
+            "json_pointer": "/domain_sections/tracking_integration/banned_direct_identifier_fields"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "TRK payload prohibition is present and hard",
+      "failure_message": "TRK direct-identifier prohibition drift detected.",
+      "id": "PII-1-GATE-070",
+      "level": "P0",
+      "must": true,
+      "title": "TRK payload prohibition is present and hard"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Cryptoshred SHALL destroy the cryptographic material and mapping records required to link subject_key to any real-world identity, without mutating immutable facts.",
+            "json_pointer": "/domain_sections/cryptoshred/definition"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/cryptoshred/immutability_boundaries/led_postings_must_not_mutate"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/cryptoshred/evidence_required/append_only_audit_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Cryptoshred rules and evidence are locked",
+      "failure_message": "Cryptoshred semantic lock drift detected.",
+      "id": "PII-1-GATE-080",
+      "level": "P0",
+      "must": true,
+      "title": "Cryptoshred rules and evidence are locked"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "pii.read",
+              "pii.export",
+              "pii.drilldown",
+              "pii.mapping.write",
+              "pii.cryptoshred.execute",
+              "pii.break_glass"
+            ],
+            "json_pointer": "/domain_sections/access_control/capability_model/iam_capabilities_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "support_request",
+              "security_incident",
+              "fraud_investigation",
+              "legal_request",
+              "dsar_request",
+              "system_migration"
+            ],
+            "json_pointer": "/domain_sections/access_control/audit_requirements/reason_codes"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/access_control/audit_requirements/append_only"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PII access capabilities + audit requirements are explicit",
+      "failure_message": "PII access-control or audit requirement drift detected.",
+      "id": "PII-1-GATE-090",
+      "level": "P0",
+      "must": true,
+      "title": "PII access capabilities + audit requirements are explicit"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 5,
+            "json_pointer": "/domain_sections/anonymization_threshold/min_population_size"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/anonymization_threshold/must_not_display_below_threshold"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "k-anonymity threshold locked (k=5)",
+      "failure_message": "Anonymization threshold drift detected.",
+      "id": "PII-1-GATE-100",
+      "level": "P0",
+      "must": true,
+      "title": "k-anonymity threshold locked (k=5)"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 5,
+            "json_pointer": "/domain_sections/anonymization_threshold/min_population_size"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/anonymization_threshold/complementary_suppression/enabled"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "day",
+            "json_pointer": "/domain_sections/anti_differencing_controls/parameters/minimum_time_bucket"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 86400,
+            "json_pointer": "/domain_sections/anti_differencing_controls/parameters/cache_window_seconds"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 30,
+            "json_pointer": "/domain_sections/anti_differencing_controls/parameters/max_distinct_queries_per_hour"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Anti-differencing controls and suppression rules MUST be defined deterministically.",
+      "failure_message": "Anti-differencing control drift detected.",
+      "id": "PII-1-GATE-110",
+      "level": "P0",
+      "must": true,
+      "title": "Anti-differencing controls and suppression rules MUST be defined deterministically."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "classification_rule": "If a field_id matches explicit_field_ids or any field_id_patterns and is not in exempt_field_ids, it MUST be classified at least as pseudonymous.",
+              "default_class_id": "pseudonymous",
+              "definition": "A joinable identifier is any identifier that can be used (directly or via stable joins) to resolve, infer, or retrieve a natural person within the platform boundary (including via orders, memberships, attendees, or identity mappings).",
+              "exempt_field_ids": [
+                "org_id",
+                "event_id",
+                "occurrence_id",
+                "venue_id",
+                "product_id",
+                "price_id",
+                "seat_id",
+                "section_id",
+                "category_id"
+              ],
+              "explicit_field_ids": [
+                "user_id",
+                "actor_id",
+                "attendee_id",
+                "order_id",
+                "membership_id",
+                "customer_id",
+                "subject_key",
+                "session_key"
+              ],
+              "export_minimum_data_class": "c3",
+              "field_id_patterns": [
+                "^(user_id|actor_id|attendee_id|order_id|membership_id|customer_id|purchaser_id)$",
+                "^(subject_key|session_key|subject_id)$"
+              ],
+              "notes": [
+                "Conservative by design: treat join keys as PII for exports even when they are not direct identifiers.",
+                "Exemptions cover non-person entity identifiers that are not resolvable to a natural person without additional data."
+              ]
+            },
+            "json_pointer": "/domain_sections/pii_classification_taxonomy/joinable_identifier_policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "data_class_system": {
+                "doc_id": "DATA-1",
+                "min_version": "1.2.1"
+              },
+              "export_ceiling_rules": [
+                {
+                  "rule_id": "PII-1-XPORT-CEIL-001",
+                  "statement": "Any export payload containing any field classified as pii_direct or pseudonymous MUST be treated as at least DATA-1 class c3 (restricted_pii)."
+                },
+                {
+                  "rule_id": "PII-1-XPORT-CEIL-002",
+                  "statement": "Any export payload containing any field classified as pii_sensitive MUST be treated as DATA-1 class c4 (regulated_high_risk)."
+                },
+                {
+                  "rule_id": "PII-1-XPORT-CEIL-003",
+                  "statement": "Exports treated as DATA-1 class c2 or lower MUST NOT contain joinable identifiers (per joinable_identifier_policy) and MUST NOT contain any direct identifiers."
+                }
+              ],
+              "pii_class_to_data_class_default": [
+                {
+                  "data_class_id": "c3",
+                  "pii_class_id": "pii_direct",
+                  "rationale": "Direct identifiers are restricted PII."
+                },
+                {
+                  "data_class_id": "c3",
+                  "pii_class_id": "pseudonymous",
+                  "rationale": "Joinable identifiers enable re-identification through controlled mappings."
+                },
+                {
+                  "data_class_id": "c4",
+                  "pii_class_id": "pii_sensitive",
+                  "rationale": "Special-category or regulated personal data is high-risk."
+                },
+                {
+                  "data_class_id": "c2",
+                  "pii_class_id": "anonymous",
+                  "rationale": "Non-identifying but confidential/internal by default."
+                },
+                {
+                  "data_class_id": "c2",
+                  "pii_class_id": "aggregate",
+                  "rationale": "Aggregates can be confidential; anti-differencing controls apply."
+                }
+              ]
+            },
+            "json_pointer": "/domain_sections/pii_classification_taxonomy/data_class_interop"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Joinable identifier policy and DATA-1 interop mapping are locked (re-identification prevention).",
+      "failure_message": "Joinable identifier policy or DATA-1 interop drift detected.",
+      "id": "PII-1-GATE-120",
+      "level": "P0",
+      "must": true,
+      "title": "Joinable identifier policy and DATA-1 interop mapping are locked (re-identification prevention)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Asserts PII-1 declares emits_events=false and has an explicit empty outbox_events list. Prevents CI theatre on empty producer surfaces.",
+      "failure_message": "Non-producer declaration drift detected.",
+      "id": "PII-1-GATE-130",
+      "level": "P0",
+      "must": true,
+      "title": "PII-1 MUST be an explicit non-producer"
+    },
+    {
+      "id": "PII-1-GATE-140",
+      "level": "P0",
+      "must": true,
+      "title": "subject_key is opaque and lookup hash is vault-only",
+      "description": "subject_key MUST be opaque UUIDv7 and deterministic lookup MUST use vault-only subject_lookup_key_hash.",
+      "failure_message": "PII identity model drift: subject_key must not be deterministic or derived from PII; subject_lookup_key_hash must remain vault-only.",
+      "assertions": [
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_sections/subject_identity_model/subject_key/opaque",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_sections/subject_identity_model/subject_key/must_not_be_derived_from_identifiers",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_sections/subject_identity_model/subject_lookup_key_hash/vault_only",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_sections/subject_identity_model/subject_lookup_key_hash/must_not_be_emitted_outside_pii_1",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "PII-1-GATE-150",
+      "level": "P0",
+      "must": true,
+      "title": "PII-1 does not own DSAR lifecycle events",
+      "description": "PII-1 MUST remain non-producer; DSAR-1 owns formal DSAR lifecycle/outbox events.",
+      "failure_message": "PII-1 incorrectly declares DSAR lifecycle events or emits events directly.",
+      "assertions": [
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/emits_events",
+            "equals": false
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/outbox_events",
+            "equals": []
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_sections/data_subject_rights_tooling/dsar_audit_trail/formal_event_owner",
+            "equals": "DSAR-1"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_sections/data_subject_rights_tooling/dsar_audit_trail/events",
+            "equals": []
+          }
+        }
+      ]
+    },
+    {
+      "id": "PII-1-GATE-160",
+      "level": "P0",
+      "must": true,
+      "title": "subject identifiers are banned from observability and external payloads",
+      "description": "subject_key and subject_lookup_key_hash MUST NOT appear in metrics, traces, logs, analytics, vendor payloads, or external/API payloads.",
+      "failure_message": "PII observability drift: subject-level identifiers are visible outside allowed vault/domain boundaries.",
+      "assertions": [
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_sections/observability_cardinality_rules/subject_identifier_observability_ban/subject_key_forbidden_everywhere",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_sections/observability_cardinality_rules/subject_identifier_observability_ban/subject_lookup_key_hash_forbidden_everywhere",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_sections/tracking_integration/trk1_alignment/allowed_tracking_fields",
+            "equals": [
+              "org_id",
+              "event_type",
+              "timestamp_utc",
+              "parsed_device_type",
+              "hashed_ip",
+              "hashed_user_agent"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "last_updated_utc": "2026-06-03T15:30:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Automated gates enforcing PII classification, identity boundary, access control, audit, cryptoshred, and tracking prohibitions.",
+  "title": "PII-1 Test Gates",
+  "tools_used": "ci_contract_gate_strict_v2.7.0",
+  "version": "2.0.0",
+  "authority_review_gates": [
+    {
+      "id": "PII-1-FPP-CORRECTION-REVIEW",
+      "level": "P0",
+      "must": true,
+      "mode": "manual",
+      "description": "Review the approved authority corrections in the paired versionless contract.json draft. Confirm the contract text contains no contradictory legacy lock for the corrected behavior.",
+      "failure_message": "Approved authority correction or legacy contradiction remains unresolved."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "doc_id": "RP-0",
+  "version": "3.2.2",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch successor preserving RP-0 semantics while repairing the recorded CS-0/gate/manifest identity defects.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "05e2a35e69b143b10773d797fb1a2baa096ecec46fcc34e6c639ec40e5336c26"
+  }
+}

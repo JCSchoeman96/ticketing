@@ -1,0 +1,13 @@
+{
+  "doc_id": "TEN-1",
+  "version": "2.0.0",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "release_status": "candidate",
+  "release_intent": "Review-only successor package for the frozen T0 authority snapshot, TEN-1@2.0.0.",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "e914b841dd0444c9300a3ef39ec7c48ed290eb92801393a65a819c7eb4caa72e"
+  }
+}

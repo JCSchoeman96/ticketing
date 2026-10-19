@@ -1,0 +1,13 @@
+{
+  "doc_id": "SM-0",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_intent": "Patch release corrects SM-0 artifact filename identity and suite-schema metadata without changing domain semantics.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "6063c7f350e8b4632eeb6274dd9be11f7ad127fea23b479b4af93c12ca105e58"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.2.2"
+}

@@ -1,373 +1,777 @@
-This is a web application written using the Phoenix web framework.
+# Ticketing application agent instructions
 
-## Project guidelines
+Repository-wide authority, JIT planning, JIP approval, Plane execution, blocker/discovery capture, technology evaluation, staleness, and independent-review rules are defined by the root `../AGENTS.md`. Authority release, provenance, integrity, and validation rules are in `../authority/AGENTS.md`.
 
-- Use `mix precommit` alias when you are done with all changes and fix any pending issues
-- Use the already included and available `:req` (`Req`) library for HTTP requests, **avoid** `:httpoison`, `:tesla`, and `:httpc`. Req is included by default and is the preferred HTTP client for Phoenix apps
+Those rules are mandatory and are not repeated here.
 
-### Phoenix v1.8 guidelines
+This file governs technical implementation inside the Phoenix/Ash/Elixir application.
 
-- **Always** begin your LiveView templates with `<Layouts.app flash={@flash} ...>` which wraps all inner content
-- The `MyAppWeb.Layouts` module is aliased in the `my_app_web.ex` file, so you can use it without needing to alias it again
-- Anytime you run into errors with no `current_scope` assign:
-  - You failed to follow the Authenticated Routes guidelines, or you failed to pass `current_scope` to `<Layouts.app>`
-  - **Always** fix the `current_scope` error by moving your routes to the proper `live_session` and ensure you pass `current_scope` as needed
-- Phoenix v1.8 moved the `<.flash_group>` component to the `Layouts` module. You are **forbidden** from calling `<.flash_group>` outside of the `layouts.ex` module
-- Out of the box, `core_components.ex` imports an `<.icon name="hero-x-mark" class="w-5 h-5"/>` component for for hero icons. **Always** use the `<.icon>` component for icons, **never** use `Heroicons` modules or similar
-- **Always** use the imported `<.input>` component for form inputs from `core_components.ex` when available. `<.input>` is imported and using it will save steps and prevent errors
-- If you override the default input classes (`<.input class="myclass px-2 py-1 rounded-lg">)`) class with your own values, no default classes are inherited, so your
-custom classes must fully style the input
+Before material product/domain implementation, confirm that:
 
-### JS and CSS guidelines
+- the root governance gate is satisfied;
+- the assigned Plane work item is READY and unblocked;
+- it belongs to a current approved JIP;
+- any required dependency/runtime/database prerequisites are already accepted.
 
-- **Use Tailwind CSS classes and custom CSS rules** to create polished, responsive, and visually stunning interfaces.
-- Tailwindcss v4 **no longer needs a tailwind.config.js** and uses a new import syntax in `app.css`:
+If this file conflicts with root governance, `../AGENTS.md` controls.
 
-      @import "tailwindcss" source(none);
-      @source "../css";
-      @source "../js";
-      @source "../../lib/my_app_web";
+---
 
-- **Always use and maintain this import syntax** in the app.css file for projects generated with `phx.new`
-- **Never** use `@apply` when writing raw css
-- **Always** manually write your own tailwind-based components instead of using daisyUI for a unique, world-class design
-- Out of the box **only the app.js and app.css bundles are supported**
-  - You cannot reference an external vendor'd script `src` or link `href` in the layouts
-  - You must import the vendor deps into app.js and app.css to use them
-  - **Never write inline <script>custom js</script> tags within templates**
+## Project identity
 
-### UI/UX & design guidelines
+The application identity MUST remain:
 
-- **Produce world-class UI designs** with a focus on usability, aesthetics, and modern design principles
-- Implement **subtle micro-interactions** (e.g., button hover effects, and smooth transitions)
-- Ensure **clean typography, spacing, and layout balance** for a refined, premium look
-- Focus on **delightful details** like hover effects, loading states, and smooth page transitions
+- Elixir root namespace: `Ticketing`
+- OTP application: `:ticketing`
 
+Do not introduce alternative root namespaces, placeholder namespaces such as `MyApp`, or legacy `V42.*` application modules.
 
-<!-- usage-rules-start -->
+This is a Phoenix + LiveView + Ash Framework application written in Elixir.
 
-<!-- phoenix:elixir-start -->
-## Elixir guidelines
+## Technical freshness
 
-- Elixir lists **do not support index based access via the access syntax**
+Use the technical baseline selected by the current approved JIP and repository manifests.
 
-  **Never do this (invalid)**:
+Do not hard-code moving package patch/minor versions in this file.
 
-      i = 0
-      mylist = ["blue", "green"]
-      mylist[i]
+When choosing APIs or implementation patterns:
 
-  Instead, **always** use `Enum.at`, pattern matching, or `List` for index based list access, ie:
+- consult current official documentation for the selected dependency versions;
+- prefer current supported APIs over remembered or obsolete examples;
+- do not copy Ash 2.x, older Ash 3.x, Phoenix, LiveView, Ecto, Tailwind, or other patterns when the selected baseline has superseded them;
+- do not silently upgrade dependencies during feature implementation;
+- do not retain an obsolete API merely because older repository code uses it.
 
-      i = 0
-      mylist = ["blue", "green"]
-      Enum.at(mylist, i)
+If current official guidance materially changes architecture, persistence, transactions, authorization, lifecycle, or public behavior, stop and return that decision to the JIP workflow.
 
-- Elixir variables are immutable, but can be rebound, so for block expressions like `if`, `case`, `cond`, etc
-  you *must* bind the result of the expression to a variable if you want to use it and you CANNOT rebind the result inside the expression, ie:
+## Ash Framework rules
 
-      # INVALID: we are rebinding inside the `if` and the result never gets assigned
-      if connected?(socket) do
-        socket = assign(socket, :val, val)
-      end
+Ash is the primary governed application/domain framework.
 
-      # VALID: we rebind the result of the `if` to a new variable
-      socket =
-        if connected?(socket) do
-          assign(socket, :val, val)
-        end
+### Domain behavior
 
-- **Never** nest multiple modules in the same file as it can cause cyclic dependencies and compilation errors
-- **Never** use map access syntax (`changeset[:field]`) on structs as they do not implement the Access behaviour by default. For regular structs, you **must** access the fields directly, such as `my_struct.field` or use higher level APIs that are available on the struct if they exist, `Ecto.Changeset.get_field/2` for changesets
-- Elixir's standard library has everything necessary for date and time manipulation. Familiarize yourself with the common `Time`, `Date`, `DateTime`, and `Calendar` interfaces by accessing their documentation as necessary. **Never** install additional dependencies unless asked or for date/time parsing (which you can use the `date_time_parser` package)
-- Don't use `String.to_atom/1` on user input (memory leak risk)
-- Predicate function names should not start with `is_` and should end in a question mark. Names like `is_thing` should be reserved for guards
-- Elixir's builtin OTP primitives like `DynamicSupervisor` and `Registry`, require names in the child spec, such as `{DynamicSupervisor, name: MyApp.MyDynamicSup}`, then you can use `DynamicSupervisor.start_child(MyApp.MyDynamicSup, child_spec)`
-- Use `Task.async_stream(collection, callback, options)` for concurrent enumeration with back-pressure. The majority of times you will want to pass `timeout: :infinity` as option
+Prefer:
 
-## Mix guidelines
+- Ash domains;
+- resources;
+- actions;
+- code interfaces;
+- policies;
+- validations;
+- changes;
+- preparations;
+- calculations;
+- aggregates;
+- relationships;
+- identities;
+- notifiers and approved extensions;
 
-- Read the docs and options before using tasks (by using `mix help task_name`)
-- To debug test failures, run tests in a specific file with `mix test test/my_test.exs` or run all previously failed tests with `mix test --failed`
-- `mix deps.clean --all` is **almost never needed**. **Avoid** using it unless you have good reason
+for governed domain behavior.
 
-## Test guidelines
+Governed domain writes MUST flow through Ash actions unless the approved JIP explicitly requires infrastructure-level Repo/DDL mechanics.
 
-- **Always use `start_supervised!/1`** to start processes in tests as it guarantees cleanup between tests
-- **Avoid** `Process.sleep/1` and `Process.alive?/1` in tests
-  - Instead of sleeping to wait for a process to finish, **always** use `Process.monitor/1` and assert on the DOWN message:
+Do not create parallel service-layer persistence that bypasses the approved Ash ownership model.
 
-      ref = Process.monitor(pid)
-      assert_receive {:DOWN, ^ref, :process, ^pid, :normal}
+### Authorization
 
-   - Instead of sleeping to synchronize before the next call, **always** use `_ = :sys.get_state/1` to ensure the process has handled prior messages
-<!-- phoenix:elixir-end -->
+Do not bypass Ash authorization for externally initiated operations.
 
-<!-- phoenix:phoenix-start -->
-## Phoenix guidelines
+Pass the resolved actor through governed Ash boundaries where required.
 
-- Remember Phoenix router `scope` blocks include an optional alias which is prefixed for all routes within the scope. **Always** be mindful of this when creating routes within a scope to avoid duplicate module prefixes.
+System/service execution must use an explicit approved actor/context model rather than pretending to be a human user.
 
-- You **never** need to create your own `alias` for route definitions! The `scope` provides the alias, ie:
+Do not use `authorize?: false` for ordinary external application behavior merely to make an action succeed.
 
-      scope "/admin", AppWeb.Admin do
-        pipe_through :browser
+Tests or infrastructure setup may bypass ordinary authorization only where that bypass is explicit, isolated, and cannot become a production shortcut.
 
-        live "/users", UserLive, :index
-      end
+### Tenancy
 
-  the UserLive route would point to the `AppWeb.Admin.UserLive` module
+Tenant-scoped resources must preserve the canonical Ticketing tenancy model.
 
-- `Phoenix.View` no longer is needed or included with Phoenix, don't use it
-<!-- phoenix:phoenix-end -->
+Pass the resolved tenant through Ash where required by the JIP/contracts.
 
+Do not infer a tenant from untrusted request data after authorization has already begun.
 
-<!-- phoenix:html-start -->
-## Phoenix HTML guidelines
+Do not implement cross-tenant reads/writes through application-side filtering as a substitute for the required Ash/PostgreSQL isolation model.
 
-- Phoenix templates **always** use `~H` or .html.heex files (known as HEEx), **never** use `~E`
-- **Always** use the imported `Phoenix.Component.form/1` and `Phoenix.Component.inputs_for/1` function to build forms. **Never** use `Phoenix.HTML.form_for` or `Phoenix.HTML.inputs_for` as they are outdated
-- When building forms **always** use the already imported `Phoenix.Component.to_form/2` (`assign(socket, form: to_form(...))` and `<.form for={@form} id="msg-form">`), then access those forms in the template via `@form[:field]`
-- **Always** add unique DOM IDs to key elements (like forms, buttons, etc) when writing templates, these IDs can later be used in tests (`<.form for={@form} id="product-form">`)
-- For "app wide" template imports, you can import/alias into the `my_app_web.ex`'s `html_helpers` block, so they will be available to all LiveViews, LiveComponent's, and all modules that do `use MyAppWeb, :html` (replace "my_app" by the actual app name)
+Tenant relationships, identities, indexes, RLS behavior, and information-hiding semantics must remain consistent with the approved JIP and canonical authority.
 
-- Elixir supports `if/else` but **does NOT support `if/else if` or `if/elsif`**. **Never use `else if` or `elseif` in Elixir**, **always** use `cond` or `case` for multiple conditionals.
+### Actions and ownership
 
-  **Never do this (invalid)**:
+Use explicit actions that represent domain intent.
 
-      <%= if condition do %>
-        ...
-      <% else if other_condition %>
-        ...
-      <% end %>
+Prefer:
 
-  Instead **always** do this:
+```text
+publish_event
+claim_inventory
+create_checkout
+activate_revision
+```
 
-      <%= cond do %>
-        <% condition -> %>
-          ...
-        <% condition2 -> %>
-          ...
-        <% true -> %>
-          ...
-      <% end %>
+over generic updates whose meaning is reconstructed outside the resource.
 
-- HEEx require special tag annotation if you want to insert literal curly's like `{` or `}`. If you want to show a textual code snippet on the page in a `<pre>` or `<code>` block you *must* annotate the parent tag with `phx-no-curly-interpolation`:
+Do not put domain semantics in controllers, LiveViews, templates, workers, provider modules, or raw Repo calls when that behavior belongs in an Ash domain/resource/action.
 
-      <code phx-no-curly-interpolation>
-        let obj = {key: "val"}
-      </code>
+### Lifecycle behavior
 
-  Within `phx-no-curly-interpolation` annotated tags, you can use `{` and `}` without escaping them, and dynamic Elixir expressions can still be used with `<%= ... %>` syntax
+When authority defines a lifecycle, implement it as governed transitions rather than arbitrary field mutation.
 
-- HEEx class attrs support lists, but you must **always** use list `[...]` syntax. You can use the class list syntax to conditionally add classes, **always do this for multiple class values**:
+Lifecycle implementations must preserve, where applicable:
 
-      <a class={[
-        "px-2 text-white",
-        @some_flag && "py-5",
-        if(@other_condition, do: "border-red-500", else: "border-blue-100"),
-        ...
-      ]}>Text</a>
+- initial state;
+- permitted transitions;
+- initiator/actor rules;
+- guards and preconditions;
+- invalid-transition behavior;
+- transaction boundary;
+- optimistic/concurrency fencing;
+- side effects;
+- terminal states;
+- transition tests.
 
-  and **always** wrap `if`'s inside `{...}` expressions with parens, like done above (`if(@other_condition, do: "...", else: "...")`)
+Use AshStateMachine or another approved Ash capability when the JIP adopts it; do not introduce it independently merely because a resource has a status field.
 
-  and **never** do this, since it's invalid (note the missing `[` and `]`):
+### Atomicity and concurrency
 
-      <a class={
-        "px-2 text-white",
-        @some_flag && "py-5"
-      }> ...
-      => Raises compile syntax error on invalid HEEx attr syntax
+Prefer Ash atomic operations when the contract/JIP requires atomic semantics and the selected Ash capability can express them correctly.
 
-- **Never** use `<% Enum.each %>` or non-for comprehensions for generating template content, instead **always** use `<%= for item <- @collection do %>`
-- HEEx HTML comments use `<%!-- comment --%>`. **Always** use the HEEx HTML comment syntax for template comments (`<%!-- comment --%>`)
-- HEEx allows interpolation via `{...}` and `<%= ... %>`, but the `<%= %>` **only** works within tag bodies. **Always** use the `{...}` syntax for interpolation within tag attributes, and for interpolation of values within tag bodies. **Always** interpolate block constructs (if, cond, case, for) within tag bodies using `<%= ... %>`.
+Do not silently weaken:
 
-  **Always** do this:
+- CAS;
+- optimistic locking;
+- atomic increments;
+- uniqueness;
+- contention behavior;
+- rollback semantics;
+- idempotency;
 
-      <div id={@id}>
-        {@my_assign}
-        <%= if @some_block_condition do %>
-          {@another_assign}
-        <% end %>
-      </div>
+because a read-then-write implementation is simpler.
 
-  and **Never** do this – the program will terminate with a syntax error:
+If current Ash APIs cannot satisfy a locked concurrency requirement, stop and report the limitation instead of creating a weaker substitute.
 
-      <%!-- THIS IS INVALID NEVER EVER DO THIS --%>
-      <div id="<%= @invalid_interpolation %>">
-        {if @invalid_block_construct do}
-        {end}
-      </div>
-<!-- phoenix:html-end -->
+### Transactions
 
-<!-- phoenix:liveview-start -->
-## Phoenix LiveView guidelines
+Preserve transaction boundaries defined by the JIP.
 
-- **Never** use the deprecated `live_redirect` and `live_patch` functions, instead **always** use the `<.link navigate={href}>` and  `<.link patch={href}>` in templates, and `push_navigate` and `push_patch` functions LiveViews
-- **Avoid LiveComponent's** unless you have a strong, specific need for them
-- LiveViews should be named like `AppWeb.WeatherLive`, with a `Live` suffix. When you go to add LiveView routes to the router, the default `:browser` scope is **already aliased** with the `AppWeb` module, so you can just do `live "/weather", WeatherLive`
+State changes and required durable outbox/event records that must commit atomically must participate in the same database transaction.
 
-### LiveView streams
+Do not move side effects inside or outside a transaction merely for implementation convenience.
 
-- **Always** use LiveView streams for collections for assigning regular lists to avoid memory ballooning and runtime termination with the following operations:
-  - basic append of N items - `stream(socket, :messages, [new_msg])`
-  - resetting stream with new items - `stream(socket, :messages, [new_msg], reset: true)` (e.g. for filtering items)
-  - prepend to stream - `stream(socket, :messages, [new_msg], at: -1)`
-  - deleting items - `stream_delete(socket, :messages, msg)`
+When post-commit delivery is required, persistence and delivery must remain distinct.
 
-- When using the `stream/3` interfaces in the LiveView, the LiveView template must 1) always set `phx-update="stream"` on the parent element, with a DOM id on the parent element like `id="messages"` and 2) consume the `@streams.stream_name` collection and use the id as the DOM id for each child. For a call like `stream(socket, :messages, [new_msg])` in the LiveView, the template would be:
+### Notifications, Signals and events
 
-      <div id="messages" phx-update="stream">
-        <div :for={{id, msg} <- @streams.messages} id={id}>
-          {msg.text}
-        </div>
-      </div>
+Ash notifications, Ash Signals, notifiers, jobs, domain events and the canonical Ticketing event/outbox model are not automatically interchangeable.
 
-- LiveView streams are *not* enumerable, so you cannot use `Enum.filter/2` or `Enum.reject/2` on them. Instead, if you want to filter, prune, or refresh a list of items on the UI, you **must refetch the data and re-stream the entire stream collection, passing reset: true**:
+Use only the mechanism adopted by the current JIP.
 
-      def handle_event("filter", %{"filter" => filter}, socket) do
-        # re-fetch the messages based on the filter
-        messages = list_messages(filter)
+A framework signal MUST NOT replace a contract-required durable event/outbox merely because Signals are available.
 
-        {:noreply,
-         socket
-         |> assign(:messages_empty?, messages == [])
-         # reset the stream with the new messages
-         |> stream(:messages, messages, reset: true)}
-      end
+Conversely, do not build custom infrastructure when an approved current Ash capability correctly satisfies the required semantics.
 
-- LiveView streams *do not support counting or empty states*. If you need to display a count, you must track it using a separate assign. For empty states, you can use Tailwind classes:
+### Ash extensions
 
-      <div id="tasks" phx-update="stream">
-        <div class="hidden only:block">No tasks yet</div>
-        <div :for={{id, task} <- @stream.tasks} id={id}>
-          {task.name}
-        </div>
-      </div>
+Capabilities such as:
 
-  The above only works if the empty state is the only HTML block alongside the stream for-comprehension.
+- Ash Signals;
+- Temporal Resources;
+- Ash Storage;
+- AshStateMachine;
+- AshOban;
+- AshPaperTrail / AshArchival;
+- AshAuthentication;
+- Reactor;
+- other Ash extensions;
 
-- When updating an assign that should change content inside any streamed item(s), you MUST re-stream the items
-  along with the updated assign:
+must follow the root JIT capability-evaluation decision.
 
-      def handle_event("edit_message", %{"message_id" => message_id}, socket) do
-        message = Chat.get_message!(message_id)
-        edit_form = to_form(Chat.change_message(message, %{content: message.content}))
+Do not add or upgrade an Ash extension silently from an implementation ticket.
 
-        # re-insert message so @editing_message_id toggle logic takes effect for that stream item
-        {:noreply,
-         socket
-         |> stream_insert(:messages, message)
-         |> assign(:editing_message_id, String.to_integer(message_id))
-         |> assign(:edit_form, edit_form)}
-      end
+### Ash migrations and generators
 
-  And in the template:
+Use current supported Ash/Igniter generators where appropriate.
 
-      <div id="messages" phx-update="stream">
-        <div :for={{id, message} <- @streams.messages} id={id} class="flex group">
-          {message.username}
-          <%= if @editing_message_id == message.id do %>
-            <%!-- Edit mode --%>
-            <.form for={@edit_form} id="edit-form-#{message.id}" phx-submit="save_edit">
-              ...
-            </.form>
-          <% end %>
-        </div>
-      </div>
+Generated migrations or source changes MUST still be inspected.
 
-- **Never** use the deprecated `phx-update="append"` or `phx-update="prepend"` for collections
+Never assume generated code automatically satisfies:
 
-### LiveView JavaScript interop
+- Ticketing composite identities;
+- tenant-first indexes;
+- RLS;
+- foreign-key semantics;
+- checks;
+- immutable fields;
+- concurrency requirements;
+- canonical naming;
+- rollback requirements.
 
-- Remember anytime you use `phx-hook="MyHook"` and that JS hook manages its own DOM, you **must** also set the `phx-update="ignore"` attribute
-- **Always** provide an unique DOM id alongside `phx-hook` otherwise a compiler error will be raised
+Review generated migrations before applying them.
 
-LiveView hooks come in two flavors, 1) colocated js hooks for "inline" scripts defined inside HEEx,
-and 2) external `phx-hook` annotations where JavaScript object literals are defined and passed to the `LiveSocket` constructor.
+## PostgreSQL and persistence
 
-#### Inline colocated js hooks
+PostgreSQL is a semantic enforcement layer, not merely Ash storage.
 
-**Never** write raw embedded `<script>` tags in heex as they are incompatible with LiveView.
-Instead, **always use a colocated js hook script tag (`:type={Phoenix.LiveView.ColocatedHook}`)
-when writing scripts inside the template**:
+Where required by the JIP/contracts, use database-enforced:
 
-    <input type="text" name="user[phone_number]" id="user-phone-number" phx-hook=".PhoneNumber" />
-    <script :type={Phoenix.LiveView.ColocatedHook} name=".PhoneNumber">
-      export default {
-        mounted() {
-          this.el.addEventListener("input", e => {
-            let match = this.el.value.replace(/\D/g, "").match(/^(\d{3})(\d{3})(\d{4})$/)
-            if(match) {
-              this.el.value = `${match[1]}-${match[2]}-${match[3]}`
-            }
-          })
-        }
-      }
-    </script>
+- primary keys;
+- foreign keys;
+- composite foreign keys;
+- unique constraints;
+- check constraints;
+- indexes;
+- RLS policies;
+- immutable or monotonic invariants.
 
-- colocated hooks are automatically integrated into the app.js bundle
-- colocated hooks names **MUST ALWAYS** start with a `.` prefix, i.e. `.PhoneNumber`
+Do not rely only on Ash validation for invariants that must survive races or non-application database access.
 
-#### External phx-hook
+Migration names must describe the capability/invariant introduced.
 
-External JS hooks (`<div id="myhook" phx-hook="MyHook">`) must be placed in `assets/js/` and passed to the
-LiveSocket constructor:
+Do not hand-edit historical applied migrations to change production semantics; create a new migration unless the migration is unquestionably unreleased/local-only and the JIP permits replacement.
 
-    const MyHook = {
-      mounted() { ... }
-    }
-    let liveSocket = new LiveSocket("/live", Socket, {
-      hooks: { MyHook }
-    });
+## Store Blueprint Hardening reference
 
-#### Pushing events between client and server
+`JCSchoeman96/Store_Blueprint_Hardening` is the primary reusable implementation reference for commerce-engine behavior.
 
-Use LiveView's `push_event/3` when you need to push events/data to the client for a phx-hook to handle.
-**Always** return or rebind the socket on `push_event/3` when pushing events:
+For work involving:
 
-    # re-bind socket so we maintain event state to be pushed
-    socket = push_event(socket, "my_event", %{...})
+- product/catalog concepts;
+- carts;
+- pricing;
+- checkout;
+- orders;
+- payments;
+- payment providers;
+- webhooks;
+- money;
+- fulfillment;
+- subscriptions;
+- digital delivery;
+- notifications;
+- jobs/outbox;
+- idempotency;
+- retry/replay;
+- commerce performance/scaling;
 
-    # or return the modified socket directly:
-    def handle_event("some_event", _, socket) do
-      {:noreply, push_event(socket, "my_event", %{...})}
-    end
+inspect the corresponding accepted Store Blueprint implementation before writing an equivalent mechanism from scratch.
 
-Pushed events can then be picked up in a JS hook with `this.handleEvent`:
+Prefer reuse or adaptation of proven compatible:
 
-    mounted() {
-      this.handleEvent("my_event", data => console.log("from server:", data));
-    }
+- modules;
+- patterns;
+- test strategies;
+- provider boundaries;
+- domain facades;
+- idempotency logic;
+- transaction structures;
+- worker patterns;
+- money handling;
+- performance safeguards.
 
-Clients can also push an event to the server and receive a reply with `this.pushEvent`:
+Do not copy Store Blueprint semantics blindly.
 
-    mounted() {
-      this.el.addEventListener("click", e => {
-        this.pushEvent("my_event", { one: 1 }, reply => console.log("got reply from server:", reply));
-      })
-    }
+Ticketing authority wins where the systems differ, especially around:
 
-Where the server handled it via:
+- multitenancy;
+- actors/auth;
+- resource ownership;
+- identifiers;
+- lifecycle;
+- event ownership;
+- APIs;
+- inventory/ticketing semantics.
 
-    def handle_event("my_event", %{"one" => 1}, socket) do
-      {:reply, %{two: 2}, socket}
-    end
+Any substantial reuse must remain understandable as Ticketing code rather than an unexplained copied subsystem.
 
-### LiveView tests
+## LiveFrames frontend reference
 
-- `Phoenix.LiveViewTest` module and `LazyHTML` (included) for making your assertions
-- Form tests are driven by `Phoenix.LiveViewTest`'s `render_submit/2` and `render_change/2` functions
-- Come up with a step-by-step test plan that splits major test cases into small, isolated files. You may start with simpler tests that verify content exists, gradually add interaction tests
-- **Always reference the key element IDs you added in the LiveView templates in your tests** for `Phoenix.LiveViewTest` functions like `element/2`, `has_element/2`, selectors, etc
-- **Never** tests again raw HTML, **always** use `element/2`, `has_element/2`, and similar: `assert has_element?(view, "#my-form")`
-- Instead of relying on testing text content, which can change, favor testing for the presence of key elements
-- Focus on testing outcomes rather than implementation details
-- Be aware that `Phoenix.Component` functions like `<.form>` might produce different HTML than expected. Test against the output HTML structure, not your mental model of what you expect it to be
-- When facing test failures with element selectors, add debug statements to print the actual HTML, but use `LazyHTML` selectors to limit the output, ie:
+`JCSchoeman96/LiveFrames` is the primary reusable frontend/component reference.
 
-      html = render(view)
-      document = LazyHTML.from_fragment(html)
-      matches = LazyHTML.filter(document, "your-complex-selector")
-      IO.inspect(matches, label: "Matches")
+Before implementing a reusable Ticketing UI primitive, section, component, design-token bridge, or component-generation mechanism, inspect current accepted LiveFrames capabilities.
+
+Prefer supported native LiveFrames components/generation where compatible with the approved Ticketing design.
+
+Do not duplicate an equivalent component system inside Ticketing without a reason.
+
+Do not depend on:
+
+- LiveFrames private references;
+- vendor/source runtimes;
+- unpublished internal artifacts;
+- redistribution-restricted material;
+
+unless explicitly permitted by the relevant LiveFrames boundary.
+
+Ticketing owns application behavior and domain interactions even when presentation comes from LiveFrames.
+
+## Web boundary
+
+Phoenix controllers and LiveViews are application adapters, not the primary home of domain rules.
+
+Prefer this flow:
+
+```text
+HTTP / LiveView event
+→ normalize/validate boundary input
+→ typed/domain input
+→ Ticketing domain/Ash interface
+→ result
+→ render/navigation/response
+```
+
+Avoid embedding domain-state transitions, pricing logic, payment semantics, authorization meaning, or persistence rules directly in web modules.
+
+Do not call `Repo` directly from web code for governed domain operations.
+
+Avoid constructing complex Ash queries in templates or presentation components.
+
+Where the JIP establishes a dedicated domain/code-interface boundary, web modules MUST use it.
+
+## Provider boundaries and webhooks
+
+Provider adapter modules should be narrow.
+
+They may:
+
+- construct provider requests;
+- verify signatures;
+- normalize provider responses;
+- translate provider-specific data into canonical application input.
+
+They should not independently own:
+
+- Ticketing lifecycle transitions;
+- persistence;
+- authorization;
+- business rules;
+- arbitrary job orchestration.
+
+Webhook controllers should do only the minimum trusted boundary work approved by the JIP, such as:
+
+- obtain raw body/headers;
+- verify authenticity;
+- normalize the receipt;
+- persist/enqueue through the approved domain boundary.
+
+Do not treat browser return/cancel URLs or query parameters as payment proof.
+
+## HTTP clients
+
+Use the application's approved `Req` dependency for normal outbound HTTP.
+
+Do not add alternative HTTP clients such as HTTPoison, Tesla, or direct `:httpc` use without an approved technical reason.
+
+Provider/network code must define appropriate:
+
+- timeouts;
+- retry behavior;
+- error normalization;
+- telemetry;
+- secret handling.
+
+Retries must not create duplicate domain effects.
+
+## Project commands
+
+Run Mix commands from the Phoenix application directory:
+
+```text
+~/ticketing/ticketing
+```
+
+Use the project's existing aliases and supported commands.
+
+Before claiming implementation complete, run:
+
+```sh
+mix precommit
+```
+
+and fix all failures caused by the work.
+
+For focused development, prefer targeted commands such as:
+
+```sh
+mix test test/path/to/test.exs
+mix test test/path/to/test.exs:LINE
+mix test --failed
+mix format
+mix compile --warnings-as-errors
+```
+
+Read task help before using an unfamiliar Mix task:
+
+```sh
+mix help <task>
+```
+
+Avoid `mix deps.clean --all`; it is rarely the correct response to dependency/build problems.
+
+## Elixir rules
+
+Use idiomatic current Elixir.
+
+Elixir lists do not support integer access syntax.
+
+Do not write:
+
+```elixir
+items[0]
+```
+
+Use pattern matching, `Enum.at/2`, or appropriate `List` functions.
+
+Elixir variables are immutable but may be rebound. Bind the result of expressions:
+
+```elixir
+socket =
+  if condition do
+    assign(socket, :value, value)
+  else
+    socket
+  end
+```
+
+Do not expect reassignment inside an `if`, `case`, or `cond` branch to mutate an outer binding.
+
+Avoid defining unrelated multiple modules in one file.
+
+Do not use Access syntax on structs unless that struct explicitly implements Access.
+
+Use APIs such as:
+
+```elixir
+changeset.field
+Ecto.Changeset.get_field(changeset, :field)
+```
+
+as appropriate.
+
+Never call `String.to_atom/1` on untrusted/user-controlled input.
+
+Predicate function names should normally end in `?`. Reserve `is_*` names for guards/type-style predicates where idiomatic.
+
+Prefer standard Elixir date/time APIs (`Date`, `Time`, `DateTime`, `Calendar`) before adding dependencies.
+
+For concurrent bounded enumeration, prefer `Task.async_stream/3` with intentional concurrency and timeout settings.
+
+Do not add dependencies to solve problems well-covered by Elixir/OTP without JIP justification.
+
+## OTP and process rules
+
+Use OTP supervision instead of unmanaged long-running processes.
+
+Processes started by the application should have a deliberate supervision strategy.
+
+Use named `Registry`, `DynamicSupervisor`, `Task.Supervisor`, etc. where appropriate rather than global ad-hoc process lookup.
+
+Do not use process-local state as canonical business persistence.
+
+Do not assume process affinity across database transactions, tasks, LiveViews, Oban jobs, or other execution contexts.
+
+## Testing principles
+
+Use TDD for material behavior as required by root governance.
+
+Tests should prove externally meaningful behavior and locked invariants, not implementation trivia.
+
+Test categories should include applicable:
+
+- happy path;
+- validation failures;
+- forbidden actor;
+- hidden/not-found behavior;
+- cross-tenant isolation;
+- invalid lifecycle transition;
+- optimistic-lock/CAS conflict;
+- idempotent replay;
+- mismatched replay;
+- concurrency/race;
+- transaction rollback;
+- outbox/event atomicity;
+- migration/database constraint;
+- provider failure;
+- job retry/crash recovery.
+
+For processes started in tests, prefer:
+
+```elixir
+start_supervised!/1
+```
+
+to guarantee cleanup.
+
+Avoid `Process.sleep/1` as synchronization.
+
+Prefer deterministic synchronization, messages, monitors, barriers, or process state acknowledgement.
+
+For process termination assertions:
+
+```elixir
+ref = Process.monitor(pid)
+assert_receive {:DOWN, ^ref, :process, ^pid, :normal}
+```
+
+Use `_ = :sys.get_state(pid)` when it is an appropriate deterministic way to establish that previous messages were processed.
+
+## Phoenix conventions
+
+Use the conventions generated/required by the selected current Phoenix baseline.
+
+Do not reintroduce removed/deprecated Phoenix APIs.
+
+`Phoenix.View` is obsolete for the current Phoenix architecture; do not add it.
+
+Be mindful that router `scope` may apply a module alias.
+
+Example:
+
+```elixir
+scope "/admin", TicketingWeb.Admin do
+  pipe_through :browser
+
+  live "/users", UserLive, :index
+end
+```
+
+which resolves to `TicketingWeb.Admin.UserLive`.
+
+Do not create redundant route aliases.
+
+## Layouts and forms
+
+Follow the selected Phoenix project's generated layout conventions.
+
+For the current application architecture, LiveViews should render through the application layout component and pass required assigns such as flash/current scope when the selected Phoenix baseline expects them.
+
+Use `Phoenix.Component.to_form/2` and `<.form>` for forms.
+
+Use the project's imported `<.input>` component where appropriate.
+
+Add stable, unique DOM IDs to important interactive elements such as:
+
+- forms;
+- submit buttons;
+- dialogs;
+- list containers;
+- hooks;
+- controls used by tests.
+
+Do not test fragile generated HTML when a stable semantic element ID can be tested instead.
+
+## HEEx rules
+
+Use HEEx (`~H` and `.html.heex`), not legacy EEx template syntax.
+
+Use `{...}` interpolation for attributes and simple values.
+
+Use `<%= ... %>` for block constructs in tag bodies.
+
+Use:
+
+```heex
+<%= for item <- @items do %>
+  ...
+<% end %>
+```
+
+rather than `<% Enum.each ... %>` for emitted template content.
+
+Use HEEx comments:
+
+```heex
+<%!-- comment --%>
+```
+
+When displaying literal braces in code examples, use the appropriate `phx-no-curly-interpolation` boundary.
+
+For multiple/conditional classes, use list syntax:
+
+```heex
+class={[
+  "base classes",
+  @active? && "active classes",
+  if(@error?, do: "error classes", else: "normal classes")
+]}
+```
+
+Do not construct invalid comma-separated class expressions outside a list.
+
+## LiveView rules
+
+Prefer LiveView for server-driven interactive UI where it matches the product requirement.
+
+Name LiveViews with the `Live` suffix under `TicketingWeb`.
+
+Use current navigation APIs such as `<.link navigate={...}>`, `<.link patch={...}>`, `push_navigate/2`, and `push_patch/2` rather than deprecated navigation APIs.
+
+Use LiveComponents only when component lifecycle/state isolation is genuinely useful; do not introduce them reflexively.
+
+### Streams
+
+Use LiveView streams for dynamic or potentially large collections where incremental updates and memory behavior benefit from streams.
+
+Do not force streams for every tiny immutable list.
+
+When using streams:
+
+- give the parent a stable DOM ID;
+- set `phx-update="stream"`;
+- consume `@streams.<name>`;
+- use the generated stream item ID for each child.
+
+Example:
+
+```heex
+<div id="messages" phx-update="stream">
+  <div :for={{id, message} <- @streams.messages} id={id}>
+    {message.text}
+  </div>
+</div>
+```
+
+Streams are not ordinary enumerable assigns.
+
+To refilter or refresh, reload source data and reset the stream.
+
+Track counts/empty-state information separately when required.
+
+Do not use deprecated `phx-update="append"` or `phx-update="prepend"` collection behavior.
+
+## LiveView JavaScript interop
+
+Prefer server-driven LiveView behavior when possible.
+
+For client-side behavior that genuinely needs JS:
+
+- use supported LiveView hooks;
+- give every hook element a unique DOM ID;
+- if a hook owns/manipulates its DOM subtree, use the appropriate `phx-update="ignore"` boundary.
+
+Use colocated hooks when supported by the selected LiveView baseline and appropriate to component-local behavior.
+
+Use external hooks in `assets/js/` for reusable/global hooks.
+
+Do not add arbitrary inline raw `<script>` elements to HEEx.
+
+When using `push_event/3`, return or rebind the updated socket.
+
+## LiveView tests
+
+Use `Phoenix.LiveViewTest` and the currently selected HTML assertion tooling.
+
+Prefer:
+
+- `element/2`;
+- `has_element?/2`;
+- form helpers;
+- stable DOM IDs;
+- outcome assertions;
+
+over raw HTML string comparisons.
+
+Drive forms using LiveView test APIs such as `render_change` and `render_submit`.
+
+Test what the user/application can observe rather than internal function calls.
+
+If a selector test fails, inspect only the relevant HTML fragment where possible instead of dumping entire pages.
+
+## Tailwind, CSS and frontend tooling
+
+Use the Tailwind version selected by the current technical baseline.
+
+Do not permanently encode a specific moving Tailwind major in this file.
+
+Follow the selected Tailwind/Phoenix integration's current official import/content/source conventions.
+
+Do not use obsolete Tailwind configuration patterns merely because an old example uses them.
+
+Prefer:
+
+1. approved reusable LiveFrames/native component output where applicable;
+2. Ticketing/Phoenix components;
+3. utility classes and small intentional custom CSS;
+
+over adding another design-system/component dependency.
+
+Do not add DaisyUI or another competing component framework without an explicit approved frontend decision.
+
+Avoid `@apply` unless the selected frontend strategy explicitly approves it and there is a concrete reason.
+
+Keep application JS and CSS within the supported Phoenix asset pipeline.
+
+Do not reference arbitrary remote/vendor scripts directly from layouts when they can be safely bundled and governed locally.
+
+## UI quality
+
+Frontend work should be:
+
+- accessible;
+- responsive;
+- keyboard usable;
+- semantically structured;
+- visually consistent;
+- tested at relevant responsive boundaries;
+- compatible with approved design tokens/components.
+
+Include appropriate:
+
+- loading states;
+- disabled states;
+- errors;
+- empty states;
+- focus states;
+- validation feedback;
+- progressive enhancement;
+- reduced-motion/accessibility considerations.
+
+Do not sacrifice accessibility or product semantics for visual fidelity.
+
+## Security
+
+Treat all external input as untrusted.
+
+Never:
+
+- convert arbitrary input to atoms;
+- trust IDs/tenant IDs/roles from browser data without governed resolution;
+- log secrets/tokens/raw sensitive payloads;
+- expose provider secrets to LiveView/browser code;
+- interpolate untrusted values into shell commands;
+- construct unsafe filesystem paths;
+- bypass authorization to make tests or demos pass.
+
+Do not log raw request/response bodies unless explicitly approved and scrubbed.
+
+## Observability
+
+Use the canonical operation identifiers and observability rules from the approved JIP/contracts.
+
+Do not introduce unbounded metric labels such as arbitrary:
+
+- user IDs;
+- event IDs;
+- order IDs;
+- tenant IDs;
+- request bodies.
+
+Logs/traces may include allowed identifiers where the canonical observability/privacy policy permits them.
+
+Do not invent new telemetry naming schemes when the JIP/contracts define one.
+
+## Application verification
+
+Before claiming application work complete:
+
+1. run focused tests while developing;
+2. run relevant broader tests;
+3. inspect generated migrations and artifacts;
+4. run `mix format --check-formatted`;
+5. run `mix compile --warnings-as-errors`;
+6. run `mix precommit`;
+7. review the final diff;
+8. report any skipped applicable check and the reason.
+
+Never weaken or delete a meaningful failing test simply to make the suite green.
+
+If a required rule cannot be met because the currently selected framework version behaves differently from this file, stop and report the conflict so the technical rule can be updated deliberately.

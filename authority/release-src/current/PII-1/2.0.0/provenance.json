@@ -1,0 +1,72 @@
+{
+  "bootstrap_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "candidate_preparation_base_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "provenance_statement": "Candidate PII-1@2.0.0 uses the exact active PII-1@1.1.2 ZIP as its installed baseline and replaces contract and test-gates content with the frozen authority-staging/t0-hardening/PII-1 pair. Only release identity, version-bound assertion, and generated timestamp fields were mechanically normalized.",
+  "source_bundle_path": "contracts/PII-1/PII-1_bundle_v1.1.2.zip",
+  "source_zip_sha256": "3551b6d58c8343bcd51496d45eb161d2a1f5a92dfd769d758dd04e0c785cad28",
+  "source_zip_bytes": 19628,
+  "source_version": "1.1.2",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "authority-staging/t0-hardening/PII-1/contract.json",
+      "sha256": "e0ae459508cf8e0f67469495baf4b34c08bf82cd2ebaaeb18994180a49329912",
+      "bytes": 55026,
+      "frozen_input_sha256": "cdb3a4965d0e7b5da3cea0ca0df7222841d23e1f19ee60d671d4b99602306d8c",
+      "frozen_input_bytes": 55026
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "authority-staging/t0-hardening/PII-1/test-gates.json",
+      "sha256": "097bb50ebb1b841c2c66f74357d6dee8f8352d8fb6654a98ea2cd6f4d43d03d0",
+      "bytes": 28805,
+      "frozen_input_sha256": "f7e9e1c337c7cc2d76410366e29e36794c3b51e02e0072c543d174d595b2e0ff",
+      "frozen_input_bytes": 28805
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "PII-1_bundle_v1.1.2/PII-1_Contract_v1.1.2.json",
+      "sha256": "8192edf42d2787525eec4adb60145f1f506cd7f62ef93c44750948338a3d1d9e",
+      "bytes": 54637
+    },
+    {
+      "source_member_path": "PII-1_bundle_v1.1.2/PII-1_Test_Gates_v1.1.2.json",
+      "sha256": "60d9476c0e2e35c9667918aa8debbfa8b57d24519ee14a554894a0db467b56de",
+      "bytes": 28344
+    },
+    {
+      "source_member_path": "PII-1_bundle_v1.1.2/bundle.manifest.json",
+      "sha256": "7bf3027d27acd30636d4ad3cc5b46973e3ba156a958748513847998956a7d4e4",
+      "bytes": 623
+    }
+  ],
+  "frozen_authority_sources": [
+    {
+      "path": "authority-staging/t0-hardening/PII-1/contract.json",
+      "sha256": "cdb3a4965d0e7b5da3cea0ca0df7222841d23e1f19ee60d671d4b99602306d8c",
+      "bytes": 55026
+    },
+    {
+      "path": "authority-staging/t0-hardening/PII-1/test-gates.json",
+      "sha256": "f7e9e1c337c7cc2d76410366e29e36794c3b51e02e0072c543d174d595b2e0ff",
+      "bytes": 28805
+    }
+  ],
+  "mechanical_normalization": {
+    "suite_schema": "CS-0@3.0.1",
+    "target_version": "2.0.0",
+    "generated_at_utc": "2026-10-18T09:26:57Z",
+    "contract_json_pointers": [
+      "/artifact_name",
+      "/generated_at_utc",
+      "/version"
+    ],
+    "test_gates_json_pointers": [
+      "/contract_ref/version",
+      "/gates/2/assertions/5/details/equals/version",
+      "/generated_at_utc",
+      "/version"
+    ]
+  }
+}

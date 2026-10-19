@@ -10,3 +10,9 @@
 *:Zone.Identifier
 
 .envrc.private
+
+.staging/
+.venv/
+.pytest_cache/
+__pycache__/
+*.pyc

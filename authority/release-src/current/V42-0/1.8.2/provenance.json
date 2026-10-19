@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "c24bc7312bbc63c96890e4b49fc392601676f004",
+  "candidate_preparation_base_commit": "c24bc7312bbc63c96890e4b49fc392601676f004",
+  "provenance_statement": "Successor source candidate bootstrapped from the tracked V42-0 v1.8.1 ZIP at its exact source member paths. The original tracked ZIP and its payload remain unchanged. This candidate applies only the owner-approved D7 dependency migration and CS-0@3.0.1 identity/schema updates; it is not released or canonical. The source also maps two legacy manual_checklist gate declarations to CS-0 v3 assertion types without changing their checklist content.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/V42-0_bundle_v1.8.1_refactored.zip",
+  "source_zip_sha256": "0129f10cc7e3d105bb0a5685b3ef744725b1118a014b8d1098959de2d8b2e658",
+  "source_zip_bytes": 11091,
+  "source_version": "1.8.1",
+  "source_members": [
+    {
+      "source_member_path": "V42-0_bundle_v1.8.1/V42-0_Contract_v1.8.0.json",
+      "tracked_source_path": "contract.json",
+      "sha256": "28a2f7739e30763c23907ba8863e88096cb7213153f2a487122b2780beac6542",
+      "bytes": 28939
+    },
+    {
+      "source_member_path": "V42-0_bundle_v1.8.1/V42-0_Test_Gates_v1.8.0.json",
+      "tracked_source_path": "test-gates.json",
+      "sha256": "f534d85172ff69110ef5ef2fdbde532fc342ea56bbcf40734c4f995895c85c18",
+      "bytes": 18175
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "V42-0_bundle_v1.8.1/V42-0_Contract_v1.8.0.json",
+      "bytes": 28198,
+      "sha256": "310201fad0de46388d44d68a02f58b34b3a8dd5cfd9e95d36a164d1a745098a3"
+    },
+    {
+      "source_member_path": "V42-0_bundle_v1.8.1/V42-0_Test_Gates_v1.8.0.json",
+      "bytes": 18021,
+      "sha256": "a500473b469cd267b84302caaa80b4e86d2442ea63ef10ca60818b1043c7229a"
+    }
+  ]
+}

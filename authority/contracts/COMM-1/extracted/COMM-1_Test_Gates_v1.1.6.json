@@ -1,0 +1,1183 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "COMM-1_Test_Gates_v1.1.6.json",
+  "contract_ref": {
+    "doc_id": "COMM-1",
+    "version": "1.1.6"
+  },
+  "doc_id": "COMM-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.0 across contract, gates, and manifest.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "suite_schema MUST equal CS-0@3.0.0 across contract, gates, and manifest.",
+      "id": "COMM_1_GATE_010_SUITE_SCHEMA_MATCHES",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 010 Suite Schema Matches"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json filename and content MUST match the bundle contents.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "bundle.manifest.json filename and content MUST match the bundle contents.",
+      "id": "COMM_1_GATE_020_MANIFEST_INTEGRITY",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 020 Manifest Integrity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "COMM-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.6",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "COMM-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.1.6",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "COMM-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.1.6",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "doc_id/version MUST match bundle directory and gates MUST reference the contract correctly.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "doc_id/version MUST match bundle directory and gates MUST reference the contract correctly.",
+      "id": "COMM_1_GATE_030_DOC_PARITY",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 030 Doc Parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)\\bTODO\\b",
+              "(?i)\\bTBD\\b",
+              "(?i)\\bFIXME\\b",
+              "(?i)\\bWIP\\b",
+              "REPLACE_ME"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "forbid_regex": [
+              "(?i)\\bTODO\\b",
+              "(?i)\\bTBD\\b",
+              "(?i)\\bFIXME\\b",
+              "(?i)\\bWIP\\b",
+              "REPLACE_ME"
+            ],
+            "json_pointers": [
+              "/title",
+              "/doc_id",
+              "/version",
+              "/contract_ref/doc_id",
+              "/contract_ref/version",
+              "/gates/0/id",
+              "/gates/0/description",
+              "/gates/1/id",
+              "/gates/1/description",
+              "/gates/2/id",
+              "/gates/2/description",
+              "/gates/3/id",
+              "/gates/3/description",
+              "/gates/4/id",
+              "/gates/4/description",
+              "/gates/5/id",
+              "/gates/5/description",
+              "/gates/6/id",
+              "/gates/6/description",
+              "/gates/7/id",
+              "/gates/7/description",
+              "/gates/8/id",
+              "/gates/8/description",
+              "/gates/9/id",
+              "/gates/9/description",
+              "/gates/10/id",
+              "/gates/10/description",
+              "/gates/11/id",
+              "/gates/11/description",
+              "/gates/12/id",
+              "/gates/12/description",
+              "/gates/13/id",
+              "/gates/13/description",
+              "/gates/14/id",
+              "/gates/14/description",
+              "/gates/15/id",
+              "/gates/15/description",
+              "/gates/16/id",
+              "/gates/16/description",
+              "/gates/17/id",
+              "/gates/17/description",
+              "/gates/18/id",
+              "/gates/18/description",
+              "/gates/19/id",
+              "/gates/19/description",
+              "/gates/20/id",
+              "/gates/20/description",
+              "/gates/21/id",
+              "/gates/21/description",
+              "/gates/22/id",
+              "/gates/22/description",
+              "/gates/23/id",
+              "/gates/23/description",
+              "/gates/24/id",
+              "/gates/24/description",
+              "/gates/25/id",
+              "/gates/25/description",
+              "/gates/26/id",
+              "/gates/26/description",
+              "/gates/27/id",
+              "/gates/27/description",
+              "/gates/28/id",
+              "/gates/28/description",
+              "/gates/29/id",
+              "/gates/29/description"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No banned-token markers are allowed in lockable artifacts.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "No banned-token markers are allowed in lockable artifacts.",
+      "id": "COMM_1_GATE_040_NO_BANNED_TOKENS",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 040 No Placeholders"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "order_confirmation_email",
+            "json_pointer": "/template_registry/templates/0/template_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticket_delivery_email",
+            "json_pointer": "/template_registry/templates/1/template_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "password_reset_email",
+            "json_pointer": "/template_registry/templates/2/template_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Template registry MUST exist and include minimum baseline templates with stable template_ids (sorted deterministically).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Template registry MUST exist and include minimum baseline templates with stable template_ids (sorted deterministically).",
+      "id": "COMM_1_GATE_050_TEMPLATE_REGISTRY_MINIMUM",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 050 Template Registry Minimum"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "published_templates_shall_be_immutable",
+            "json_pointer": "/template_registry/registry_rules/3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "template_changes_shall_require_new_version_and_migration_notes",
+            "json_pointer": "/template_registry/registry_rules/4"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract MUST state that published templates are immutable and changes require a new template version.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Contract MUST state that published templates are immutable and changes require a new template version.",
+      "id": "COMM_1_GATE_060_PUBLISHED_TEMPLATES_IMMUTABLE_RULE_PRESENT",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 060 Published Templates Immutable Rule Present"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "message_id",
+            "json_pointer": "/message_request_and_dispatch/message_request_schema/fields/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/message_request_and_dispatch/message_request_schema/fields/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "recipient_ref",
+            "json_pointer": "/message_request_and_dispatch/message_request_schema/fields/2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "template_version",
+            "json_pointer": "/message_request_and_dispatch/message_request_schema/fields/7"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "dedupe_key",
+            "json_pointer": "/message_request_and_dispatch/message_request_schema/fields/12"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "message_class",
+            "json_pointer": "/message_request_and_dispatch/message_request_schema/fields/4"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "purpose_id",
+            "json_pointer": "/message_request_and_dispatch/message_request_schema/fields/5"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Message request schema MUST exist and include dedupe_key, template pin, class, org_id, and recipient_ref.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Message request schema MUST exist and include dedupe_key, template pin, class, org_id, and recipient_ref.",
+      "id": "COMM_1_GATE_070_MESSAGE_REQUEST_SCHEMA_PRESENCE",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 070 Message Request Schema Presence"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "transactional",
+            "json_pointer": "/message_classes/classes/0/message_class"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "transactional_messages_must_not_require_marketing_consent",
+            "json_pointer": "/message_classes/classes/0/consent_rule"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "marketing",
+            "json_pointer": "/message_classes/classes/1/message_class"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "marketing_messages_must_require_explicit_marketing_consent",
+            "json_pointer": "/message_classes/classes/1/consent_rule"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Marketing messages MUST require explicit consent basis; transactional MUST NOT require marketing consent.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Marketing messages MUST require explicit consent basis; transactional MUST NOT require marketing consent.",
+      "id": "COMM_1_GATE_080_MARKETING_CONSENT_REQUIRED_RULE_PRESENT",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 080 Marketing Consent Required Rule Present"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "dispatch_must_be_async_via_job_queue",
+            "json_pointer": "/message_request_and_dispatch/async_dispatch/rules/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "dispatch_must_not_run_in_checkout_request_path",
+            "json_pointer": "/message_request_and_dispatch/async_dispatch/rules/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "in_safe_mode_marketing_shall_drop_or_defer_before_transactional",
+            "json_pointer": "/reliability_and_safe_mode/rules/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Async dispatch rules and safe mode posture MUST exist, including checkout-path protection.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Async dispatch rules and safe mode posture MUST exist, including checkout-path protection.",
+      "id": "COMM_1_GATE_090_ASYNC_DISPATCH_AND_SAFE_MODE_PRESENT",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 090 Async Dispatch And Safe Mode Present"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.comm.message_requested.v1",
+            "json_pointer": "/observability_and_audit/append_only_events/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "comm_send_success_rate",
+            "json_pointer": "/observability_and_audit/metrics_minimum/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Observability requirements MUST exist, including receipts captured and minimum metrics declared.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Observability requirements MUST exist, including receipts captured and minimum metrics declared.",
+      "id": "COMM_1_GATE_100_OBSERVABILITY_REQUIREMENTS_PRESENT",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 100 Observability Requirements Present"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "content_storage_shall_be_minimized_and_redacted",
+            "json_pointer": "/retention_and_deletion/baseline_rules/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "NEW_proposed_invariant:180_days_metadata_only",
+            "json_pointer": "/retention_and_deletion/retention_tiers/transactional"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Retention posture MUST exist and default to metadata-only storage.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Retention posture MUST exist and default to metadata-only storage.",
+      "id": "COMM_1_GATE_110_RETENTION_POSTURE_PRESENT",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 110 Retention Posture Present"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "platform_canonical",
+            "json_pointer": "/template_registry/template_source_of_truth/by_message_class/transactional"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Template import MUST create templates in draft state only.",
+            "json_pointer": "/template_registry/template_import_pipeline/import_rules/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "lint_report_hash_sha256",
+            "json_pointer": "/template_registry/template_import_pipeline/lint_required_outputs/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Template source-of-truth and import pipeline MUST be defined: platform canonical for transactional/auth; import creates draft only; lint required before publish.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Template source-of-truth and import pipeline MUST be defined: platform canonical for transactional/auth; import creates draft only; lint required before publish.",
+      "id": "COMM_1_GATE_120_TEMPLATE_SOURCE_OF_TRUTH_AND_IMPORT_LOCKED",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 120 Template Source Of Truth And Import Locked"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Published templates MUST pin layout components by explicit component_id + version; referencing latest is forbidden.",
+            "json_pointer": "/template_registry/layout_component_registry/rules/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Layout component registry MUST exist and require version pinning for published templates.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Layout component registry MUST exist and require version pinning for published templates.",
+      "id": "COMM_1_GATE_130_LAYOUT_COMPONENTS_VERSION_PINNED",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 130 Layout Components Version Pinned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "exact_locale",
+            "json_pointer": "/message_request_and_dispatch/locale_resolution/fallback_chain/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "platform_default_locale",
+            "json_pointer": "/message_request_and_dispatch/locale_resolution/fallback_chain/3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Locale resolution MUST be deterministic and follow exact fallback chain.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Locale resolution MUST be deterministic and follow exact fallback chain.",
+      "id": "COMM_1_GATE_140_LOCALE_FALLBACK_CHAIN_LOCKED",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 140 Locale Fallback Chain Locked"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "money_minor",
+            "json_pointer": "/template_registry/variable_type_system/allowed_types/3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "url_https",
+            "json_pointer": "/template_registry/variable_type_system/allowed_types/5"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/template_registry/rendering_profiles/profiles/0/forbid_query_params_matching_pii_patterns"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Variable type system MUST exist and include money_minor and url_https; link safety must forbid PII query params.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Variable type system MUST exist and include money_minor and url_https; link safety must forbid PII query params.",
+      "id": "COMM_1_GATE_150_VARIABLE_TYPES_AND_LINK_SAFETY_LOCKED",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 150 Variable Types And Link Safety Locked"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "signed_link",
+            "json_pointer": "/template_registry/attachment_policy/ticket_delivery/default_mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/template_registry/attachment_policy/ticket_delivery/signed_link_requirements/https_only"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Ticket delivery MUST default to signed links (no attachments).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Ticket delivery MUST default to signed links (no attachments).",
+      "id": "COMM_1_GATE_160_TICKET_ATTACHMENTS_FORBIDDEN_BY_DEFAULT",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 160 Ticket Attachments Forbidden By Default"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "campaign_platform",
+            "json_pointer": "/provider_governance/provider_model/provider_kind_matrix/transactional/forbidden_provider_kinds/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "campaign_platform",
+            "json_pointer": "/provider_governance/provider_model/provider_kind_matrix/operational/forbidden_provider_kinds/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Provider kind matrix MUST forbid campaign_platform for transactional/operational/legal message classes.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Provider kind matrix MUST forbid campaign_platform for transactional/operational/legal message classes.",
+      "id": "COMM_1_GATE_170_PROVIDER_KIND_MATRIX_BLOCKS_CAMPAIGN_PLATFORM_FOR_TRANSACTIONAL",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 170 Provider Kind Matrix Blocks Campaign Platform For Transactional"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "provider_native_signature_or_shared_secret",
+            "json_pointer": "/provider_governance/receipt_ingestion/authentication_model"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "provider_event_id",
+            "json_pointer": "/provider_governance/receipt_ingestion/idempotency_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Hard bounces and complaints MUST update suppression lists immediately.",
+            "json_pointer": "/provider_governance/receipt_ingestion/rules/2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Receipt/webhook ingestion MUST specify authentication model and idempotency key; hard bounces/complaints must update suppression.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Receipt/webhook ingestion MUST specify authentication model and idempotency key; hard bounces/complaints must update suppression.",
+      "id": "COMM_1_GATE_180_RECEIPT_INGESTION_AUTH_AND_IDEMPOTENCY_REQUIRED",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 180 Receipt Ingestion Auth And Idempotency Required"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Platform-wide marketing MUST target subjects who have consented within platform_org_id scope; cross-tenant broadcast to org-scoped subjects is forbidden.",
+            "json_pointer": "/message_request_and_dispatch/scope_and_audience/rules/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Platform/org audience rules MUST be explicit: platform-wide marketing requires platform_org_id consented subjects; cross-tenant broadcast forbidden.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Platform/org audience rules MUST be explicit: platform-wide marketing requires platform_org_id consented subjects; cross-tenant broadcast forbidden.",
+      "id": "COMM_1_GATE_190_PLATFORM_SCOPE_AND_AUDIENCE_RULES_LOCKED",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 190 Platform Scope And Audience Rules Locked"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 5000,
+            "json_pointer": "/message_request_and_dispatch/bulk_send_governance/thresholds/org_scoped_quorum_required_audience_size_ge"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 1000,
+            "json_pointer": "/message_request_and_dispatch/bulk_send_governance/thresholds/platform_scoped_quorum_required_audience_size_ge"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "cancel_before_utc",
+            "json_pointer": "/message_request_and_dispatch/bulk_send_governance/bulk_send_request_schema/fields/13"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Bulk send governance MUST define quorum thresholds and require cancel_before_utc field in schema.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Bulk send governance MUST define quorum thresholds and require cancel_before_utc field in schema.",
+      "id": "COMM_1_GATE_200_BULK_SEND_QUORUM_THRESHOLDS_AND_CANCEL_WINDOW",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 200 Bulk Send Quorum Thresholds And Cancel Window"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "cart_abandonment_nudge",
+            "json_pointer": "/message_request_and_dispatch/message_purpose_catalog/purposes/5/purpose_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "marketing",
+            "json_pointer": "/message_request_and_dispatch/message_purpose_catalog/purposes/5/message_class"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "post_purchase_upsell",
+            "json_pointer": "/message_request_and_dispatch/message_purpose_catalog/purposes/6/purpose_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "marketing",
+            "json_pointer": "/message_request_and_dispatch/message_purpose_catalog/purposes/6/message_class"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Cart abandonment and post-purchase upsell MUST be marketing class (consent-gated).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Cart abandonment and post-purchase upsell MUST be marketing class (consent-gated).",
+      "id": "COMM_1_GATE_210_FUNNEL_MESSAGES_MARKETING_ONLY",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 210 Funnel Messages Marketing Only"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "COMM MUST NOT define tracking semantics. Any tracking tokens, click redirect links, or pixels MUST be issued and governed by TRK-1.",
+            "json_pointer": "/message_request_and_dispatch/tracking_delegation/rules/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "COMM MUST delegate tracking semantics to TRK-1 and require consent proof when tracking embedded.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "COMM MUST delegate tracking semantics to TRK-1 and require consent proof when tracking embedded.",
+      "id": "COMM_1_GATE_220_TRACKING_DELEGATED_TO_TRK_ONLY",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 220 Tracking Delegated To Trk Only"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "p2_audit_evidence",
+            "json_pointer": "/retention_and_deletion/data_1_alignment/default_retention_profiles_by_artifact_kind/message_request"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "p1_operational",
+            "json_pointer": "/retention_and_deletion/data_1_alignment/default_retention_profiles_by_artifact_kind/template_draft"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Retention posture MUST declare DATA-1 retention_profile ids for COMM artifacts (p2_audit_evidence baseline).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Retention posture MUST declare DATA-1 retention_profile ids for COMM artifacts (p2_audit_evidence baseline).",
+      "id": "COMM_1_GATE_230_DATA_1_RETENTION_ALIGNMENT_DECLARED",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 230 Data 1 Retention Alignment Declared"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "DATA-1",
+            "json_pointer": "/dependencies/11/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.3.1",
+            "json_pointer": "/dependencies/11/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEC-1",
+            "json_pointer": "/dependencies/20/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.0.7",
+            "json_pointer": "/dependencies/20/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CG-0",
+            "json_pointer": "/dependencies/21/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.2.0",
+            "json_pointer": "/dependencies/21/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Dependencies MUST include PII-1, INT-1, and SEC-1 with pinned min_version in deterministic order.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Dependencies MUST include PII-1, INT-1, and SEC-1 with pinned min_version in deterministic order.",
+      "id": "COMM_1_GATE_235_DEPENDENCIES_INCLUDE_PII_INT_SEC",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 235 Dependencies Include Pii Int Sec"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/deterministic_uuid_sorting/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Deterministic UUID binary sort invariant MUST be declared for multi-UUID hashing/signing logic.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Deterministic UUID binary sort invariant MUST be declared for multi-UUID hashing/signing logic.",
+      "id": "COMM_1_GATE_236_UUID_BINARY_SORT_REQUIRED",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 236 Uuid Binary Sort Required"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "url_https",
+            "json_pointer": "/template_registry/templates/0/variable_types/support_url"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "url_https",
+            "json_pointer": "/template_registry/templates/1/variable_types/ticket_download_url"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "iso_datetime_utc",
+            "json_pointer": "/template_registry/templates/0/variable_types/occurrence_starts_at_utc"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "url_https",
+            "json_pointer": "/template_registry/templates/2/variable_types/reset_link"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "url_https",
+            "json_pointer": "/template_registry/templates/3/variable_types/unsubscribe_url"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Example templates MUST use strict variable types for *_url and *_at_utc fields (url_https, iso_datetime_utc).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Example templates MUST use strict variable types for *_url and *_at_utc fields (url_https, iso_datetime_utc).",
+      "id": "COMM_1_GATE_237_EXAMPLE_VARIABLE_TYPES_ENFORCE_URL_AND_TIME",
+      "level": "P1",
+      "must": true,
+      "title": "Comm 1 Gate 237 Example Variable Types Enforce Url And Time"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "audience_snapshot_ref",
+            "json_pointer": "/message_request_and_dispatch/bulk_send_governance/bulk_send_request_schema/fields/7"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "audience_snapshot_hash_sha256",
+            "json_pointer": "/message_request_and_dispatch/bulk_send_governance/bulk_send_request_schema/fields/8"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Bulk send requests MUST include pinned audience snapshot reference and hash for auditability.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Bulk send requests MUST include pinned audience snapshot reference and hash for auditability.",
+      "id": "COMM_1_GATE_238_BULK_SEND_AUDIENCE_SNAPSHOT_PINNED",
+      "level": "P1",
+      "must": true,
+      "title": "Comm 1 Gate 238 Bulk Send Audience Snapshot Pinned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "comm_1_money_display_policy_v1",
+            "json_pointer": "/money_display_policy/policy_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "cldr_currency_formatting",
+            "json_pointer": "/money_display_policy/determinism/money_display_engine_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "en-US",
+            "json_pointer": "/money_display_policy/determinism/fallback_locale"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "money_display_policy MUST exist and MUST pin policy_id and determinism fields to ensure reproducible currency formatting without external contract drift.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "money_display_policy MUST exist and MUST pin policy_id and determinism fields to ensure reproducible currency formatting without external contract drift.",
+      "id": "COMM_1_GATE_239_MONEY_DISPLAY_POLICY_DEFINED",
+      "level": "P1",
+      "must": true,
+      "title": "Comm 1 Gate 239 Money Display Policy Defined"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)PRICE-1"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "COMM-1 MUST NOT reference PRICE-1 as a normative or non-normative source for currency formatting; formatting is governed by money_display_policy in COMM-1.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "COMM-1 MUST NOT reference PRICE-1 as a normative or non-normative source for currency formatting; formatting is governed by money_display_policy in COMM-1.",
+      "id": "COMM_1_GATE_240_NO_PRICE_CONTRACT_REFERENCE_FOR_FORMATTING",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 240 No Price Contract Reference For Formatting"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "currency_code_iso_4217",
+            "json_pointer": "/template_registry/variable_type_system/allowed_types/7"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "variable_type_system MUST declare currency_code_iso_4217 as an allowed type (append-only) for deterministic money rendering inputs.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "variable_type_system MUST declare currency_code_iso_4217 as an allowed type (append-only) for deterministic money rendering inputs.",
+      "id": "COMM_1_GATE_241_CURRENCY_CODE_TYPE_DECLARED",
+      "level": "P1",
+      "must": true,
+      "title": "Comm 1 Gate 241 Currency Code Type Declared"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "INT-1",
+            "json_pointer": "/provider_governance/provider_model/provider_resolution_contract/owner_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "provider_account_ref",
+            "json_pointer": "/provider_governance/provider_model/provider_resolution_contract/required_output_fields/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.0.7",
+            "json_pointer": "/dependencies/20/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "COMM provider resolution MUST be delegated to INT-1 ProviderRoutingRule and MUST record provider_account_ref on dispatch attempts.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "COMM provider resolution MUST be delegated to INT-1 ProviderRoutingRule and provider_account_ref semantics.",
+      "id": "COMM_1_GATE_242_INT_PROVIDER_ROUTING_ALIGNMENT",
+      "level": "P0",
+      "must": true,
+      "title": "Comm 1 Gate 242 Int Provider Routing Alignment"
+    }
+  ],
+  "generated_at_utc": "2026-06-03T14:30:00Z",
+  "last_updated_utc": "2026-06-03T14:50:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "COMM-1-GATE — test gates for communications governance",
+  "updated_at": "2026-02-25T14:45:04Z",
+  "version": "1.1.6"
+}

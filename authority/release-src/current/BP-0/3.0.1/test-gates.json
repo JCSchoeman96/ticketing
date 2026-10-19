@@ -1,0 +1,312 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "BP-0",
+    "version": "3.0.1"
+  },
+  "doc_id": "BP-0-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.1 across contract, gates, and manifest.",
+      "failure_message": "Bundle suite_schema drift detected; BP-0 artifacts are not aligned to CS-0@3.0.1.",
+      "id": "BP-0-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle suite schema parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json filename and manifest file list MUST match the bundle contents exactly.",
+      "failure_message": "Manifest filename or manifest file inventory does not match the actual bundle contents.",
+      "id": "BP-0-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest filename and contents"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "BP-0",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.0.1",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "BP-0-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "3.0.1",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "BP-0",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "3.0.1",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "BP-0",
+            "json_pointer": "/bundle/bundle_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "3.0.1",
+            "json_pointer": "/bundle/bundle_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract, gates, and manifest linkage MUST agree on doc_id, version, and bundle identity.",
+      "failure_message": "Contract, test gates, or manifest linkage does not match BP-0 bundle identity.",
+      "id": "BP-0-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "Artifact linkage and version parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/bundle_standard/bundle_semantics/bundle_must_remain_three_artifacts"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/bundle_standard/bundle_semantics/bundle_must_not_embed_overlay"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/bundle_standard/bundle_semantics/bundle_must_not_embed_projection"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/overlay_boundary/projection_must_be_generated"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "exact",
+              "structural_graph",
+              "semantic_overlay",
+              "vector_similarity"
+            ],
+            "json_pointer": "/references/retrieval_order"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "BP-0 MUST preserve the constitutional 3-artifact bundle model and MUST keep overlay/projection concerns outside the canonical bundle.",
+      "failure_message": "BP-0 no longer enforces the canonical 3-artifact law/proof/integrity boundary.",
+      "id": "BP-0-GATE-040",
+      "level": "P0",
+      "must": true,
+      "title": "Canonical three-artifact bundle doctrine"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0",
+            "json_pointer": "/dependencies/0/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.0.1",
+            "json_pointer": "/dependencies/0/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "requires",
+            "json_pointer": "/dependencies/0/edge_type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "V42-0",
+            "json_pointer": "/lineage/foundation_refs/0/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "BP-0 dependencies and lineage MUST target the hardened CS-0 bundle model and foundation reference discipline.",
+      "failure_message": "BP-0 dependencies or lineage do not reflect the hardened CS-0@3.0.1 rules.",
+      "id": "BP-0-GATE-050",
+      "level": "P0",
+      "must": true,
+      "title": "Dependency and lineage discipline"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "T\\s*O\\s*D\\s*O",
+              "T\\s*B\\s*D",
+              "F\\s*I\\s*X\\s*M\\s*E",
+              "R\\s*E\\s*P\\s*L\\s*A\\s*C\\s*E\\s*_\\s*M\\s*E",
+              "\\btenant_id\\b",
+              "\\borganization_id\\b",
+              "\\borgid\\b",
+              "\\butc_datetime\\b",
+              "\\bUUIDv4\\b",
+              "\\bUUIDv5\\b",
+              "\\bdomain_entrypoint\\b",
+              "\\bapi_actions\\b",
+              "V42\\."
+            ],
+            "json_pointers": [
+              "/summary",
+              "/authoring_standard",
+              "/future_operational_requirements",
+              "/overlay_boundary"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Canonical blueprint content MUST avoid placeholder tokens and banned vocabulary that would weaken the constitutional write model.",
+      "failure_message": "BP-0 contains placeholder text or banned vocabulary that would introduce drift into canonical examples.",
+      "id": "BP-0-GATE-060",
+      "level": "P0",
+      "must": true,
+      "title": "Canonical terminology and anti-pattern bans"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "suite_schema_matches",
+              "require_bundle_manifest_filename",
+              "require_bundle_files_match_manifest",
+              "json_pointer_equals",
+              "forbid_regex_in_artifact",
+              "telemetry_signal_emitted",
+              "trace_span_relationship",
+              "attribute_presence_assert",
+              "error_envelope_correlation",
+              "sampling_decision"
+            ],
+            "json_pointer": "/gate_standard/allowed_assertion_types"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "BP-0 MUST enumerate runtime assertion declaration types without pretending they are static constitutional truth.",
+      "failure_message": "BP-0 no longer cleanly separates deterministic static gates from runtime declaration categories.",
+      "id": "BP-0-GATE-070",
+      "level": "P1",
+      "must": true,
+      "title": "Runtime declaration types remain declared, not smuggled into law"
+    }
+  ],
+  "generated_at_utc": "2026-04-04T08:35:00Z",
+  "last_updated_utc": "2026-04-04T08:35:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "BP-0 Blueprint Gates (CS-0@3.0.1 aligned)",
+  "version": "3.0.1"
+}

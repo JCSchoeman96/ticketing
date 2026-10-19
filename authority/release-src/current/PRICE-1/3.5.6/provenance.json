@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/PRICE-1_bundle_v3.5.5_refactored.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/PRICE-1_bundle_v3.5.5_refactored.zip",
+  "source_zip_sha256": "2d758dfe9163c728c82cd9369e105036b8ce79b9c6630ff098089b0d25f641dd",
+  "source_zip_bytes": 17414,
+  "source_version": "3.5.5",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "PRICE-1_bundle_v3.5.5/PRICE-1_Contract_v3.5.5.json",
+      "sha256": "458cff1da3aa470ee5b3b0d907a367d2f111206ebbc074c216aa748bbce1a4f5",
+      "bytes": 64886
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "PRICE-1_bundle_v3.5.5/PRICE-1_Test_Gates_v3.5.5.json",
+      "sha256": "78c32655a1338aedee284072cede18aa644c2bc6b829a6c3eba4c04186580c1a",
+      "bytes": 22049
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "PRICE-1_bundle_v3.5.5/PRICE-1_Contract_v3.5.5.json",
+      "sha256": "b35a423ea5d220201cae5bb047aeb6558bd900b9bd27e25b7ec8d75c5ee78174",
+      "bytes": 65139
+    },
+    {
+      "source_member_path": "PRICE-1_bundle_v3.5.5/PRICE-1_Test_Gates_v3.5.5.json",
+      "sha256": "4504116e14779574cf78fbe9a922e928cbdd4785155c53ac8d21a22f95ceaae4",
+      "bytes": 20214
+    }
+  ]
+}

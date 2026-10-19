@@ -1,0 +1,701 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "IR-1",
+    "version": "1.5.0"
+  },
+  "doc_id": "IR-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@2.3.0 across contract, gates, and manifest.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "suite_schema MUST equal CS-0@2.3.0 across contract, gates, and manifest.",
+      "id": "IR-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "suite_schema MUST equal CS-0@2.3.0 across contract, gates, and manifest."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle manifest filename and file list MUST match bundle contents.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Bundle manifest filename and file list MUST match bundle contents.",
+      "id": "IR-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle manifest filename and file list MUST match bundle contents."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IR-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.5.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "IR-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.5.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "IR-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.5.0",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Artifact linkage MUST be consistent across contract and gates.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Artifact linkage MUST be consistent across contract and gates.",
+      "id": "IR-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "Artifact linkage MUST be consistent across contract and gates."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Normal posture with anomaly detection active and no containment action applied.",
+            "json_pointer": "/protocol/tier_ladder/tier_0_monitoring/intent"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Org-scoped or actor-scoped suspicion requiring fast investigation and limited reversible controls.",
+            "json_pointer": "/protocol/tier_ladder/tier_1_scoped_suspicion/intent"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Evidence suggests compromise spans multiple orgs, shared admin surfaces, shared keys, or platform support paths.",
+            "json_pointer": "/protocol/tier_ladder/tier_2_multi_org_or_admin_surface/intent"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Evidence indicates platform-wide credential, key, session, secret, or infrastructure compromise.",
+            "json_pointer": "/protocol/tier_ladder/tier_3_platform_compromise/intent"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IR-1 MUST lock all four incident tiers under protocol.tier_ladder.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 MUST lock all four incident tiers under protocol.tier_ladder.",
+      "id": "IR-1-GATE-040",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 MUST lock all four incident tiers under protocol.tier_ladder."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "detected",
+            "json_pointer": "/incident_lifecycle/states/0/state"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "audit.incident.opened",
+            "json_pointer": "/audit_events/0/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "platform_admin_plus_security_or_executive_acknowledger",
+            "json_pointer": "/authorization_matrix/tier_3_platform_compromise/release_by/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "stale_incident_action",
+            "json_pointer": "/failure_modes/0/mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IR-1 MUST define incident lifecycle, audit events, authorization matrix, and failure modes.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 MUST define incident lifecycle, audit events, authorization matrix, and failure modes.",
+      "id": "IR-1-GATE-050",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 MUST define incident lifecycle, audit events, authorization matrix, and failure modes."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "TODO",
+              "TBD",
+              "placeholder",
+              "to be decided",
+              "later maybe"
+            ],
+            "json_pointers": [
+              "/protocol",
+              "/incident_lifecycle",
+              "/audit_events",
+              "/authorization_matrix",
+              "/failure_modes",
+              "/detector_abuse_safeguards",
+              "/restore_and_failover_semantics",
+              "/regulatory_reporting_hooks",
+              "/chaos_and_readiness_hooks"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "IR-1 core sections MUST NOT contain placeholder drafting language.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 core sections MUST NOT contain placeholder drafting language.",
+      "id": "IR-1-GATE-060",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 core sections MUST NOT contain placeholder drafting language."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "incident_id",
+            "json_pointer": "/regulatory_reporting_hooks/minimum_evidence_fields/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "security.token_replay_wave",
+            "json_pointer": "/chaos_and_readiness_hooks/required_simulation_labels/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "security.key_rotation_under_load",
+            "json_pointer": "/chaos_and_readiness_hooks/required_simulation_labels/4"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IR-1 MUST define regulator-ready evidence fields and chaos simulation labels.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 MUST define regulator-ready evidence fields and chaos simulation labels.",
+      "id": "IR-1-GATE-070",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 MUST define regulator-ready evidence fields and chaos simulation labels."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "actor_id",
+            "json_pointer": "/session_scope_segmentation/minimum_dimensions/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/containment_atomicity_and_compensation/compensation_required_when_partial"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "same_human_two_approvals",
+            "json_pointer": "/approval_distinctness_constraints/forbidden_combinations/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Release MUST verify that all mandatory containment success classes for the incident tier are complete and auditable.",
+            "json_pointer": "/release_quorum_requirements/rules/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IR-1 MUST define session scope segmentation, atomicity, release quorum, and approval distinctness constraints.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 MUST define session scope segmentation, atomicity, release quorum, and approval distinctness constraints.",
+      "id": "IR-1-GATE-080",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 MUST define session scope segmentation, atomicity, release quorum, and approval distinctness constraints."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "audit.incident.opened",
+            "json_pointer": "/event_registry_hooks/audit_events_pending_evt1_registration/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IR_INCIDENT_ACTIVE",
+            "json_pointer": "/err1_integration_prerequisites/reserved_error_labels_to_register_before_lock/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "security.token_replay_wave",
+            "json_pointer": "/runtime_validation_matrix/0/simulation_label"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "TODO",
+              "TBD",
+              "placeholder",
+              "to be decided",
+              "later maybe"
+            ],
+            "json_pointers": [
+              "/session_scope_segmentation",
+              "/containment_atomicity_and_compensation",
+              "/approval_distinctness_constraints",
+              "/release_quorum_requirements",
+              "/event_registry_hooks",
+              "/err1_integration_prerequisites",
+              "/detector_escalation_controls",
+              "/runtime_validation_matrix"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "IR-1 MUST define event registry hooks, ERR-1 prerequisites, and runtime validation matrix without placeholder drift.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 MUST define event registry hooks, ERR-1 prerequisites, and runtime validation matrix without placeholder drift.",
+      "id": "IR-1-GATE-090",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 MUST define event registry hooks, ERR-1 prerequisites, and runtime validation matrix without placeholder drift."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "silent_reconcile",
+            "json_pointer": "/quarantine_replay_side_effect_policy/default_mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "degraded_alive",
+            "json_pointer": "/interactive_upgrade_barriers/required_states/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IR-1 MUST define interactive upgrade barriers and quarantine replay side-effect policy.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 MUST define interactive upgrade barriers and quarantine replay side-effect policy.",
+      "id": "IR-1-GATE-100",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 MUST define interactive upgrade barriers and quarantine replay side-effect policy."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "all_applicable_reconciliation_classes_green",
+            "json_pointer": "/severance_reconciliation_requirements/release_gate"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "immediate_privileged_revoke",
+            "json_pointer": "/live_session_revocation_backpressure/required_modes/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IR-1 MUST require severance reconciliation and live-session revocation backpressure.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 MUST require severance reconciliation and live-session revocation backpressure.",
+      "id": "IR-1-GATE-110",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 MUST require severance reconciliation and live-session revocation backpressure."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "rule_id",
+            "json_pointer": "/edge_shedding_observability_requirements/required_aggregate_fields/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "pre_commit",
+            "json_pointer": "/leased_job_incident_barriers/required_barriers/2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "curated_summary_only",
+            "json_pointer": "/incident_artifact_export_controls/default_org_export_mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IR-1 MUST require edge-shedding observability, leased-job barriers, and incident artifact export controls.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 MUST require edge-shedding observability, leased-job barriers, and incident artifact export controls.",
+      "id": "IR-1-GATE-120",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 MUST require edge-shedding observability, leased-job barriers, and incident artifact export controls."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "TODO",
+              "TBD",
+              "placeholder",
+              "to be decided",
+              "later maybe"
+            ],
+            "json_pointers": [
+              "/incident_plane_isolation_matrix",
+              "/freeze_queue_policy",
+              "/destructive_operation_classes",
+              "/boot_and_readiness_barriers",
+              "/job_execution_barriers",
+              "/webhook_and_provider_truth_during_incident",
+              "/incident_artifact_sensitivity"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "IR-1 new hardening sections MUST NOT contain placeholder drafting language.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 new hardening sections MUST NOT contain placeholder drafting language.",
+      "id": "IR-1-GATE-130",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 new hardening sections MUST NOT contain placeholder drafting language."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "degraded_alive",
+            "json_pointer": "/readiness_state_model/states/0/state"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "privileged_not_ready",
+            "json_pointer": "/readiness_state_model/states/2/state"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "overlap_window_unverified_quarantine",
+            "json_pointer": "/verified_vs_unverified_provider_ingest/lanes/1/lane"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "If an external integration required by containment remains incomplete beyond its approved timeout budget, the platform MAY sever that integration scope rather than hold unrelated surfaces hostage indefinitely.",
+            "json_pointer": "/integration_severance_rules/rules/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IR-1 MUST define readiness state model, verified/unverified provider ingest lanes, and integration severance rules.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 MUST define readiness state model, verified/unverified provider ingest lanes, and integration severance rules.",
+      "id": "IR-1-GATE-140",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 MUST define readiness state model, verified/unverified provider ingest lanes, and integration severance rules."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "edge_drop_or_waf_rule_ref",
+            "json_pointer": "/signal_volume_circuit_breakers/required_controls/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "If a principal holds any platform-level authority on the same auth surface implicated by the incident, partial org-scoped session invalidation is forbidden unless session segmentation proves the platform authority is fully separate.",
+            "json_pointer": "/dual_privilege_principal_rules/rules/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "disconnect_immediately",
+            "json_pointer": "/live_session_revocation_rules/dispositions/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "TODO",
+              "TBD",
+              "placeholder",
+              "to be decided",
+              "later maybe"
+            ],
+            "json_pointers": [
+              "/readiness_state_model",
+              "/verified_vs_unverified_provider_ingest",
+              "/integration_severance_rules",
+              "/signal_volume_circuit_breakers",
+              "/dual_privilege_principal_rules",
+              "/live_session_revocation_rules"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "IR-1 MUST define signal volume circuit breakers, dual-privilege principal rules, and live-session revocation rules.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 MUST define signal volume circuit breakers, dual-privilege principal rules, and live-session revocation rules.",
+      "id": "IR-1-GATE-150",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 MUST define signal volume circuit breakers, dual-privilege principal rules, and live-session revocation rules."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "security.boot_barrier_autoscale_under_load",
+            "json_pointer": "/runtime_validation_matrix/7/simulation_label"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "security.webhook_secret_overlap_quarantine",
+            "json_pointer": "/runtime_validation_matrix/8/simulation_label"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "security.integration_severance_timeout",
+            "json_pointer": "/runtime_validation_matrix/9/simulation_label"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "security.signal_volume_circuit_breaker",
+            "json_pointer": "/runtime_validation_matrix/10/simulation_label"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "security.dual_privilege_principal_revoke",
+            "json_pointer": "/runtime_validation_matrix/11/simulation_label"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "security.live_session_revocation",
+            "json_pointer": "/runtime_validation_matrix/12/simulation_label"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IR-1 runtime matrix MUST include autoscale boot barrier, webhook overlap quarantine, integration severance, signal volume breaker, dual-privilege revoke, and live-session revocation scenarios.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "IR-1 runtime matrix MUST include autoscale boot barrier, webhook overlap quarantine, integration severance, signal volume breaker, dual-privilege revoke, and live-session revocation scenarios.",
+      "id": "IR-1-GATE-160",
+      "level": "P1",
+      "must": true,
+      "title": "IR-1 runtime matrix MUST include autoscale boot barrier, webhook overlap quarantine, integration severance, signal volume breaker, dual-privilege revoke, and live-session revocation scenarios."
+    }
+  ],
+  "generated_at_utc": "2026-03-09T20:40:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "IR-1 Incident Response and Containment Protocol Test Gates",
+  "version": "1.5.0"
+}

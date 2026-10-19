@@ -1,0 +1,1852 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "ERR-1_Contract_v1.8.2.json",
+  "bundle_id": "ERR-1_bundle_v1.8.0",
+  "bundle_manifest_filename": "bundle.manifest.json",
+  "canonical": true,
+  "canonical_meta": {
+    "audience": [
+      "coding_agents",
+      "backend_engineers",
+      "frontend_engineers",
+      "qa",
+      "sre"
+    ],
+    "doc_type": "contract",
+    "language": "en",
+    "scope": {
+      "in_scope": [
+        "HTTP error response envelope (RFC9457 application/problem+json)",
+        "Error code registry: top-level codes + subcodes",
+        "Retryability taxonomy and client-handling semantics",
+        "Redaction and safe messaging rules",
+        "Translation rules for Ash 3.x error classes and aggregates",
+        "Error propagation across webhooks and background jobs (Oban)",
+        "Change-control rules for adding/deprecating codes"
+      ],
+      "out_of_scope": [
+        "Feature-specific validation rules (live in domain contracts)",
+        "Business workflows and state machines (live in SM-1 and domain contracts)",
+        "Observability budgets and SLOs (live in OBS-1 / OBQC-1)",
+        "Ledger math and payout rules (live in LED-1)"
+      ]
+    },
+    "stability": "constitutional_shared_standard"
+  },
+  "change_log": [
+    {
+      "changes": [
+        "Renamed test-gates artifact to BP-0 Test_Gates filename format.",
+        "Raised COMM-1, INT-1, and NOTIF-1 domain subcode floors to the first clean lockable coordinated versions.",
+        "Cleaned stale CS-0 wording in gate descriptions without changing registered subcodes."
+      ],
+      "released_at_utc": "2026-06-03T14:50:00Z",
+      "summary": "Coordinated communications, integrations, and notifications registry hygiene release.",
+      "version": "1.8.2"
+    },
+    {
+      "changes": [
+        "Added COMM_* subcodes used by COMM-1 v1.1.4.",
+        "Added INT_* subcodes used by INT-1 v1.0.3.",
+        "Added NOTIF_* subcodes used by NOTIF-1 v1.0.3.",
+        "Normalized ERR-1 gate ids to CS-compatible upper underscore form.",
+        "Corrected GOV-0 governance-floor dependency to the available v2.0.10 floor."
+      ],
+      "summary": "Registry hardening: add COMM-1, INT-1, and NOTIF-1 subcodes required by CS-0@3.0.0 communications/integration/notification bundles.",
+      "version": "1.8.1"
+    },
+    {
+      "changes": [
+        "Upgraded to CS-0@2.2.0 contract-suite schema; added enforceable dependencies shape and statuses.",
+        "Pinned RFC9457 Problem Details envelope with required/optional field lists and cross-surface semantics.",
+        "Added explicit Ash 3.x translation rules for aggregates and class mapping.",
+        "Maintained and validated existing error code registry; clarified retryability taxonomy and redaction rules.",
+        "Standardized bundle manifest naming to bundle.manifest.json."
+      ],
+      "date_utc": "2026-01-03T14:33:39Z",
+      "version": "1.3.0"
+    },
+    {
+      "changes": [
+        "Fix Ash 3.x error class mappings: remove non-existent Ash.Error.NotFound and Ash.Error.Timeout; map to top-level Ash.Error.{Forbidden,Invalid,Framework,Unknown} and document leaf error override behavior.",
+        "Normalize retryability taxonomy: replace ambiguous 'maybe' with 'conditional' to match registry entries.",
+        "Add explicit translation algorithm notes for Ash error aggregation (inspect nested errors)."
+      ],
+      "date_utc": "2026-01-03T14:59:59Z",
+      "version": "1.3.1"
+    },
+    {
+      "changes": [
+        "Register SEAT-* subcodes required by SEAT-1 contract (seat holds/allocations).",
+        "Packaging compliance: bundle manifest schema and top-level folder format are lockable under CI strict runner."
+      ],
+      "date_utc": "2026-01-05T07:11:31Z",
+      "version": "1.3.16"
+    },
+    {
+      "changes": [
+        "Register PRICE-* subcodes used by PRICE-1 (currency, totals, mutation/expiry)."
+      ],
+      "date_utc": "2026-01-05",
+      "version": "1.3.17"
+    },
+    {
+      "changes": [
+        "Register ORD-* subcodes used by ORD-1 (idempotency, snapshot, seat, totals, lifecycle)."
+      ],
+      "date_utc": "2026-01-05",
+      "version": "1.3.18"
+    },
+    {
+      "changes": [
+        "CI strict compliance patch: schema/gate/manifest drift fixes."
+      ],
+      "date_utc": "2026-01-06T08:25:00Z",
+      "version": "1.3.19"
+    },
+    {
+      "changes": [
+        "CI strict compliance patch: schema/gate/manifest drift fixes."
+      ],
+      "date_utc": "2026-01-06T08:30:45Z",
+      "version": "1.3.20"
+    },
+    {
+      "changes": [
+        "Added AUTH_ACTOR_CONTEXT_MISSING subcode (top_level ERR_UNAUTHORIZED) for security/audit actor-context enforcement."
+      ],
+      "date_utc": "2026-01-07T00:00:00Z",
+      "version": "1.3.21"
+    },
+    {
+      "changes": [
+        "Added PAY_ROUTE_DECISION_HASH_MISMATCH subcode (top_level ERR_CONFLICT) for PAY-2 decision hash mismatch/tamper detection.",
+        "No top-level codes changed; backwards compatible for clients."
+      ],
+      "date_utc": "2026-01-09T00:00:00Z",
+      "version": "1.3.22"
+    },
+    {
+      "changes": [
+        "Added OBS_REQUEST_ID_MISSING (ERR_BAD_REQUEST) and TEN_SUPPORT_MODE_UNAUTHORIZED (ERR_FORBIDDEN) subcodes for deterministic data-plane enforcement and support-mode authorization failures.",
+        "Gate/manifest/packaging unchanged; backwards compatible for clients."
+      ],
+      "date_utc": "2026-01-10T06:25:05Z",
+      "version": "1.3.25"
+    },
+    {
+      "changes": [
+        "Added TAX_* subcodes required by TAX-1 v1.1.0 (profile/jurisdiction/rate required, mode invalid, rate overlap, provider unavailable, total mismatch).",
+        "Added additional TAX_* subcodes for tax lifecycle hardening (VAT number invalid, profile inactive, rate not effective, jurisdiction override unauthorized, reporting period locked, external provider bad response/timeout).",
+        "No top-level codes changed; backwards compatible for clients."
+      ],
+      "date_utc": "2026-01-11T14:44:33Z",
+      "version": "1.3.26"
+    },
+    {
+      "changes": [
+        "Register ORD-* subcodes for occurrence-aware ordering and primary-access enforcement (ORD_PRIMARY_ACCESS_REQUIRED, ORD_MULTI_EVENT_ORDER_FORBIDDEN, ORD_CHECKOUT_SNAPSHOT_MISMATCH).",
+        "Register PAY-* subcodes for payment reservation/inquiry edge cases (PAY_RESERVATION_FAILED, PAY_INQUIRY_TTL_EXCEEDED, PAY_CURRENCY_MISMATCH, PAY_INSUFFICIENT_FUNDS, PAY_LIABILITY_CAP_EXCEEDED).",
+        "NOTE: Prior patch versions existed without maintained change_log entries; change_log completeness resumes here."
+      ],
+      "date_utc": "2026-01-19",
+      "version": "1.3.27"
+    },
+    {
+      "changes": [
+        "Tighten ERR subcode format to require an underscore-separated namespace (prevents single-token drift like \"EVTREPLAY\").",
+        "Register EVT-* subcodes required for EVT-* contracts (EVT_CONTEXT_MISSING, EVT_INVALID_TYPE, EVT_IDEMPOTENCY_REPLAY)."
+      ],
+      "date_utc": "2026-01-20",
+      "version": "1.3.28"
+    },
+    {
+      "changes": [
+        "Register SUB-* subcodes required by SUB-1 v1.0.0 (entitlement required/not eligible, quota exceeded, offer not available, tier conflict, program not found, invalid input/state, forbidden).",
+        "No top-level codes changed; backwards compatible for clients."
+      ],
+      "date_utc": "2026-01-20T00:00:00Z",
+      "version": "1.3.29"
+    },
+    {
+      "date_utc": "2026-01-21",
+      "summary": "Add DSAR/PII/TRK/GOV privacy enforcement subcodes; clarify mapping to ERR_* top-level codes.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "Register missing ORD subcodes required by ORD-1: ORD_CHECKOUT_EXPIRED, ORD_ADDON_DEPENDENCY_MISSING.",
+        "Register PAY late-capture subcode required by Gotcha GC-001 / SD-043: PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED.",
+        "Update test gates identity pins to match bundle version; packaging remains JSON-only."
+      ],
+      "date_utc": "2026-01-28T10:47:19Z",
+      "version": "1.4.15"
+    },
+    {
+      "changes": [
+        "P0: Register REFUND_* subcodes required by REFUND-1 fee refund policy enforcement.",
+        "P0: Add bundle_id + bundle_manifest_filename pointers to contract + gates."
+      ],
+      "date_utc": "2026-01-28T19:48:28Z",
+      "summary": "Add fee-refund-policy enforcement subcodes + bundle pointers.",
+      "type": "patch",
+      "version": "1.4.16"
+    },
+    {
+      "changes": [
+        "Add missing refund/seat reversal related subcodes: REFUND_LOCK_WINDOW_ACTIVE (ERR_PRECONDITION), REFUND_AFTER_ENTRY_FORBIDDEN (ERR_FORBIDDEN)."
+      ],
+      "date_utc": "2026-01-30",
+      "version": "1.4.17"
+    },
+    {
+      "breaking": false,
+      "date_utc": "2026-02-02",
+      "summary": "Mandate microsecond precision for occurred_at; reclassify IAM_RECOVERY_CODE_USED to ERR_PRECONDITION and require security signal emission.",
+      "version": "1.5.1"
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Defines contract/test-gate/manifest JSON schemas and allowed status values."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Defines baseline gate expectations and assertion style for enforceability."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "Defines CI enforcement posture and suite gating rules."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.10",
+      "reason": "Defines governance posture that influences error handling, including privacy/DSAR/break-glass enforcement semantics."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.11",
+      "reason": "Defines static lint rules to prevent error-shape drift and unsafe patterns."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Registry floor parity for type safety even as non-producer."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "registry_floor",
+      "min_version": "2.4.0",
+      "reason": "Schema_ref token normalization context."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0"
+  },
+  "doc_id": "ERR-1",
+  "emits_events": false,
+  "envelope": {
+    "cross_surface_requirements": {
+      "background_jobs": {
+        "must_include": [
+          "code",
+          "subcode",
+          "category",
+          "retryable",
+          "request_id",
+          "occurred_at"
+        ],
+        "shape": "internal_error_record"
+      },
+      "http": {
+        "content_type": "application/problem+json",
+        "shape": "problem_details"
+      },
+      "webhooks": {
+        "shape": "problem_details",
+        "transport": "embedded_in_delivery_attempt_records"
+      }
+    },
+    "extensions": {
+      "category": "Stable error category derived from top-level code (required).",
+      "code": "Top-level stable error code from registry.top_level_codes[].code (required).",
+      "debug_ref": "Optional safe opaque reference for support (never a stack trace).",
+      "errors": "Optional list of field-level errors for validation failures.",
+      "occurred_at": "RFC3339/ISO8601 UTC timestamp string with microsecond precision (6 fractional digits).",
+      "request_id": "Required correlation identifier (must be propagated end-to-end).",
+      "retry_after_seconds": "If retryable, optionally provide suggested backoff (seconds).",
+      "retryable": "Boolean derived from registry (required).",
+      "trace_id": "Optional distributed tracing identifier (W3C traceparent/trace-id source)."
+    },
+    "extensions_docstrings": {
+      "subcode_description": "Optional stable subcode from registry.subcodes[].subcode (optional)."
+    }
+  },
+  "format_rules": {
+    "subcode_pattern": "^[A-Z0-9]+_[A-Z0-9]+(?:_[A-Z0-9]+)*$"
+  },
+  "generated_at_utc": "2026-06-03T14:30:00Z",
+  "invariants": {
+    "ERR-INV-TIME-USEC": {
+      "severity": "P0",
+      "text": "All occurred_at timestamps in error envelopes MUST use utc_datetime_usec (microsecond precision)."
+    }
+  },
+  "last_updated_utc": "2026-06-03T14:50:00Z",
+  "mappings": {
+    "ash_3": {
+      "aggregate_translation_rules": [
+        "If the raised/returned error is an aggregate with an `errors` collection, the translator MUST examine all underlying errors.",
+        "If any underlying error is Forbidden, the top-level code MUST be ERR_FORBIDDEN unless a more specific top-level code is explicitly mandated by a domain contract.",
+        "If any underlying error is Invalid and none are Forbidden, the top-level code MUST be ERR_VALIDATION.",
+        "If none match known classes, fallback MUST be ERR_INTERNAL.",
+        "Underlying errors MAY be mapped into `errors[]` for validation-style payloads only when safe."
+      ],
+      "authorization_bypass_posture": {
+        "required_audit_fields_if_bypass_used": [
+          "request_id",
+          "actor_id",
+          "tenant_id",
+          "reason",
+          "target_resource",
+          "action"
+        ],
+        "rules": [
+          "Application code MUST NOT use `authorize?: false` for external callers.",
+          "System-actor internal flows MAY bypass authorization only with explicit justification and audit logging.",
+          "All bypass usage MUST map forbidden/unauthorized outcomes to ERR_FORBIDDEN/ERR_UNAUTHENTICATED and MUST NOT leak policy internals."
+        ]
+      },
+      "class_to_top_level": [
+        {
+          "ash_error_class": "Ash.Error.Forbidden",
+          "top_level_code": "ERR_FORBIDDEN"
+        },
+        {
+          "ash_error_class": "Ash.Error.Invalid",
+          "top_level_code": "ERR_VALIDATION"
+        },
+        {
+          "ash_error_class": "Ash.Error.Framework",
+          "top_level_code": "ERR_INTERNAL"
+        },
+        {
+          "ash_error_class": "Ash.Error.Unknown",
+          "top_level_code": "ERR_INTERNAL"
+        }
+      ],
+      "leaf_error_overrides": [
+        {
+          "ash_error_leaf": "Ash.Error.Query.NotFound",
+          "subcode": null,
+          "top_level_code": "ERR_NOT_FOUND"
+        },
+        {
+          "ash_error_leaf": "Ash.Error.Invalid.Timeout",
+          "subcode": null,
+          "top_level_code": "ERR_TIMEOUT"
+        },
+        {
+          "ash_error_leaf": "Ash.Error.Invalid.TenantRequired",
+          "subcode": "TEN_TENANT_CONTEXT_MISSING",
+          "top_level_code": "ERR_FORBIDDEN"
+        }
+      ],
+      "notes": [
+        "Ash may return a single exception that aggregates multiple underlying errors; the aggregate exception includes an `errors` key containing the underlying errors.",
+        "Translation MUST preserve the most user-relevant classification (e.g., Forbidden vs Invalid) while retaining underlying errors for logging/diagnostics.",
+        "Ash translation produces the internal classification and causal subcode. It does not by itself define the HTTP response. Before serializing a tenant-scoped HTTP error, the boundary MUST apply mappings.tenant_hidden_http_boundary; TEN-1 externalization takes precedence over the Ash classification."
+      ],
+      "translation_algorithm": [
+        "Implementations MUST first normalize any thrown/returned value to an Ash exception container (e.g., via Ash.Error.to_ash_error/3) before mapping to ERR-1 codes.",
+        "Implementations MUST inspect the exception container's nested `errors` (if present) to derive a more specific top-level code/subcode; container class alone is insufficient.",
+        "If any nested error is Ash.Error.Query.NotFound, implementations MUST map to top-level ERR_NOT_FOUND (subcode optional).",
+        "If any nested error is Ash.Error.Invalid.Timeout, implementations MUST map to top-level ERR_TIMEOUT (subcode optional).",
+        "If any nested error is Ash.Error.Invalid.TenantRequired, implementations MUST map to top-level ERR_FORBIDDEN with subcode TEN_TENANT_CONTEXT_MISSING.",
+        "The Ash classification and subcode for Ash.Error.Invalid.TenantRequired are internal diagnostic context. Before emitting an HTTP response for missing tenant context, implementations MUST apply mappings.tenant_hidden_http_boundary and MUST NOT serialize the internal classification or cause subcode."
+      ]
+    },
+    "http_status_default": {
+      "ERR_BAD_REQUEST": 400,
+      "ERR_CONFLICT": 409,
+      "ERR_FORBIDDEN": 403,
+      "ERR_INTERNAL": 500,
+      "ERR_NOT_FOUND": 404,
+      "ERR_PRECONDITION": 412,
+      "ERR_RATE_LIMITED": 429,
+      "ERR_THIRD_PARTY": 502,
+      "ERR_TIMEOUT": 504,
+      "ERR_UNAUTHENTICATED": 401,
+      "ERR_UNAVAILABLE": 503,
+      "ERR_VALIDATION": 422
+    },
+    "incident_response_boundary": {
+      "default_public_top_level": "ERR_UNAVAILABLE",
+      "generic_public_mapping": {
+        "IR_BREAK_GLASS_REQUIRED": "ERR_PRECONDITION",
+        "IR_CONTAINMENT_PARTIAL": "ERR_UNAVAILABLE",
+        "IR_DEVICE_QUARANTINED": "ERR_FORBIDDEN",
+        "IR_EDGE_SHEDDING_ACTIVE": "ERR_RATE_LIMITED",
+        "IR_INCIDENT_ACTIVE": "ERR_UNAVAILABLE",
+        "IR_INTERACTIVE_UPGRADE_BLOCKED": "ERR_UNAVAILABLE",
+        "IR_LEASED_JOB_BLOCKED": "ERR_UNAVAILABLE",
+        "IR_PAYOUT_FROZEN_SECURITY": "ERR_UNAVAILABLE",
+        "IR_RELEASE_BLOCKED": "ERR_PRECONDITION",
+        "IR_SCOPE_CONTAINED": "ERR_UNAVAILABLE",
+        "IR_SEVERANCE_RECONCILIATION_REQUIRED": "ERR_PRECONDITION",
+        "IR_STEP_UP_REQUIRED": "ERR_PRECONDITION",
+        "IR_UNVERIFIED_PROVIDER_QUARANTINED": "ERR_PRECONDITION"
+      },
+      "notes": [
+        "IR-prefixed subcodes are internal/operator truth and MUST NOT be leaked raw to public clients.",
+        "Public boundaries MUST map IR-prefixed containment outcomes to generic top-level classes and user-safe messages while preserving correlation_id for support and observability."
+      ],
+      "public_http_status_allowlist": [
+        429,
+        503
+      ]
+    },
+    "oban_jobs": {
+      "job_error_record_shape": {
+        "forbidden_fields": [
+          "stack_trace_in_payload",
+          "raw_exception_in_payload"
+        ],
+        "optional_fields": [
+          "subcode",
+          "trace_id",
+          "debug_ref",
+          "retry_after_seconds"
+        ],
+        "required_fields": [
+          "code",
+          "category",
+          "retryable",
+          "request_id",
+          "occurred_at"
+        ]
+      },
+      "rules": [
+        "Oban job errors MUST be classified using ERR-1 codes to ensure consistent alerting and retry strategy.",
+        "Retry decisions MUST align with retryability taxonomy; job configuration may override with stricter behavior."
+      ]
+    },
+    "webhooks": {
+      "delivery_error_envelope": "problem_details",
+      "rules": [
+        "Webhook delivery failures MUST be recorded with stable code/subcode and retryability.",
+        "Webhook consumers MUST receive the canonical problem-details envelope on webhook error callbacks (if implemented)."
+      ]
+    },
+    "tenant_hidden_http_boundary": {
+      "applies_to": [
+        "missing_tenant_context",
+        "tenant_mismatch",
+        "rls_denied",
+        "cross_tenant_hidden"
+      ],
+      "external_response": {
+        "http_status": 404,
+        "top_level_code": "ERR_NOT_FOUND",
+        "subcode": null,
+        "omit_fields": [
+          "detail"
+        ],
+        "omit_extensions": [
+          "subcode"
+        ],
+        "must_not_include_headers": [
+          "www-authenticate",
+          "x-tenant-id",
+          "x-org-id",
+          "x-policy",
+          "x-error-class"
+        ],
+        "uniform_by_hidden_reason": true
+      },
+      "precedence": "Apply before HTTP serialization for every applies_to case. TEN-1 external response policy overrides Ash classification and ERR-1 registry top-level mappings. Preserve internal classifications and causes for audit and telemetry only. TEN_SUPPORT_MODE_UNAUTHORIZED remains ERR_FORBIDDEN and is not a tenant-hidden case under this mapping.",
+      "internal_causes": [
+        {
+          "case": "missing_tenant_context",
+          "subcode": "TEN_TENANT_CONTEXT_MISSING",
+          "ash_error_leaf": "Ash.Error.Invalid.TenantRequired",
+          "retention": "audit_and_telemetry_only"
+        },
+        {
+          "case": "tenant_mismatch",
+          "subcode": "TEN_TENANT_MISMATCH",
+          "retention": "audit_and_telemetry_only"
+        },
+        {
+          "case": "rls_denied",
+          "subcode": "TEN_RLS_DENIED",
+          "retention": "audit_and_telemetry_only"
+        },
+        {
+          "case": "cross_tenant_hidden",
+          "subcode": "TEN_CROSS_TENANT_HIDDEN",
+          "retention": "audit_and_telemetry_only"
+        }
+      ]
+    }
+  },
+  "outbox_events": [],
+  "problem_details": {
+    "content_type": "application/problem+json",
+    "field_error_shape": {
+      "item_fields": [
+        "field",
+        "message",
+        "rule",
+        "meta"
+      ],
+      "path": "errors[]",
+      "rules": [
+        "Field errors MUST be safe to show to end-users.",
+        "Field errors MUST NOT contain secrets, raw SQL, stack traces, or internal IDs not intended for the caller."
+      ]
+    },
+    "notes": [
+      "`type` MUST be a stable URI identifying the problem type (no secrets; no request-specific data).",
+      "`instance` MUST be the request path or a stable request identifier suitable for support correlation.",
+      "`detail` MUST be safe for the caller. Internal diagnostics MUST go to logs/traces and be referenced via request_id/trace_id/debug_ref."
+    ],
+    "optional_fields": [
+      "subcode",
+      "trace_id",
+      "retry_after_seconds",
+      "errors",
+      "debug_ref"
+    ],
+    "required_fields": [
+      "type",
+      "title",
+      "status",
+      "detail",
+      "instance",
+      "code",
+      "category",
+      "retryable",
+      "request_id",
+      "occurred_at"
+    ],
+    "rfc": "RFC9457"
+  },
+  "redaction": {
+    "allowed_in_logs_only": [
+      "stack_trace",
+      "exception_class",
+      "internal_debug_context",
+      "database_error_details"
+    ],
+    "must_not_expose": [
+      "Passwords, secrets, tokens, API keys, private keys",
+      "Raw stack traces in client responses",
+      "Raw SQL queries or database connection details",
+      "PII beyond what the caller already provided (e.g., full ID numbers, payment PAN, CVV)",
+      "Internal IDs that are not contractually allowed to be exposed"
+    ],
+    "rules": [
+      "Client-facing `detail` MUST be safe-by-default and free of internal diagnostics.",
+      "If a client needs more detail, the mechanism MUST be support correlation via request_id/trace_id/debug_ref, not richer error bodies."
+    ],
+    "safe_debug_fields": [
+      "request_id",
+      "trace_id",
+      "debug_ref"
+    ]
+  },
+  "references": [
+    {
+      "ref": "https://www.rfc-editor.org/rfc/rfc9457.html",
+      "title": "RFC 9457 — Problem Details for HTTP APIs"
+    },
+    {
+      "ref": "https://hexdocs.pm/ash/error-handling.html",
+      "title": "Ash v3 Error Handling"
+    },
+    {
+      "ref": "IR-1",
+      "title": "IR-1 — Incident Response and Containment Protocol"
+    }
+  ],
+  "registry": {
+    "domain_subcode_floors": {
+      "COMM-1": {
+        "min_version": "1.1.5",
+        "subcode_count": 27,
+        "subcode_prefix": "COMM_"
+      },
+      "INT-1": {
+        "min_version": "1.0.4",
+        "subcode_count": 11,
+        "subcode_prefix": "INT_"
+      },
+      "NOTIF-1": {
+        "min_version": "1.0.4",
+        "subcode_count": 10,
+        "subcode_prefix": "NOTIF_"
+      }
+    },
+    "format_rules": {
+      "category_pattern": "^[a-z][a-z0-9_]*$",
+      "subcode_pattern": "^[A-Z0-9]+_[A-Z0-9]+(?:_[A-Z0-9]+)*$",
+      "top_level_code_pattern": "^ERR_[A-Z0-9_]+$"
+    },
+    "invariants": [
+      "Top-level codes MUST be unique.",
+      "Subcodes MUST be unique.",
+      "Every subcode MUST reference an existing top-level code.",
+      "Top-level codes MUST be stable; rename is forbidden. Deprecation requires keeping old codes as deprecated aliases only if explicitly allowed.",
+      "Subcodes MUST NOT begin with 'ERR_' (reserved for top-level codes).",
+      "New codes/subcodes require test-gate updates and CANON pin updates.",
+      "Subcodes MUST include a domain prefix + at least one underscore separator (e.g., ORD_*, EVT_*, TEN_*)."
+    ],
+    "security_signal_events": [
+      {
+        "event": "ticketing.iam.mfa.recovery_used",
+        "must_emit": true,
+        "severity": "warning",
+        "subcode": "IAM_RECOVERY_CODE_USED"
+      },
+      {
+        "event": "ticketing.ir.device.quarantined",
+        "must_emit": true,
+        "severity": "warning",
+        "subcode": "IR_DEVICE_QUARANTINED"
+      },
+      {
+        "event": "ticketing.ir.containment.partial",
+        "must_emit": true,
+        "severity": "error",
+        "subcode": "IR_CONTAINMENT_PARTIAL"
+      },
+      {
+        "event": "ticketing.ir.edge.shedding.active",
+        "must_emit": true,
+        "severity": "warning",
+        "subcode": "IR_EDGE_SHEDDING_ACTIVE"
+      }
+    ],
+    "subcodes": [
+      {
+        "subcode": "AUTH_ACTOR_CONTEXT_MISSING",
+        "top_level": "ERR_UNAUTHENTICATED"
+      },
+      {
+        "subcode": "DSAR_ACCESS_DENIED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "DSAR_ADMIN_APPROVAL_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "DSAR_ANON_THRESHOLD_VIOLATION",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "DSAR_CRYPTOSHRED_FAILED",
+        "top_level": "ERR_INTERNAL"
+      },
+      {
+        "subcode": "DSAR_EXPORT_TOKEN_INVALID_OR_EXPIRED",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      {
+        "subcode": "DSAR_SUPPORT_APPROVAL_REJECTED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "DSAR_SUPPORT_APPROVAL_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "DSAR_TIMELINE_BREACH",
+        "top_level": "ERR_INTERNAL"
+      },
+      {
+        "subcode": "DSAR_VERIFICATION_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "EVT_CONTEXT_MISSING",
+        "top_level": "ERR_BAD_REQUEST"
+      },
+      {
+        "subcode": "EVT_IDEMPOTENCY_REPLAY",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "EVT_INVALID_TYPE",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "EXT_IDEMPOTENCY_KEY_REQUIRED",
+        "top_level": "ERR_BAD_REQUEST"
+      },
+      {
+        "subcode": "EXT_IDEMPOTENCY_REPLAY",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "EXT_RATE_LIMITED",
+        "top_level": "ERR_RATE_LIMITED"
+      },
+      {
+        "subcode": "EXT_SIGNATURE_INVALID",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "EXT_TIMESTAMP_SKEW",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "retryability_override": "never",
+        "subcode": "EXT_WEBHOOK_PERMANENT_FAILURE",
+        "top_level": "ERR_THIRD_PARTY"
+      },
+      {
+        "subcode": "EXT_WEBHOOK_RETRYABLE",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "GOV_APPROVAL_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "GOV_DUAL_CONTROL_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "GOV_VERIFICATION_EVIDENCE_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "notes": "Session or grant assurance epoch is stale due to MFA/security posture change. Client MUST re-authenticate and re-verify strong step-up as required.",
+        "subcode": "IAM_ASSURANCE_EPOCH_MISMATCH",
+        "top_level": "ERR_UNAUTHENTICATED"
+      },
+      {
+        "subcode": "IAM_BREAK_GLASS_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "notes": "Consumer proof (IAM-2: sms/email OTP, consumer passkeys) is insufficient for this capability. Requires IAM-3 strong step-up (aal2_strong).",
+        "subcode": "IAM_LOW_PROOF_NOT_SUFFICIENT",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "IAM_MFA_CHALLENGE_REQUIRED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "IAM_MFA_ENROLLMENT_EXPIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "IAM_MFA_INVALID_CODE",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "IAM_MFA_LOCKED",
+        "top_level": "ERR_RATE_LIMITED"
+      },
+      {
+        "subcode": "IAM_MFA_REQUIRED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "IAM_RECOVERY_CODE_INVALID",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "notes": "Recovery code usage MUST emit ticketing.iam.mfa.recovery_used security signal and require AAL2 re-enrollment for privileged actions.",
+        "subcode": "IAM_RECOVERY_CODE_USED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "IAM_ROLE_GRANT_FORBIDDEN",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "IAM_SESSION_EXPIRED",
+        "top_level": "ERR_UNAUTHENTICATED"
+      },
+      {
+        "subcode": "IAM_STEPUP_GRANT_EXPIRED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "LED_ACCOUNT_CLOSED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "LED_CURRENCY_MISMATCH",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "LED_DUPLICATE_ENTRY_KEY",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "LED_IDEMPOTENCY_KEY_REUSE",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "LED_IDEMPOTENCY_REPLAY",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "LED_PERIOD_CLOSED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "LED_RECONCILIATION_REQUIRED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "LED_UNBALANCED_ENTRY",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "LOCKS_ADVISORY_LOCK_BUSY",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "LOCKS_DEADLOCK_OR_SERIALIZATION",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "LOCKS_IDEMPOTENCY_IN_PROGRESS",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "LOCKS_OPTIMISTIC_CONFLICT",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "LOCKS_UNIQUE_VIOLATION",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "OBS_DEGRADED_MODE_BLOCKED",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "OBS_PII_BREAK_GLASS_INVOCATION",
+        "top_level": "ERR_INTERNAL"
+      },
+      {
+        "subcode": "OBS_PRIVACY_THRESHOLD_PROBING_DETECTED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "OBS_REQUEST_ID_MISSING",
+        "top_level": "ERR_BAD_REQUEST"
+      },
+      {
+        "notes": "One or more add-on line items reference a base line item that is not present in the order payload or is not eligible.",
+        "subcode": "ORD_ADDON_DEPENDENCY_MISSING",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "ORD_ALREADY_FINALIZED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "notes": "Order checkout attempt is outside the allowed checkout TTL window; client MUST restart checkout and obtain fresh price snapshot / holds.",
+        "subcode": "ORD_CHECKOUT_EXPIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "ORD_CHECKOUT_SNAPSHOT_MISMATCH",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "ORD_CURRENCY_MISMATCH",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "ORD_EMAIL_INVALID",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "notes": "entitlement_allocations is missing required fields, has invalid types, references unknown line_key, or violates allocation invariants (e.g., mixed entitlement_kind within one line_key).",
+        "subcode": "ORD_ENTITLEMENT_ALLOCATION_INVALID",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "notes": "Sum(qty) of entitlement_allocations per line_key MUST equal the signed priced line quantity; mismatch indicates drift between requested allocations and signed PRICE snapshot.",
+        "subcode": "ORD_ENTITLEMENT_ALLOCATION_QTY_MISMATCH",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "ORD_IDEMPOTENCY_CONFLICT",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "ORD_LINE_ITEMS_INVALID",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "ORD_LINE_ITEM_QUANTITY_INVALID",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "ORD_MULTI_EVENT_ORDER_FORBIDDEN",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "ORD_PAYMENT_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "ORD_PAYMENT_STATE_INVALID",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "ORD_PHONE_INVALID",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "ORD_PRICE_SNAPSHOT_EXPIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "ORD_PRICE_SNAPSHOT_IMMUTABLE",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "ORD_PRICE_SNAPSHOT_REQUIRED",
+        "top_level": "ERR_BAD_REQUEST"
+      },
+      {
+        "subcode": "ORD_PRIMARY_ACCESS_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "ORD_REFUND_NOT_ALLOWED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "ORD_REFUND_TOTAL_EXCEEDS_PAID",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "ORD_SEAT_ALLOCATION_INVALID",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "ORD_SEAT_HOLD_EXPIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "ORD_SEAT_HOLD_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "ORD_STATE_CONFLICT",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "ORD_TENANT_REQUIRED",
+        "top_level": "ERR_BAD_REQUEST"
+      },
+      {
+        "subcode": "ORD_TOTAL_MISMATCH",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "PAY_AMOUNT_MISMATCH",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "PAY_CURRENCY_MISMATCH",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "PAY_CURRENCY_UNSUPPORTED",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "PAY_INQUIRY_TTL_EXCEEDED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "PAY_INSUFFICIENT_FUNDS",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "notes": "Payment capture/settlement confirmed after the associated seat hold expired; system MUST NOT issue entitlements and MUST attempt provider void or refund deterministically.",
+        "subcode": "PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "PAY_LIABILITY_CAP_EXCEEDED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "PAY_PROVIDER_DECLINED",
+        "top_level": "ERR_THIRD_PARTY"
+      },
+      {
+        "subcode": "PAY_PROVIDER_TIMEOUT",
+        "top_level": "ERR_TIMEOUT"
+      },
+      {
+        "subcode": "PAY_RESERVATION_FAILED",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "PAY_ROUTE_DECISION_HASH_MISMATCH",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "PAY_WEBHOOK_REPLAYED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "PII_ACCESS_DENIED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "PII_AUDIT_REASON_REQUIRED",
+        "top_level": "ERR_BAD_REQUEST"
+      },
+      {
+        "subcode": "PII_CRYPTOSHRED_FAILED",
+        "top_level": "ERR_INTERNAL"
+      },
+      {
+        "subcode": "PII_DATA_CLASSIFICATION_VIOLATION",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "PII_EXPORT_TOKEN_INVALID_OR_EXPIRED",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      {
+        "subcode": "PII_LOG_REDACTION_VIOLATION",
+        "top_level": "ERR_INTERNAL"
+      },
+      {
+        "subcode": "PII_MAPPING_FORBIDDEN_BY_CONSENT",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "PII_VAULT_ALIAS_FORBIDDEN",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "PII_VAULT_ALIAS_NOT_FOUND",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      {
+        "notes": "Subscriber-priced lines MUST NOT stack with promo/coupon/other discounts. Raised when discount_stack_kind != \"none\" or discount_total_minor != 0 while entitlement context is present.",
+        "subcode": "PRICE_DISCOUNT_STACK_FORBIDDEN",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "PRICE_MIXED_CURRENCY",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "PRICE_MUTATION_ATTEMPT",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "PRICE_SNAPSHOT_EXPIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "PRICE_TOTAL_MISMATCH",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "PRICE_UNSUPPORTED_CURRENCY",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "PROD_JOB_DUPLICATE",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "PROD_JOB_FAILED",
+        "top_level": "ERR_INTERNAL"
+      },
+      {
+        "subcode": "PROD_JOB_TIMEOUT",
+        "top_level": "ERR_TIMEOUT"
+      },
+      {
+        "subcode": "PROD_QUEUE_OVERLOADED",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "REFUND_AFTER_ENTRY_FORBIDDEN",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "REFUND_FEE_RECOVERY_MODE_REQUIRED",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "REFUND_FEE_REFUND_REASON_REQUIRED",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "REFUND_LOCK_WINDOW_ACTIVE",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "REFUND_PLATFORM_FEE_REFUND_FORBIDDEN",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "REFUND_PROVIDER_AMOUNT_MISMATCH",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SEAT_ALLOCATION_FAILED_NO_CONTIGUOUS_BLOCK",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SEAT_ALREADY_ALLOCATED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SEAT_ALREADY_HELD",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SEAT_ALREADY_SOLD",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SEAT_CAPACITY_EXHAUSTED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SEAT_HOLD_EXPIRED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SEAT_HOLD_TOKEN_INVALID",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "SEAT_INVALID_REQUEST",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "SEAT_MAP_VERSION_MISMATCH",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "SEAT_SEATMAP_VERSION_MISMATCH",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "SEAT_STALE_RECORD",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SEC_RATE_LIMIT_TRIP",
+        "top_level": "ERR_RATE_LIMITED"
+      },
+      {
+        "subcode": "SEC_SUSPICIOUS_ACTIVITY_BLOCKED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "SM_GUARD_FAILED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SM_INVALID_STATE",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "SM_STALE_RECORD",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SM_TRANSITION_NOT_ALLOWED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SUB_ENTITLEMENT_NOT_ELIGIBLE",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "SUB_ENTITLEMENT_REQUIRED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "SUB_FORBIDDEN",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "SUB_GRACE_PERIOD_ELAPSED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "SUB_INVALID_INPUT",
+        "top_level": "ERR_BAD_REQUEST"
+      },
+      {
+        "subcode": "SUB_INVALID_STATE",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "SUB_NOT_FOUND",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      {
+        "subcode": "SUB_OFFER_NOT_AVAILABLE",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "SUB_PROGRAM_NOT_FOUND",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      {
+        "subcode": "SUB_QUOTA_EXCEEDED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "SUB_SUBJECT_MISMATCH",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "SUB_TIER_CONFLICT",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "TAX_CONTEXT_DIGEST_MISMATCH",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "TAX_EXTERNAL_PROVIDER_BAD_RESPONSE",
+        "top_level": "ERR_THIRD_PARTY"
+      },
+      {
+        "retryability_override": "always",
+        "subcode": "TAX_EXTERNAL_PROVIDER_TIMEOUT",
+        "top_level": "ERR_TIMEOUT"
+      },
+      {
+        "subcode": "TAX_ITEM_REF_TYPE_UNKNOWN",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "TAX_JURISDICTION_OVERRIDE_UNAUTHORIZED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "TAX_JURISDICTION_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "TAX_MODE_INVALID",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "TAX_PROFILE_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "retryability_override": "always",
+        "subcode": "TAX_PROVIDER_UNAVAILABLE",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "TAX_RATE_NOT_EFFECTIVE",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "TAX_RATE_OVERLAP",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "TAX_RATE_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "TAX_REPORTING_PERIOD_LOCKED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "TAX_TAX_PROFILE_INACTIVE",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "TAX_TOTAL_MISMATCH",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "TAX_VAT_NUMBER_INVALID",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "TEN_CROSS_TENANT_HIDDEN",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      {
+        "subcode": "TEN_RLS_DENIED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "TEN_SUPPORT_MODE_UNAUTHORIZED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "TEN_TENANT_CONTEXT_MISSING",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "TEN_TENANT_MISMATCH",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "TRK_DATA_CLASSIFICATION_VIOLATION",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "TRK_EVENT_SCHEMA_VIOLATION",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "TRK_LOG_PII_REDACTION_VIOLATION",
+        "top_level": "ERR_INTERNAL"
+      },
+      {
+        "subcode": "TRK_PII_DIRECT_IDENTIFIER_FORBIDDEN",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "PROOF_MANIFEST_MISSING",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "TAX_MAP_MISMATCH",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "PERIOD_LOCK_VIOLATION",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "CLAIM_REPLAY_DETECTED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "RLS_BYPASS_ATTEMPT",
+        "top_level": "ERR_INTERNAL"
+      },
+      {
+        "subcode": "TAX_MAP_MISSING",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "CREDENTIAL_NOT_READY",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "MIGRATION_BLOCKED_BY_INCIDENT",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "notes": "Generic public-facing containment block when incident posture is active; public boundaries MUST NOT leak internal scope or tier labels.",
+        "subcode": "IR_INCIDENT_ACTIVE",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "notes": "Used when a scoped incident containment blocks the attempted operation.",
+        "subcode": "IR_SCOPE_CONTAINED",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "notes": "Used when incident posture forces stronger proof or recent re-verification before proceeding.",
+        "subcode": "IR_STEP_UP_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "IR_PAYOUT_FROZEN_SECURITY",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "IR_RELEASE_BLOCKED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "IR_BREAK_GLASS_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "IR_CONTAINMENT_PARTIAL",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "IR_DEVICE_QUARANTINED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "IR_INTERACTIVE_UPGRADE_BLOCKED",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "IR_UNVERIFIED_PROVIDER_QUARANTINED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "IR_SEVERANCE_RECONCILIATION_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "IR_EDGE_SHEDDING_ACTIVE",
+        "top_level": "ERR_RATE_LIMITED"
+      },
+      {
+        "subcode": "IR_LEASED_JOB_BLOCKED",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "COMM_ATTACHMENT_FORBIDDEN",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "COMM_BULK_SEND_REQUIRES_QUORUM",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "COMM_CHANNEL_DISABLED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "COMM_CONSENT_PROOF_INVALID",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "COMM_CONSENT_REQUIRED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "COMM_DEDUPE_HIT",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "COMM_LOCALE_UNRESOLVABLE",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "COMM_PII_MAPPING_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "COMM_PROVIDER_KIND_NOT_ALLOWED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "COMM_PROVIDER_UNAVAILABLE",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "COMM_PROVIDER_WEBHOOK_UNAUTHENTICATED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "COMM_RATE_LIMITED",
+        "top_level": "ERR_RATE_LIMITED"
+      },
+      {
+        "subcode": "COMM_RECIPIENT_SUPPRESSED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "COMM_RECIPIENT_UNRESOLVABLE",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "COMM_RENDER_VARIABLE_MISSING",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "COMM_RESEND_RATE_LIMITED",
+        "top_level": "ERR_RATE_LIMITED"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "COMM_SAFE_MODE_ACTIVE",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "COMM_TEMPLATE_COMPONENT_UNPINNED",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "COMM_TEMPLATE_IMPORT_LINT_FAILED",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "COMM_TEMPLATE_NOT_FOUND",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      {
+        "subcode": "COMM_TEMPLATE_NOT_PUBLISHED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "COMM_TEMPLATE_VERSION_NOT_ALLOWED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "COMM_TRACKING_TOKEN_REQUIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "COMM_VARIABLE_FORBIDDEN",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "COMM_VARIABLE_TYPE_INVALID",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "COMM_WEBHOOK_AUTH_FAILED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "COMM_WEBHOOK_REPLAY_DETECTED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "INT_PROVIDER_ACCOUNT_NOT_FOUND",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      {
+        "subcode": "INT_PROVIDER_CAPABILITY_UNSUPPORTED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "INT_PROVIDER_CIRCUIT_OPEN",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "INT_PROVIDER_DISABLED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "INT_PROVIDER_RATE_LIMITED",
+        "top_level": "ERR_RATE_LIMITED"
+      },
+      {
+        "subcode": "INT_PROVIDER_ROUTE_AMBIGUOUS",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "INT_PROVIDER_ROUTE_NOT_FOUND",
+        "top_level": "ERR_NOT_FOUND"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "INT_PROVIDER_SECRET_UNAVAILABLE",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "INT_PROVIDER_TENANT_SCOPE_VIOLATION",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "INT_WEBHOOK_REPLAY_DETECTED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "INT_WEBHOOK_SIGNATURE_INVALID",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "NOTIF_COMM_REQUEST_FAILED",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "NOTIF_CONSENT_PROOF_REQUIRED",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "NOTIF_EVENT_SCHEMA_MISMATCH",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "NOTIF_IDEMPOTENCY_CONFLICT",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "NOTIF_REACTOR_DISABLED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "NOTIF_RECIPIENT_UNRESOLVABLE",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "retryability_override": "conditional",
+        "subcode": "NOTIF_SAFE_MODE_DEFERRED",
+        "top_level": "ERR_UNAVAILABLE"
+      },
+      {
+        "subcode": "NOTIF_TRIGGER_NOT_REGISTERED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "NOTIF_TRIGGER_SCOPE_FORBIDDEN",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "NOTIF_VARIABLE_MAPPING_FAILED",
+        "top_level": "ERR_VALIDATION"
+      }
+    ],
+    "top_level_codes": [
+      {
+        "category": "validation",
+        "code": "ERR_VALIDATION",
+        "http_status": 422,
+        "retryability": "never",
+        "retryable": false
+      },
+      {
+        "category": "validation",
+        "code": "ERR_BAD_REQUEST",
+        "http_status": 400,
+        "retryability": "never",
+        "retryable": false
+      },
+      {
+        "category": "authn",
+        "code": "ERR_UNAUTHENTICATED",
+        "http_status": 401,
+        "retryability": "never",
+        "retryable": false
+      },
+      {
+        "category": "authz",
+        "code": "ERR_FORBIDDEN",
+        "http_status": 403,
+        "retryability": "never",
+        "retryable": false
+      },
+      {
+        "category": "not_found",
+        "code": "ERR_NOT_FOUND",
+        "http_status": 404,
+        "retryability": "never",
+        "retryable": false
+      },
+      {
+        "category": "conflict",
+        "code": "ERR_CONFLICT",
+        "http_status": 409,
+        "retryability": "conditional",
+        "retryable": true
+      },
+      {
+        "category": "conflict",
+        "code": "ERR_PRECONDITION",
+        "http_status": 412,
+        "retryability": "never",
+        "retryable": false
+      },
+      {
+        "category": "rate_limited",
+        "code": "ERR_RATE_LIMITED",
+        "http_status": 429,
+        "retryability": "always",
+        "retryable": true
+      },
+      {
+        "category": "timeout",
+        "code": "ERR_TIMEOUT",
+        "http_status": 504,
+        "retryability": "always",
+        "retryable": true
+      },
+      {
+        "category": "unavailable",
+        "code": "ERR_UNAVAILABLE",
+        "http_status": 503,
+        "retryability": "always",
+        "retryable": true
+      },
+      {
+        "category": "third_party",
+        "code": "ERR_THIRD_PARTY",
+        "http_status": 502,
+        "retryability": "conditional",
+        "retryable": true
+      },
+      {
+        "category": "internal",
+        "code": "ERR_INTERNAL",
+        "http_status": 500,
+        "retryability": "conditional",
+        "retryable": true
+      }
+    ]
+  },
+  "retryability": {
+    "client_rules": [
+      "Clients MUST treat retryable=true as a hint, not a guarantee.",
+      "Clients MUST respect `Retry-After` if present (HTTP) or retry_after_seconds in body.",
+      "Retries MUST be idempotent; if not idempotent, client MUST use idempotency keys or avoid automatic retry."
+    ],
+    "taxonomy": [
+      {
+        "meaning": "Client MUST NOT retry automatically; fix request or permissions.",
+        "name": "never"
+      },
+      {
+        "meaning": "Client MAY retry only when the request is safe to retry (idempotent) and conditions indicate a transient failure; generally used for conflicts or transient upstream errors.",
+        "name": "conditional"
+      },
+      {
+        "meaning": "Client MUST retry with exponential backoff and jitter; used for timeouts, rate limiting, and temporary unavailability.",
+        "name": "always"
+      }
+    ]
+  },
+  "rules": [
+    {
+      "applies_to": [
+        "bundle_artifacts",
+        "ci"
+      ],
+      "category": "governance",
+      "rationale": "Prevents integrity drift and makes canon pinning meaningful.",
+      "rule_id": "ERR-1-META-001",
+      "severity": "P0",
+      "text": "ERR-1 contract and ERR-1-GATE MUST be the only normative sources for error envelope shape and error code registry. Filenames MUST match the CS-0 bundle conventions; repack suffixes (_rN) are forbidden."
+    },
+    {
+      "applies_to": [
+        "http_apis"
+      ],
+      "category": "http",
+      "rationale": "Standardized error shape improves client handling and observability.",
+      "rule_id": "ERR-1-HTTP-001",
+      "severity": "P0",
+      "text": "All HTTP API errors MUST be emitted as RFC9457 Problem Details (application/problem+json) and MUST include all fields in problem_details.required_fields. Only problem_details.optional_fields may be included as extensions."
+    },
+    {
+      "applies_to": [
+        "registry"
+      ],
+      "category": "registry",
+      "rationale": "Registry integrity prevents freelancing and ambiguous error interpretation.",
+      "rule_id": "ERR-1-REG-001",
+      "severity": "P0",
+      "text": "Top-level codes and subcodes MUST be unique. Each subcode MUST reference an existing top-level code. Top-level codes MUST match registry.format_rules.top_level_code_pattern. Subcodes MUST match registry.format_rules.subcode_pattern."
+    },
+    {
+      "applies_to": [
+        "http_apis",
+        "webhooks",
+        "logs"
+      ],
+      "category": "security",
+      "rationale": "Prevents data leakage and reduces attack surface.",
+      "rule_id": "ERR-1-RED-001",
+      "severity": "P0",
+      "text": "Client-facing error payloads MUST NOT expose secrets, stack traces, raw SQL, or sensitive internal diagnostics. Use request_id/trace_id/debug_ref for support correlation. Redaction rules in redaction.must_not_expose are mandatory."
+    },
+    {
+      "applies_to": [
+        "ash_boundaries"
+      ],
+      "category": "ash",
+      "rationale": "Ash aggregates errors and returns structured exceptions; translation must be consistent across boundaries.",
+      "rule_id": "ERR-1-ASH-001",
+      "severity": "P1",
+      "text": "Ash 3.x errors MUST be translated via mappings.mappings.ash_3. Translation MUST handle aggregates and MUST preserve the correct top-level classification while avoiding leakage of internal exception details."
+    },
+    {
+      "applies_to": [
+        "public_boundaries",
+        "interactive_upgrades",
+        "incident_surfaces"
+      ],
+      "category": "security",
+      "rationale": "Prevents attackers from learning internal containment posture from client-facing error labels.",
+      "rule_id": "ERR-1-IR-001",
+      "severity": "P0",
+      "text": "IR-prefixed subcodes MUST be translated through mappings.incident_response_boundary at public boundaries. Raw IR-prefixed subcodes MUST remain internal to logs, traces, incident evidence, and privileged operator views."
+    },
+    {
+      "applies_to": [
+        "incident_surfaces",
+        "jobs",
+        "provider_quarantine"
+      ],
+      "category": "incident_response",
+      "rationale": "Ensures incident-response error vocabulary exists before implementation and remains deterministic across surfaces.",
+      "rule_id": "ERR-1-IR-002",
+      "severity": "P1",
+      "text": "Containment blocks, quarantine paths, severance gates, interactive-upgrade denial, leased-job barriers, and payout freezes triggered by incident posture MUST use registered IR-prefixed subcodes from ERR-1.registry.subcodes."
+    },
+    {
+      "applies_to": [
+        "operator_views",
+        "public_boundaries"
+      ],
+      "category": "security",
+      "rationale": "Separates operator truth from user-safe messaging while preserving support correlation.",
+      "rule_id": "ERR-1-IR-003",
+      "severity": "P1",
+      "text": "Client-facing responses MAY expose only top-level code, user-safe message, correlation_id, and allowed extensions. Internal subcode, incident_id, approved_scope, and containment class are privileged details unless an explicit privileged boundary contract allows them."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Canonical, enforceable error envelope + stable error code registry with incident-response vocabulary, public/internal boundary mapping, and CS-0@2.3.0 alignment.",
+  "tags": [
+    "errors",
+    "rfc9457",
+    "problem-details",
+    "ash-3",
+    "enterprise",
+    "multi-tenant"
+  ],
+  "title": "ERR-1 — Error Handling & Error Code Registry",
+  "updated_at": "2026-06-03T14:50:00Z",
+  "updated_at_utc": "2026-06-03T14:50:00Z",
+  "version": "1.8.2",
+  "approved_authority_corrections": {
+    "external_error_authority": "ERR-1 alone defines external top-level error and subcode identifiers. Other contracts may reference registered ERR-1 identifiers only. Missing tenant and missing or wrong-tenant hidden resource responses are HTTP 404 ERR_NOT_FOUND; internal causes remain audit/telemetry only."
+  }
+}

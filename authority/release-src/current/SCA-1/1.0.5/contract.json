@@ -1,0 +1,348 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "scanner_client_architecture_addendum",
+  "change_log": [
+    {
+      "changes": [
+        "Initial addendum locking native camera requirement, offline-first journal, sync/conflict semantics, and web scanning restriction to admin surfaces."
+      ],
+      "date_utc": "2026-02-18T08:30:26Z",
+      "version": "1.0.0"
+    },
+    {
+      "changes": [
+        "Added advisory implementation-order guidance covering conformance harness, native scanner hot path, backend sync, optional LiveView Native shells, and hardening."
+      ],
+      "date_utc": "2026-02-18T15:54:10.527481Z",
+      "version": "1.0.1"
+    },
+    {
+      "changes": [
+        "Expanded advisory implementation guidance with explicit platform/library recommendations and phase ordering for Android, iOS, and backend sync surfaces."
+      ],
+      "date_utc": "2026-02-18T16:18:19Z",
+      "version": "1.0.2"
+    },
+    {
+      "changes": [
+        "Added Ash 3.x-oriented backend boundary guidance for scanner sync surfaces.",
+        "Release package contained manifest/linkage defects and remained draft; superseded by 1.0.4."
+      ],
+      "date_utc": "2026-02-18T16:59:37Z",
+      "version": "1.0.3"
+    },
+    {
+      "changes": [
+        "Fixed bundle/gates/manifest version and integrity drift.",
+        "Sharpened scope boundaries between SCA-1, SCAN-1, IAM-1, TEN-1, and OBS-1.",
+        "Added explicit input-source abstraction opening the path for optical camera, NFC, RFID, and hardware laser capture without changing evidence semantics.",
+        "Added explicit local journal atomicity and sync identity/ordering rules.",
+        "Clarified Ash 3.x backend boundary and server-side tenant derivation expectations for scanner-facing surfaces.",
+        "Strengthened deterministic gates for artifact linkage, summary authority hygiene, and stable invariant ordering."
+      ],
+      "date_utc": "2026-03-09T19:11:34Z",
+      "version": "1.0.4"
+    }
+  ],
+  "conformance_requirements": [
+    {
+      "id": "SCA-1.CONF.REF_IMPL.ANDROID",
+      "severity": "P0",
+      "statement": "A reference gate-scanner client implementation MUST exist for Android using Kotlin, CameraX, and ML Kit (or equivalent native APIs) with a durable offline journal and sync queue."
+    },
+    {
+      "id": "SCA-1.CONF.REF_IMPL.IOS",
+      "severity": "P0",
+      "statement": "A reference gate-scanner client implementation MUST exist for iOS using Swift/SwiftUI, AVFoundation, and Vision (or equivalent native APIs) with a durable offline journal and sync queue."
+    },
+    {
+      "id": "SCA-1.CONF.CAPABILITY_MANIFEST",
+      "severity": "P0",
+      "statement": "Each gate-scanner build MUST ship a machine-readable capability declaration stating supported input sources, whether web/admin utilities exist, and whether gate mode is native-only."
+    },
+    {
+      "id": "SCA-1.CONF.OFFLINE_HARNESS",
+      "severity": "P0",
+      "statement": "A conformance harness MUST exist to exercise offline scanning, replay, crash recovery, duplicate submission, and backlog replay against the scanner sync protocol."
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Schema validation (CS-0@2.3.0)"
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Gate authoring discipline"
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.14",
+      "reason": "Governance and waiver discipline"
+    },
+    {
+      "doc_id": "SCAN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.2",
+      "reason": "Admission truth, offline conflict semantics, and scan outcome law"
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "foundation_floor",
+      "min_version": "3.4.10",
+      "reason": "Device/operator authentication and session authority boundary"
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.7.12",
+      "reason": "Tenant derivation and tenant isolation boundary"
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.7.17",
+      "reason": "Scanner telemetry and operational visibility boundary"
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.4.2",
+      "reason": "SEC-1 defines JCS (RFC 8785), required for normalized scanner-client JSON."
+    }
+  ],
+  "dependency_floors": {
+    "CS-0": "2.3.0",
+    "GOV-0": "2.0.14",
+    "IAM-1": "3.4.10",
+    "OBS-1": "2.7.17",
+    "SCAN-1": "1.6.2",
+    "TEN-1": "1.7.12",
+    "TG-0": "2.3.0",
+    "SEC-1": "3.4.2"
+  },
+  "dependency_pins": [
+    {
+      "doc_id": "CS-0",
+      "reason": "CI schema version",
+      "version": "2.3.0"
+    },
+    {
+      "doc_id": "TG-0",
+      "reason": "Gate schema family",
+      "version": "2.3.0"
+    },
+    {
+      "doc_id": "GOV-0",
+      "reason": "Governance baseline",
+      "version": "2.0.14"
+    },
+    {
+      "doc_id": "SCAN-1",
+      "reason": "Scan semantics referenced",
+      "version": "1.6.2"
+    },
+    {
+      "doc_id": "IAM-1",
+      "reason": "Auth baseline referenced",
+      "version": "3.4.10"
+    },
+    {
+      "doc_id": "TEN-1",
+      "reason": "Tenancy baseline referenced",
+      "version": "1.7.12"
+    },
+    {
+      "doc_id": "OBS-1",
+      "reason": "Observability baseline referenced",
+      "version": "2.7.17"
+    },
+    {
+      "doc_id": "SEC-1",
+      "reason": "JCS (RFC 8785) normalization authority",
+      "version": "3.4.3"
+    },
+    {
+      "doc_id": "SEC-1",
+      "reason": "JCS (RFC 8785) normalization authority",
+      "version": "3.4.3"
+    }
+  ],
+  "doc_id": "SCA-1",
+  "generated_at_utc": "2026-03-09T19:11:34Z",
+  "invariants": [
+    {
+      "id": "SCA-1-INV-NATIVE-CAPTURE-GATE",
+      "severity": "P0",
+      "statement": "Any client designated as 'gate_scanner_client' SHALL use a platform-native capture pipeline and native decode library for the primary scan loop. Optical camera capture SHALL be supported as the baseline capture mode for gate-scanner conformance.",
+      "testability": "Verified via capability declaration, binary/app manifest inspection, and runtime conformance tests."
+    },
+    {
+      "id": "SCA-1-INV-INPUT-SOURCE-ABSTRACTION",
+      "severity": "P0",
+      "statement": "Capture SHALL be modeled through an InputSource abstraction. Supported input sources MAY include optical_camera, nfc_tap, rfid_reader, and hardware_laser_scanner, but changing InputSource SHALL NOT change journal schema, sync envelope, idempotency semantics, or SCAN-1 outcome semantics.",
+      "testability": "Verified through capability declaration plus cross-source conformance vectors for claimed sources."
+    },
+    {
+      "id": "SCA-1-INV-OFFLINE-ADMISSION-JOURNAL",
+      "severity": "P0",
+      "statement": "Gate-scanner clients SHALL maintain a durable append-only local admission journal and SHALL be able to validate, record, and later sync scan attempts while offline. Journal entries SHALL be retained until acknowledged by server sync and SHALL only be compacted in an audit-preserving manner.",
+      "testability": "Offline conformance harness validates journal growth, retention, and post-outage sync."
+    },
+    {
+      "id": "SCA-1-INV-JOURNAL-ATOMICITY",
+      "severity": "P0",
+      "statement": "Creation of a journal record and its upload-eligibility state SHALL commit atomically in one local durable transaction. The client SHALL NOT signal operator success before that transaction commits.",
+      "testability": "Crash-recovery harness validates no orphaned uploads and no unjournaled successful scans."
+    },
+    {
+      "id": "SCA-1-INV-SYNC-IDENTITY-ORDERING",
+      "severity": "P0",
+      "statement": "Each scan attempt SHALL have one immutable client-generated scan_event_id. local_journal_seq SHALL provide per-device ordering evidence only and SHALL NOT replace scan_event_id as immutable identity. Server-side replay protection SHALL key primarily on authenticated device identity plus scan_event_id.",
+      "testability": "Replay vectors and duplicate-submission simulations validate stable identities and ordering evidence."
+    },
+    {
+      "id": "SCA-1-INV-HYDRATION-BINDING",
+      "severity": "P0",
+      "statement": "Every locally decided scan record SHALL capture the hydration or snapshot identifiers required to explain the decision under SCAN-1. The client SHALL NOT invent local acceptance semantics when required hydration inputs are absent or stale; it SHALL persist the condition and follow SCAN-1-defined behavior.",
+      "testability": "Hydration-state vectors validate that offline decisions remain explainable and policy-aligned."
+    },
+    {
+      "id": "SCA-1-INV-ASH-BOUNDARY-TENANT-DERIVATION",
+      "severity": "P0",
+      "statement": "Scanner-facing backend hydrate and sync surfaces SHALL terminate in Ash 3.x resources/actions. Transport adapters MAY translate payloads but SHALL NOT implement admission logic directly. Tenant scope and authorized occurrence/gate scope SHALL be derived server-side from authenticated device/operator context, not from client-declared tenant truth.",
+      "testability": "Verified by backend architecture review, action-level conformance tests, and tenant-scope negative tests."
+    },
+    {
+      "id": "SCA-1-INV-WEB-ADMIN-ONLY",
+      "severity": "P0",
+      "statement": "Web/hybrid scanning SHALL NOT be an admission-critical surface. Web or hybrid scanning, if present, SHALL be restricted to explicitly labelled administrative utilities and SHALL NOT be used to assert admission truth or gate throughput.",
+      "testability": "Governance lint checks declared surfaces and product acceptance checks forbid gate mode on web/hybrid scan surfaces."
+    }
+  ],
+  "last_updated_utc": "2026-03-09T19:11:34Z",
+  "normative_source": {
+    "primary_contract_refs": [
+      {
+        "doc_id": "SCAN-1",
+        "min_version": "1.6.2",
+        "notes": "Offline scan acceptance, conflict semantics, scan hot-path budgets, and admission truth invariants."
+      },
+      {
+        "doc_id": "IAM-1",
+        "min_version": "3.4.10",
+        "notes": "Device/operator authentication and session authority boundaries."
+      },
+      {
+        "doc_id": "TEN-1",
+        "min_version": "1.7.12",
+        "notes": "Tenant derivation and isolation boundaries for scanner-facing surfaces."
+      },
+      {
+        "doc_id": "OBS-1",
+        "min_version": "2.7.17",
+        "notes": "Operational telemetry and scanner observability boundaries."
+      }
+    ]
+  },
+  "rules": [
+    {
+      "applies_to": [
+        "gate_scanner_client"
+      ],
+      "enforcement": "Capability declaration, binary/app manifest inspection, and runtime conformance tests MUST reject non-native primary scan loops.",
+      "id": "SCA-1.RULE.NATIVE_CAPTURE_GATE",
+      "rationale": "Gate throughput depends on predictable focus, frame cadence, and low-light behavior that WebView-based bridges do not provide consistently.",
+      "statement": "Gate-scanner clients MUST implement the primary scan loop using a platform-native capture and decode stack. Android implementations MUST use CameraX + ML Kit or equivalent native APIs; iOS implementations MUST use AVFoundation + Vision or equivalent native APIs."
+    },
+    {
+      "applies_to": [
+        "gate_scanner_client"
+      ],
+      "enforcement": "Capability declaration and source-specific conformance vectors MUST verify that claimed input sources preserve common journal and sync semantics.",
+      "id": "SCA-1.RULE.INPUT_SOURCE_ABSTRACTION",
+      "rationale": "The capture mechanism may evolve, but journal schema, sync shape, and SCAN-1 evidence semantics must remain stable.",
+      "statement": "Gate-scanner clients MUST separate capture from evidence generation through an InputSource abstraction. Supported input sources MAY include optical_camera, nfc_tap, rfid_reader, and hardware_laser_scanner; optical_camera MUST be supported for general gate-scanner conformance."
+    },
+    {
+      "applies_to": [
+        "gate_scanner_client",
+        "admin_surface"
+      ],
+      "enforcement": "Product packaging, declared capabilities, and acceptance testing MUST reject any gate-mode build that exposes web/hybrid scanner surfaces.",
+      "id": "SCA-1.RULE.NO_WEB_SCANNER_GATE",
+      "rationale": "Admission truth cannot depend on browser-permission edge cases or WebView camera variability.",
+      "statement": "Gate-scanner clients MUST NOT rely on HTML, DOM, WebView, Capacitor, or PWA scanning surfaces for admission-critical scanning. Such scanning MAY exist only as explicitly labelled administrative utilities and MUST NOT be represented as admission truth."
+    },
+    {
+      "applies_to": [
+        "gate_scanner_client"
+      ],
+      "enforcement": "Device conformance tests MUST simulate airplane-mode scanning, crash recovery, and later successful sync without data loss.",
+      "id": "SCA-1.RULE.OFFLINE_FIRST_JOURNAL",
+      "rationale": "Venue connectivity is not reliable enough to make gate throughput depend on live network round trips.",
+      "statement": "Gate-scanner clients MUST be offline-first. Each scan attempt MUST be durably appended to a local append-only admission journal before operator success is signaled, and the client MUST continue operating under full network outage."
+    },
+    {
+      "applies_to": [
+        "gate_scanner_client"
+      ],
+      "enforcement": "Crash-injection and restart conformance tests MUST prove atomic journal/outbox behavior.",
+      "id": "SCA-1.RULE.JOURNAL_ATOMICITY",
+      "rationale": "Auditability and syncability fail if journal durability and upload eligibility diverge.",
+      "statement": "Creation of a journal record and its upload-eligibility state MUST commit atomically in one local durable transaction. The client MUST recover safely from crashes between decode, persistence, upload scheduling, retry, and ack application without creating orphaned uploads or unjournaled successful scans."
+    },
+    {
+      "applies_to": [
+        "gate_scanner_client",
+        "backend_ingestion"
+      ],
+      "enforcement": "Replay test vectors and duplicate-submission simulations MUST prove stable identity and deterministic ordering semantics.",
+      "id": "SCA-1.RULE.SYNC_IDENTITY_ORDERING",
+      "rationale": "A single immutable event identity prevents duplicate admission and ambiguity during retries or reconnect storms.",
+      "statement": "Each scan attempt MUST have one immutable client-generated scan_event_id. local_journal_seq SHALL provide per-device ordering evidence only. Sync retries MUST preserve scan_event_id, and server-side replay protection MUST use authenticated device identity plus scan_event_id as the primary replay key while preserving local_journal_seq for ordering and audit evidence."
+    },
+    {
+      "applies_to": [
+        "gate_scanner_client"
+      ],
+      "enforcement": "Hydration-state conformance vectors MUST validate that every offline decision remains bound to its decision inputs.",
+      "id": "SCA-1.RULE.HYDRATION_BINDING",
+      "rationale": "Offline decisions must remain explainable and reconcilable after reconnect; unexplained local decisions create audit holes.",
+      "statement": "Every locally decided scan record MUST capture the hydration or snapshot identifiers needed to explain the decision under SCAN-1. A client MUST NOT invent local acceptance rules when required hydration inputs are absent or stale; it MUST persist the condition and follow SCAN-1-defined behavior."
+    },
+    {
+      "applies_to": [
+        "backend_ingestion"
+      ],
+      "enforcement": "Backend conformance review and negative authorization tests MUST verify Ash action boundaries and server-derived tenant scoping.",
+      "id": "SCA-1.RULE.ASH_BOUNDARY_TENANT_DERIVATION",
+      "rationale": "The scanner boundary must remain policy-aware, tenant-safe, and free from ad hoc controller logic.",
+      "statement": "Scanner-facing backend hydration and sync surfaces MUST terminate in Ash 3.x resources/actions. HTTP controllers, channels, or transport adapters MAY translate payloads but MUST NOT implement admission logic directly. Tenant scope and authorized occurrence/gate scope MUST be derived server-side from authenticated device/operator context and MUST NOT be overridden by client-declared tenant claims."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "draft",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Locks the normative client architecture for gate-scanner applications. SCA-1 governs client capture architecture, local durability semantics, sync identity/ordering, input-source abstraction, and the scanner-facing backend boundary. SCA-1 does not define admission truth, canonical conflict resolution, or reason catalogs; those remain in SCAN-1. SCA-1 does not define device/operator identity policy or tenant policy; those remain in IAM-1 and TEN-1. SCA-1 does not define dashboards or telemetry retention; those remain in OBS-1.\n\nADVISORY IMPLEMENTATION ORDER (non-normative)\n1. Build the native scan loop first: camera/input capture, decode, operator feedback, durable local journal, and retry queue.\n2. Build the minimal backend sync and hydration surfaces second, with Ash 3.x actions as the only domain boundary.\n3. Add optional LiveView Native or other non-scanning shells only after the scan loop and offline sync path are stable.\n4. Run offline, replay, crash-recovery, and queue-backlog hardening before promotion from draft.\n\nA detailed scanner implementation guide should carry step-by-step engineering instructions; this contract preserves the architectural law and the conformance hooks.",
+  "tags": [
+    "scanner",
+    "client",
+    "architecture",
+    "offline-first",
+    "native-camera",
+    "input-source",
+    "ash-3x",
+    "admission"
+  ],
+  "tier": "P0",
+  "title": "Scanner Client Architecture Addendum",
+  "updated_at": "2026-03-09T19:11:34Z",
+  "updated_at_utc": "2026-03-09T19:11:34Z",
+  "version": "1.0.5"
+}

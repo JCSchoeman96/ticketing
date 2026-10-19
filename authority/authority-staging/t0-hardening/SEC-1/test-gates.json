@@ -1,0 +1,797 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "SEC-1-GATE_TestGates_v3.4.3.json",
+  "contract_ref": {
+    "doc_id": "SEC-1",
+    "version": "3.4.3"
+  },
+  "doc_id": "SEC-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@2.2.0 across contract, gates, and manifest.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json filename and content MUST match the bundle contents.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0002",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEC-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.4.3",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "SEC-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "3.4.3",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "SEC-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "3.4.3",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "SEC-1",
+            "json_pointer": "/bundle/bundle_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "3.4.3",
+            "json_pointer": "/bundle/bundle_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Artifact linkage MUST be consistent (doc_id, version, contract_ref, manifest.bundle).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0003",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "T\\s*O\\s*D\\s*O",
+              "T\\s*B\\s*D",
+              "F\\s*I\\s*X\\s*M\\s*E",
+              "R\\s*E\\s*P\\s*L\\s*A\\s*C\\s*E\\s*_\\s*M\\s*E"
+            ],
+            "json_pointers": [
+              "/summary_detail",
+              "/rules",
+              "/webhooks"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Contract MUST NOT include placeholder tokens (TODO/TBD/FIXME/REPLACE_ME).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0004",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "state_aware_requeue_existing",
+            "json_pointer": "/webhooks/receiver_requirements/dedupe_strategy/mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/webhooks/receiver_requirements/durable_enqueue_before_2xx"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/webhooks/receiver_requirements/stuck_sweeper_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "provider + provider_account_ref + provider_event_id",
+            "json_pointer": "/webhooks/dedupe_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "provider + provider_account_ref + provider_event_id",
+            "json_pointer": "/webhooks/receiver_requirements/dedupe_strategy/key_construction"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/webhooks/receiver_requirements/dedupe_strategy/tenant_scope_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Webhook dedupe strategy MUST be state-aware and include provider_account_ref under org_id tenant scope.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0100",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ProviderEvent",
+            "json_pointer": "/webhooks/processing_model/event_resource"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "processing_state",
+            "json_pointer": "/webhooks/processing_model/state_field"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "received",
+              "queued",
+              "processing",
+              "processed",
+              "failed",
+              "dead_letter"
+            ],
+            "json_pointer": "/webhooks/processing_model/states"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/webhooks/processing_model/recovery_sweeper/enabled"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Webhook processing model MUST declare deterministic state machine + sweeper.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0101",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "first_received_at_utc",
+            "json_pointer": "/core_domain_contract/required_attributes/0/attributes/6/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "last_received_at_utc",
+            "json_pointer": "/core_domain_contract/required_attributes/0/attributes/7/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "processing_state",
+            "json_pointer": "/core_domain_contract/required_attributes/0/attributes/8/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "attempt_count",
+            "json_pointer": "/core_domain_contract/required_attributes/0/attributes/9/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "next_retry_at_utc",
+            "json_pointer": "/core_domain_contract/required_attributes/0/attributes/10/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ProviderEvent MUST include webhook processing fields required for replay and recovery.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0102",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "processing_state",
+              "next_retry_at_utc"
+            ],
+            "json_pointer": "/core_domain_contract/required_indexes/2/index"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ProviderEvent MUST have an index suitable for sweeper/retry scheduling.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0103",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "provider",
+              "provider_account_ref",
+              "provider_event_id"
+            ],
+            "json_pointer": "/core_domain_contract/required_identities/0/identity"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "provider",
+              "provider_account_ref",
+              "provider_event_id"
+            ],
+            "json_pointer": "/core_domain_contract/required_indexes/0/index"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "unique",
+            "json_pointer": "/core_domain_contract/required_indexes/0/uniqueness"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "provider_account_ref",
+            "json_pointer": "/core_domain_contract/required_attributes/0/attributes/2/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ProviderEvent MUST include provider_account_ref and enforce org_id-first unique dedupe index (TEN-1 compliance).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0104",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Asserts SEC-1 declares emits_events=false and has an explicit empty outbox_events list. Prevents CI theatre on empty producer surfaces.",
+      "id": "SEC-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "JCS",
+            "json_pointer": "/crypto_primitives/canonical_json/standard"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Ed25519",
+            "json_pointer": "/crypto_primitives/asymmetric_signing/algorithm"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "none",
+            "json_pointer": "/crypto_primitives/encoding/base64url/padding"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "SEC-1 MUST pin JCS + Ed25519 + Base64URL(no padding) primitives for offline artifacts.",
+      "id": "SEC-1-GATE-CRYPTO-PRIMITIVES-PINNED",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^kid_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "json_pointer": "/kid_format/regex"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "SEC-1 MUST define a strict kid_format.regex.",
+      "id": "SEC-1-GATE-KID-FORMAT",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEC-1.HYDRATION_MANIFEST.v1",
+            "json_pointer": "/offline_hydration_manifest/schema_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "entity": "KeyDistributionSnapshotV1",
+              "source_contract": "SEC-1"
+            },
+            "json_pointer": "/offline_hydration_manifest/slots/keys_snapshot"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "fields": [
+                "revoked_ticket_credential_ids",
+                "superseded_ticket_credential_ids"
+              ],
+              "source_contract": "TKT-1"
+            },
+            "json_pointer": "/offline_hydration_manifest/slots/ticket_revocations"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "fields": [
+                "active_allow_list_actor_ids"
+              ],
+              "source_contract": "IAM-1"
+            },
+            "json_pointer": "/offline_hydration_manifest/slots/allow_lists"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "SEC-1 MUST define offline_hydration_manifest root schema and required slots.",
+      "id": "SEC-1-GATE-HYDRATION-MANIFEST-ROOT-SCHEMA",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "active_public_keys[].kid",
+              "grace_public_keys[].kid",
+              "revoked_kids[]",
+              "revoked_ticket_credential_ids[]",
+              "superseded_ticket_credential_ids[]",
+              "active_allow_list_actor_ids[]",
+              "active_dispute_ticket_credential_ids[]"
+            ],
+            "json_pointer": "/offline_hydration_manifest/ordering/sort_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "SEC-1 MUST specify deterministic ordering rules for offline hydration artifacts.",
+      "id": "SEC-1-GATE-SNAPSHOT-DETERMINISM",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "JCS-0001",
+            "json_pointer": "/crypto_primitives/canonical_json/conformance_vectors/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "JCS-0010",
+            "json_pointer": "/crypto_primitives/canonical_json/conformance_vectors/9/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ED25519-JCS-EXCLUDE-0001",
+            "json_pointer": "/crypto_primitives/asymmetric_signing/conformance_vectors/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "SEC-1 MUST include JCS + Ed25519 conformance vectors for byte-level interoperability across signers/verifiers.",
+      "id": "SEC-1-GATE-JCS-CONFORMANCE-VECTORS",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEC1-CONFORMANCE-RUNNER",
+            "json_pointer": "/enforcement_tooling/sec1_conformance_runner/tool_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.3.0",
+            "json_pointer": "/enforcement_tooling/sec1_conformance_runner/tool_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "96193006c4fdef455a144eaf61706ab172a4fb36a60aa5989b7867fce88118da",
+            "json_pointer": "/enforcement_tooling/sec1_conformance_runner/runner_sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1626396f9c8213f78dba34560a8b7c26b813a45c54c03211e662c8bfb536d4ee",
+            "json_pointer": "/enforcement_tooling/sec1_conformance_runner/tools_zip_sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sec1-conformance-evidence/3.0",
+            "json_pointer": "/enforcement_tooling/sec1_conformance_runner/evidence_schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Prevents drift in enforcement tooling (no ghost runner).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "SEC-1 conformance runner tooling pin is missing or drifted.",
+      "id": "SEC-1-GATE-TOOL-PINNING-001",
+      "level": "P0",
+      "must": true,
+      "title": "SEC-1 MUST pin the conformance runner tooling by sha256"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sec1-conformance-evidence/3.0",
+            "json_pointer": "/enforcement_tooling/sec1_conformance_runner/evidence_schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "96193006c4fdef455a144eaf61706ab172a4fb36a60aa5989b7867fce88118da",
+            "json_pointer": "/enforcement_tooling/sec1_conformance_runner/runner_sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "kms_key_id",
+            "json_pointer": "/enforcement_tooling/sec1_conformance_runner/evidence_v3_requirements/attestation_profiles/cloud_kms_key_id/pin_kind"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "SEC-1 MUST specify conformance evidence v3 requirements and attestation profiles",
+      "failure_message": "SEC-1 Phase 7 attestation requirements missing or not pinned.",
+      "id": "SEC-1-GATE-CONFORMANCE-EVIDENCE-V3-REQS",
+      "level": "P0",
+      "must": true,
+      "title": "SEC-1 MUST specify conformance evidence v3 requirements and attestation profiles"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "FAIL_OPEN",
+            "json_pointer": "/security_requirements/transport_security/profiles/0/negotiation_policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "FAIL_OPEN",
+            "json_pointer": "/security_requirements/transport_security/profiles/1/negotiation_policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "FAIL_SAFE",
+            "json_pointer": "/security_requirements/transport_security/profiles/2/negotiation_policy"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Transport security profiles MUST define negotiation_policy defaults (FAIL_OPEN baseline & hybrid, FAIL_SAFE origin-only).",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0200",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "public,trusted_origin",
+            "json_pointer": "/security_requirements/transport_security/profiles/0/allowed_surface_classes_norm"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "public,trusted_origin",
+            "json_pointer": "/security_requirements/transport_security/profiles/1/allowed_surface_classes_norm"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "trusted_origin",
+            "json_pointer": "/security_requirements/transport_security/profiles/2/allowed_surface_classes_norm"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Transport security profiles MUST define allowed surface classes in normalized form for deterministic gating.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0201",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "public,trusted_origin",
+            "json_pointer": "/security_requirements/transport_security/endpoint_policy/surface_classes_allowed_norm"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Endpoint policy MUST define allowed surface classes in normalized form.",
+      "enforced_by": "ci_contract_gate_strict",
+      "id": "SEC-1.GATE.0202",
+      "level": "P0",
+      "must": true
+    }
+  ],
+  "generated_at_utc": "2026-02-08T16:55:10Z",
+  "last_updated_utc": "2026-02-08T16:55:10Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "SEC-1 Test Gates",
+  "updated_at_utc": "2026-02-08T16:55:10Z",
+  "version": "3.4.3",
+  "authority_review_gates": [
+    {
+      "id": "SEC-1-FPP-CORRECTION-REVIEW",
+      "level": "P0",
+      "must": true,
+      "mode": "manual",
+      "description": "Review the approved authority corrections in the paired versionless contract.json draft. Confirm the contract text contains no contradictory legacy lock for the corrected behavior.",
+      "failure_message": "Approved authority correction or legacy contradiction remains unresolved."
+    }
+  ]
+}

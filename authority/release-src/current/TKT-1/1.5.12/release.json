@@ -1,0 +1,13 @@
+{
+  "doc_id": "TKT-1",
+  "version": "1.5.12",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch release removes the suite-pinset dependency, names RFC 8785 semantics, and updates the exact SEC-1 pin.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "6627e75361614f6a23371a8f0437fb4cff695ef2a4945fd6c970e5774ddbb623"
+  }
+}

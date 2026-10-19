@@ -1,0 +1,270 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "SCA-1",
+    "version": "1.0.5"
+  },
+  "doc_id": "SCA-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.0 across contract, gates, and manifest.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Bundle suite_schema drift detected; SCA-1 artifacts are not aligned to CS-0@3.0.0.",
+      "id": "SCA-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle suite schema parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json filename and content MUST match the bundle contents.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Manifest filename or manifest file inventory does not match the actual bundle contents.",
+      "id": "SCA-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest filename and contents"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCA-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.0.5",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "SCA-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.0.5",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "SCA-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.0.5",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "SCA-1",
+            "json_pointer": "/bundle/bundle_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "1.0.5",
+            "json_pointer": "/bundle/bundle_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Artifact linkage MUST be internally consistent (doc_id, version, contract_ref, manifest.bundle).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Contract, test gates, and manifest linkage fields are not internally consistent.",
+      "id": "SCA-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "Artifact linkage parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "draft",
+            "json_pointer": "/status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "draft",
+            "json_pointer": "/status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\bMUST\\b",
+              "\\bSHALL\\b",
+              "\\bmandatory\\b",
+              "implementation-directive",
+              "non-gated"
+            ],
+            "json_pointers": [
+              "/summary"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Draft status and clean authority boundaries MUST be explicit until promotion. The summary MUST remain advisory-only and MUST NOT contain normative law or muddy authority labels.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Draft-state authority boundaries or summary hygiene rules were violated.",
+      "id": "SCA-1-GATE-040",
+      "level": "P0",
+      "must": true,
+      "title": "Draft authority boundary discipline"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCA-1-INV-NATIVE-CAPTURE-GATE",
+            "json_pointer": "/invariants/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCA-1-INV-INPUT-SOURCE-ABSTRACTION",
+            "json_pointer": "/invariants/1/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCA-1-INV-OFFLINE-ADMISSION-JOURNAL",
+            "json_pointer": "/invariants/2/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCA-1-INV-JOURNAL-ATOMICITY",
+            "json_pointer": "/invariants/3/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCA-1-INV-SYNC-IDENTITY-ORDERING",
+            "json_pointer": "/invariants/4/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCA-1-INV-HYDRATION-BINDING",
+            "json_pointer": "/invariants/5/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCA-1-INV-ASH-BOUNDARY-TENANT-DERIVATION",
+            "json_pointer": "/invariants/6/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCA-1-INV-WEB-ADMIN-ONLY",
+            "json_pointer": "/invariants/7/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Required invariants MUST be present in stable order.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Required invariant registry order drift detected.",
+      "id": "SCA-1-GATE-050",
+      "level": "P0",
+      "must": true,
+      "title": "Invariant registry order lock"
+    }
+  ],
+  "generated_at_utc": "2026-03-09T19:11:34Z",
+  "schema_version": "test-gates/1.0",
+  "status": "draft",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "SCA-1 Test Gates",
+  "updated_at": "2026-03-09T19:11:34Z",
+  "version": "1.0.5"
+}

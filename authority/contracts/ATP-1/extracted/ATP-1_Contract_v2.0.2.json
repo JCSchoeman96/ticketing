@@ -1,0 +1,208 @@
+{
+  "artifact_kind": "contract",
+  "banned": {
+    "ash2_terminology": [
+      "Ash.Api",
+      "api_actions",
+      "Api"
+    ],
+    "authorization_bypass": [
+      "authorize? false",
+      "authorize?: false"
+    ],
+    "placeholder_tokens": [
+      "TODO",
+      "TBD",
+      "FIXME",
+      "REPLACEME"
+    ],
+    "tenancy_keys": [
+      "tenant_id",
+      "account_id"
+    ],
+    "unsafe_rls_session_set": [
+      "SET app.current_org_id",
+      "SET app.current_orgid",
+      "SET app.currentorgid"
+    ]
+  },
+  "changelog": [
+    {
+      "changes": [
+        "P1: Declared explicit non-producer surface (emits_events=false, outbox_events=[]).",
+        "P1: Added registry floor parity dependency pin on EVT-1@2.16.4.",
+        "P1: Added ASSERT-NON-PRODUCER gate to prevent CI theatre."
+      ],
+      "date_utc": "2026-02-07T00:00:00.000000Z",
+      "type": "patch",
+      "version": "2.0.2"
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Schema source of truth for contract-suite/1.0, test-gates/1.0, bundle-manifest/1.0."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Gate authoring rules, deterministic assertion types, and runtime harness interlock."
+    },
+    {
+      "doc_id": "BP-0",
+      "edge_type": "governance_floor",
+      "min_version": "3.0.0",
+      "reason": "Blueprint authoring law and governance scanning delegation rules."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.3.18",
+      "reason": "Canonical error envelope codes used by denial rules and CI failures."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.10",
+      "reason": "Governance waivers and enforcement discipline for suite-wide scanners."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.11",
+      "reason": "Suite lint and anti-drift rules; ATP-1 is an allowed governance scanner."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.8",
+      "reason": "Tenant key naming invariant (org_id only) and hide-existence semantics used by bans."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Registry floor parity for Phase-5 Airlock."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4"
+  },
+  "doc_id": "ATP-1",
+  "domain_invariants": [
+    {
+      "category": "scanner",
+      "rationale": "Prevents enforcement theater and repo-wide scan drift outside governance control.",
+      "rule_id": "ATP-1-SCAN-001",
+      "severity": "P0",
+      "text": "ATP-1 MUST be the only governance-owned contract permitted to define repo-wide anti-pattern scanning rules; subsystem contracts MUST NOT introduce repo scanning gates."
+    },
+    {
+      "category": "scanner",
+      "rationale": "Ensures reproducible enforcement and prevents accidental CI blow-ups.",
+      "rule_id": "ATP-1-SCAN-002",
+      "severity": "P0",
+      "text": "Scanner scope MUST be a bounded explicit path list and MUST be deterministic; whole-repo default scanning is forbidden."
+    },
+    {
+      "category": "tenancy",
+      "rationale": "Prevents tenancy key drift that undermines isolation and telemetry invariants.",
+      "rule_id": "ATP-1-TEN-001",
+      "severity": "P0",
+      "text": "Scanner bans MUST treat tenant_id and account_id as hard-banned keys; org_id is the only permitted tenant key."
+    },
+    {
+      "category": "lockability",
+      "rationale": "Eliminates non-deterministic, non-enforceable placeholders in canonical governance bundles.",
+      "rule_id": "ATP-1-PLH-001",
+      "severity": "P0",
+      "text": "Placeholder tokens TODO|TBD|FIXME|REPLACEME are forbidden in lockable artifacts."
+    },
+    {
+      "category": "authorization",
+      "rationale": "Prevents accidental privilege escalation.",
+      "rule_id": "ATP-1-AUTH-001",
+      "severity": "P0",
+      "text": "Authorization bypass patterns (authorize? false) are forbidden in production code paths."
+    },
+    {
+      "category": "rls",
+      "rationale": "Prevents tenant leakage across pooled connections.",
+      "rule_id": "ATP-1-RLS-001",
+      "severity": "P0",
+      "text": "Per-request session-wide SET patterns for tenant context are forbidden; tenant context must be transaction-local and connection-local."
+    }
+  ],
+  "emits_events": false,
+  "errors": {
+    "mappings": [
+      {
+        "base": "ERR_BAD_REQUEST",
+        "code": "ATP_SCAN_SCOPE_INVALID",
+        "retryable": false
+      },
+      {
+        "base": "ERR_CONFLICT",
+        "code": "ATP_SCAN_NONDETERMINISTIC",
+        "retryable": false
+      },
+      {
+        "base": "ERR_CONFLICT",
+        "code": "ATP_SCAN_FORBIDDEN_PATTERN",
+        "retryable": false
+      },
+      {
+        "base": "ERR_FORBIDDEN",
+        "code": "ATP_SCAN_WAIVER_REQUIRED",
+        "retryable": false
+      }
+    ],
+    "registry": "ERR-1"
+  },
+  "generated_at_utc": "2026-01-09T06:58:25Z",
+  "last_updated_utc": "2026-01-09T06:58:25Z",
+  "normative_source": "json",
+  "outbox_events": [],
+  "scanner": {
+    "deterministic": true,
+    "inputs": {
+      "allowlist_file": "atp-1.allowlist.json",
+      "encoding": "utf-8",
+      "waiver_file": "gov-0.waivers.json"
+    },
+    "mode": "ci",
+    "owned_by": "ATP-1",
+    "scanner_doc_id": "ATP-1",
+    "scope": {
+      "forbidden": [
+        "/",
+        "./",
+        "../"
+      ],
+      "notes": "Paths MUST be bounded and explicit; whole-repo implicit scanning is forbidden.",
+      "paths": [
+        "contracts/",
+        "blueprints/",
+        "schemas/",
+        "apps/",
+        "lib/",
+        "test/"
+      ]
+    }
+  },
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "Defines the governance-owned deterministic scanner used to enforce suite-wide anti-pattern bans and lockability constraints without allowing subsystem contracts to perform repo-wide scanning.",
+  "tenancy": {
+    "leakage_policy": "hide_existence",
+    "strategy": "ash_attribute",
+    "tenant_key": "org_id"
+  },
+  "tier": 1,
+  "title": "Governance Anti-Pattern Scanner Contract",
+  "version": "2.0.2"
+}

@@ -1,0 +1,509 @@
+{
+  "artifact_kind": "test_gates",
+  "change_log": [
+    {
+      "date": "2026-06-03",
+      "summary": "Final hardening: converted gate IDs to snake_case and replaced self-failing regex assertions with exact-field or sentinel assertions.",
+      "version": "1.0.4"
+    }
+  ],
+  "contract_ref": {
+    "doc_id": "INT-1",
+    "version": "1.0.4"
+  },
+  "doc_id": "INT-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "INT-1 artifacts MUST be pinned to CS-0@3.0.0.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "INT-1 artifacts MUST be pinned to CS-0@3.0.0.",
+      "id": "INT_1_GATE_010_SUITE_SCHEMA_PARITY",
+      "level": "P0",
+      "must": true,
+      "title": "Suite schema parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "INT-1 bundle MUST contain bundle.manifest.json.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "INT-1 bundle MUST contain bundle.manifest.json.",
+      "id": "INT_1_GATE_020_MANIFEST_FILENAME",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest filename"
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "INT-1 manifest MUST list exactly the JSON artifacts excluding itself with correct hashes and sizes.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "INT-1 manifest MUST list exactly the JSON artifacts excluding itself with correct hashes and sizes.",
+      "id": "INT_1_GATE_030_MANIFEST_FILE_PARITY",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest file parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/provider_account_registry_exists"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ProviderAccount registry MUST exist.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "ProviderAccount registry MUST exist.",
+      "id": "INT_1_GATE_040_PROVIDER_ACCOUNT_REGISTRY_EXISTS",
+      "level": "P0",
+      "must": true,
+      "title": "Provider account registry exists"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/no_secrets_in_int"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/forbidden_secret_field_checks_are_exact"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\"name\"\\s*:\\s*\"encrypted_credentials\"",
+              "\"name\"\\s*:\\s*\"api_key\"",
+              "\"name\"\\s*:\\s*\"smtp_password\"",
+              "\"name\"\\s*:\\s*\"password\"",
+              "\"name\"\\s*:\\s*\"private_key\"",
+              "\"name\"\\s*:\\s*\"refresh_token\"",
+              "\"name\"\\s*:\\s*\"webhook_secret\""
+            ],
+            "json_pointers": [
+              "/provider_account_registry/fields"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "INT-1 MUST ban secret material in integration resources.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "INT-1 MUST ban secret material in integration resources.",
+      "id": "INT_1_GATE_050_NO_SECRETS_IN_INT",
+      "level": "P0",
+      "must": true,
+      "title": "No secrets in INT"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/routing_resolution_is_deterministic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Provider routing MUST be deterministic and fail closed on zero/ambiguous matches.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Provider routing MUST be deterministic and fail closed on zero/ambiguous matches.",
+      "id": "INT_1_GATE_060_DETERMINISTIC_ROUTING",
+      "level": "P0",
+      "must": true,
+      "title": "Deterministic routing"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/runtime_config_is_not_tenant_truth"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "runtime.exs/application env MUST NOT be tenant provider truth.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "runtime.exs/application env MUST NOT be tenant provider truth.",
+      "id": "INT_1_GATE_070_RUNTIME_CONFIG_IS_NOT_TENANT_TRUTH",
+      "level": "P1",
+      "must": true,
+      "title": "Runtime config is not tenant truth"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/webhook_ingress_is_idempotent"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Webhook ingress MUST be signature-verified and idempotent.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Webhook ingress MUST be signature-verified and idempotent.",
+      "id": "INT_1_GATE_080_WEBHOOK_IDEMPOTENCY",
+      "level": "P0",
+      "must": true,
+      "title": "Webhook idempotency"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/adapter_contract_exists"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Provider adapter behaviour contract MUST exist.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Provider adapter behaviour contract MUST exist.",
+      "id": "INT_1_GATE_090_ADAPTER_CONTRACT_EXISTS",
+      "level": "P0",
+      "must": true,
+      "title": "Adapter contract exists"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Ticketing",
+            "json_pointer": "/ash_3x_resource_map/root_namespace"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": ":ticketing",
+            "json_pointer": "/ash_3x_resource_map/otp_app"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/ash_3x_resources_declared"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Ash 3.x resources MUST be declared under Ticketing.Integrations.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Ash 3.x resources MUST be declared under Ticketing.Integrations.",
+      "id": "INT_1_GATE_100_ASH_3_X_RESOURCES_DECLARED",
+      "level": "P0",
+      "must": true,
+      "title": "Ash 3.x resources declared"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/tenancy_org_id_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenant-owned provider accounts and routes MUST be org-scoped or explicitly platform-scoped.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Tenant-owned provider accounts and routes MUST be org-scoped or explicitly platform-scoped.",
+      "id": "INT_1_GATE_110_TEN_1_ORG_ID_REQUIRED",
+      "level": "P0",
+      "must": true,
+      "title": "TEN-1 org_id required"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/deterministic_uuid_sorting_declared"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "INT-1 MUST declare binary UUID sorting for hashes/signatures.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "INT-1 MUST declare binary UUID sorting for hashes/signatures.",
+      "id": "INT_1_GATE_120_DETERMINISTIC_UUID_SORTING",
+      "level": "P0",
+      "must": true,
+      "title": "Deterministic UUID sorting"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "TBD",
+              "TODO",
+              "WIP",
+              "BANNED_TOKEN"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "INT-1 artifacts MUST NOT contain banned tokens.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "INT-1 artifacts MUST NOT contain banned tokens.",
+      "id": "INT_1_GATE_130_NO_BANNED_TOKENS",
+      "level": "P0",
+      "must": true,
+      "title": "No banned tokens"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/no_comm_dependency"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "No COMM reverse dependency MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "No COMM reverse dependency MUST be declared and enforceable.",
+      "id": "INT_1_GATE_140_NO_COMM_REVERSE_DEPENDENCY",
+      "level": "P0",
+      "must": true,
+      "title": "No COMM reverse dependency"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/routing_rule_schema_declared"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Routing rule schema declared MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Routing rule schema declared MUST be declared and enforceable.",
+      "id": "INT_1_GATE_150_ROUTING_RULE_SCHEMA_DECLARED",
+      "level": "P0",
+      "must": true,
+      "title": "Routing rule schema declared"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/provider_sender_identity_declared"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Sender identity registry declared MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Sender identity registry declared MUST be declared and enforceable.",
+      "id": "INT_1_GATE_160_SENDER_IDENTITY_REGISTRY_DECLARED",
+      "level": "P0",
+      "must": true,
+      "title": "Sender identity registry declared"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/credential_mode_declared"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Credential mode declared MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Credential mode declared MUST be declared and enforceable.",
+      "id": "INT_1_GATE_170_CREDENTIAL_MODE_DECLARED",
+      "level": "P0",
+      "must": true,
+      "title": "Credential mode declared"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/webhook_status_values_are_canonical"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Webhook statuses canonical MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Webhook statuses canonical MUST be declared and enforceable.",
+      "id": "INT_1_GATE_180_WEBHOOK_STATUSES_CANONICAL",
+      "level": "P0",
+      "must": true,
+      "title": "Webhook statuses canonical"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/inbound_webhooks_not_circuit_blocked"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Inbound webhooks not circuit blocked MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Inbound webhooks not circuit blocked MUST be declared and enforceable.",
+      "id": "INT_1_GATE_190_INBOUND_WEBHOOKS_NOT_CIRCUIT_BLOCKED",
+      "level": "P0",
+      "must": true,
+      "title": "Inbound webhooks not circuit blocked"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/provider_adapter_return_shape_declared"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Provider adapter return shape declared MUST be declared and enforceable.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Provider adapter return shape declared MUST be declared and enforceable.",
+      "id": "INT_1_GATE_200_PROVIDER_ADAPTER_RETURN_SHAPE_DECLARED",
+      "level": "P0",
+      "must": true,
+      "title": "Provider adapter return shape declared"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/gate_ids_are_cs_compatible_upper_snake_case"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "INT-1 gates SHALL use CS-0-compatible upper snake_case identifiers to satisfy project governance.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "INT-1 gate IDs are not CS-compatible upper snake_case.",
+      "id": "INT_1_GATE_210_GATE_IDS_ARE_CS_COMPATIBLE_UPPER_SNAKE",
+      "level": "P0",
+      "must": true,
+      "title": "Gate IDs are CS-compatible upper snake_case"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/ci_sentinels/automated_gates_do_not_self_fail"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Automated regex gates SHALL NOT scan their own forbidden regex literals or allowed secret reference field names.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "INT-1 contains an automated gate that fails because of its own assertion text.",
+      "id": "INT_1_GATE_220_AUTOMATED_GATES_DO_NOT_SELF_FAIL",
+      "level": "P0",
+      "must": true,
+      "title": "Automated gates do not self-fail"
+    }
+  ],
+  "generated_at_utc": "2026-06-03T14:25:00Z",
+  "last_updated_utc": "2026-06-03T14:50:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "INT-1 Test Gates",
+  "version": "1.0.4"
+}

@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/PAY-3_bundle_v2.10.7_JSON_ONLY_refactored.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions. The successor removes the obsolete CANON-1 mirrored dependency pin.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/PAY-3_bundle_v2.10.7_JSON_ONLY_refactored.zip",
+  "source_zip_sha256": "a3606dd02e22354b51bb19e4fb5dd3e9758a96166f597f4a4576b2160687a28f",
+  "source_zip_bytes": 24096,
+  "source_version": "2.10.7",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "PAY-3_bundle_v2.10.7/PAY-3_Contract_v2.10.7.json",
+      "sha256": "53366545a46191d1e1c020b65a6b963592ac24463ecaae4cf46985d72c0ea4ac",
+      "bytes": 75102
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "PAY-3_bundle_v2.10.7/PAY-3_Test_Gates_v2.10.7.json",
+      "sha256": "32eb1d5838bc4473b14cb4d539449038183859a9ab0d504d2880c54eda0e7e3a",
+      "bytes": 32659
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "PAY-3_bundle_v2.10.7/PAY-3_Contract_v2.10.7.json",
+      "sha256": "72043a6b701cd4c03e4960eb28d3e6f68103dcd7d1a35598b88268b599f9d7e9",
+      "bytes": 75364
+    },
+    {
+      "source_member_path": "PAY-3_bundle_v2.10.7/PAY-3_Test_Gates_v2.10.7.json",
+      "sha256": "adb732b7ea5e77d32bb0c854f2236ffa7d9339db2a11e7c8032a71220e4bbe7e",
+      "bytes": 32744
+    }
+  ]
+}

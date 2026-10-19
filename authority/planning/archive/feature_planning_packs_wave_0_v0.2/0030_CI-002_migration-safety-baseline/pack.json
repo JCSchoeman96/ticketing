@@ -1,0 +1,16 @@
+{
+  "class": "CI",
+  "files": [
+    "00_FEATURE_PLAN.md",
+    "01_CODING_AGENT_PROMPT.md",
+    "02_EVIDENCE_CHECKLIST.md"
+  ],
+  "folder": "0030_CI-002_migration-safety-baseline",
+  "mvp_blocker": "yes",
+  "next": "TBD after Wave 0 execution evidence",
+  "order": "0030",
+  "pack_id": "FP-CI-002-migration-safety-baseline",
+  "release_phase": "foundation",
+  "source_row": "CI-002",
+  "title": "Migration Safety Baseline"
+}

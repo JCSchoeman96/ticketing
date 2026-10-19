@@ -1,0 +1,660 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "PRICE-1_Test_Gates_v3.5.6.json",
+  "contract_ref": {
+    "doc_id": "PRICE-1",
+    "version": "3.5.6"
+  },
+  "doc_id": "PRICE-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "equals": "CS-0@3.0.1",
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        },
+        {
+          "details": {
+            "equals": "bundle.manifest.json",
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle manifest exists and is valid.",
+      "failure_message": "Bundle manifest exists and is valid.",
+      "id": "PRICE-1-GATE-100",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle manifest exists and is valid."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "contract-suite/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PRICE-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.5.6",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "test-gates/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "PRICE-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "3.5.6",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "bundle_manifest",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "bundle_manifest",
+            "equals": "contract-suite/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Schema pins and version pins.",
+      "failure_message": "Schema pins and version pins.",
+      "id": "PRICE-1-GATE-101",
+      "level": "P0",
+      "must": true,
+      "title": "Schema pins and version pins."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "TODO|TBD|FIXME"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders (TODO/TBD/FIXME) in contract.",
+      "failure_message": "No placeholders (TODO/TBD/FIXME) in contract.",
+      "id": "PRICE-1-GATE-102",
+      "level": "P0",
+      "must": true,
+      "title": "No placeholders (TODO/TBD/FIXME) in contract."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "line_id",
+              "seq",
+              "item_ref_type",
+              "item_ref_id",
+              "quantity",
+              "unit_price_minor",
+              "tax_total_minor",
+              "fee_total_minor",
+              "discount_stack_kind",
+              "discount_total_minor",
+              "line_total_minor",
+              "currency"
+            ],
+            "json_pointer": "/signature_spec/input_model/line_fields_in_order"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Signature spec pins line field order including discount_stack_kind.",
+      "failure_message": "Signature spec pins line field order including discount_stack_kind.",
+      "id": "PRICE-1-GATE-103",
+      "level": "P0",
+      "must": true,
+      "title": "Signature spec pins line field order including discount_stack_kind."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PRICE_DISCOUNT_STACK_FORBIDDEN",
+            "json_pointer": "/subcodes_declared/PRICE_DISCOUNT_STACK_FORBIDDEN/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "New subcode is declared.",
+      "failure_message": "New subcode is declared.",
+      "id": "PRICE-1-GATE-104",
+      "level": "P0",
+      "must": true,
+      "title": "New subcode is declared."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              {
+                "name": "fee_line_id",
+                "notes": "Primary identifier",
+                "nullable": false,
+                "type": "uuid_v7"
+              },
+              {
+                "name": "snapshot_id",
+                "notes": "Foreign key to PricingSnapshot",
+                "nullable": false,
+                "type": "uuid_v7"
+              },
+              {
+                "name": "line_id",
+                "notes": "Foreign key to PriceLine (fee applies to this price line)",
+                "nullable": false,
+                "type": "uuid_v7"
+              },
+              {
+                "name": "seq",
+                "notes": "Deterministic ordering; unique per line_id; ascending",
+                "nullable": false,
+                "type": "int64"
+              },
+              {
+                "name": "fee_code",
+                "notes": "Stable fee identifier (e.g., service_fee, facility_fee, provider_gateway_fee).",
+                "nullable": false,
+                "type": "string"
+              },
+              {
+                "name": "amount_minor",
+                "notes": "Fee amount in minor units (>= 0).",
+                "nullable": false,
+                "type": "int64"
+              },
+              {
+                "name": "is_taxable",
+                "notes": "Whether this fee is taxable (ND-185).",
+                "nullable": false,
+                "type": "boolean"
+              },
+              {
+                "name": "tax_category",
+                "notes": "Tax category (string/enum) used by TAX-1 (ND-185).",
+                "nullable": false,
+                "type": "string"
+              },
+              {
+                "name": "customer_visible",
+                "notes": "Whether this fee is visible to customer (ND-187). Any customer-collected fee MUST be visible.",
+                "nullable": false,
+                "type": "boolean"
+              },
+              {
+                "name": "revenue_owner",
+                "notes": "Who earns this fee (revenue attribution). Ownership MUST be explicit; no implied ownership by fee_code.",
+                "nullable": false,
+                "type": "enum(platform|organizer|payment_processor|government|third_party)"
+              },
+              {
+                "name": "tax_total_minor",
+                "notes": "Tax amount attributable to this fee (>= 0). Fee tax attribution MUST be represented here (single-truth). It MUST NOT be silently folded only into PriceLine.tax_total_minor.",
+                "nullable": false,
+                "type": "int64"
+              },
+              {
+                "name": "rounding_adjustment_minor",
+                "notes": "Per-fee rounding adjustment (may be negative/positive) used only to satisfy arithmetic identity. MUST be posted to platform rounding_variance (ND-181).",
+                "nullable": false,
+                "type": "int64"
+              }
+            ],
+            "json_pointer": "/resource_model/resources/2/attributes"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PriceLine resource includes discount_stack_kind attribute.",
+      "failure_message": "PriceLine resource includes discount_stack_kind attribute.",
+      "id": "PRICE-1-GATE-105",
+      "level": "P0",
+      "must": true,
+      "title": "PriceLine resource includes discount_stack_kind attribute."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "RFC8785_JCS",
+            "json_pointer": "/signature_spec/canonical_encoding/standard"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PRICE-SIG-V4",
+            "json_pointer": "/signature_spec/signature_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Signature canonical encoding is RFC8785_JCS (JCS) and signature_version is PRICE-SIG-V4.",
+      "failure_message": "Signature canonical encoding is RFC8785_JCS (JCS) and signature_version is PRICE-SIG-V4.",
+      "id": "PRICE-1-GATE-106",
+      "level": "P0",
+      "must": true,
+      "title": "Signature canonical encoding is RFC8785_JCS (JCS) and signature_version is PRICE-SIG-V4."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "FeeLine",
+            "json_pointer": "/resource_model/resources/2/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "FeeLine resource is present at a deterministic position to enable machine-checkable fee declarations (ND-185/ND-187/ND-188).",
+      "failure_message": "FeeLine resource is present at a deterministic position to enable machine-checkable fee declarations (ND-185/ND-187/ND-188).",
+      "id": "PRICE-1-GATE-107",
+      "level": "P0",
+      "must": true,
+      "title": "FeeLine resource is present at a deterministic position to enable machine-checkable fee declarations (ND-185/ND-187/ND-1"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "quote_id",
+            "json_pointer": "/resource_model/resources/0/attributes/1/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "quote_issued_at_utc",
+            "json_pointer": "/resource_model/resources/0/attributes/2/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "quote_expires_at_utc",
+            "json_pointer": "/resource_model/resources/0/attributes/3/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "internal_rounding_adjustment_minor",
+            "json_pointer": "/resource_model/resources/0/attributes/17/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "total_minor",
+            "json_pointer": "/resource_model/resources/0/attributes/21/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PricingSnapshot includes quote TTL fields and rounding adjustment outputs required by ND-182..ND-184 and ND-180.",
+      "failure_message": "PricingSnapshot includes quote TTL fields and rounding adjustment outputs required by ND-182..ND-184 and ND-180.",
+      "id": "PRICE-1-GATE-108",
+      "level": "P0",
+      "must": true,
+      "title": "PricingSnapshot includes quote TTL fields and rounding adjustment outputs required by ND-182..ND-184 and ND-180."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "equals": "P0",
+            "json_pointer": "/invariants/PRICE-INV-SIG-VERIFY-001/severity"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PricingSnapshot signature verification invariant present",
+      "failure_message": "PricingSnapshot signature verification invariant present",
+      "id": "PRICE-1-GATE-109",
+      "level": "P0",
+      "must": true,
+      "title": "PricingSnapshot signature verification invariant present"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "equals": "Producer MUST NOT hardcode the registry_version_sha. Producer MUST resolve registry_version_sha at runtime from the V42_RUNTIME_REGISTRY_SHA environment configuration. If missing or malformed (NOT matching ^[0-9a-f]{64}$), producer MUST refuse to emit events (fail fast). LEGACY_SHA_SENTINEL (64 zeros) MAY ONLY be used in explicit backfill/migration mode.",
+            "json_pointer": "/invariants/PRICE-1-INV-REGISTRY-BINDING-001"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "equals": "2.16.4",
+            "json_pointer": "/dependencies/6/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Registry SHA binding invariant exists and EVT-1 dependency floor is raised for cryptographic fence.",
+      "failure_message": "Registry SHA binding invariant exists and EVT-1 dependency floor is raised for cryptographic fence.",
+      "id": "PRICE-1-GATE-REGISTRY-BINDING",
+      "level": "P0",
+      "must": true,
+      "title": "Registry SHA binding invariant exists and EVT-1 dependency floor is raised for cryptographic fence."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "equals": "version",
+            "json_pointer": "/resource_model/resources/0/attributes/26/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "equals": "currency",
+            "json_pointer": "/outbox_events/0/required_keys/3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PricingSnapshot and outbox are versioned",
+      "failure_message": "PricingSnapshot and outbox are versioned",
+      "id": "PRICE-1-GATE-MONOTONIC-VERSION",
+      "level": "P0",
+      "must": true,
+      "title": "PricingSnapshot and outbox are versioned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "equals": "P0",
+            "json_pointer": "/invariants/PRICE-1-INV-LOCK-NAMESPACE-102-001/severity"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "LOCKS-1 Namespace 102 is mandated",
+      "failure_message": "LOCKS-1 Namespace 102 is mandated",
+      "id": "PRICE-1-GATE-LOCK-NAMESPACE-102",
+      "level": "P0",
+      "must": true,
+      "title": "LOCKS-1 Namespace 102 is mandated"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "equals": "EVT-1",
+            "json_pointer": "/dependencies/6/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "equals": "2.16.4",
+            "json_pointer": "/dependencies/6/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PRICE-1 MUST pin EVT-1 to registry head (2.16.4) and declare dependency_floors parity (Phase-5 Airlock).",
+      "failure_message": "PRICE-1 MUST pin EVT-1 to registry head (2.16.4) and declare dependency_floors parity (Phase-5 Airlock).",
+      "id": "PRICE-1-GATE-EVT-1-FLOOR",
+      "level": "P0",
+      "must": true,
+      "title": "PRICE-1 MUST pin EVT-1 to registry head (2.16.4) and declare dependency_floors parity (Phase-5 Airlock)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?s)\"required_keys\"\\s*:\\s*\\[[^\\]]*\"\\borg_id\\b\""
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?s)\"required_keys\"\\s*:\\s*\\[[^\\]]*\"\\btrace_id\\b\""
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?s)\"required_keys\"\\s*:\\s*\\[[^\\]]*\"\\brequest_id\\b\""
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?s)\"required_keys\"\\s*:\\s*\\[[^\\]]*\"\\bregistry_version_sha\\b\""
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Outbox required_keys MUST NOT include envelope header keys (org_id, trace_id, request_id, registry_version_sha).",
+      "failure_message": "Outbox required_keys MUST NOT include envelope header keys (org_id, trace_id, request_id, registry_version_sha).",
+      "id": "PRICE-1-GATE-NO-ENVELOPE-KEYS-IN-PAYLOAD",
+      "level": "P0",
+      "must": true,
+      "title": "Outbox required_keys MUST NOT include envelope header keys (org_id, trace_id, request_id, registry_version_sha)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "BLAKE3|PRICE-SIG-V1|PRICE-SIG-V2"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256",
+            "json_pointer": "/signature_spec/algorithm"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PRICE-SIG-V4",
+            "json_pointer": "/signature_spec/signature_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256_hex_lowercase",
+            "json_pointer": "/resource_model/resources/0/attributes/22/type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "enum(platform|organizer|payment_processor|government|third_party)",
+            "json_pointer": "/resource_model/resources/2/attributes/9/type"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "No legacy signature algorithm/version references; lock signature_spec + FeeLine semantics.",
+      "failure_message": "No legacy signature algorithm/version references; lock signature_spec + FeeLine semantics.",
+      "id": "PRICE-1-GATE-230",
+      "level": "P0",
+      "must": true,
+      "title": "No legacy signature algorithm/version references; lock signature_spec + FeeLine semantics."
+    }
+  ],
+  "generated_at_utc": "2026-02-07T07:33:21Z",
+  "last_updated_utc": "2026-02-08T19:16:53Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "PRICE-1 Test Gates",
+  "version": "3.5.6"
+}

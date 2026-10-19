@@ -1,0 +1,888 @@
+{
+  "artifact_kind": "contract",
+  "ash_3x_framing": {
+    "domain": {
+      "module": "Ticketing.Archival",
+      "purpose": "Govern data export, archival snapshots, retention policies, legal holds, and compliant erasure."
+    },
+    "resources": [
+      {
+        "attributes": {
+          "identity": [
+            "org_id",
+            "export_id"
+          ],
+          "required": [
+            "export_id",
+            "org_id",
+            "export_type",
+            "redaction_profile",
+            "retention_policy_id",
+            "state",
+            "created_at",
+            "finalized_at"
+          ],
+          "timestamps": [
+            "created_at",
+            "finalized_at",
+            "expires_at"
+          ]
+        },
+        "immutability": "Finalized exports are immutable; mutations require new export_id.",
+        "resource": "ExportJob",
+        "state_machine": [
+          "draft",
+          "processing",
+          "finalized",
+          "expired"
+        ]
+      },
+      {
+        "attributes": {
+          "identity": [
+            "org_id",
+            "snapshot_id"
+          ],
+          "required": [
+            "snapshot_id",
+            "org_id",
+            "source_table",
+            "snapshot_at",
+            "content_hash_sha256",
+            "retention_policy_id"
+          ],
+          "timestamps": [
+            "snapshot_at",
+            "created_at"
+          ]
+        },
+        "immutability": "Snapshots are append-only; no mutations allowed.",
+        "resource": "ArchiveSnapshot"
+      },
+      {
+        "attributes": {
+          "identity": [
+            "org_id",
+            "legal_hold_id"
+          ],
+          "required": [
+            "legal_hold_id",
+            "org_id",
+            "scope",
+            "reason",
+            "active",
+            "applied_at",
+            "released_at"
+          ],
+          "timestamps": [
+            "applied_at",
+            "released_at"
+          ]
+        },
+        "resource": "LegalHold",
+        "state_machine": [
+          "active",
+          "released"
+        ]
+      },
+      {
+        "attributes": {
+          "data_classes": [
+            "financial_ledger",
+            "identity_pii",
+            "telemetry_hot",
+            "derived_exports"
+          ],
+          "identity": [
+            "org_id",
+            "retention_policy_id"
+          ],
+          "required": [
+            "retention_policy_id",
+            "org_id",
+            "data_class",
+            "retention_period",
+            "purge_action"
+          ]
+        },
+        "resource": "RetentionPolicy"
+      },
+      {
+        "attributes": {
+          "identity": [
+            "org_id",
+            "erasure_id"
+          ],
+          "required": [
+            "erasure_id",
+            "org_id",
+            "target_type",
+            "target_id",
+            "reason",
+            "state",
+            "requested_at",
+            "completed_at"
+          ],
+          "state_machine": [
+            "pending",
+            "legal_hold_blocked",
+            "in_progress",
+            "completed",
+            "failed"
+          ]
+        },
+        "resource": "ErasureRequest"
+      }
+    ]
+  },
+  "banned_anti_patterns": [
+    {
+      "anti_pattern_id": "v42_ap_ambient_tenancy",
+      "ban": "Relying on ambient tenancy; org_id MUST be explicit in action context",
+      "severity": "P0"
+    },
+    {
+      "anti_pattern_id": "v42_ap_hard_delete_ledger",
+      "ban": "Hard deleting ledger-grade records before legal minimums; use archive + cold storage",
+      "severity": "P0"
+    },
+    {
+      "anti_pattern_id": "v42_ap_high_cardinality_metrics",
+      "ban": "Using org_id or per-export identifiers as metric labels (cardinality bomb)",
+      "severity": "P0"
+    },
+    {
+      "anti_pattern_id": "v42_ap_global_topics",
+      "ban": "Using global PubSub topics instead of tenant-scoped (ticketing:org:{org_id}:*)",
+      "severity": "P1"
+    }
+  ],
+  "canonical": false,
+  "change_log": [
+    {
+      "changes": [
+        "P0 FIX: Migrated all field names to CS-0@2.2.0 snake_case format (artifactkind\u2192artifact_kind, docid\u2192doc_id, etc.).",
+        "P0 FIX: Fixed suite_schema format from 'CS-02.2.0' to 'CS-0@2.2.0' across all artifacts.",
+        "P0 FIX: Removed org_id and export_id from metric labels to prevent cardinality explosion (OBS-1 compliance).",
+        "P0 FIX: Constrained retention purge actions per data class: ledger\u2192archive_only, pii\u2192redact/pseudonymize, derived\u2192tombstone/hard_delete.",
+        "P1 FIX: Converted event topics to tenant-scoped format (ticketing:org:{org_id}:archival:*).",
+        "P1 FIX: Aligned error codes to ERR-1 format (ERRCONFLICT\u2192ERR_CONFLICT) and added ARCH subcodes to registry.",
+        "P2 ADDITION: Added explicit Ash 3.x Domain (Ticketing.Archival), Resources (ExportJob, ArchiveSnapshot, LegalHold, RetentionPolicy, ErasureRequest), and domain_actions with tenant injection patterns."
+      ],
+      "date_utc": "2026-01-09T07:02:00.000000Z",
+      "version": "2.1.0"
+    },
+    {
+      "changes": [
+        "Initial CS-0@2.2.0 migration attempt (incomplete field naming)"
+      ],
+      "date_utc": "2026-01-07T09:31:00Z",
+      "version": "2.0.0"
+    },
+    {
+      "changes": [
+        "Dependency floors aligned to ERR-1@>=1.4.7, SEC-1@>=3.0.8, TEN-1@>=1.7.1, IAM-1@>=3.0.1, OBS-1@>=2.7.6.",
+        "Added retention.taxonomy_mapping as an explicit OPEN blocker pending DATA-1, with stricter-by-default interim rule.",
+        "Updated error note to require ARCH_* registration in ERR-1 v1.4.7+."
+      ],
+      "date_utc": "2026-01-26T06:29:51Z",
+      "summary": "Align ARCH domain to updated suite floors and introduce explicit DATA-1 taxonomy mapping blocker to prevent retention drift."
+    },
+    {
+      "changes": [
+        "Closed ARCH\u2194DATA retention taxonomy drift by requiring RetentionPolicy to use DATA-1 ids directly.",
+        "RetentionPolicy now requires retention_profile (DATA-1 p0\u2013p4) in addition to data_class (c0\u2013c4).",
+        "Added DATA-1 dependency floor and enforced finance-record purge restrictions."
+      ],
+      "date_utc": "2026-01-26T06:38:49Z",
+      "type": "patch",
+      "version": "3.0.3"
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Schema compliance for contract-suite/1.0, test-gates/1.0, bundle-manifest/1.0."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Mandatory gate sets and assertion discipline for CI strict."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.7",
+      "reason": "Canonical error envelope and subcode registry (ARCH_* subcodes)."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.1",
+      "reason": "Tenant isolation with canonical org_id key and hide-existence semantics."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.0.8",
+      "reason": "Authorization and audit requirements for security-sensitive data export and erasure."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.1",
+      "reason": "Actor shape (actor_id, actor_type) and step-up authorization for raw PII export."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "requires",
+      "min_version": "2.16.4",
+      "reason": "Tenant-scoped CloudEvents envelope and event schema authority for archival events."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.0",
+      "reason": "Normalized schema_ref token authority for ticketing.event.envelope.v1 (Phase 5 literal token standard)."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.6",
+      "reason": "Observability requirements (trace_id propagation, bounded metrics)."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.4",
+      "reason": "Queue taxonomy and AshOban scheduling constraints for retention jobs."
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "requires",
+      "min_version": "3.0.1",
+      "reason": "Ash 3.x resource patterns (org_id tenant key, UUIDv7, utc_datetime_usec, Policies)."
+    },
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "requires",
+      "min_version": "1.1.6",
+      "reason": "Canonical data classification (c0\u2013c4) and retention profiles (p0\u2013p4) used by RetentionPolicy."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0",
+    "IAM-1": "3.4.1"
+  },
+  "doc_id": "ARCH-1",
+  "domain_actions": [
+    {
+      "action": "request_export",
+      "authorization": {
+        "policy": "Ash.Policy.Authorizer",
+        "rules": [
+          "actor_id MUST belong to org_id",
+          "raw_pii redaction requires IAM-1 step-up auth"
+        ]
+      },
+      "inputs_required": [
+        "org_id",
+        "actor_id",
+        "actor_type",
+        "request_id",
+        "trace_id",
+        "export_type",
+        "redaction_profile"
+      ],
+      "output_minimum": [
+        "export_id",
+        "state",
+        "request_id"
+      ],
+      "purpose": "Initiate a tenant-scoped data export with specified redaction profile.",
+      "resource": "ExportJob"
+    },
+    {
+      "action": "finalize_export",
+      "immutability": "After finalization, no mutations allowed; content_hash_sha256 locks artifact.",
+      "inputs_required": [
+        "org_id",
+        "export_id",
+        "content_hash_sha256",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "export_id",
+        "state",
+        "finalized_at"
+      ],
+      "purpose": "Mark export as immutable and emit finalized event to EVT-1 outbox.",
+      "resource": "ExportJob"
+    },
+    {
+      "action": "apply_legal_hold",
+      "inputs_required": [
+        "org_id",
+        "scope",
+        "reason",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "legal_hold_id",
+        "active"
+      ],
+      "purpose": "Apply legal hold to org or specific artifacts; blocks retention purges.",
+      "resource": "LegalHold"
+    },
+    {
+      "action": "release_legal_hold",
+      "inputs_required": [
+        "org_id",
+        "legal_hold_id",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "legal_hold_id",
+        "active",
+        "released_at"
+      ],
+      "purpose": "Release legal hold; allows retention cycle to resume.",
+      "resource": "LegalHold"
+    },
+    {
+      "action": "run_retention_cycle",
+      "inputs_required": [
+        "org_id",
+        "retention_policy_id",
+        "run_date",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "purged_count",
+        "skipped_legal_hold_count"
+      ],
+      "purpose": "Execute scheduled retention purge per data class rules; respects legal holds.",
+      "resource": "RetentionPolicy",
+      "scheduler": {
+        "frequency": "daily",
+        "idempotency_key": "org_id:retention_policy_id:yyyymmdd",
+        "job_system": "AshOban",
+        "queue": "ops"
+      }
+    },
+    {
+      "action": "redact_pii",
+      "inputs_required": [
+        "org_id",
+        "target_type",
+        "target_id",
+        "reason",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "erasure_id",
+        "state"
+      ],
+      "purpose": "Redact or pseudonymize PII while preserving referential integrity; audit trail required.",
+      "resource": "ErasureRequest"
+    }
+  ],
+  "domain_invariants": [
+    {
+      "category": "topology",
+      "id": "ARCH-1-P0-001",
+      "rationale": "Prevents ledger corruption by enforcing event-only boundary into Vault zone.",
+      "severity": "P0",
+      "text": "Cross-zone mutations from Blue to Red MUST be asynchronous via EVT-1 signals; synchronous RPC is forbidden."
+    },
+    {
+      "category": "access_control",
+      "id": "ARCH-1-P0-002",
+      "rationale": "Prevents cross-tenant data access and unauthorized PII export.",
+      "severity": "P0",
+      "text": "All export, download, retention purge, and legal-hold actions MUST be authorized via Ash.Policy.Authorizer and tenant-scoped by org_id."
+    },
+    {
+      "category": "immutability",
+      "id": "ARCH-1-P0-003",
+      "rationale": "Ensures non-repudiation and auditability.",
+      "severity": "P0",
+      "text": "Finalized export artifacts MUST be immutable; mutations require new export_id and content_hash_sha256."
+    },
+    {
+      "category": "retention",
+      "id": "ARCH-1-P0-004",
+      "rationale": "Defines enforceable retention targets and legal-hold override semantics.",
+      "severity": "P0",
+      "text": "Retention MUST enforce financial_ledger.min_years=7, identity_pii.max_years=2, telemetry_hot.retention_days=90 and MUST respect legal holds."
+    },
+    {
+      "category": "retention_data_class",
+      "id": "ARCH-1-P0-005",
+      "rationale": "Prevents immutability violations on ledger-grade records while allowing compliant PII redaction.",
+      "severity": "P0",
+      "text": "Purge actions MUST be constrained per data class: financial_ledger\u2192archive_only (no destructive delete before 7yr minimum), identity_pii\u2192redact/pseudonymize, derived_exports\u2192tombstone or hard_delete allowed."
+    },
+    "If RetentionPolicy.retention_profile == p4_finance_records, purge_action MUST NOT be hard_delete or tombstone_or_hard_delete; archive_only is required."
+  ],
+  "emits_events": true,
+  "errors": {
+    "mappings": [
+      {
+        "code": "ERR_CONFLICT",
+        "description": "Attempt to mutate a finalized export artifact.",
+        "retryable": false,
+        "subcode": "ARCH_EXPORT_ALREADY_FINALIZED"
+      },
+      {
+        "code": "ERR_FORBIDDEN",
+        "description": "Purge blocked by active legal hold.",
+        "retryable": false,
+        "subcode": "ARCH_LEGAL_HOLD_ACTIVE"
+      },
+      {
+        "code": "ERR_FORBIDDEN",
+        "description": "Delete blocked by active retention policy minimum.",
+        "retryable": false,
+        "subcode": "ARCH_RETENTION_ACTIVE"
+      },
+      {
+        "code": "ERR_NOT_FOUND",
+        "description": "Cross-org artifact lookup (hide-existence per TEN-1).",
+        "retryable": false,
+        "subcode": "ARCH_CROSS_TENANT_HIDDEN"
+      },
+      {
+        "code": "ERR_BAD_REQUEST",
+        "description": "Redaction profile not recognized or not authorized.",
+        "retryable": false,
+        "subcode": "ARCH_INVALID_REDACTION_PROFILE"
+      },
+      {
+        "code": "ERR_FORBIDDEN",
+        "description": "Hard delete attempted on ledger-grade record before legal minimum (7yr).",
+        "retryable": false,
+        "subcode": "ARCH_HARD_DELETE_LEDGER"
+      }
+    ],
+    "notes": "All ARCH_* subcodes MUST be registered in ERR-1 v1.4.7+ for lock eligibility.",
+    "registry": "ERR-1"
+  },
+  "export": {
+    "artifact_required_fields": [
+      "export_id",
+      "org_id",
+      "export_type",
+      "created_at",
+      "content_hash_sha256",
+      "schema_version",
+      "producer_version",
+      "source_snapshot_at",
+      "redaction_profile",
+      "retention_policy_id",
+      "expires_at",
+      "finalized_at"
+    ],
+    "formats": [
+      "csv",
+      "jsonl",
+      "json",
+      "pdfa"
+    ],
+    "immutability": {
+      "finalize_field": "finalized_at",
+      "rule": "Finalized export artifacts are immutable; changes require new export_id and content_hash_sha256."
+    },
+    "redaction_profiles": [
+      {
+        "id": "raw_pii",
+        "requires": [
+          "IAM-1 step-up auth",
+          "SEC-1 audit logging",
+          "actor capability check"
+        ]
+      },
+      {
+        "id": "redacted_pii",
+        "notes": "Email/phone hashed or masked; names pseudonymized."
+      },
+      {
+        "id": "hashed_identifiers_and_snapshots",
+        "notes": "All identifiers hashed; suitable for analytics without PII exposure."
+      }
+    ]
+  },
+  "field_type_constraints": {
+    "fields": [
+      {
+        "applies_to": [
+          "ExportJob"
+        ],
+        "field_name": "export_id",
+        "type": "uuid_v7"
+      },
+      {
+        "applies_to": [
+          "LegalHold"
+        ],
+        "field_name": "legal_hold_id",
+        "type": "uuid_v7"
+      },
+      {
+        "applies_to": [
+          "RetentionPolicy"
+        ],
+        "field_name": "retention_policy_id",
+        "type": "uuid_v7"
+      },
+      {
+        "applies_to": [
+          "ErasureRequest"
+        ],
+        "field_name": "erasure_id",
+        "type": "uuid_v7"
+      },
+      {
+        "applies_to": [
+          "all resources"
+        ],
+        "field_name": "created_at",
+        "type": "utc_datetime_usec"
+      },
+      {
+        "applies_to": [
+          "ExportJob"
+        ],
+        "field_name": "finalized_at",
+        "type": "utc_datetime_usec"
+      },
+      {
+        "applies_to": [
+          "outbox_events"
+        ],
+        "field_name": "occurred_at_utc",
+        "type": "utc_datetime_usec"
+      }
+    ],
+    "notes": "Align with suite-wide identity and temporal standards per RP-0."
+  },
+  "generated_at_utc": "2026-02-06T18:51:55Z",
+  "last_updated_utc": "2026-02-06T18:51:55Z",
+  "limits_and_budgets": {
+    "concurrency_limit": {
+      "per_org_id": 10,
+      "scope": "export_jobs"
+    },
+    "p99_latency_ms": {
+      "finalize_export": 500,
+      "request_export": 300,
+      "run_retention_cycle": 5000
+    },
+    "rate_limit_per_org": {
+      "apply_legal_hold": {
+        "per_seconds": 60,
+        "requests": 5
+      },
+      "request_export": {
+        "per_seconds": 60,
+        "requests": 10
+      }
+    }
+  },
+  "metadata": {
+    "updated_at_utc": "2026-01-14T12:08:40Z"
+  },
+  "normative_source": {
+    "format": "json"
+  },
+  "observability": {
+    "logs": {
+      "forbidden_fields": [
+        "raw_pii",
+        "api_key",
+        "signing_secret"
+      ],
+      "required_fields": [
+        "org_id",
+        "request_id",
+        "trace_id",
+        "event"
+      ],
+      "structured": true
+    },
+    "metrics": {
+      "bounded_labels_required": true,
+      "counters": [
+        {
+          "label_cardinality_limits": {
+            "export_type": 8,
+            "redaction_profile": 4
+          },
+          "name": "arch1.exports.created.total",
+          "required_labels": [
+            "export_type",
+            "redaction_profile"
+          ]
+        },
+        {
+          "label_cardinality_limits": {
+            "data_class": 8,
+            "outcome": 4,
+            "purge_action": 4
+          },
+          "name": "arch1.retention.purge.executed.total",
+          "required_labels": [
+            "data_class",
+            "purge_action",
+            "outcome"
+          ]
+        },
+        {
+          "label_cardinality_limits": {
+            "active": 2,
+            "scope": 4
+          },
+          "name": "arch1.legalhold.changed.total",
+          "required_labels": [
+            "scope",
+            "active"
+          ]
+        }
+      ],
+      "forbid_user_identifiers_as_labels": true,
+      "histograms": [
+        {
+          "label_cardinality_limits": {
+            "export_type": 8
+          },
+          "name": "arch1.export.finalize.duration_ms",
+          "required_labels": [
+            "export_type"
+          ]
+        }
+      ],
+      "max_label_values_per_dim": 64,
+      "notes": "org_id and export_id are FORBIDDEN in metric labels to prevent cardinality explosion. Use logs/traces for tenant drilldown."
+    },
+    "tracing": {
+      "propagation": {
+        "request_id": "x-request-id",
+        "trace_id": "w3c_traceparent"
+      },
+      "required": true,
+      "span_attributes_required": [
+        "org_id",
+        "request_id",
+        "trace_id"
+      ],
+      "span_names_required": [
+        "arch1.export.request",
+        "arch1.export.finalize",
+        "arch1.legalhold.apply",
+        "arch1.retention.run_cycle"
+      ]
+    }
+  },
+  "outbox_events": [
+    {
+      "event_name": "ticketing.archival.export.finalized.v1",
+      "idempotency": "event_id derived from (org_id, primary_id, occurred_at_utc, version)",
+      "ordering": "per org_id + export_id/artifact_id/legal_hold_id",
+      "required_keys": [
+        "export_id",
+        "content_hash_sha256",
+        "retention_policy_id",
+        "occurred_at_utc",
+        "version"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.org.{org_id}.archival.export"
+    },
+    {
+      "event_name": "ticketing.archival.retention.purge.executed.v1",
+      "idempotency": "event_id derived from (org_id, primary_id, occurred_at_utc, version)",
+      "ordering": "per org_id + export_id/artifact_id/legal_hold_id",
+      "required_keys": [
+        "artifact_id",
+        "purge_action",
+        "data_class",
+        "occurred_at_utc",
+        "version"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.org.{org_id}.archival.retention"
+    },
+    {
+      "event_name": "ticketing.archival.legalhold.changed.v1",
+      "idempotency": "event_id derived from (org_id, primary_id, occurred_at_utc, version)",
+      "ordering": "per org_id + export_id/artifact_id/legal_hold_id",
+      "required_keys": [
+        "legal_hold_id",
+        "scope",
+        "active",
+        "occurred_at_utc",
+        "version"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.org.{org_id}.archival.legalhold"
+    }
+  ],
+  "retention": {
+    "defaults": {
+      "derived_exports": {
+        "default_days": 30,
+        "notes": "Derived export artifacts (CSV, JSON exports) can be tombstoned or hard-deleted after expiry.",
+        "purge_action": "tombstone_or_hard_delete",
+        "unit": "days"
+      },
+      "financial_ledger": {
+        "min_years": 7,
+        "notes": "Ledger records MUST NOT be hard-deleted before 7-year minimum; use cold storage archive.",
+        "purge_action": "archive_only",
+        "unit": "years"
+      },
+      "identity_pii": {
+        "max_years": 2,
+        "notes": "PII may be redacted/pseudonymized while preserving referential integrity for audits.",
+        "purge_action": "redact_or_pseudonymize",
+        "unit": "years"
+      },
+      "telemetry_hot": {
+        "notes": "Hot telemetry (logs, traces) can be hard-deleted after retention window.",
+        "purge_action": "hard_delete",
+        "retention_days": 90,
+        "unit": "days"
+      }
+    },
+    "legal_hold": {
+      "override": "Legal hold takes precedence over retention policies.",
+      "rule": "If legal hold is active for org_id or artifact_id, purge MUST be skipped and audited.",
+      "supported": true
+    },
+    "policy_model": {
+      "description": "Each artifact references a retention_policy_id that defines data_class (DATA-1 c0\u2013c4), retention_profile (DATA-1 p0\u2013p4), retention_period, and purge_action.",
+      "required_fields": [
+        "retention_policy_id",
+        "data_class",
+        "retention_profile",
+        "retention_period",
+        "purge_action"
+      ]
+    },
+    "scheduler": {
+      "frequency": "daily",
+      "idempotency": {
+        "dedupe_key": "org_id:retention_policy_id:yyyymmdd"
+      },
+      "job_system": "AshOban",
+      "queue": "ops",
+      "required": true
+    },
+    "taxonomy_mapping": {
+      "blocking_doc": null,
+      "description": "ARCH-1 RetentionPolicy now uses DATA-1 taxonomy ids directly; no mapping table is required.",
+      "required_mapping": {
+        "data_class": {
+          "must_be": "DATA-1.classification.classes.id (c0\u2013c4)"
+        },
+        "retention_profile": {
+          "must_be": "DATA-1.retention.profiles.id (p0_public..p4_finance_records)"
+        }
+      },
+      "status": "DONE"
+    }
+  },
+  "schema_version": "contract-suite/1.0",
+  "security_posture": {
+    "auth_boundary": "Ash.Policy.Authorizer",
+    "data_retention_days": {
+      "export_metadata": 2555,
+      "legal_hold_records": 2555,
+      "security_audit_records": 2555
+    },
+    "pii_fields": [
+      "raw_pii_in_exports"
+    ],
+    "step_up_auth_required": [
+      "raw_pii redaction profile"
+    ]
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "Defines enforceable rules for export artifacts, archival snapshots, retention, legal holds, and audited erasure for a tenant-isolated Ash 3.x enterprise ticketing platform with explicit Domain/Resource/Action framing.",
+  "tenancy": {
+    "leakage_policy": {
+      "cross_org_error": {
+        "code": "ERR_NOT_FOUND",
+        "subcode": "TEN_CROSS_TENANT_HIDDEN"
+      },
+      "hide_existence": true,
+      "missing_org_context_error": {
+        "code": "ERR_FORBIDDEN",
+        "subcode": "TEN_TENANT_CONTEXT_MISSING"
+      }
+    },
+    "strategy": "ash_attribute",
+    "tenant_key": "org_id"
+  },
+  "tier": 3,
+  "title": "Data Export, Archival & Retention Contract (Ash 3.x)",
+  "topology_zones": {
+    "cross_zone_invariants": {
+      "blue_to_red": {
+        "allowed": "async_evt_only",
+        "forbidden": [
+          "sync_rpc",
+          "shared_transactions",
+          "direct_db_writes"
+        ],
+        "required_contract": "EVT-1"
+      },
+      "green_to_red": {
+        "allowed": "none"
+      }
+    },
+    "zone_model": "red_blue_green",
+    "zones": {
+      "blue": {
+        "name": "Core",
+        "surfaces": [
+          "orders",
+          "pricing",
+          "seats",
+          "identity",
+          "archival"
+        ]
+      },
+      "green": {
+        "name": "Ingress",
+        "surfaces": [
+          "public_api",
+          "webhooks",
+          "public_gateways"
+        ]
+      },
+      "red": {
+        "name": "Vault",
+        "surfaces": [
+          "ledger",
+          "locks",
+          "pci_financial_truth"
+        ]
+      }
+    }
+  },
+  "version": "3.0.4"
+}

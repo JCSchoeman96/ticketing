@@ -1,0 +1,894 @@
+{
+  "admission_control": {
+    "client_identity_binding_order": [
+      "buyer_session_id (signed httpOnly cookie)",
+      "account_id (analytics; does not replace cookie during session)",
+      "ip (secondary signal only)"
+    ],
+    "identity_scope_keys": [
+      "org_id",
+      "client_identity"
+    ],
+    "load_shed_responses": [
+      "HTTP 429 with ERR-1 code: ERR_RATE_LIMITED",
+      "HTTP 503 with ERR-1 code: ERR_UNAVAILABLE",
+      "Reduced seatmap detail (fallback layout)",
+      "Disabling non-critical analytics writes"
+    ],
+    "overload_signals": [
+      "observability latency SLO burn-rate",
+      "queue depth + lag",
+      "DB pool checkout p95/p99 from connection_leasing"
+    ],
+    "retry_guidance": [
+      "Use Retry-After headers on 429",
+      "Exponential backoff with jitter",
+      "Do not retry POSTs without idempotency keys"
+    ]
+  },
+  "artifact_kind": "contract",
+  "artifact_name": "PSC-1_Contract_v1.8.3.json",
+  "ash_3x_compliance": {
+    "atomicity": {
+      "critical_actions": [
+        "Holds.Create (ticketing.holds.create)",
+        "Holds.Extend (ticketing.holds.extend)",
+        "Checkout.CreateIntent (ticketing.checkout.create_intent)",
+        "Scan.Decision (ticketing.scan.decision)"
+      ],
+      "description": "Critical business flows (holds, checkout, scanning) MUST use atomic Ash actions with proper locking (LOCKS-1).",
+      "requirements": [
+        "require_atomic? true for all critical actions.",
+        "No direct side effects (emails, HTTP calls) inside atomic change blocks.",
+        "Conflicting updates MUST surface as Ash.Error.Invalid with LOCKS-1 error codes."
+      ]
+    },
+    "domains": {
+      "requirements": [
+        "All business logic MUST be accessed via Ash.Domain actions (Ash 3.x naming).",
+        "Direct calls that bypass Domains MUST NOT be used as the public boundary."
+      ]
+    },
+    "telemetry": {
+      "ash_events_minimum": [
+        "[:ash, (domain_short_name), :create, :start|:stop]",
+        "[:ash, (domain_short_name), :update, :start|:stop]",
+        "[:ash, (domain_short_name), :read, :start|:stop]",
+        "[:ash, (domain_short_name), :destroy, :start|:stop]",
+        "[:ash, (domain_short_name), :action, :start|:stop]",
+        "[:ash, :request_step, :start|:stop]"
+      ],
+      "custom_operation_events": [
+        "[:ticketing, :op, (operation_id), :start|:stop]"
+      ],
+      "requirements": [
+        "All hot-path operations listed in hot_path_latency_budgets MUST be measurable via telemetry histograms.",
+        "Telemetry metadata MUST include org_id (tenant), operation_id, correlation_id, and result_class (ok|error|rejected).",
+        "Custom operation spans MAY be emitted via Ash.Tracer.telemetry_span/3 from hot-path hooks (no side effects).",
+        "Custom event namespace MUST be [:ticketing, :op, ...]; do NOT use [:v42, ...] as project-level namespace."
+      ]
+    }
+  },
+  "ash_concurrency_limits": {
+    "default_group": "public_read_light",
+    "groups": [
+      {
+        "applies_to": [
+          "lightweight_reads"
+        ],
+        "group_id": "public_read_light",
+        "max_concurrency_per_node": 400
+      },
+      {
+        "applies_to": [
+          "search",
+          "seatmap_projection",
+          "pricing_quotes"
+        ],
+        "group_id": "public_read_heavy",
+        "max_concurrency_per_node": 80
+      },
+      {
+        "applies_to": [
+          "checkout_intents",
+          "seat_hold_create",
+          "ticket_issue_requests"
+        ],
+        "group_id": "public_write_hot",
+        "max_concurrency_per_node": 120
+      },
+      {
+        "applies_to": [
+          "admin_reads_writes"
+        ],
+        "group_id": "admin_ops",
+        "max_concurrency_per_node": 40
+      }
+    ],
+    "over_limit_behavior": {
+      "error_code": "ERR_UNAVAILABLE",
+      "retry_after_seconds_max": 10,
+      "retry_after_seconds_min": 2
+    },
+    "principle": "All API-exposed Ash actions MUST be assigned to a concurrency group with a per-node max concurrency cap.",
+    "version": "1"
+  },
+  "budget_ownership": {
+    "canonical_owner": "PSC-1",
+    "change_control": "PSC-1 update + observability policy regeneration + sign-off (product+infra)",
+    "derived_consumers": [
+      "observability_pipeline",
+      "queue_monitoring"
+    ]
+  },
+  "bulkhead_pattern": {
+    "capacity_reservation": {
+      "background_reserved_percent_min": 10,
+      "primary_reserved_percent_min": 60,
+      "read_replica_reserved_percent_min": 20
+    },
+    "failure_isolation": {
+      "rule": "Saturation in non-primary pools MUST NOT starve primary pool connections."
+    },
+    "pools": [
+      {
+        "id": "primary",
+        "must_be_used_for": [
+          "checkout",
+          "seat_holds",
+          "ticket_issue",
+          "scan_redeem"
+        ],
+        "must_not_be_used_for": [
+          "analytics",
+          "deep_reports"
+        ],
+        "purpose": "transactional_reads_writes_hot_path"
+      },
+      {
+        "id": "read_replica",
+        "must_be_used_for": [
+          "analytics",
+          "reporting",
+          "admin_dashboards"
+        ],
+        "must_not_be_used_for": [
+          "checkout",
+          "seat_holds",
+          "ticket_issue",
+          "scan_redeem"
+        ],
+        "purpose": "reporting_analytics_admin_reads"
+      },
+      {
+        "id": "background",
+        "must_be_used_for": [
+          "outbox_dispatch",
+          "webhook_delivery",
+          "email_delivery",
+          "backfills"
+        ],
+        "must_not_be_used_for": [
+          "public_hot_path_requests"
+        ],
+        "purpose": "async_jobs_oban"
+      }
+    ],
+    "version": "1"
+  },
+  "change_log": [
+    {
+      "changes": [
+        "Added PSC-1 latency_profile_registry defining STANDARD and HEAVY latency profile ids for async worker queues (resolves PSC-1 vs OBQC-1 naming drift).",
+        "Added rules PSC-1-LATPROF-001..003 clarifying ownership and quota expectations for HEAVY work.",
+        "Added dependency on OBQC-1 for queue/backpressure integration."
+      ],
+      "date_utc": "2026-01-26T20:07:00Z",
+      "version": "1.7.4"
+    },
+    {
+      "changes": [
+        "Baseline CS-0 contract with latency budgets, load profiles, admission control, and webhook storm contract."
+      ],
+      "date": "2026-01-01",
+      "version": "1.4.0"
+    },
+    {
+      "changes": [
+        "MAJOR: Upgraded to CS-0@2.2.0 schema standard with TG-0@2.2.0 assertion-style gates.",
+        "MAJOR: Introduced machine-enforced load tests, atomicity audits, and telemetry capture artifacts.",
+        "ADDED: Connection leasing invariants (DB checkout p95/p99, max pool timeout).",
+        "ADDED: Ash 3.x performance section (domains, atomicity, telemetry).",
+        "UPDATED: Dependencies aligned with LOCKS-1@2.0.2.",
+        "STRENGTHENED: Budgets now require automated enforcement; manual-only checks forbidden."
+      ],
+      "date": "2026-01-05",
+      "version": "1.6.0"
+    },
+    {
+      "changes": [
+        "PATCH: Admission-control error mappings use ERR_RATE_LIMITED (429) and ERR_UNAVAILABLE (503) from ERR-1.",
+        "PATCH: Removed normative references to non-existent contracts; wording is generic and enforceable.",
+        "PATCH: Align dependency pins to locked suite minimums (TEN-1@1.6.8, ERR-1@1.3.18)."
+      ],
+      "date": "2026-01-06",
+      "version": "1.6.2"
+    },
+    {
+      "changes": [
+        "PATCH: Remove CANON-1 from dependencies (CANON is suite-level input, not a contract dependency)."
+      ],
+      "date": "2026-01-06",
+      "version": "1.6.3"
+    },
+    {
+      "changes": [
+        "MINOR: Namespace all operation_id values with 'ticketing.' prefix for telemetry correlation stability.",
+        "MINOR: Replace [:v42, ...] telemetry namespace with [:ticketing, ...] for project identity compliance.",
+        "ADDED: API-0 dependency; PSC budgets normatively reference API-defined critical operations.",
+        "REMOVED: DP-1 normative references (DP-1 not yet canonical); reworded rules to be self-contained.",
+        "CLARIFIED: Admission control rules apply globally unless profile-specific overrides declared.",
+        "CLARIFIED: Removed tenant_id from PSC-1-CARDINALITY-001; org_id is the only tenant key.",
+        "ADDED: PSC-1-ENUM-001 rule to document SCREAMING_SNAKE_CASE carve-out for load profile IDs.",
+        "STRENGTHENED: Added P1 gates PSC-1-GATE-060 (operation_id namespace) and PSC-1-GATE-061 (telemetry namespace)."
+      ],
+      "date": "2026-01-08",
+      "version": "1.7.0"
+    },
+    {
+      "changes": [
+        "PATCH: Align dependency pins to current suite lock minimums (TEN-1@1.7.4, ERR-1@1.4.10, OBS-1@2.7.6).",
+        "PATCH: Fix PSC-1-GATE-040 version equality assertions to match PSC-1@1.7.3 (prevents false failures)."
+      ],
+      "date": "2026-01-26",
+      "version": "1.7.4"
+    },
+    {
+      "changes": [
+        "PATCH: Fix PSC-1-GATE schema violation (use 'level' field; strict CS-0@2.2.0 compliance).",
+        "PATCH: Align PSC-1-GATE-040 version-equality assertion payloads to PSC-1@1.7.5.",
+        "PATCH: Update ERR-1 dependency floor to 1.4.16 (overload/backpressure envelope alignment)."
+      ],
+      "date": "2026-01-29",
+      "version": "1.7.5"
+    },
+    {
+      "changes": [
+        "ADDED: HOT_SALE + NORMAL latency budgets for fee retrieval (ticketing.fees.fetch_platform_fees).",
+        "ADDED: HOT_SALE + NORMAL latency budgets for finalize checkout (ticketing.checkout.finalize) to reflect server-truth fee recomputation hard lock.",
+        "ADDED: P0 fee-engine performance and authority rules (O(1) fee computation; client-supplied fees forbidden).",
+        "UPDATED: Dependency floors (ERR-1@>=1.4.17, TEN-1@>=1.7.7, LOCKS-1@>=2.0.13)."
+      ],
+      "date": "2026-01-30",
+      "version": "1.7.6"
+    },
+    {
+      "changes": [
+        "MAJOR: Add flash_sale_physics (virtual waiting room token gate + retry-storm mitigation) for HOT_SALE profiles.",
+        "MAJOR: Add query_governance (DB timeout caps + keyset pagination mandate + deep-offset ban).",
+        "MAJOR: Add bulkhead_pattern (primary/read_replica/background pools + capacity reservation).",
+        "MAJOR: Add ash_concurrency_limits (per-node concurrency groups + overload behavior).",
+        "FIX: Repair prior metadata drift (PSC-1@1.7.7 missing changelog entry; stale gate version assertions).",
+        "UPDATED: Dependency minimums to current suite heads for runtime hardening parity."
+      ],
+      "date": "2026-02-07",
+      "version": "1.8.0"
+    }
+  ],
+  "changelog": [
+    {
+      "changes": [
+        "Aligned virtual waiting room token transport and overload error envelope to API-0 v1.1.0 (header X-Ticketing-Admission; ERR_UNAVAILABLE + PROD_QUEUE_OVERLOADED).",
+        "Removed query-param token leakage from PSC-1; token transport is now header-only by law."
+      ],
+      "date_utc": "2026-02-08",
+      "version": "1.8.1"
+    }
+  ],
+  "connection_leasing": {
+    "max_checkout_ms_p95": 50,
+    "max_checkout_ms_p99": 200,
+    "max_pool_timeout_ms": 200,
+    "metrics": {
+      "checkout_histogram": "ecto.pool.checkout_ms",
+      "timeout_counter": "ecto.pool.checkout_timeout_total"
+    },
+    "notes": [
+      "No single HTTP request may hold a DB connection for > 200ms.",
+      "Long-running work MUST be offloaded to async workers (Oban queues)."
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "API-0",
+      "edge_type": "requires",
+      "min_version": "1.1.1",
+      "reason": "Admission token transport + overload envelope semantics are owned by API-0; PSC-1 references them."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.6.1",
+      "reason": "Backpressure / overload error codes."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.1",
+      "reason": "Concurrency & contention patterns affect p99 tail latency."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.8",
+      "reason": "OBQC-1 binds queue/backpressure policy to PSC-1-defined latency profile registry."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.17",
+      "reason": "Observability posture: low-cardinality labels and PII redaction requirements interact with performance budgets."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "requires",
+      "min_version": "1.1.1",
+      "reason": "Privacy invariants for analytics surfaces (anonymization threshold, differencing mitigation) that PSC MUST enforce for performance + privacy."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.12",
+      "reason": "Tenant isolation affects caching/rate-limits and data access patterns."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Assertion-style test gates."
+    },
+    {
+      "doc_id": "TRK-1",
+      "edge_type": "requires",
+      "min_version": "1.3.1",
+      "reason": "Telemetry/tracking payload constraints; PSC performance and observability budgets MUST assume TRK events contain no direct identifiers per PII-1."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "requires",
+      "min_version": "1.8.1",
+      "reason": "Constitutional invariants."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4"
+  },
+  "doc_id": "PSC-1",
+  "emits_events": false,
+  "flash_sale_physics": {
+    "applies_to_profiles": [
+      "HOT_SALE"
+    ],
+    "idempotency": {
+      "idempotency_key_header": "Idempotency-Key",
+      "key_ttl_seconds_min": 3600,
+      "required_for_hot_path_writes": true
+    },
+    "version": "1",
+    "virtual_waiting_room": {
+      "enabled": true,
+      "missing_or_invalid_token_response": {
+        "allowed_http_statuses": [
+          302,
+          303,
+          307,
+          308,
+          429,
+          503
+        ],
+        "behavior": "queue_redirect_or_backoff",
+        "must_include_error_code": "ERR-1/OVERLOADED_QUEUE_TOKEN_REQUIRED",
+        "must_set_cache_control": "no-store",
+        "must_set_retry_after_seconds_max": 10,
+        "must_set_retry_after_seconds_min": 2
+      },
+      "missing_token_response": {
+        "client_posture": "exponential_backoff_with_jitter",
+        "err1_subcode": "PROD_QUEUE_OVERLOADED",
+        "err1_top_level_code": "ERR_UNAVAILABLE",
+        "http_status": 503,
+        "must_include_retry_after_header": true,
+        "optional_queue_url_in_error_details": true
+      },
+      "queue_token_transport": "header:X-Ticketing-Admission",
+      "reference_owner": "API-0.API-0-ADMIT-001",
+      "retry_storm_mitigation": {
+        "client_guidance": "Clients MUST honor Retry-After. Automatic retries without backoff are forbidden.",
+        "server_guidance": "Servers MUST return Retry-After and a stable error envelope from ERR-1."
+      },
+      "token_format": "base64url_opaque",
+      "token_single_use_recommended": true,
+      "token_transport_header": "X-Ticketing-Admission",
+      "token_ttl_seconds_max": 900
+    }
+  },
+  "foundation_ref": "V42",
+  "generated_at_utc": "2026-02-08T05:01:21.634749Z",
+  "hot_path_latency_budgets": [
+    {
+      "flow": "Join waiting room / mint queue ticket",
+      "notes": "DB-backed ticket + Redis accel",
+      "operation_id": "ticketing.queue.join",
+      "p50_ms": 80,
+      "p95_ms": 150,
+      "p99_ms": 400,
+      "profile": "HOT_SALE"
+    },
+    {
+      "flow": "Queue status / heartbeat",
+      "notes": "Cache-first; DB only on cache miss",
+      "operation_id": "ticketing.queue.heartbeat",
+      "p50_ms": 20,
+      "p95_ms": 50,
+      "p99_ms": 150,
+      "profile": "HOT_SALE"
+    },
+    {
+      "flow": "Admit (queue → buying session)",
+      "notes": "No backwards movement allowed",
+      "operation_id": "ticketing.queue.admit",
+      "p50_ms": 60,
+      "p95_ms": 100,
+      "p99_ms": 250,
+      "profile": "HOT_SALE"
+    },
+    {
+      "flow": "Seatmap bootstrap (initial payload)",
+      "notes": "Snapshot + deltas",
+      "operation_id": "ticketing.seatmap.bootstrap",
+      "p50_ms": 120,
+      "p95_ms": 250,
+      "p99_ms": 700,
+      "profile": "HOT_SALE"
+    },
+    {
+      "flow": "Reserve seats (hold)",
+      "notes": "DB transaction + constraint",
+      "operation_id": "ticketing.holds.create",
+      "p50_ms": 80,
+      "p95_ms": 150,
+      "p99_ms": 450,
+      "profile": "HOT_SALE"
+    },
+    {
+      "flow": "Extend/refresh hold",
+      "notes": "Fast path, minimal writes",
+      "operation_id": "ticketing.holds.extend",
+      "p50_ms": 40,
+      "p95_ms": 80,
+      "p99_ms": 250,
+      "profile": "HOT_SALE"
+    },
+    {
+      "flow": "Create checkout (order intent)",
+      "notes": "Avoid heavy joins",
+      "operation_id": "ticketing.checkout.create_intent",
+      "p50_ms": 120,
+      "p95_ms": 300,
+      "p99_ms": 900,
+      "profile": "HOT_SALE"
+    },
+    {
+      "flow": "Webhook acknowledge",
+      "notes": "Ack fast, process async",
+      "operation_id": "ticketing.webhook.ack",
+      "p50_ms": 20,
+      "p95_ms": 50,
+      "p99_ms": 150,
+      "profile": "WEBHOOK_STORM"
+    },
+    {
+      "flow": "Scan decision (validate ticket)",
+      "notes": "Online path; offline supported",
+      "operation_id": "ticketing.scan.decision",
+      "p50_ms": 70,
+      "p95_ms": 120,
+      "p99_ms": 350,
+      "profile": "SCANNING_PEAK"
+    },
+    {
+      "flow": "Fetch platform fees for checkout intent",
+      "notes": "Cache-first; single FeeSchedule lookup; no per-line DB fanout",
+      "operation_id": "ticketing.fees.fetch_platform_fees",
+      "p50_ms": 20,
+      "p95_ms": 50,
+      "p99_ms": 150,
+      "profile": "HOT_SALE"
+    },
+    {
+      "flow": "Fetch platform fees for checkout intent",
+      "notes": "Cache-first; bounded queries on cache miss",
+      "operation_id": "ticketing.fees.fetch_platform_fees",
+      "p50_ms": 30,
+      "p95_ms": 80,
+      "p99_ms": 250,
+      "profile": "NORMAL"
+    },
+    {
+      "flow": "Finalize checkout (server-truth fees, order snapshot, payment intent)",
+      "notes": "Atomic; MUST recompute fees server-side and validate holds; avoid heavy joins",
+      "operation_id": "ticketing.checkout.finalize",
+      "p50_ms": 250,
+      "p95_ms": 600,
+      "p99_ms": 1500,
+      "profile": "HOT_SALE"
+    },
+    {
+      "flow": "Finalize checkout (server-truth fees, order snapshot, payment intent)",
+      "notes": "Atomic; MUST recompute fees server-side and validate holds",
+      "operation_id": "ticketing.checkout.finalize",
+      "p50_ms": 150,
+      "p95_ms": 350,
+      "p99_ms": 900,
+      "profile": "NORMAL"
+    }
+  ],
+  "last_updated_utc": "2026-02-08T05:01:21.634749Z",
+  "latency_profile_registry": {
+    "default_profile_id": "STANDARD",
+    "heavy_profile_id": "HEAVY",
+    "heavy_quota_fraction_default": 0.2,
+    "notes": [
+      "Latency profiles are distinct from PSC-1 load_profiles. load_profiles model system-wide traffic shape (e.g., HOT_SALE, WEBHOOK_STORM). latency_profile_registry models per-queue job classes for async workers.",
+      "Other contracts that reference a PSC-1 latency profile MUST use an id from this registry. Unknown profile ids are forbidden.",
+      "The HEAVY profile quota is an SLO-safety default. Implementations MAY tighten per domain; they MUST NOT loosen without GOV-0 break-glass approval and documented risk acceptance."
+    ],
+    "profiles": [
+      {
+        "description": "Default async-job latency profile for user-facing or time-sensitive work. Expected to complete quickly and MUST be prioritized over HEAVY work during contention.",
+        "id": "STANDARD",
+        "intended_job_kinds": [
+          "hot_path_async",
+          "post_commit",
+          "notifications",
+          "webhooks_delivery"
+        ],
+        "max_payload_bytes": 65536,
+        "runtime_budget_p95_ms": 2000,
+        "runtime_budget_p99_ms": 5000
+      },
+      {
+        "description": "Async-job latency profile for compute-heavy or IO-heavy work (bulk exports, large reconciliations, backfills). HEAVY work MUST be quota-limited and MUST NOT starve STANDARD work.",
+        "id": "HEAVY",
+        "intended_job_kinds": [
+          "bulk_admin",
+          "reconciliation",
+          "exports",
+          "backfill",
+          "reports"
+        ],
+        "max_payload_bytes": 262144,
+        "runtime_budget_p95_ms": 30000,
+        "runtime_budget_p99_ms": 120000
+      }
+    ],
+    "quota_scope": "per-domain"
+  },
+  "load_profiles": [
+    {
+      "burst_seconds": 60,
+      "description": "Typical day-to-day traffic with small events and moderate webhooks.",
+      "id": "NORMAL",
+      "peak_concurrent_buyers_per_org": 500,
+      "peak_rps_per_org": 50
+    },
+    {
+      "burst_seconds": 600,
+      "description": "High concurrency on queue, seatmap, holds, and checkout during major on-sales.",
+      "id": "HOT_SALE",
+      "peak_concurrent_buyers_per_org": 150000,
+      "peak_rps_per_org": 1500
+    },
+    {
+      "burst_seconds": 900,
+      "description": "High traffic on scan decisions during event entry windows.",
+      "id": "SCANNING_PEAK",
+      "peak_concurrent_scanners_per_org": 5000,
+      "peak_rps_per_org": 800
+    },
+    {
+      "ack_slo_p95_ms": 50,
+      "burst_seconds": 300,
+      "description": "Inbound provider webhook spike (refunds, chargebacks, payouts).",
+      "id": "WEBHOOK_STORM",
+      "peak_rps_per_org": 400
+    }
+  ],
+  "multi_tenant_performance_isolation": {
+    "cache_key_scope_keys": [
+      "org_id"
+    ],
+    "rate_limit_scope_keys": [
+      "org_id",
+      "client_identity"
+    ],
+    "rules": [
+      "All cache keys used on hot paths MUST be tenant-scoped by org_id (directly or via tenant-derived namespace).",
+      "Admission control and rate limiting MUST NOT allow one tenant/org_id to consume capacity allocated to another tenant/org_id (no global buckets) unless explicitly permitted by contract.",
+      "Queue tickets and buyer sessions MUST be cryptographically bound to org_id and MUST be rejected if org_id does not match current tenant context."
+    ]
+  },
+  "normative_source": "json",
+  "outbox_events": [],
+  "owners": {
+    "primary": "Platform Engineering",
+    "secondary": [
+      "SRE",
+      "Data"
+    ]
+  },
+  "privacy_analytics_controls": {
+    "anonymization_threshold": {
+      "complementary_suppression_required": true,
+      "min_population_size": 5,
+      "rule": "aggregate_results_with_population_lt_min_size_must_be_suppressed"
+    },
+    "anti_differencing": {
+      "must_cache_results_per_org_and_query_shape": true,
+      "must_enforce_minimum_time_window_seconds": 3600,
+      "must_normalize_queries": true,
+      "must_rate_limit_per_actor_and_subject": true
+    },
+    "requirements": [
+      "aggregations_must_apply_threshold_before_display_or_export",
+      "exports_must_apply_same_threshold_rules_as_ui",
+      "drilldown_endpoints_must_be_capability_gated_and_audited_per_pii_1"
+    ]
+  },
+  "query_governance": {
+    "database_timeouts": {
+      "idle_in_transaction_session_timeout_ms_max_public_pool": 10000,
+      "lock_timeout_ms_max_public_pool": 500,
+      "statement_timeout_ms_max_admin_pool": 15000,
+      "statement_timeout_ms_max_public_pool": 3000
+    },
+    "pagination": {
+      "cursor_param_name": "cursor",
+      "max_page_size": 200,
+      "offset_pagination_forbidden_after_page": 10,
+      "page_size_param_name": "limit",
+      "public_reads_must_use_keyset_pagination": true
+    },
+    "query_shape_bans": [
+      {
+        "ban_id": "PSC-1-QRY-BAN-OFFSET-DEEP-PAGING",
+        "text": "Offset pagination (OFFSET/LIMIT) MUST NOT be used for public API reads past page 10; use keyset pagination."
+      },
+      {
+        "ban_id": "PSC-1-QRY-BAN-UNBOUNDED-SORT",
+        "text": "Sorting on non-indexed, unbounded fields for public endpoints is forbidden during HOT_SALE."
+      }
+    ],
+    "version": "1"
+  },
+  "references": [
+    {
+      "kind": "ash_docs",
+      "ref": "Ash Monitoring & Instrumentation",
+      "url": "https://hexdocs.pm/ash/monitoring.html"
+    },
+    {
+      "kind": "ash_docs",
+      "ref": "Ash Error Handling",
+      "url": "https://hexdocs.pm/ash/error-handling.html"
+    },
+    {
+      "kind": "sre_book",
+      "ref": "Google SRE Workbook - Alerting on SLOs",
+      "url": "https://sre.google/workbook/alerts/"
+    }
+  ],
+  "rules": [
+    {
+      "applies_to": [
+        "contract_artifacts",
+        "ci_validation"
+      ],
+      "category": "governance",
+      "rationale": "Deterministic CI enforcement; prevents drift.",
+      "rule_id": "PSC-1-META-001",
+      "severity": "P0",
+      "text": "PSC-1 and PSC-1-GATE MUST be JSON-only normative artifacts; repacks are forbidden; metadata must match filenames and manifest pins."
+    },
+    {
+      "applies_to": [
+        "hot_path_latency_budgets"
+      ],
+      "category": "performance",
+      "rationale": "If it isn't budgeted, it won't be protected, and it will fail under load.",
+      "rule_id": "PSC-1-BUDGETS-001",
+      "severity": "P0",
+      "text": "Every critical operation listed in API-0 MUST map to an explicit hot-path latency budget (p50/p95/p99) or an explicit 'out of scope' justification."
+    },
+    {
+      "applies_to": [
+        "test_gates",
+        "load_tests"
+      ],
+      "category": "performance",
+      "rationale": "Performance regressions must be caught by CI, not human intuition.",
+      "rule_id": "PSC-1-BUDGETS-002",
+      "severity": "P0",
+      "text": "Latency budgets MUST be enforced via automated load tests; manual-only verification is forbidden."
+    },
+    {
+      "applies_to": [
+        "admission_control"
+      ],
+      "category": "reliability",
+      "rationale": "Backpressure keeps the platform alive during spikes.",
+      "rule_id": "PSC-1-BACKPRESSURE-001",
+      "severity": "P0",
+      "text": "Admission control MUST define overload signals, load-shed responses, and retry guidance. These apply globally across all load profiles unless a profile-specific override is declared in the profile definition."
+    },
+    {
+      "applies_to": [
+        "metrics"
+      ],
+      "category": "observability",
+      "rationale": "High-cardinality metrics will melt the TSDB during incidents.",
+      "rule_id": "PSC-1-CARDINALITY-001",
+      "severity": "P0",
+      "text": "Performance metrics MUST NOT label by org_id (tenant key), actor_id, request_id, or any unbounded identifiers. Use aggregated dimensions only (e.g., org_tier, region)."
+    },
+    {
+      "applies_to": [
+        "connection_leasing"
+      ],
+      "category": "performance",
+      "rationale": "DB pool exhaustion is a common throughput limiter and source of cascading failures.",
+      "rule_id": "PSC-1-DBPOOL-001",
+      "severity": "P0",
+      "text": "DB connection leasing MUST comply with PSC-1 connection_leasing invariants (checkout p95/p99 and pool timeout)."
+    },
+    {
+      "applies_to": [
+        "ash_3x_compliance.atomicity"
+      ],
+      "category": "ash_framework",
+      "rationale": "Ensures data integrity under concurrent load.",
+      "references_contracts": [
+        "LOCKS-1",
+        "API-0"
+      ],
+      "rule_id": "PSC-1-ASH-001",
+      "severity": "P0",
+      "text": "All critical business actions listed in hot_path_latency_budgets MUST be implemented as Ash atomic actions with require_atomic? true and LOCKS-1-compliant locking."
+    },
+    {
+      "applies_to": [
+        "ash_3x_compliance.telemetry"
+      ],
+      "category": "ash_framework",
+      "rationale": "Without telemetry, budgets cannot be validated or alerted on.",
+      "references_contracts": [],
+      "rule_id": "PSC-1-ASH-002",
+      "severity": "P0",
+      "text": "Hot-path Ash actions MUST emit telemetry events ticketing.ash.action.start/stop OR leverage standard Ash telemetry [:ash, (domain_short_name), :action, :start|:stop] with org_id metadata."
+    },
+    {
+      "applies_to": [
+        "load_profiles",
+        "webhook_storm_contract"
+      ],
+      "category": "naming",
+      "rationale": "Load profile IDs and operational flags use SCREAMING_SNAKE_CASE by convention for ENV-like operational constants.",
+      "rule_id": "PSC-1-ENUM-001",
+      "severity": "P2",
+      "text": "Enum identifiers for load profiles and operational flags MAY use SCREAMING_SNAKE_CASE (e.g., HOT_SALE, WEBHOOK_SHED_MODE). All other identifiers MUST use snake_case."
+    },
+    {
+      "id": "psc_privacy_analytics_controls",
+      "must": true,
+      "text": "Aggregate analytics surfaces SHALL enforce an anonymization threshold of min_population_size=5 with complementary suppression, and SHALL apply anti-differencing controls (query normalization, minimum time windows, caching, and rate limiting) as specified in /privacy_analytics_controls."
+    },
+    {
+      "rule_id": "PSC-1-LATPROF-001",
+      "severity": "P0",
+      "text": "PSC-1 MUST define a latency_profile_registry that is the sole authority for latency profile ids referenced by worker-queue and backpressure contracts. The registry MUST include at minimum: STANDARD and HEAVY, and MUST declare default_profile_id = STANDARD."
+    },
+    {
+      "rule_id": "PSC-1-LATPROF-002",
+      "severity": "P1",
+      "text": "Any contract referencing a PSC-1 latency profile (e.g., OBQC-1 queue policies) MUST use a profile id defined in PSC-1.latency_profile_registry.profiles[].id. Unknown profile ids MUST be rejected at contract-review time and by test gates where applicable."
+    },
+    {
+      "rule_id": "PSC-1-LATPROF-003",
+      "severity": "P1",
+      "text": "HEAVY latency profile work MUST be quota-limited per domain using PSC-1.latency_profile_registry.heavy_quota_fraction_default (or stricter) to prevent starvation of STANDARD work. Any relaxation MUST require GOV-0 break-glass approval and an audit trail."
+    },
+    {
+      "rule_id": "PSC-1-FEE-001",
+      "severity": "P0",
+      "text": "FeeSchedule lookup and platform fee computation MUST be O(1) per checkout intent: implementations MUST NOT execute per-line-item DB queries or N+1 fetches to compute platform fees."
+    },
+    {
+      "rule_id": "PSC-1-FEE-002",
+      "severity": "P0",
+      "text": "Platform fee computation MUST be system-only and deterministic: any client-supplied fee fields (e.g., fee_lines, fee_total_minor) MUST be rejected or ignored; the server MUST recompute via PAY-3 fee engine."
+    },
+    {
+      "applies_to": [
+        "flash_sale_physics",
+        "admission_control",
+        "api_surfaces"
+      ],
+      "category": "reliability",
+      "rationale": "Pure 503 load-shedding creates retry storms and guarantees collapse under flash-sale demand.",
+      "rule_id": "PSC-1-FLASH-001",
+      "severity": "P0",
+      "text": "During HOT_SALE profile, all hot-path endpoints MUST enforce a virtual waiting room / queue-token gate OR an equivalent deterministic admission control mechanism; naive 503-only load shedding is forbidden."
+    },
+    {
+      "applies_to": [
+        "query_governance",
+        "database_timeouts"
+      ],
+      "category": "performance",
+      "rationale": "Long-running statements and lock waits are fatal under flash-sale concurrency; timeouts enforce fail-fast backpressure.",
+      "rule_id": "PSC-1-DB-TO-001",
+      "severity": "P0",
+      "text": "Public-facing DB pools MUST enforce statement_timeout <= 3000ms and lock_timeout <= 500ms. Exceptions MUST be isolated to non-primary pools."
+    },
+    {
+      "applies_to": [
+        "query_governance",
+        "pagination"
+      ],
+      "category": "security",
+      "rationale": "Deep OFFSET paging is a common DoS vector and causes non-linear DB cost growth.",
+      "rule_id": "PSC-1-PAG-001",
+      "severity": "P0",
+      "text": "Public reads MUST use keyset pagination. Offset pagination is forbidden beyond page 10."
+    },
+    {
+      "applies_to": [
+        "bulkhead_pattern",
+        "db_pools"
+      ],
+      "category": "reliability",
+      "rationale": "Bulkheading prevents non-critical queries from starving the transactional hot path.",
+      "rule_id": "PSC-1-BULK-001",
+      "severity": "P0",
+      "text": "Reporting/analytics workloads MUST be isolated to a read_replica pool and MUST NOT consume primary transactional connections."
+    },
+    {
+      "applies_to": [
+        "ash_concurrency_limits",
+        "runtime_limits"
+      ],
+      "category": "performance",
+      "rationale": "Unbounded task spawning can collapse the BEAM scheduler even if Postgres remains healthy.",
+      "rule_id": "PSC-1-ASH-CONC-001",
+      "severity": "P1",
+      "text": "API-exposed Ash actions MUST be protected by per-node concurrency caps (bulkheads). Concurrency groups MUST be explicit and stable."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines latency budgets, load profiles, connection-leasing invariants, and Ash 3.x performance patterns with machine-enforced evidence requirements (load tests, atomicity audits, telemetry capture).",
+  "tier": 2,
+  "title": "Performance Stack Contract",
+  "version": "1.8.3",
+  "webhook_storm_contract": {
+    "inline_handler": "signature validate + receipt insert (dedupe) + enqueue",
+    "receipt_dedupe_key": [
+      "provider",
+      "provider_event_id",
+      "org_id"
+    ],
+    "reserved_db_capacity_required": true,
+    "shedding_flag": "WEBHOOK_SHED_MODE"
+  }
+}

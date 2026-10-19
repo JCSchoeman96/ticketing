@@ -1,0 +1,37 @@
+{
+  "bootstrap_commit": "9607ba7328878dfa2bebc8e14e93492eeea30377",
+  "candidate_preparation_base_commit": "9607ba7328878dfa2bebc8e14e93492eeea30377",
+  "origin_members": [
+    {
+      "bytes": 13325,
+      "role": "contract",
+      "sha256": "5cf61a8a67e57f797a7e90c094239607dfb3b769d0d918709952a6770d5f4539",
+      "source_member_path": "TG-0_bundle_v2.3.1/TG-0_Contract_v2.3.1.json"
+    },
+    {
+      "bytes": 3957,
+      "role": "test_gates",
+      "sha256": "2b7f5be723938bb8a106d691e60ba719785b50254947f538f8ad2d9370dad27c",
+      "source_member_path": "TG-0_bundle_v2.3.1/TG-0_Test_Gates_v2.3.1.json"
+    }
+  ],
+  "provenance_statement": "Successor source bootstrapped from the exact staging candidate recorded here. Editable files preserve its semantics except the documented release identity/schema corrections and completion of the existing non-producer gate whose MUST behavior is explicit in the contract change log and failure message. This is not original authoring source.",
+  "source_bundle_path": ".staging/raw/##Ticketing_Platform/TESTING/TG-0_bundle_v2.3.1_JSON_ONLY.zip",
+  "source_members": [
+    {
+      "bytes": 13874,
+      "sha256": "982c5aa4145412973e0b329fbdd416b058b4e95947d585e215ad1dc3d299ca6b",
+      "source_member_path": "TG-0_bundle_v2.3.1/TG-0_Contract_v2.3.1.json",
+      "tracked_source_path": "contract.json"
+    },
+    {
+      "bytes": 4082,
+      "sha256": "69b844c9897df8d715188fa222d8607c6f6b70ce178523d06bdf7014ea7dc434",
+      "source_member_path": "TG-0_bundle_v2.3.1/TG-0_Test_Gates_v2.3.1.json",
+      "tracked_source_path": "test-gates.json"
+    }
+  ],
+  "source_version": "2.3.1",
+  "source_zip_bytes": 5667,
+  "source_zip_sha256": "a89657e2f9d286ad5b91327f62a2abea1c7dca2dcf805e8eb164d532fbb0b64a"
+}

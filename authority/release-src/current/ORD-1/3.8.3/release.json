@@ -1,0 +1,13 @@
+{
+  "doc_id": "ORD-1",
+  "version": "3.8.3",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T16:33:00Z",
+  "release_status": "candidate",
+  "release_intent": "Backward-compatible ORD-1 successor adding canonical T0 enablement authority.",
+  "source_provenance": {
+    "kind": "predecessor-candidate-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "95426534f3bf18230b0ae583aca5234d660e81bc0da2d6fbe8ff65fa9aad237f"
+  }
+}

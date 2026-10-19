@@ -1,0 +1,37 @@
+{
+  "bootstrap_commit": "df6099c6508f34bd79f10d634807484044b15457",
+  "candidate_preparation_base_commit": "df6099c6508f34bd79f10d634807484044b15457",
+  "origin_members": [
+    {
+      "bytes": 7122,
+      "role": "contract",
+      "sha256": "b2ffe568093db8ea0b662076c2f856f2b6d459fadcd8d123ad5b780cf7e81831",
+      "source_member_path": "QUORUM-1_bundle_v1.0.0/QUORUM-1_Contract_v1.0.0.json"
+    },
+    {
+      "bytes": 2972,
+      "role": "test_gates",
+      "sha256": "569b7038966fe0fa669be56640d8371281be69282dfb33f34e7732bf32304467",
+      "source_member_path": "QUORUM-1_bundle_v1.0.0/QUORUM-1-GATE_TestGates_v1.0.0.json"
+    }
+  ],
+  "provenance_statement": "Editable successor source bootstrapped from the exact tracked QUORUM-1 v1.0.0 bundle. This is not original authoring source. The successor normalizes the summary into the CS-0 string field, updates release/schema identities, and replaces unsupported path-existence gates with equality assertions against the existing values.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/QUORUM-1_bundle_v1.0.0_refactored.zip",
+  "source_members": [
+    {
+      "bytes": 7070,
+      "sha256": "41adf271e02483e4cdbfae0e6cb969033f35c4f407fb6b8e128daf274326e489",
+      "source_member_path": "QUORUM-1_bundle_v1.0.0/QUORUM-1_Contract_v1.0.0.json",
+      "tracked_source_path": "contract.json"
+    },
+    {
+      "bytes": 5426,
+      "sha256": "ec972b43306a11b7bf909744170d1beb02702669ea0d07fd1435b02563167705",
+      "source_member_path": "QUORUM-1_bundle_v1.0.0/QUORUM-1-GATE_TestGates_v1.0.0.json",
+      "tracked_source_path": "test-gates.json"
+    }
+  ],
+  "source_version": "1.0.0",
+  "source_zip_bytes": 4002,
+  "source_zip_sha256": "90a117a3eaaaee510dbb09fea70b35b65cefea3d742c839d8c006033cb1b85fe"
+}

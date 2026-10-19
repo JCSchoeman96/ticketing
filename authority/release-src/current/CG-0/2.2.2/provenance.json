@@ -1,0 +1,40 @@
+{
+  "bootstrap_commit": "79a1ad98703bb694c8e25df1df48ae47ac0a940b",
+  "candidate_preparation_base_commit": "79a1ad98703bb694c8e25df1df48ae47ac0a940b",
+  "origin_members": [
+    {
+      "bytes": 6613,
+      "sha256": "51499c8e535affbe2cc3cf871a777b5441aa1b88110e92728ed96e997a400668",
+      "source_member_path": "CG-0_bundle_v2.2.1/CG-0_Contract_v2.2.1.json"
+    },
+    {
+      "bytes": 3269,
+      "sha256": "15fe52c6f1cbf93d699bcab988a066a29c8508fe53bf69d2270c5b09a306f024",
+      "source_member_path": "CG-0_bundle_v2.2.1/CG-0_Test_Gates_v2.2.1.json"
+    },
+    {
+      "bytes": 588,
+      "sha256": "eb91615b66225ffda3273eba6856ddfc40d1f454b322dcce1cd9a568d2b89452",
+      "source_member_path": "CG-0_bundle_v2.2.1/bundle.manifest.json"
+    }
+  ],
+  "provenance_statement": "Successor source candidate bootstrapped from the identified ignored CG-0 v2.2.1 staging ZIP. The staging artifact supplies semantic input only and is not promoted. Current editable source updates release identity, CS-0 suite-schema links, the stale gate assertion, and release history. It adds the schema-required registry_floor classification to the EVT-1 parity dependency and completes the required P1 gate fields while preserving the existing non-producer assertions.",
+  "source_bundle_path": ".staging/raw/##Ticketing_Platform/TESTING/CG-0_bundle_v2.2.1_JSON_ONLY.zip",
+  "source_members": [
+    {
+      "bytes": 7601,
+      "sha256": "13fd550c3fdec8d51ed03d59ebccdf30195a87d9cbc3f378e1a16f7d2d2b9a80",
+      "source_member_path": "CG-0_bundle_v2.2.1/CG-0_Contract_v2.2.1.json",
+      "tracked_source_path": "contract.json"
+    },
+    {
+      "bytes": 3435,
+      "sha256": "3e3cc00a32b35e872df6bce4679a1b312a1b46f613f909f0bfbdc9e36d636d8f",
+      "source_member_path": "CG-0_bundle_v2.2.1/CG-0_Test_Gates_v2.2.1.json",
+      "tracked_source_path": "test-gates.json"
+    }
+  ],
+  "source_version": "2.2.1",
+  "source_zip_bytes": 3997,
+  "source_zip_sha256": "7f9edf4ae9611570553e8e04cf167751605a553a6d11221d33c062c54ae4b804"
+}

@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "ATP-1",
+    "bundle_version": "2.0.2"
+  },
+  "doc_id": "ATP-1",
+  "files": [
+    {
+      "bytes": 6388,
+      "path": "ATP-1_Contract_v2.0.2.json",
+      "sha256": "8841c1ae69ec8383cb5de8683ccd76e7a027db47c91ff6fe7456227eaf5a1c84"
+    },
+    {
+      "bytes": 8629,
+      "path": "ATP-1_Test_Gates_v2.0.2.json",
+      "sha256": "7e92dc34fcfc2a481a9cd49bf228ddc86fcef306f98ebfcd35240dacc0da2d30"
+    }
+  ],
+  "generated_at_utc": "2026-04-15T13:42:37Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.0",
+  "version": "2.0.2"
+}

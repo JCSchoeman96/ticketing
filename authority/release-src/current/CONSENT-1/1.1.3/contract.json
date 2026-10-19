@@ -1,0 +1,472 @@
+{
+  "artifact_kind": "contract",
+  "authorization": {
+    "break_glass": {
+      "allowed": true,
+      "must_emit_event": true,
+      "must_log": true,
+      "notes": "Admin overrides MUST be exceptional, time-bounded, and auditable."
+    },
+    "capabilities_required": [
+      {
+        "capability_id": "consent_read",
+        "description": "Read effective consent for a subject_key.",
+        "scope": "org_id"
+      },
+      {
+        "capability_id": "consent_write",
+        "description": "Create grant proofs for a subject_key.",
+        "scope": "org_id"
+      },
+      {
+        "capability_id": "consent_withdraw",
+        "description": "Create withdrawal proofs.",
+        "scope": "org_id"
+      },
+      {
+        "capability_id": "consent_proof_read",
+        "description": "Read consent proofs (audit).",
+        "scope": "org_id"
+      },
+      {
+        "capability_id": "consent_admin_override",
+        "description": "Create admin_override proofs (break-glass only).",
+        "scope": "org_id"
+      }
+    ],
+    "iam_ref": {
+      "doc_id": "IAM-1",
+      "min_version": "3.0.0"
+    },
+    "model": "capability_based",
+    "new_proposed_invariant": {
+      "id": "iam_capability_ids_for_consent",
+      "statement": "NEW: proposed invariant — IAM MUST expose capability IDs consent_read, consent_write, consent_withdraw, consent_proof_read with org-scoped enforcement."
+    }
+  },
+  "canonical": false,
+  "consent_model": {
+    "purpose_registry": {
+      "extension_rules": {
+        "allowed": true,
+        "custom_prefix_required": "org_",
+        "notes": "Custom purposes MUST be org-scoped and MUST start with org_. Example: org_newsletter_opt_in.",
+        "purpose_id_pattern": "^[a-z][a-z0-9_]{2,63}$",
+        "reserved_prefixes": [
+          "ticketing_",
+          "v42_",
+          "sys_"
+        ]
+      },
+      "minimum_set": [
+        {
+          "category_id": "necessary",
+          "default_required": true,
+          "description": "Strictly necessary for core functionality and security (authentication, fraud prevention, transaction integrity).",
+          "purpose_id": "necessary"
+        },
+        {
+          "category_id": "analytics",
+          "default_required": false,
+          "description": "Measurement and product analytics that are not strictly necessary.",
+          "purpose_id": "analytics"
+        },
+        {
+          "category_id": "marketing",
+          "default_required": false,
+          "description": "Direct marketing and promotional outreach.",
+          "purpose_id": "marketing"
+        },
+        {
+          "category_id": "preferences",
+          "default_required": false,
+          "description": "Convenience features that store user preferences beyond core necessity.",
+          "purpose_id": "preferences"
+        }
+      ]
+    },
+    "region_profiles": {
+      "deterministic_selection": {
+        "inputs": [
+          "explicit_user_region_override",
+          "request_geo_inference"
+        ],
+        "new_proposed_invariant": {
+          "id": "consent_region_override_can_only_increase_restrictiveness",
+          "statement": "NEW: proposed invariant — user-provided region override MUST NOT result in a less restrictive profile than the geo-inferred profile."
+        },
+        "rules": [
+          "If explicit_user_region_override exists, it MUST be used ONLY when it results in equal or higher restrictiveness than request_geo_inference.",
+          "If request_geo_inference is missing or low-confidence, unknown_strict MUST be used."
+        ]
+      },
+      "minimum_set": [
+        {
+          "defaults": {
+            "analytics": "deny",
+            "marketing": "deny",
+            "necessary": "allow",
+            "preferences": "deny"
+          },
+          "description": "Most restrictive default for EU/EEA/UK and unknown geos.",
+          "region_profile_id": "eu_strict"
+        },
+        {
+          "defaults": {
+            "analytics": "deny",
+            "marketing": "deny",
+            "necessary": "allow",
+            "preferences": "allow"
+          },
+          "description": "Default profile for South Africa unless overridden by org policy.",
+          "region_profile_id": "sa_default"
+        },
+        {
+          "defaults": {
+            "analytics": "deny",
+            "marketing": "deny",
+            "necessary": "allow",
+            "preferences": "deny"
+          },
+          "description": "Fallback when region cannot be confidently determined.",
+          "region_profile_id": "unknown_strict"
+        }
+      ]
+    }
+  },
+  "consent_resolution": {
+    "algorithm": {
+      "deterministic_steps": [
+        "Resolve effective_region_profile_id using consent_model.region_profiles.deterministic_selection.",
+        "Load org_policy for org_id (if present); org_policy MAY specify per-region default profiles and per-purpose overrides.",
+        "Compute baseline decision per purpose from effective_region_profile defaults, then apply org_policy overrides.",
+        "Apply explicit_subject_choice decisions (if any).",
+        "Apply global_privacy_control (gpc) as a deny for all non-necessary purposes when present.",
+        "Apply withdrawals as deny for the withdrawn purposes, effective immediately.",
+        "For each purpose_id: if any input yields deny, effective MUST be deny; else if at least one yields allow and none yield deny, effective MUST be allow; else unset yields baseline.",
+        "Emit a deterministic consent_evaluation record (hashable) for downstream enforcement."
+      ],
+      "tie_breakers": [
+        "necessary MUST always resolve to allow unless the request is explicitly blocked for security reasons outside consent scope.",
+        "unknown_strict MUST win over any less restrictive baseline if any ambiguity exists."
+      ]
+    },
+    "composition_rule": "most_restrictive_wins",
+    "decision_values": [
+      "allow",
+      "deny",
+      "unset"
+    ],
+    "output_contract": {
+      "consent_evaluation": {
+        "hashing": {
+          "hash_algo": "sha256",
+          "notes": "evaluation_hash_sha256 MUST be computed over RFC 8785 (JCS) canonicalized consent_evaluation without volatile transport fields.",
+          "canonicalization": {
+            "scheme": "JCS",
+            "standard": "RFC 8785"
+          }
+        },
+        "purpose_decisions_shape": "map[purpose_id]=>allow|deny",
+        "required_fields": [
+          "org_id",
+          "subject_key",
+          "evaluated_at_utc",
+          "effective_region_profile_id",
+          "purpose_decisions",
+          "evaluation_hash_sha256",
+          "version"
+        ]
+      }
+    },
+    "precedence_order": [
+      "withdrawal",
+      "global_privacy_control",
+      "explicit_subject_choice",
+      "org_policy_overrides",
+      "region_profile_defaults"
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "V42-0",
+      "min_version": "1.6.0",
+      "reason": "Constitutional invariants (multi-tenancy, immutability posture, reliability posture).",
+      "edge_type": "foundation_floor"
+    },
+    {
+      "doc_id": "TEN-1",
+      "min_version": "1.7.0",
+      "reason": "Tenant isolation invariants (org_id scoping, RLS posture, session GUC name).",
+      "edge_type": "foundation_floor"
+    },
+    {
+      "doc_id": "ERR-1",
+      "min_version": "1.3.26",
+      "reason": "Canonical error envelope + base codes.",
+      "edge_type": "foundation_floor"
+    },
+    {
+      "doc_id": "DP-1",
+      "min_version": "2.0.5",
+      "reason": "Outbox requirements for reliable, idempotent consent-change propagation (no direct side effects).",
+      "edge_type": "integration_floor"
+    },
+    {
+      "doc_id": "SEC-1",
+      "min_version": "3.4.2",
+      "reason": "SEC-1 crypto controls plus explicit RFC 8785 (JCS) semantics for deterministic proof hashing/signing.",
+      "edge_type": "requires"
+    },
+    {
+      "doc_id": "ARCH-1",
+      "min_version": "3.0.0",
+      "reason": "Retention, archival, and deletion semantics for proofs and derived state.",
+      "edge_type": "governance_floor"
+    },
+    {
+      "doc_id": "EVT-1",
+      "min_version": "2.16.4",
+      "reason": "Event Registry head pin for Phase 5 parity (consent events).",
+      "edge_type": "registry_floor"
+    },
+    {
+      "doc_id": "EVT-2",
+      "min_version": "2.4.0",
+      "reason": "Normalized schema_ref token authority for event envelope validation.",
+      "edge_type": "registry_floor"
+    },
+    {
+      "doc_id": "IAM-1",
+      "min_version": "3.4.1",
+      "reason": "Session/actor context dependency for consent policy evaluation.",
+      "edge_type": "integration_floor"
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0",
+    "IAM-1": "3.4.1"
+  },
+  "doc_id": "CONSENT-1",
+  "domain_invariants": {
+    "subject_resolvability": {
+      "owned_by": "IAM-1",
+      "resolution_mechanism": "subject_id is the canonical opaque handle; pseudonym hashes are internal-only.",
+      "rule_id": "CONSENT-1-INV-SUBJECT-RESOLVABLE-001",
+      "text": "CONSENT MUST only emit consent events with subject_id values that are resolvable by IAM within the same org_id scope."
+    }
+  },
+  "errors": {
+    "primary_codes_used": [
+      "ERR_FORBIDDEN",
+      "ERR_PRECONDITION",
+      "ERR_VALIDATION",
+      "ERR_CONFLICT",
+      "ERR_UNAVAILABLE"
+    ],
+    "registry": "ERR-1",
+    "subcodes": {
+      "CONSENT_APPEND_ONLY_VIOLATION": {
+        "base": "ERR_CONFLICT",
+        "retryable": false
+      },
+      "CONSENT_DECISION_DENIED": {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false
+      },
+      "CONSENT_EVALUATION_REQUIRED": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "CONSENT_OUTBOX_ENQUEUE_FAILED": {
+        "base": "ERR_UNAVAILABLE",
+        "retryable": true
+      },
+      "CONSENT_PROOF_INTEGRITY_INVALID": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "CONSENT_PURPOSE_UNKNOWN": {
+        "base": "ERR_VALIDATION",
+        "retryable": false
+      },
+      "CONSENT_REGION_PROFILE_UNKNOWN": {
+        "base": "ERR_VALIDATION",
+        "retryable": false
+      },
+      "CONSENT_SUBJECT_KEY_INVALID": {
+        "base": "ERR_VALIDATION",
+        "retryable": false
+      },
+      "CONSENT_WITHDRAWN": {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false
+      }
+    }
+  },
+  "events": {
+    "emit_consent_changed_event": true,
+    "outbox_ref": {
+      "doc_id": "DP-1",
+      "min_version": "2.0.5"
+    },
+    "outbox_required": true,
+    "payload_minimization": {
+      "notes": "subject_key MUST NOT be emitted; subject_key_hash MUST be emitted instead.",
+      "subject_key_hash_algo": "sha256"
+    }
+  },
+  "generated_at_utc": "2026-02-06T18:46:41Z",
+  "last_updated_utc": "2026-02-06T19:15:10Z",
+  "locked_decisions": {
+    "emit_events": true,
+    "proof_integrity_required": true,
+    "region_profiles_minimum": [
+      "eu_strict",
+      "sa_default",
+      "unknown_strict"
+    ],
+    "resolution_rule": "most_restrictive_wins"
+  },
+  "normative_source": "V42 Enterprise Ticketing — contract-first; Ash 3.x concepts only; root namespace Ticketing; OTP app :ticketing.",
+  "outbox_events": [
+    {
+      "event_name": "ticketing.consent.changed.v1",
+      "idempotency": "event_id derived from (org_id, subject_id, version)",
+      "ordering": "per org_id + subject_id",
+      "required_keys": [
+        "subject_id",
+        "mode",
+        "purposes_changed",
+        "source",
+        "version"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "consent"
+    },
+    {
+      "event_name": "ticketing.consent.withdrawn.v1",
+      "idempotency": "event_id derived from (org_id, subject_id, version)",
+      "ordering": "per org_id + subject_id",
+      "required_keys": [
+        "subject_id",
+        "mode",
+        "purposes_withdrawn",
+        "source",
+        "version"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "consent"
+    }
+  ],
+  "proof_model": {
+    "append_only": true,
+    "immutability_rules": [
+      "Consent proofs MUST NOT be updated in-place.",
+      "Consent proofs MUST NOT be deleted except via ARCH-1 governed retention/archival processes.",
+      "Any change MUST be represented as a new proof record."
+    ],
+    "integrity": {
+      "chain_scope": "per org_id + subject_key",
+      "fields": [
+        "content_hash_sha256",
+        "prev_proof_hash_sha256",
+        "signature_base64",
+        "signature_kid"
+      ],
+      "hash_algo": "sha256",
+      "mode": "hash_chain_plus_signature",
+      "required": true,
+      "verification_requirements": [
+        "On write: platform MUST verify prev_proof_hash_sha256 matches latest proof for org_id + subject_key (or null for first).",
+        "On read: platform MUST verify hash chain continuity for any returned sequence when requested with include_integrity=true.",
+        "Signature MUST be validated using a key managed per SEC-1; private keys MUST NOT be stored in the same database as proofs."
+      ],
+      "canonicalization": {
+        "scheme": "JCS",
+        "standard": "RFC 8785"
+      }
+    },
+    "record_kinds": [
+      "grant",
+      "withdraw",
+      "policy_default",
+      "gpc_override",
+      "admin_override"
+    ],
+    "required_fields": [
+      "org_id",
+      "proof_id",
+      "subject_key",
+      "purpose_id",
+      "decision",
+      "source",
+      "recorded_at_utc",
+      "effective_at_utc",
+      "contract_version",
+      "integrity"
+    ]
+  },
+  "schema_version": "contract-suite/1.0",
+  "scope": {
+    "definitions": {
+      "consent": "Server-authoritative policy decision for a purpose on a subject_key in an org_id scope at a point in time. Consent is evaluated by the platform, not trusted from the client.",
+      "purpose_id": "Stable snake_case identifier representing a category/purpose of processing.",
+      "subject_key": "Pseudonymous stable identifier representing a data subject in a given org_id scope. It MUST NOT be raw PII (email, phone, id_number)."
+    },
+    "does_not_own": [
+      "ui/ux (cookie banners, UI copy, styling, vendor widgets)",
+      "tracking implementation details (storage, cookies, device IDs) beyond enforcement requirements",
+      "communication provider specifics (email/SMS/push vendors)",
+      "dsar workflow implementation (handled by DSAR/ARCH subsystem), beyond integration obligations",
+      "regional legal interpretation (contract encodes suite policy, not legal advice)"
+    ],
+    "owns": [
+      "consent_purpose_registry (minimum set + extension rules)",
+      "region_privacy_profiles (eu_strict, sa_default, unknown_strict)",
+      "consent_resolution_algorithm (deterministic precedence + most_restrictive_wins)",
+      "consent_proofs (append_only) and derived consent_state snapshots",
+      "withdrawal semantics and enforcement hooks",
+      "consent_change event emission requirements"
+    ]
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Single authority for consent purposes/categories, region profiles, deterministic resolution, append-only proofs with integrity, withdrawal semantics, and non-bypass enforcement hooks for any tracking/communication/integration subsystem.",
+  "tenancy": {
+    "new_proposed_invariant": {
+      "id": "consent_org_id_never_null",
+      "statement": "NEW: proposed invariant — org_id MUST NOT be null; platform-wide consent MUST be represented by a dedicated platform org_id."
+    },
+    "org_id_nullable": false,
+    "org_id_required": true,
+    "rls_posture": {
+      "must_use_ten_1": true,
+      "notes": "RLS MUST be enforced on consent proofs and derived state.",
+      "session_guc_name": "app.current_org_id"
+    }
+  },
+  "tier": "T1",
+  "title": "CONSENT-1 Consent Registry, Resolution, Proofs, and Enforcement Hooks",
+  "version": "1.1.3",
+  "withdrawal": {
+    "downstream_enforcement_hooks": {
+      "mandatory_for_any_subsystem": [
+        "Any subsystem attempting processing for a purpose_id MUST present a consent_evaluation_hash_sha256 proving evaluation under this contract version.",
+        "If consent_evaluation_hash_sha256 is missing, the subsystem MUST fail closed with CONSENT_EVALUATION_REQUIRED."
+      ],
+      "non_bypass_guardrail": [
+        "Client-provided consent flags MUST be treated as hints only; server MUST recompute effective consent.",
+        "Any attempt to persist identifiers for analytics/marketing when effective decision is deny MUST be rejected."
+      ]
+    },
+    "immediate_effect": true,
+    "propagate_required": true,
+    "semantics": [
+      "Withdrawal MUST be represented by a new proof record with record_kind=withdraw.",
+      "Withdrawal MUST take effect immediately for downstream enforcement (no grace period).",
+      "Previously collected data MUST NOT be retroactively re-consented; retention/deletion is governed by ARCH-1/DSAR workflows."
+    ]
+  }
+}

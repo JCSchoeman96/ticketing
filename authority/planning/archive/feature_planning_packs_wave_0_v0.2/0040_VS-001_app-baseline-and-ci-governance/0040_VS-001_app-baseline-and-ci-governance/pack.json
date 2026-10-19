@@ -1,0 +1,29 @@
+{
+  "order": "0040",
+  "folder": "0040_VS-001_app-baseline-and-ci-governance",
+  "pack_id": "FP-VS-001-app-baseline-and-ci-governance",
+  "title": "App Baseline and CI Governance",
+  "class": "VS",
+  "source_row": "VS-001",
+  "release_phase": "foundation",
+  "mvp_blocker": "yes",
+  "blocked_by": [
+    "FP-MVP0-000-repo-airlock-scaffold",
+    "FP-TB-000-governance-tracer-bullet",
+    "FP-CI-001-deterministic-uuid-binary-sort",
+    "FP-CI-002-migration-safety-baseline"
+  ],
+  "blocks": [
+    "FP-TB-001-tenant-context-rls-denial",
+    "FP-TB-038-cross-tenant-red-team-test",
+    "FP-TB-002-one-user-buyer-org-staff",
+    "FP-TB-003-login-actor-context-policy-decision",
+    "FP-TB-004-org-creation-membership-switcher"
+  ],
+  "files": [
+    "00_FEATURE_PLAN.md",
+    "01_CODING_AGENT_PROMPT.md",
+    "02_EVIDENCE_CHECKLIST.md"
+  ],
+  "next": "0050_TB-001_tenant-context-rls-denial"
+}

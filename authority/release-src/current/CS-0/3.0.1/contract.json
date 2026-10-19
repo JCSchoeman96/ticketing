@@ -1,0 +1,679 @@
+{
+  "artifact_kind": "contract",
+  "canonical": false,
+  "change_log": [
+    {
+      "id": "CS0-300",
+      "summary": "Major write-model hardening: dependency edge_type required, lineage structure introduced, gate schema expanded for title/failure_message and runtime assertion declarations, and manifest path/doc_id constraints tightened."
+    },
+    {
+      "id": "CS0-301",
+      "summary": "Defines the ratified dependency edge semantics and excludes the overloaded legacy foundation edge from the current schema."
+    },
+    {
+      "id": "CS0-301-CANDIDATE-STATUS",
+      "summary": "Retains canonical=false on the candidate artifact so owner semantic approval does not declare the release canonical."
+    }
+  ],
+  "changelog": [
+    {
+      "changes": [
+        "BREAKING: dependency items now require edge_type in addition to doc_id and min_version.",
+        "BREAKING: contract and test-gates doc_id fields now use hardened patterns.",
+        "Introduced optional lineage object for canonical supersession and foundation reference metadata.",
+        "Expanded test-gate schema to allow gate-level title and failure_message fields.",
+        "Expanded assertion type enum to include runtime-harness declarations for dynamic checks.",
+        "Hardened bundle.manifest.json file path entries to JSON artifacts only."
+      ],
+      "date_utc": "2026-04-04T07:45:00Z",
+      "type": "major",
+      "version": "3.0.0"
+    },
+    {
+      "changes": [
+        "Defined the distinct normative meanings of requires, governance_floor, and foundation_floor.",
+        "Clarified that foundation_floor does not imply runtime invocation, implementation ownership, a direct code dependency, or implementation of the target subsystem.",
+        "The current dependency schema does not accept the overloaded legacy foundation edge; historical schema compatibility is evaluated under the referenced historical schema version.",
+        "Keep this successor source at canonical=false until a separate current-suite pinset selects a validated release."
+      ],
+      "date_utc": "2026-10-09T00:00:00Z",
+      "type": "patch",
+      "version": "3.0.1"
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Registry floor parity for suite-wide event registry enforcement."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4"
+  },
+  "doc_id": "CS-0",
+  "emits_events": false,
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "last_updated_utc": "2026-10-09T00:00:00Z",
+  "lineage": {
+    "foundation_refs": [
+      {
+        "doc_id": "V42-0",
+        "min_version": "1.8.1",
+        "reason": "Canonical constitutional posture: keep law separate from read-model concerns."
+      }
+    ],
+    "supersedes": [
+      {
+        "doc_id": "CS-0",
+        "reason": "Major write-model hardening and schema tightening.",
+        "version": "2.3.0"
+      }
+    ]
+  },
+  "outbox_events": [],
+  "schema_families": {
+    "bundle": "bundle-manifest/1.0",
+    "contract": "contract-suite/1.0",
+    "gate": "test-gates/1.0"
+  },
+  "schema_version": "contract-suite/1.0",
+  "schemas": {
+    "bundle_manifest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "artifact_kind": {
+          "const": "bundle_manifest"
+        },
+        "artifact_name": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "artifacts": {
+          "default": [],
+          "items": {
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "bundle": {
+          "additionalProperties": false,
+          "properties": {
+            "bundle_id": {
+              "pattern": "^[A-Z][A-Z0-9]*-\\d+$",
+              "type": "string"
+            },
+            "bundle_version": {
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "bundle_id",
+            "bundle_version"
+          ],
+          "type": "object"
+        },
+        "bundle_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "created_at_utc": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "doc_id": {
+          "pattern": "^[A-Z][A-Z0-9]*-\\d+$",
+          "type": "string"
+        },
+        "files": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "bytes": {
+                "minimum": 1,
+                "type": "integer"
+              },
+              "path": {
+                "minLength": 1,
+                "pattern": "^.+\\.json$",
+                "type": "string"
+              },
+              "sha256": {
+                "pattern": "^[a-f0-9]{64}$",
+                "type": "string"
+              }
+            },
+            "required": [
+              "path",
+              "sha256",
+              "bytes"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "generated_at_utc": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "bundle-manifest/1.0"
+        },
+        "suite_schema": {
+          "pattern": "^CS-0@\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "suite_schema",
+        "artifact_kind",
+        "generated_at_utc",
+        "files"
+      ],
+      "type": "object"
+    },
+    "contract": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": true,
+      "properties": {
+        "artifact_kind": {
+          "const": "contract"
+        },
+        "canonical": {
+          "type": "boolean"
+        },
+        "change_log": {
+          "type": "array"
+        },
+        "changelog": {
+          "type": "array"
+        },
+        "dependencies": {
+          "items": {
+            "additionalProperties": false,
+            "oneOf": [
+              {
+                "not": {
+                  "required": [
+                    "purpose"
+                  ]
+                },
+                "required": [
+                  "reason"
+                ]
+              },
+              {
+                "not": {
+                  "required": [
+                    "reason"
+                  ]
+                },
+                "required": [
+                  "purpose"
+                ]
+              },
+              {
+                "required": [
+                  "reason",
+                  "purpose"
+                ]
+              }
+            ],
+            "properties": {
+              "artifact_pin_sha256": {
+                "pattern": "^[a-f0-9]{64}$",
+                "type": "string"
+              },
+              "doc_id": {
+                "pattern": "^[A-Z][A-Z0-9]*-\\d+$",
+                "type": "string"
+              },
+              "edge_type": {
+                "enum": [
+                  "requires",
+                  "foundation_floor",
+                  "registry_floor",
+                  "governance_floor",
+                  "integration_floor",
+                  "paired_contract"
+                ],
+                "type": "string"
+              },
+              "min_version": {
+                "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                "type": "string"
+              },
+              "purpose": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "reason": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "doc_id",
+              "min_version",
+              "edge_type"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "dependency_floors": {
+          "additionalProperties": {
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "type": "string"
+          },
+          "propertyNames": {
+            "pattern": "^[A-Z][A-Z0-9]*-\\d+$"
+          },
+          "type": "object"
+        },
+        "doc_id": {
+          "pattern": "^[A-Z][A-Z0-9]*-\\d+$",
+          "type": "string"
+        },
+        "emits_events": {
+          "type": "boolean"
+        },
+        "generated_at_utc": {
+          "type": "string"
+        },
+        "last_updated_utc": {
+          "type": "string"
+        },
+        "lineage": {
+          "additionalProperties": false,
+          "properties": {
+            "foundation_refs": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "doc_id": {
+                    "pattern": "^[A-Z][A-Z0-9]*-\\d+$",
+                    "type": "string"
+                  },
+                  "min_version": {
+                    "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                    "type": "string"
+                  },
+                  "reason": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "doc_id",
+                  "min_version",
+                  "reason"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "supersedes": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "doc_id": {
+                    "pattern": "^[A-Z][A-Z0-9]*-\\d+$",
+                    "type": "string"
+                  },
+                  "reason": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "version": {
+                    "pattern": "^\\d+\\.\\d+\\.\\d+$",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "doc_id",
+                  "version"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "notes": {
+          "type": "array"
+        },
+        "outbox_events": {
+          "type": "array"
+        },
+        "schema_families": {
+          "type": "object"
+        },
+        "schema_version": {
+          "const": "contract-suite/1.0"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "active",
+            "deprecated",
+            "retired"
+          ],
+          "type": "string"
+        },
+        "suite_schema": {
+          "pattern": "^CS-0@\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array"
+        },
+        "title": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "updated_at": {
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        },
+        "dependency_edge_type_semantics": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "does_not_imply": {
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "edge_type": {
+                "enum": [
+                  "requires",
+                  "governance_floor",
+                  "foundation_floor"
+                ],
+                "type": "string"
+              },
+              "meaning": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "edge_type",
+              "meaning",
+              "does_not_imply"
+            ],
+            "type": "object"
+          },
+          "maxItems": 3,
+          "minItems": 3,
+          "type": "array"
+        }
+      },
+      "required": [
+        "schema_version",
+        "suite_schema",
+        "artifact_kind",
+        "doc_id",
+        "title",
+        "version",
+        "status"
+      ],
+      "type": "object"
+    },
+    "test_gates": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": true,
+      "properties": {
+        "artifact_kind": {
+          "const": "test_gates"
+        },
+        "contract_ref": {
+          "additionalProperties": false,
+          "properties": {
+            "doc_id": {
+              "pattern": "^[A-Z][A-Z0-9]*-\\d+$",
+              "type": "string"
+            },
+            "version": {
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "doc_id",
+            "version"
+          ],
+          "type": "object"
+        },
+        "doc_id": {
+          "pattern": "^[A-Z][A-Z0-9]*-\\d+-GATE$",
+          "type": "string"
+        },
+        "gates": {
+          "items": {
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "acceptance_criteria"
+                ]
+              },
+              {
+                "required": [
+                  "assertions"
+                ]
+              }
+            ],
+            "properties": {
+              "acceptance_criteria": {
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "assertions": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "details": {
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    "mode": {
+                      "enum": [
+                        "manual",
+                        "automated"
+                      ],
+                      "type": "string"
+                    },
+                    "type": {
+                      "enum": [
+                        "acceptance_criteria",
+                        "canon_artifact_sha_match",
+                        "canon_bundle_sha_match",
+                        "dependency_min_version_satisfied",
+                        "forbid_regex_in_artifact",
+                        "json_pointer_equals",
+                        "negative_tests",
+                        "property_tests",
+                        "registry_error_codes_defined",
+                        "registry_events_defined",
+                        "require_bundle_files_match_manifest",
+                        "require_bundle_manifest_filename",
+                        "suite_schema_matches",
+                        "telemetry_signal_emitted",
+                        "trace_span_relationship",
+                        "attribute_presence_assert",
+                        "error_envelope_correlation",
+                        "sampling_decision"
+                      ],
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "mode",
+                    "type",
+                    "details"
+                  ],
+                  "type": "object"
+                },
+                "minItems": 1,
+                "type": "array"
+              },
+              "description": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "enforced_by": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "evidence": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "failure_message": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "id": {
+                "pattern": "^[A-Z0-9][A-Z0-9._:-]{1,127}$",
+                "type": "string"
+              },
+              "level": {
+                "enum": [
+                  "P0",
+                  "P1",
+                  "P2"
+                ],
+                "type": "string"
+              },
+              "must": {
+                "type": "boolean"
+              },
+              "negative_tests": {
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "property_tests": {
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "title": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "level",
+              "must",
+              "description",
+              "assertions"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "generated_at_utc": {
+          "type": "string"
+        },
+        "last_updated_utc": {
+          "type": "string"
+        },
+        "schema_version": {
+          "const": "test-gates/1.0"
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "active",
+            "deprecated",
+            "retired"
+          ],
+          "type": "string"
+        },
+        "suite_schema": {
+          "pattern": "^CS-0@\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        },
+        "title": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "schema_version",
+        "suite_schema",
+        "artifact_kind",
+        "doc_id",
+        "title",
+        "version",
+        "status",
+        "contract_ref",
+        "gates"
+      ],
+      "type": "object"
+    }
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Patch successor to CS-0 v3.0.0. It defines the approved semantics of requires, governance_floor, and foundation_floor, and excludes the overloaded legacy foundation edge from the current dependency schema.",
+  "title": "Contract Suite Schema Standard",
+  "updated_at": "2026-10-09T00:00:00Z",
+  "version": "3.0.1",
+  "dependency_edge_type_semantics": [
+    {
+      "edge_type": "requires",
+      "meaning": "A direct dependency required for the consuming contract's own structural, semantic, schema, or executable validity. Use this when the consumer cannot correctly satisfy its own contract without the target dependency. This does not merely establish a platform-wide minimum version.",
+      "does_not_imply": []
+    },
+    {
+      "edge_type": "governance_floor",
+      "meaning": "A minimum version of a governance, test, lint, change-control, or compliance contract that governs how the consuming contract or suite is validated and controlled. The target establishes governance constraints rather than domain/runtime functionality.",
+      "does_not_imply": []
+    },
+    {
+      "edge_type": "foundation_floor",
+      "meaning": "A minimum version of a governed platform/domain subsystem required by the constitutional/platform baseline. This establishes the minimum acceptable subsystem contract for suite/V42 compliance.",
+      "does_not_imply": [
+        "direct runtime invocation",
+        "implementation ownership",
+        "a direct code dependency",
+        "that the consuming contract implements the target subsystem"
+      ]
+    }
+  ]
+}

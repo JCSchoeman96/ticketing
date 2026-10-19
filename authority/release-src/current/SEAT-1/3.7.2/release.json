@@ -1,0 +1,13 @@
+{
+  "doc_id": "SEAT-1",
+  "version": "3.7.2",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T15:51:00Z",
+  "release_status": "candidate",
+  "release_intent": "Backward-compatible SEAT-1 successor adding canonical T0 enablement authority.",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "e9b6c5bcd5ba561c5468215bc613b38c3d6204eece834f6afa5422366209cd45"
+  }
+}

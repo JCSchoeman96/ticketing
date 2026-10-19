@@ -1,0 +1,381 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "LED-1_bundle_v4.4.7_JSON_ONLY",
+  "contract_ref": {
+    "doc_id": "LED-1",
+    "version": "4.4.7"
+  },
+  "doc_id": "LED-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST equal CS-0@3.0.0 across contract, gates, and manifest.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "LED-1-GATE-010 failed.",
+      "id": "LED-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "suite_schema MUST equal CS-0@3.0.0 across contract, gates, and manifest."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json filename and content MUST match the bundle contents.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "LED-1-GATE-020 failed.",
+      "id": "LED-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "bundle.manifest.json filename and content MUST match the bundle contents."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LED-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "4.4.7",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "contract-suite/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "active",
+            "json_pointer": "/status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "LED-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "4.4.7",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "test-gates/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "active",
+            "json_pointer": "/status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract identity fields MUST match bundle and doc_id/version conventions.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "LED-1-GATE-030 failed.",
+      "id": "LED-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "Contract identity fields MUST match bundle and doc_id/version conventions."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\"(org_id|trace_id|request_id|registry_version_sha)\""
+            ],
+            "json_pointers": [
+              "/outbox_events/0/required_keys",
+              "/outbox_events/1/required_keys",
+              "/outbox_events/2/required_keys"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Envelope keys MUST NOT appear in outbox_events.required_keys (Envelope \u2260 Payload).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "LED-1-GATE-100 failed.",
+      "id": "LED-1-GATE-100",
+      "level": "P0",
+      "must": true,
+      "title": "Envelope keys MUST NOT appear in outbox_events.required_keys (Envelope \u2260 Payload)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/0/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/2/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "All outbox_events.schema_ref MUST equal the normalized literal token \"EVT-2\".",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "LED-1-GATE-110 failed.",
+      "id": "LED-1-GATE-110",
+      "level": "P0",
+      "must": true,
+      "title": "All outbox_events.schema_ref MUST equal the normalized literal token \"EVT-2\"."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependencies/2/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "EVT-1 dependency min_version MUST match the pinned registry head (no split-brain).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "LED-1-GATE-120 failed.",
+      "id": "LED-1-GATE-120",
+      "level": "P0",
+      "must": true,
+      "title": "EVT-1 dependency min_version MUST match the pinned registry head (no split-brain)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LED-1-INV-REGISTRY-BINDING-001",
+            "json_pointer": "/domain_invariants/13/rule_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "P0",
+            "json_pointer": "/domain_invariants/13/severity"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Ledger MUST bind registry_version_sha at runtime (registry binding invariant MUST exist).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "LED-1-GATE-130 failed.",
+      "id": "LED-1-GATE-130",
+      "level": "P0",
+      "must": true,
+      "title": "Ledger MUST bind registry_version_sha at runtime (registry binding invariant MUST exist)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991",
+            "pointer": "/dependency_pins/API-0/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "expected": "d29f4e93d95677713d2b16d6e2e60a5916f5f3a99da1ff24e70b50303f10c9a1",
+            "pointer": "/dependency_pins/PSC-1/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "expected": "1b53890c44a5387244d6d2eac803180e77b716629bfc00d294d500e79a70194f",
+            "pointer": "/dependency_pins/PROD-1/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "expected": "API-0_Contract_v1.1.1.json",
+            "pointer": "/dependency_pins/API-0/artifact"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "expected": "PSC-1_Contract_v1.8.2.json",
+            "pointer": "/dependency_pins/PSC-1/artifact"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "expected": "PROD-1_Contract_v1.1.3.json",
+            "pointer": "/dependency_pins/PROD-1/artifact"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Runtime law dependency_pins MUST hard-pin API-0, PSC-1, and PROD-1 by SHA-256 (0-drift).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "LED-1-GATE-140 failed.",
+      "id": "LED-1-GATE-140",
+      "level": "P0",
+      "must": true,
+      "title": "Runtime law dependency_pins MUST hard-pin API-0, PSC-1, and PROD-1 by SHA-256 (0-drift)."
+    },
+    {
+      "acceptance_criteria": [
+        "LED-1 must support prior-period adjustment posting via posting_date_strategy, preserving occurred_at_utc while enforcing closed-period safety.",
+        "$.resource_model.resources[?(@.name=='LedgerPostingIntent')].attributes[?(@.name=='occurred_at_utc')].type MUST equal 'utc_datetime_usec'.",
+        "$.resource_model.resources[?(@.name=='LedgerPostingIntent')].attributes[?(@.name=='posting_date_strategy')].enum MUST contain all of ['strict', 'next_open_period'].",
+        "$.domain_invariants[?(@.rule_id=='LED-1-P0-070-POSTING-DATE-STRATEGY')].severity MUST equal 'P0'.",
+        "Configured values MUST contain all of ['strict', 'slide_to_open']."
+      ],
+      "assertions": [
+        {
+          "details": {},
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "LED-1 must support prior-period adjustment posting via posting_date_strategy, preserving occurred_at_utc while enforcing closed-period safety.",
+      "failure_message": "LED-1-GATE-POSTING-DATE-STRATEGY-0001 failed.",
+      "id": "LED-1-GATE-POSTING-DATE-STRATEGY-0001",
+      "level": "P0",
+      "must": true,
+      "title": "LED-1 must support prior-period adjustment posting via posting_date_strategy, preserving occurred_at_utc while enforcing closed-period safety."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "origin_period_id",
+            "json_pointer": "/resource_model/resources/2/attributes/7/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "origin_tax_point_at_utc",
+            "json_pointer": "/resource_model/resources/2/attributes/8/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LED-1-P0-072-REFUND-ORIGIN-PERSISTENCE",
+            "json_pointer": "/domain_invariants/16/rule_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Ensures refund-origin fields persist on LedgerPosting and refund origin persistence invariant is present.",
+      "failure_message": "LED-1-GATE-REFUND-BIDIRECTIONAL-PERSISTENCE-0001 failed.",
+      "id": "LED-1-GATE-REFUND-BIDIRECTIONAL-PERSISTENCE-0001",
+      "level": "P0",
+      "must": true,
+      "title": "Ensures refund-origin fields persist on LedgerPosting and refund origin persistence invariant is present."
+    }
+  ],
+  "generated_at_utc": "2026-02-09T06:20:41Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "LED-1 Test Gates",
+  "version": "4.4.7"
+}

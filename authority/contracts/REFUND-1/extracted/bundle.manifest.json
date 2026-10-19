@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "REFUND-1",
+    "bundle_version": "1.7.3"
+  },
+  "doc_id": "REFUND-1",
+  "files": [
+    {
+      "bytes": 55023,
+      "path": "REFUND-1_Contract_v1.7.3.json",
+      "sha256": "e06d76e071754c412f803b6bdfd6c3ed614070a62edf5db91a233e3cd8753c8b"
+    },
+    {
+      "bytes": 17725,
+      "path": "REFUND-1_Test_Gates_v1.7.3.json",
+      "sha256": "5367685e2bc2a9f187b1bb329dc4cf2ce579eabada72c3772cc435e5adfe075c"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.7.3"
+}

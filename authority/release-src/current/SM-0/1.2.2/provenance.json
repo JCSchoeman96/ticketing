@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "08bf9d912cb9a8022218210c26a7de34aeac6799",
+  "candidate_preparation_base_commit": "08bf9d912cb9a8022218210c26a7de34aeac6799",
+  "origin_members": [
+    {
+      "bytes": 17764,
+      "sha256": "76f87752137d5c037065ad71496c1e7b44967824d93e2c7dda3ecede550ee93c",
+      "source_member_path": "SM-0_bundle_v1.2.1/SM-0_Contract_v1.2.0.json"
+    },
+    {
+      "bytes": 8457,
+      "sha256": "d7fe0cbc113a3c1b56b91c455b6e3aa9618f7a661f0aeb46399f2a25a54fcd9d",
+      "source_member_path": "SM-0_bundle_v1.2.1/SM-0_Test_Gates_v1.2.0.json"
+    }
+  ],
+  "provenance_statement": "Successor source bootstrapped from the exact accepted active SM-0 v1.2.1 ZIP. This is not original authoring source. Changes correct release identity and filenames, align suite-schema metadata with CS-0@3.0.1, and add this patch entry; SM-0 domain semantics remain unchanged.",
+  "source_bundle_path": "contracts/SM-0/SM-0_bundle_v1.2.1.zip",
+  "source_members": [
+    {
+      "bytes": 18029,
+      "sha256": "97130ef2593037e2de7c5ca935a7d3407a01745bba8922fb1c98fc9dcc962e58",
+      "source_member_path": "SM-0_bundle_v1.2.1/SM-0_Contract_v1.2.0.json",
+      "tracked_source_path": "contract.json"
+    },
+    {
+      "bytes": 8458,
+      "sha256": "107ea347b127f2d0afee89c338b9c8fe3d13725d3fb5de97e610741ff3713618",
+      "source_member_path": "SM-0_bundle_v1.2.1/SM-0_Test_Gates_v1.2.0.json",
+      "tracked_source_path": "test-gates.json"
+    }
+  ],
+  "source_version": "1.2.1",
+  "source_zip_bytes": 7688,
+  "source_zip_sha256": "6063c7f350e8b4632eeb6274dd9be11f7ad127fea23b479b4af93c12ca105e58"
+}

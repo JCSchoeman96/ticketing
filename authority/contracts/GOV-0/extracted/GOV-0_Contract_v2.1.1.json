@@ -1,0 +1,529 @@
+{
+  "artifact_kind": "contract",
+  "audience": [
+    "humans",
+    "coding_agents"
+  ],
+  "baseline_mandatory_gates": [
+    "JSON_SCHEMA_VALID",
+    "DOC_ID_FORMAT",
+    "VERSION_SEMVER",
+    "NO_MD_REQUIRED",
+    "NO_R1_REPACKS"
+  ],
+  "canonical": true,
+  "change_log": [
+    {
+      "changes": [
+        "Fix bundle manifest bundle_id/bundle_version drift and regenerate bundle deterministically."
+      ],
+      "date_utc": "2026-01-04T12:44:24Z",
+      "version": "2.0.10"
+    },
+    {
+      "date_utc": "2026-01-21",
+      "summary": "Add privacy-sensitive operation governance framework (verification evidence, support validation, admin approval, break-glass posture). Remove manual gate assertion.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "NEW hard locks GOV0-040..042 define deterministic defaults for EVT-2 occurrence scan_* attributes and enforce SCAN staleness mapping.",
+        "Defines default fail-closed posture: scan_stale_behavior=deny unless explicitly overridden; dispute-risk defaults validate_only.",
+        "Declares SCAN staleness source of truth: EVT-2 Occurrence.scan_max_offline_age_seconds."
+      ],
+      "date_utc": "2026-01-26T05:56:21Z",
+      "summary": "Lock deterministic suite-wide scan policy defaults and staleness mapping to EVT-2 occurrence policy."
+    },
+    {
+      "date_utc": "2026-03-10T18:40:00Z",
+      "summary": "Hardening pass: move GOV-0 to CS-0@2.3.0, fix manifest drift, add quality-governance hard locks aligned to QA-0, and repair gate/manifest integrity.",
+      "type": "minor",
+      "version": "2.1.0"
+    },
+    {
+      "changes": [
+        "Correct release identity and align the suite-schema gate with accepted CS-0@3.0.1; no domain or governance behavior changed."
+      ],
+      "date_utc": "2026-10-09T00:00:00Z",
+      "version": "2.1.1"
+    }
+  ],
+  "created_at": "2026-01-03T05:17:56Z",
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Schema source of truth used by strict CI and by all current suite artifacts."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Defines test-gate structures and severity taxonomy used suite-wide."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "Defines/implements CI enforcement expectations for the contract suite."
+    }
+  ],
+  "doc_id": "GOV-0",
+  "emits_events": false,
+  "hard_locks": [
+    {
+      "id": "GOV0-001",
+      "rationale": "Prevents outdated DSL usage and agent hallucinations.",
+      "statement": "Ash 3.x only. No Ash 2.x APIs/patterns. If uncertain, verify against current Ash docs."
+    },
+    {
+      "id": "GOV0-002",
+      "rationale": "Ash 3 centers on domains as the resource boundary and configuration hub.",
+      "statement": "Domain-first architecture: use Ash.Domain as the interaction boundary; do not design around deprecated API boundaries."
+    },
+    {
+      "id": "GOV0-003",
+      "rationale": "Time-ordered IDs improve indexing and operational ergonomics.",
+      "statement": "UUIDv7 is the default primary key strategy: use uuid_v7_primary_key and Ash.UUIDv7.generate/0."
+    },
+    {
+      "id": "GOV0-004",
+      "rationale": "Avoid cross-tenant data leakage and accidental global reads/writes.",
+      "statement": "Tenancy is mandatory for tenant-scoped data: global? must be false unless explicitly justified and approved in TEN-1."
+    },
+    {
+      "id": "GOV0-005",
+      "rationale": "Prevents accidental privilege escalation.",
+      "statement": "Authorization is mandatory: all externally-triggerable actions must be authorize?: true and governed by explicit policies/filters."
+    },
+    {
+      "id": "GOV0-006",
+      "rationale": "Auditability + traceability + consistent reuse.",
+      "statement": "No anonymous logic in resources: all changes/validations/policy checks must be named modules or named helpers."
+    },
+    {
+      "defaults": {
+        "evt2.occurrence.scan_dispute_risk_reentry_behavior": "validate_only",
+        "evt2.occurrence.scan_dispute_risk_unknown_behavior": "validate_only",
+        "evt2.occurrence.scan_duplicate_grace_seconds": 5,
+        "evt2.occurrence.scan_max_offline_age_seconds": 21600,
+        "evt2.occurrence.scan_preferred_authority": "edge",
+        "evt2.occurrence.scan_stale_behavior": "deny"
+      },
+      "id": "GOV0-040",
+      "notes": [
+        "scan_max_offline_age_seconds default is 6 hours (21600). Occurrences MAY override within EVT-2 constraints (0..604800).",
+        "scan_stale_behavior default is deny (fail-closed). accept_provisional MUST be explicit per occurrence.",
+        "Dispute-risk defaults are validate_only to preserve fail-closed posture under uncertainty."
+      ],
+      "rationale": "Prevents silent drift between services and scanners; ensures offline posture and re-entry behavior are consistent even when event data is partially configured.",
+      "statement": "Suite-wide scanning policy defaults MUST be deterministic. If an EVT-2 Occurrence omits any scan_* policy attributes, the platform MUST apply the defaults defined in GOV-0 (no implicit code defaults)."
+    },
+    {
+      "id": "GOV0-041",
+      "rationale": "Eliminates split-brain between scanner configuration and event policy; ensures staleness evaluation is occurrence-scoped and consistent across devices.",
+      "statement": "SCAN-1 configured_max_manifest_age_seconds MUST be sourced from EVT-2 Occurrence.scan_max_offline_age_seconds for the same org_id and occurrence_id. No other source is permitted."
+    },
+    {
+      "id": "GOV0-042",
+      "rationale": "Prevents the offline-accept \u2192 online-revoke/refund \u2192 organizer-paid fraud path. Forces reconciliation before settlement.",
+      "statement": "If EVT-2 Occurrence.scan_stale_behavior == accept_provisional, scanners MUST mark the scan decision provisional=true and PAY-4 payout eligibility MUST be held until reconciliation completes (no payout on provisional acceptance)."
+    },
+    {
+      "id": "GOV0-050",
+      "rationale": "Prevents CI theatre and fake confidence from contributor-local or selectively retried proof surfaces.",
+      "statement": "Protected-branch correctness proof MUST come from blocking CI jobs that execute the normative entrypoints under the pinned toolchain. continue-on-error downgrades, rerun-until-green behavior, and contributor-local variants MUST NOT be represented as release proof."
+    },
+    {
+      "id": "GOV0-051",
+      "rationale": "Prevents selective proof drift where committed focus/only shortcuts quietly shrink the blocking surface.",
+      "statement": "Committed focus/only selection is forbidden in the blocking proof surface. Focus tags, only-style shortcuts, and committed mix test --only/--exclude release shortcuts MUST NOT control protected-branch proof."
+    },
+    {
+      "id": "GOV0-052",
+      "rationale": "Prevents silent burial of flaky or failing tests and makes suppression visible debt with an owner and expiry.",
+      "statement": "Temporary skipping or quarantine of a blocking test MUST be explicitly governed by a quarantine registry entry carrying issue_ref, owner, expiry_utc, scope, and compensating_control. Indefinite suppression is forbidden."
+    },
+    {
+      "id": "GOV0-053",
+      "rationale": "Preserves reproducibility and keeps blocking tests from depending on ambient state that cannot be replayed.",
+      "statement": "Blocking tests MUST be deterministic. Failing seeds MUST be surfaced, and ambient wall-clock or live-network dependence MUST be frozen, injected, or faked unless a downstream contract explicitly governs a separate non-blocking lane."
+    }
+  ],
+  "interpretation": {
+    "conflict_policy": "If GOV-0 conflicts with SEC-1/TEN-1/DP-1/ERR-1/API-0, GOV-0 yields. Fix GOV-0 via version bump + gates.",
+    "priority_order": [
+      "SEC-1 Security",
+      "TEN-1 Tenancy",
+      "DP-1 Data Plane",
+      "ERR-1 Error Envelope + Codes",
+      "API-0 API Surface + Idempotency",
+      "This GOV-0 governance standard"
+    ]
+  },
+  "last_updated_utc": "2026-10-09T00:00:00Z",
+  "lock_state": "locked",
+  "outbox_events": [],
+  "privacy_sensitive_operations_governance": {
+    "approval_framework": {
+      "definitions": {
+        "admin_approval": "An authorized admin approves execution scope; approval MUST be logged and MUST precede execution.",
+        "dual_control": "Two distinct approving actors are required for high-risk operations; MAY be enabled by downstream contracts.",
+        "support_validation": "A support actor checks verification_evidence completeness and scope correctness; support_validation does NOT execute the operation."
+      },
+      "required_steps_by_risk": [
+        {
+          "required_steps": [
+            "support_validation",
+            "admin_approval"
+          ],
+          "risk": "standard_subject_request"
+        },
+        {
+          "required_steps": [
+            "support_validation",
+            "admin_approval"
+          ],
+          "risk": "platform_wide_subject_request"
+        },
+        {
+          "required_steps": [
+            "support_validation",
+            "admin_approval"
+          ],
+          "risk": "pii_export_or_drilldown"
+        },
+        {
+          "notes": "break_glass additionally requires step-up auth and enhanced monitoring.",
+          "required_steps": [
+            "support_validation",
+            "admin_approval"
+          ],
+          "risk": "break_glass"
+        }
+      ],
+      "review_window_days": 7,
+      "rule_id": "GOV-0-PSO-APPROVE-001"
+    },
+    "bounded_audit_reason_registry": {
+      "reasons": [
+        {
+          "description": "Subject initiated DSAR request (access/export/delete).",
+          "id": "subject_dsar_request"
+        },
+        {
+          "description": "Fraud / abuse investigation approved by authorized approver.",
+          "id": "fraud_investigation"
+        },
+        {
+          "description": "Incident response (security/privacy) with ticket reference.",
+          "id": "security_incident_response"
+        },
+        {
+          "description": "Legal/compliance requirement with docket reference.",
+          "id": "legal_hold_or_compliance"
+        },
+        {
+          "description": "Support case resolution within tenant scope, least-privilege.",
+          "id": "support_case_resolution"
+        },
+        {
+          "description": "Emergency break-glass (service outage / severe incident) requiring post-facto review.",
+          "id": "break_glass_emergency"
+        }
+      ],
+      "rule_id": "GOV-0-PSO-REASON-001"
+    },
+    "description": "Governance framework for operations that access, export, or destroy linkability to subject identity. This framework is referenced by DSAR-1 and PII-1 but is defined here to prevent drift across domains.",
+    "invariants": [
+      {
+        "id": "GOV-0-PSO-001",
+        "statement": "All privacy_sensitive_operations SHALL be capability-gated via IAM-1 and SHALL emit append-only audit records (who, when, capability, reason, scope, outcome)."
+      },
+      {
+        "id": "GOV-0-PSO-002",
+        "statement": "Any operation that can increase identifiability (PII access/export) SHALL require an explicit, bounded audit reason and verification evidence where applicable."
+      },
+      {
+        "id": "GOV-0-PSO-003",
+        "statement": "Any operation that can destroy linkability (cryptoshred / erasure execution) SHALL preserve immutable truth and SHALL record execution evidence (job_id, started_at, completed_at, result, errors)."
+      },
+      {
+        "id": "GOV-0-PSO-004",
+        "statement": "Break-glass access SHALL NOT be the default. Break-glass SHALL require step-up authentication, a bounded reason, and enhanced monitoring. Break-glass SHALL be subject to post-facto review within a fixed review_window_days."
+      }
+    ],
+    "verification_evidence_requirements": {
+      "allowed_evidence_types": [
+        "email_otp",
+        "sms_otp",
+        "id_document_match",
+        "contractual_authority_proof",
+        "court_order",
+        "signed_request"
+      ],
+      "must_include_fields": [
+        "evidence_type",
+        "evidence_ref",
+        "verified_by_actor_id",
+        "verified_at_utc",
+        "verification_method",
+        "verification_outcome"
+      ],
+      "rule_id": "GOV-0-PSO-VERIFY-001",
+      "statement": "If a flow requires subject verification, verification_evidence SHALL be present and SHALL use allowed_evidence_types. Missing/invalid evidence SHALL block execution."
+    }
+  },
+  "purpose": {
+    "one_liner": "Non\u2011negotiable Ash 3.x coding governance for a multi\u2011tenant enterprise ticketing platform.",
+    "scope": [
+      "All Ash resources, domains, actions, policies, changes, validations, relationships.",
+      "All external API exposure (REST/GraphQL) must comply with GOV-0 + API-0 + SEC-1 + TEN-1."
+    ],
+    "why": [
+      "Prevent architectural drift across domains/resources.",
+      "Make agent output predictable and reviewable.",
+      "Eliminate tenancy/authorization leakage and enumeration vectors."
+    ]
+  },
+  "quality_governance": {
+    "description": "Governance rules that prevent CI theatre and selective test-proof drift in the implementation repository.",
+    "determinism_policy": {
+      "ambient_network_forbidden_in_blocking_surface": true,
+      "ambient_wall_clock_forbidden_without_control": true,
+      "focus_or_only_shortcuts_forbidden": true,
+      "seed_capture_required": true
+    },
+    "repo_truthfulness_policy": {
+      "forbidden_shortcuts": [
+        "continue_on_error_downgrade",
+        "rerun_until_green",
+        "contributor_local_variant",
+        "selective_only_or_exclude_release_proof"
+      ],
+      "normative_entrypoint_contract_ref": {
+        "doc_id": "QA-0",
+        "min_version": "1.1.0"
+      },
+      "release_proof_source": "blocking_ci_jobs_only"
+    },
+    "suppression_policy": {
+      "indefinite_suppression_forbidden": true,
+      "quarantine_registry_required": true,
+      "required_registry_fields": [
+        "issue_ref",
+        "owner",
+        "expiry_utc",
+        "compensating_control",
+        "scope"
+      ]
+    }
+  },
+  "quick_reference_rules": {
+    "description": "26 paired MUST/MUST-NOT rules normalized for Ash 3.x correctness and QA truthfulness.",
+    "rules": [
+      {
+        "must_do": "Explicit `accept`",
+        "must_not": "No mass-assignment",
+        "n": 1
+      },
+      {
+        "must_do": "Named Change modules",
+        "must_not": "No inline fn",
+        "n": 2
+      },
+      {
+        "must_do": "Validation named module `:ok/:error`",
+        "must_not": "No validation mutations",
+        "n": 3
+      },
+      {
+        "must_do": "expr() boolean + ^actor(:field)",
+        "must_not": "No keyword syntax",
+        "n": 4
+      },
+      {
+        "must_do": "Filter + `always()` (complete filter only) OR expr()",
+        "must_not": "No `always()` without filter",
+        "n": 5
+      },
+      {
+        "must_do": "Explicit tenant parameter",
+        "must_not": "No Process dict",
+        "n": 6
+      },
+      {
+        "must_do": "UUIDv7: use uuid_v7_primary_key + Ash.UUIDv7.generate/0 (built-in) consistently",
+        "must_not": "Do NOT use ash_uuid_v7 / AshUUIDv7 references; do NOT mix UUIDv4 and UUIDv7",
+        "n": 7
+      },
+      {
+        "must_do": "UTC microsecond timestamps",
+        "must_not": "No naive time",
+        "n": 8
+      },
+      {
+        "must_do": "Scope struct + protocol + context",
+        "must_not": "No manual tracer calls",
+        "n": 9
+      },
+      {
+        "must_do": "`global?: false` multitenancy",
+        "must_not": "No cross-org queries",
+        "n": 10
+      },
+      {
+        "must_do": "Tenant-scoped relationships",
+        "must_not": "No relationship leaks",
+        "n": 11
+      },
+      {
+        "must_do": "Immutable changesets (named)",
+        "must_not": "No silent transforms",
+        "n": 12
+      },
+      {
+        "must_do": "Idempotent webhooks (Oban)",
+        "must_not": "No sync processing",
+        "n": 13
+      },
+      {
+        "must_do": "Audit all privileged (named)",
+        "must_not": "No action without audit",
+        "n": 14
+      },
+      {
+        "must_do": "Canonical atoms only",
+        "must_not": "No ad-hoc atoms",
+        "n": 15
+      },
+      {
+        "must_do": "Soft-delete + versions",
+        "must_not": "No silent mutations",
+        "n": 16
+      },
+      {
+        "must_do": "Append-only audit logs",
+        "must_not": "No mutating immutables",
+        "n": 17
+      },
+      {
+        "must_do": "Resource dossiers (atoms + RLS)",
+        "must_not": "No policies without docs",
+        "n": 18
+      },
+      {
+        "must_do": "Webhook receipt + idempotency",
+        "must_not": "No processing without dedup",
+        "n": 19
+      },
+      {
+        "must_do": "Tenant-aware Oban jobs",
+        "must_not": "No jobs without tenant context",
+        "n": 20
+      },
+      {
+        "must_do": "Audit + reason for PII/DSAR",
+        "must_not": "No unaudited PII access/export",
+        "n": 21
+      },
+      {
+        "must_do": "Verification evidence before DSAR execute",
+        "must_not": "No execution without evidence + approvals",
+        "n": 22
+      },
+      {
+        "must_do": "Break-glass step-up + review",
+        "must_not": "No default break-glass; no self-approval",
+        "n": 23
+      },
+      {
+        "must_do": "Blocking CI proof from normative entrypoints",
+        "must_not": "No continue-on-error or rerun-until-green proof",
+        "n": 24
+      },
+      {
+        "must_do": "Quarantine registry with owner + expiry",
+        "must_not": "No indefinite skip/focus suppression",
+        "n": 25
+      },
+      {
+        "must_do": "Deterministic tests with seed capture",
+        "must_not": "No ambient time/network dependence in blocking proof",
+        "n": 26
+      }
+    ]
+  },
+  "references": [
+    {
+      "name": "Ash.Domain (Hexdocs)",
+      "type": "primary",
+      "url": "https://hexdocs.pm/ash/Ash.Domain.html",
+      "why": "Domain-first architecture; the canonical interaction boundary."
+    },
+    {
+      "name": "Ash Resource DSL: uuid_v7_primary_key (Hexdocs)",
+      "type": "primary",
+      "url": "https://hexdocs.pm/ash/dsl-ash-resource.html",
+      "why": "Canonical UUIDv7 primary key DSL."
+    },
+    {
+      "name": "Ash.UUIDv7 module (Hexdocs)",
+      "type": "primary",
+      "url": "https://hexdocs.pm/ash/Ash.UUIDv7.html",
+      "why": "Built-in UUIDv7 generator used by Ash."
+    },
+    {
+      "name": "Ash.Scope / ToOpts (Hexdocs)",
+      "type": "primary",
+      "url": "https://hexdocs.pm/ash/Ash.Scope.html",
+      "why": "Scope transport for tenant/actor/context via opts."
+    },
+    {
+      "name": "Ash multitenancy (Hexdocs)",
+      "type": "primary",
+      "url": "https://hexdocs.pm/ash/multitenancy.html",
+      "why": "Tenancy concepts and supported strategies."
+    },
+    {
+      "name": "PII-1 (V42 suite contract)",
+      "type": "suite",
+      "url": "(suite)",
+      "why": "Privacy boundary, identity mapping, vault exclusivity, cryptoshred semantics."
+    },
+    {
+      "name": "DSAR-1 (V42 suite contract)",
+      "type": "suite",
+      "url": "(suite)",
+      "why": "DSAR lifecycle: request, verification, approvals, export, cryptoshred execution."
+    },
+    {
+      "name": "IAM-1 (V42 suite contract)",
+      "type": "suite",
+      "url": "(suite)",
+      "why": "Capabilities model used for governance gating and least-privilege access."
+    },
+    {
+      "doc_id": "QA-0",
+      "min_version": "1.1.0",
+      "name": "QA execution standard referenced by GOV-0 quality-governance hard locks.",
+      "type": "internal_contract"
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "source": {
+    "derived_from": {
+      "note": "Converted to enforceable JSON-only contract; corrected UUIDv7 guidance to Ash 3.x built-ins.",
+      "path": "/mnt/data/ash_governance_v4.md"
+    }
+  },
+  "stability": "stable",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Suite-wide Ash 3.x governance canon for architecture, tenancy, authorization, scanning defaults, privacy-sensitive operations, and QA truthfulness.",
+  "tier": 0,
+  "title": "Ash 3.x Governance Standard (Project Canon)",
+  "updated_at": "2026-02-07T03:40:00.836883Z",
+  "version": "2.1.1"
+}

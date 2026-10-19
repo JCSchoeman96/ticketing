@@ -1,0 +1,1730 @@
+{
+  "approval_distinctness_constraints": {
+    "forbidden_combinations": [
+      "same_human_two_approvals",
+      "impersonation_session_as_approver",
+      "break_glass_invoker_as_distinct_second_approver",
+      "opener_and_releaser_same_person_when_dual_release_required"
+    ],
+    "rules": [
+      "Distinct approvers MUST be distinct human principals, not merely distinct sessions or approval identities of the same person.",
+      "An incident opener MUST NOT be the sole releaser for the same incident when dual approval is required.",
+      "An impersonation session MUST NOT approve, acknowledge, or release an incident.",
+      "A break-glass invoker MUST NOT satisfy the distinct second approver requirement for the same incident action.",
+      "Where finance surfaces are affected, at least one approver or acknowledger MUST possess the relevant finance authority required by GOV-0 and platform policy."
+    ]
+  },
+  "artifact_kind": "contract",
+  "audit_events": [
+    {
+      "name": "audit.incident.opened",
+      "required_fields": [
+        "incident_id",
+        "opened_at_utc",
+        "opened_by_actor_or_system",
+        "initial_signal_refs",
+        "provisional_tier"
+      ]
+    },
+    {
+      "name": "audit.incident.scope_approved",
+      "required_fields": [
+        "incident_id",
+        "approved_scope",
+        "approved_tier",
+        "approval_chain_refs",
+        "reason_code_or_break_glass_ref"
+      ]
+    },
+    {
+      "name": "audit.incident.containment.executed",
+      "required_fields": [
+        "incident_id",
+        "operation",
+        "target_scope",
+        "target_selector",
+        "correlation_id",
+        "idempotency_key"
+      ]
+    },
+    {
+      "name": "audit.incident.break_glass.invoked",
+      "required_fields": [
+        "incident_id",
+        "break_glass_ref",
+        "actor_id",
+        "reason",
+        "post_facto_review_due_at_utc"
+      ]
+    },
+    {
+      "name": "audit.incident.release_approved",
+      "required_fields": [
+        "incident_id",
+        "released_at_utc",
+        "release_approver_refs",
+        "residual_risk_notes_or_null"
+      ]
+    },
+    {
+      "name": "audit.incident.postmortem.recorded",
+      "required_fields": [
+        "incident_id",
+        "postmortem_ref",
+        "recorded_at_utc",
+        "owner_actor_id"
+      ]
+    }
+  ],
+  "authorization_matrix": {
+    "tier_1_scoped_suspicion": {
+      "approved_by": [
+        "platform_support_with_gov0_approval",
+        "platform_admin",
+        "platform_finance_admin_when_finance_surface_affected"
+      ],
+      "break_glass_by": [
+        "platform_admin",
+        "platform_super_admin_if_defined_in_governance"
+      ],
+      "release_by": [
+        "platform_admin",
+        "platform_finance_admin_when_finance_surface_affected"
+      ]
+    },
+    "tier_2_multi_org_or_admin_surface": {
+      "approved_by": [
+        "platform_admin_plus_distinct_second_approver",
+        "platform_finance_admin_plus_platform_admin_when_finance_surface_affected"
+      ],
+      "break_glass_by": [
+        "platform_admin",
+        "platform_super_admin_if_defined_in_governance"
+      ],
+      "release_by": [
+        "platform_admin_plus_distinct_second_approver"
+      ]
+    },
+    "tier_3_platform_compromise": {
+      "approved_by": [
+        "platform_admin_plus_security_or_executive_acknowledger",
+        "platform_finance_admin_plus_platform_admin_when_payout_surface_affected"
+      ],
+      "break_glass_by": [
+        "platform_super_admin_if_defined_in_governance",
+        "platform_admin_under_gov0_break_glass"
+      ],
+      "release_by": [
+        "platform_admin_plus_security_or_executive_acknowledger"
+      ]
+    }
+  },
+  "authorization_matrix_constraints": {
+    "rules": [
+      "Distinct approval identities MUST map to distinct human principals.",
+      "Approval or release via impersonation_session is forbidden.",
+      "Where dual approval is required, one principal MUST NOT satisfy both approver slots via multiple devices, sessions, or auth surfaces.",
+      "If the opener also acts as approver or releaser under exceptional policy, explicit justification and post-incident review are mandatory."
+    ]
+  },
+  "boot_and_readiness_barriers": {
+    "required_before_ready": [
+      "authoritative_or_fresh_cluster_incident_posture_loaded",
+      "freeze_posture_loaded",
+      "revocation_epoch_snapshot_loaded",
+      "queue_policy_for_affected_surfaces_loaded",
+      "readiness_state_model_selected"
+    ],
+    "rules": [
+      "Any node, process, or readiness surface that can touch sensitive incident-affected flows MUST start in deny-by-default privileged posture until active incident state and freeze posture are loaded and acknowledged.",
+      "A node MAY remain degraded_alive or buyer_limited_ready without being terminated, but it MUST NOT advertise privileged readiness until the required barriers pass.",
+      "If authoritative incident posture cannot be loaded, the node MUST emit incident readiness failure telemetry and remain in degraded_alive or stricter posture rather than crash-loop by default.",
+      "Privileged readiness MUST be withheld until incident posture synchronization reaches the required convergence target for the affected plane.",
+      "Readiness state MUST bind to interactive_upgrade_barriers so degraded_alive never behaves like full interactive readiness."
+    ]
+  },
+  "canonical": false,
+  "change_log": [
+    {
+      "changes": [
+        "Legalized prior invalid contract shape by replacing notes object with notes array and explicit top-level protocol sections.",
+        "Added incident_lifecycle, audit_events, authorization_matrix, failure_modes, detector_abuse_safeguards, restore_and_failover_semantics, and runtime_validation_requirements.",
+        "Kept C-mode manual approval posture while tightening release, restore, and abuse safeguards."
+      ],
+      "date_utc": "2026-03-06T14:19:25Z",
+      "version": "1.1.0"
+    },
+    {
+      "changes": [
+        "Hardening pass focused on detector abuse resistance, partial execution semantics, scoped session segmentation, release quorum, and runtime validation matrix.",
+        "Added event registry hooks and ERR-1 integration prerequisites without introducing premature subcode drift.",
+        "Extended edge cases and failure modes for impersonation misuse, duplicate incidents, device quarantine, and post-release regression."
+      ],
+      "date_utc": "2026-03-06T15:58:10Z",
+      "version": "1.2.0"
+    },
+    {
+      "changes": [
+        "Adds incident plane isolation matrix to replace vague where-safe language with explicit fail-closed boundaries.",
+        "Adds freeze queue policy, destructive operation classes, boot/readiness barriers, job execution barriers, and webhook ingest continuity rules.",
+        "Adds incident artifact sensitivity controls and hardens detector escalation and edge-case handling for signal storms and flash-sale incidents."
+      ],
+      "date_utc": "2026-03-06T19:24:20Z",
+      "version": "1.3.0"
+    },
+    {
+      "changes": [
+        "Adds readiness state model to prevent boot-barrier crash loops while keeping privileged surfaces deny-by-default.",
+        "Splits provider ingest into verified and unverified quarantine lanes during secret overlap or signature uncertainty.",
+        "Adds integration severance rules, signal volume circuit breakers, dual-privilege principal rules, and live-session revocation law.",
+        "Hardens job barriers, edge cases, and runtime validation matrix for in-flight work, external partner safety, and WAF/edge shedding posture."
+      ],
+      "date_utc": "2026-03-06T21:05:00Z",
+      "version": "1.4.0"
+    },
+    {
+      "changes": [
+        "Adds interactive upgrade barriers so degraded_alive nodes do not become zombie LiveView or WebSocket traps.",
+        "Adds quarantine replay side-effect policy and severance reconciliation requirements to prevent replay spam and unsafe reopen after severance.",
+        "Adds live-session revocation backpressure, edge-shedding observability requirements, leased-job incident barriers, and incident artifact export controls."
+      ],
+      "date_utc": "2026-03-09T20:40:00Z",
+      "version": "1.5.0"
+    }
+  ],
+  "chaos_and_readiness_hooks": {
+    "required_simulation_labels": [
+      "security.token_replay_wave",
+      "security.credential_stuffing_burst",
+      "security.admin_takeover_attempt",
+      "security.partial_org_containment",
+      "security.key_rotation_under_load"
+    ],
+    "rules": [
+      "IR-1 MUST be validated under chaos scenarios before any D-mode automation is enabled.",
+      "Chaos scenarios MUST include token replay waves, credential stuffing bursts, admin-takeover simulation, partial org containment, and key rotation under live load.",
+      "Chaos validation MUST prove: no money moves without journal, no payout release occurs during freeze, no cross-tenant containment leak, and no inventory truth corruption."
+    ]
+  },
+  "containment_atomicity_and_compensation": {
+    "compensation_required_when_partial": true,
+    "completion_layers": {
+      "authoritative_complete": "Durable authoritative state has been updated so future validations fail closed against compromised state.",
+      "propagation_complete": "Required cache invalidation, fan-out, and cluster convergence acknowledgements have reached the required threshold for the affected plane."
+    },
+    "mandatory_success_classes_by_tier": {
+      "tier_1_scoped_suspicion": [
+        "session_revoke_or_step_up_force_when_selected"
+      ],
+      "tier_2_multi_org_or_admin_surface": [
+        "session_revoke_or_step_up_force_when_selected",
+        "sensitive_surface_freeze_when_selected",
+        "key_rotate_when_selected"
+      ],
+      "tier_3_platform_compromise": [
+        "session_revoke_or_assurance_epoch_bump",
+        "key_rotate",
+        "api_key_revoke_when_selected",
+        "webhook_secret_rotate_when_selected",
+        "payout_freeze"
+      ]
+    },
+    "partial_success_severity": {
+      "tier_1_scoped_suspicion": "SEV2",
+      "tier_2_multi_org_or_admin_surface": "SEV1",
+      "tier_3_platform_compromise": "SEV1"
+    },
+    "rules": [
+      "Containment execution MUST track per-operation-class status; partial completion MUST NOT be treated as effective full containment.",
+      "Release is forbidden while any mandatory success class for the approved tier remains incomplete, failed, quarantined, or awaiting compensation.",
+      "Compensation or retry-safe replay requirements MUST be recorded per incomplete operation class with owner, due_at_utc_or_null, and evidence_ref.",
+      "For operation classes marked forward_recovery_only or externally_destructive, compensation MUST mean forward recovery planning and completion tracking, not rollback of already-destructive external actions."
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Schema source of truth for contract-suite/1.0, test-gates/1.0, and bundle-manifest/1.0."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.1",
+      "reason": "Strict CI validation and deterministic assertion enforcement expectations for bundle legality and semantic gates."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.1",
+      "reason": "Gate authoring discipline and test-gates structure used by IR-1."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.14",
+      "reason": "Approval governance, break-glass controls, and sensitive-operation audit posture used by IR-1."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.7.17",
+      "reason": "Signals, incidents, evidence, alerting, and runbook posture required by IR-1."
+    },
+    {
+      "doc_id": "DMSC-1",
+      "edge_type": "integration_floor",
+      "min_version": "2.2.2",
+      "reason": "Deployment and migration safety gates that must honor active security incidents."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "foundation_floor",
+      "min_version": "3.4.10",
+      "reason": "Session, step-up, MFA, and authorization capability primitives used by containment actions."
+    },
+    {
+      "doc_id": "IAM-3",
+      "edge_type": "foundation_floor",
+      "min_version": "1.1.2",
+      "reason": "Assurance epoch semantics used for deterministic invalidation."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "foundation_floor",
+      "min_version": "3.4.2",
+      "reason": "Key management and secret-rotation posture escalated during incidents."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.7.12",
+      "reason": "Tenancy isolation rules that bound containment blast radius."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.1.3",
+      "reason": "Lock ordering and idempotency constraints for containment workflows."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.8.2",
+      "reason": "Performance budgets and chaos-readiness expectations for incident simulations."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.1.8",
+      "reason": "Queue-capacity and admission and backpressure controls during containment mode."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.7.1",
+      "reason": "Canonical error envelope and correlation semantics for blocked actions and incident responses."
+    }
+  ],
+  "destructive_operation_classes": {
+    "classes": [
+      {
+        "class": "reversible",
+        "examples": [
+          "scoped step_up_force",
+          "reject_immediately freeze on admin mutation surfaces"
+        ],
+        "requirements": [
+          "expiration_or_explicit_release",
+          "audit_reversal_path"
+        ]
+      },
+      {
+        "class": "forward_recovery_only",
+        "examples": [
+          "signing key rotation",
+          "webhook secret rotation with external partner cutover"
+        ],
+        "requirements": [
+          "durable_saga_progression",
+          "no_rollback_expectation",
+          "completion_evidence_required"
+        ]
+      },
+      {
+        "class": "externally_destructive",
+        "examples": [
+          "provider_side_key_invalidation",
+          "partner_secret_cutover"
+        ],
+        "requirements": [
+          "external_completion_evidence",
+          "local_state_must_converge_forward",
+          "release_blocked_until_convergence"
+        ]
+      },
+      {
+        "class": "hybrid_external_internal",
+        "examples": [
+          "api key revoke plus local cache invalidation"
+        ],
+        "requirements": [
+          "authoritative_completion_first",
+          "propagation_completion_tracked_separately"
+        ]
+      },
+      {
+        "class": "severable_external_dependency",
+        "examples": [
+          "provider integration isolated after forward recovery timeout",
+          "partner webhook lane severed into quarantine"
+        ],
+        "requirements": [
+          "timeout_budget_declared",
+          "severance_approval_or_policy_ref",
+          "unaffected_surface_release_rules_defined",
+          "separate_recovery_criteria"
+        ]
+      }
+    ],
+    "rules": [
+      "Containment operations MUST be classified before execution as reversible, forward_recovery_only, externally_destructive, or hybrid_external_internal.",
+      "Forward recovery, not rollback, is mandatory for externally destructive security operations.",
+      "Release and compensation logic MUST honor the destructive class of each executed operation.",
+      "If a forward_recovery_only or externally_destructive operation breaches timeout budget, integration severance MAY replace indefinite platform hostage posture where policy permits."
+    ]
+  },
+  "detector_abuse_safeguards": [
+    "Signals MUST preserve vector_class, severity, affected_plane, and evidence novelty so deduplication cannot suppress materially different attacks.",
+    "Repeated triggers MAY be deduplicated only when scope, vector_class, severity, affected_plane, and lifecycle_state remain unchanged and no materially new evidence exists.",
+    "Higher-severity or different-vector signals MUST break deduplication and either escalate or fork incident handling according to lifecycle_state.",
+    "Cooling windows and suppression rules MUST be suspended when evidence quality, affected plane, or approved scope rises.",
+    "Tier 2 and Tier 3 escalation MUST still require corroborating evidence beyond a single detector family in C-mode unless break-glass rules explicitly allow otherwise.",
+    "Detector-only evidence MUST NOT trigger payout freeze or platform-wide credential invalidation in C-mode without human approval or break-glass.",
+    "If identical signal velocity exceeds the approved volume circuit breaker threshold, the application MUST stop per-event deduplication work and shift to aggregate telemetry plus edge shedding."
+  ],
+  "detector_escalation_controls": {
+    "cooling_window_rule": "Cooling windows MUST be defined in OBS-1 runbooks per signal family before detector-driven automation is enabled.",
+    "rules": [
+      "Tier 2 and Tier 3 MUST NOT be reached from a single detector family alone in C-mode unless GOV-0 break-glass is invoked and justification is recorded.",
+      "Repeated triggers without materially new evidence MUST attach to the active incident for that scope rather than spawn parallel incidents.",
+      "At most one scoped revoke per approved scope per cooling window MAY execute from detector-driven escalation unless evidence quality rises and approval is refreshed.",
+      "If approved_scope exceeds suggested_scope or approved_tier exceeds the maximum default_tier of originating signals, justification MUST be recorded and post-incident review is mandatory.",
+      "If an incident is in eradication_in_progress or recovery_validation and a new higher-severity or different-vector signal storm hits the same scope, the system MUST fork a successor incident or escalate the existing incident; silent merge is forbidden.",
+      "If identical-scope identical-vector traffic crosses the approved volume circuit breaker threshold, application-layer deduplication MUST yield to aggregate accounting and edge mitigation; continued full per-event evaluation is forbidden."
+    ]
+  },
+  "doc_id": "IR-1",
+  "dual_privilege_principal_rules": {
+    "rules": [
+      "If a principal holds any platform-level authority on the same auth surface implicated by the incident, partial org-scoped session invalidation is forbidden unless session segmentation proves the platform authority is fully separate.",
+      "When auth surface separation cannot be proven for a dual-privilege principal, IR-1 MUST require global session_revoke for that principal and full re-authentication before any privileged access resumes.",
+      "Platform-staff privileges MUST be evaluated as a higher-risk surface than org-only privileges when both coexist on the same principal.",
+      "Stateless bearer tokens that cannot be deterministically invalidated per approved scope MUST be treated as broader-scope compromise artifacts."
+    ]
+  },
+  "edge_cases": [
+    "Multi-org principal holds admin access in org A and buyer access in org B; org-scoped revoke MUST not erase unrelated buyer continuity unless explicitly approved.",
+    "Offline scanner device is suspected compromised while disconnected; reconnect MUST trigger quarantine and replay review before post-incident trust is restored.",
+    "Incident occurs during flash sale; buyer continuity MAY remain available only if incident_plane_isolation_matrix explicitly allows it for the affected planes, otherwise checkout finalization MUST fail closed.",
+    "Session revoke succeeds but webhook secret rotation lags; incident remains open and release is forbidden until the lagging surface is closed or compensated.",
+    "Incident starts during payout run; payout release MUST fail closed if any affected scope is under active freeze.",
+    "Restore or failover occurs with active incident; containment state and regulatory clock continuity MUST survive restore.",
+    "Anomaly detector itself is abused to create self-DoS conditions; corroboration and re-trigger suppression MUST exist before higher-tier escalation.",
+    "Impersonation session is active during suspected compromise; containment and approval logic MUST treat impersonation surfaces as higher risk and MUST forbid their use as approvers.",
+    "Break-glass session itself is suspected compromised; incident MUST escalate to a scope that invalidates break-glass credentials or routes authority to unaffected approvers.",
+    "Org-scoped containment targets a principal who is also platform staff; platform privileges MUST be evaluated separately and MUST NOT silently survive if they share the compromised auth surface.",
+    "Webhook partner fails to rotate secret within overlap window; release remains forbidden until the affected ingress path is disabled, compensated, or re-scoped.",
+    "Duplicate incident creation occurs for the same signal storm; merge semantics MUST preserve evidence continuity and MUST NOT fork approval chains.",
+    "Post-release validation fails during quiet-period observation; a successor incident MUST inherit predecessor linkage and MUST re-apply required freeze posture.",
+    "Tier 3 revocation of large non-privileged session populations risks re-authentication thundering herd; containment MUST use staggered or jittered invalidation outside the privileged session class.",
+    "Cache invalidation fan-out lags authoritative revocation; privileged surface reopening MUST wait for required propagation completion rather than assuming durable mutation alone is enough.",
+    "Externally destructive key or secret rotation partially completes; forward recovery, not rollback, MUST drive the remaining workflow.",
+    "Frozen surfaces accumulate queue backlog; release MUST obey freeze_queue_policy rather than draining all queued work at once.",
+    "Webhook receipts continue arriving while downstream financial processing is quarantined; ingest MUST continue and replay disposition MUST be tracked before release.",
+    "Auto-scaling occurs during active Tier 3 incident; new nodes MUST survive in degraded_alive without false privileged readiness rather than crash-looping on readiness barriers.",
+    "Webhook partner continues sending payloads with stale secret during approved overlap; receipts MUST enter isolated unverified quarantine lane, not the primary ingest path.",
+    "Forward-recovery-only external rotation exceeds timeout budget; integration severance MAY isolate the dependency so unrelated surfaces are not held hostage indefinitely.",
+    "Identical same-vector signal storm exceeds application dedupe budget; edge shedding or WAF controls MUST activate before app-layer OOM or lock exhaustion occurs.",
+    "Production chaos simulation touches external partners; destructive external simulations MUST use sandbox or stub environments rather than live partner credentials.",
+    "Dual-privilege principal shares one auth surface across org and platform roles; partial revoke is forbidden unless segmentation is proven.",
+    "Long-lived admin WebSocket survives bearer token revocation window; live session revocation rules MUST force disconnect, downgrade, or heartbeat revalidation.",
+    "A degraded_alive node accepts a WebSocket or LiveView upgrade before authoritative incident posture is loaded; the upgrade MUST be rejected or redirected rather than trapping the client in a zombie UI.",
+    "Quarantined provider receipts are replayed after incident release; replay MUST reconcile silently by default and MUST NOT spam buyers or partners with duplicated side effects.",
+    "A severed integration becomes reachable again after a timeout; reopen MUST wait for severance reconciliation classes rather than assuming continuity.",
+    "Mass live-session termination would exceed scheduler or PubSub budgets; revocation MUST wave, batch, or jitter rather than self-DOS the cluster.",
+    "Edge shedding mitigates a signal storm during a flash sale; aggregate drop telemetry and collateral estimates MUST still reach central observability.",
+    "A job leased before freeze reaches pre-commit after freeze activation; the job MUST re-check incident posture before commit and follow a deterministic blocked disposition."
+  ],
+  "edge_shedding_observability_requirements": {
+    "forbidden_assumption": "edge_drop_equals_no_internal_telemetry",
+    "required_aggregate_fields": [
+      "rule_id",
+      "vector_class",
+      "scope_ref",
+      "dropped_request_count",
+      "time_window",
+      "collateral_estimate"
+    ],
+    "rules": [
+      "Any WAF, CDN, firewall, or edge-shedding rule activated under incident posture MUST emit aggregate telemetry back into the central observability stack.",
+      "Aggregate telemetry MUST include at least rule_id, vector_class, scope_ref, dropped_request_count, time_window, and an estimate or classification of potential collateral impact.",
+      "Checkout- or event-facing edge controls SHOULD prefer richer selectors than raw IP-only thresholds when available so grouped legitimate buyers are not silently discarded at scale.",
+      "An attack MUST NOT disappear from internal observability merely because mitigation moved to the edge."
+    ]
+  },
+  "err1_integration_prerequisites": {
+    "reserved_error_labels_to_register_before_lock": [
+      "IR_INCIDENT_ACTIVE",
+      "IR_SCOPE_CONTAINED",
+      "IR_STEP_UP_REQUIRED",
+      "IR_PAYOUT_FROZEN_SECURITY",
+      "IR_RELEASE_BLOCKED",
+      "IR_BREAK_GLASS_REQUIRED",
+      "IR_CONTAINMENT_PARTIAL",
+      "IR_DEVICE_QUARANTINED",
+      "IR_INCIDENT_BOOT_BARRIER_ACTIVE",
+      "IR_FREEZE_QUEUE_POLICY_APPLIED",
+      "IR_PROVIDER_TRUTH_QUARANTINED",
+      "IR_FORWARD_RECOVERY_REQUIRED",
+      "IR_THROTTLED_REAUTH_WAVE",
+      "IR_UNVERIFIED_PROVIDER_QUARANTINE",
+      "IR_INTEGRATION_SEVERED",
+      "IR_SIGNAL_VOLUME_CIRCUIT_BREAKER_ACTIVE",
+      "IR_DUAL_PRIVILEGE_GLOBAL_REAUTH_REQUIRED",
+      "IR_LIVE_SESSION_REVOKED"
+    ],
+    "rules": [
+      "These labels are planning hooks only and MUST be registered in ERR-1 before implementation introduces subcode fields or user-visible mappings.",
+      "IR-1 MUST NOT introduce any JSON field named exactly subcode until ERR-1 registry entries exist and suite validation can prove membership.",
+      "Blocked-operation envelopes and containment failures MUST remain ERR-1 compliant even before dedicated IR labels are registered."
+    ]
+  },
+  "error_and_runbook_binding": [
+    "Any user-visible block caused by containment MUST use ERR-1 compliant error envelopes with correlation_id.",
+    "Every signal family and containment operation class MUST map to an OBS-1 runbook identifier.",
+    "Runbooks MUST specify investigate, contain, validate, release, and post-incident review steps."
+  ],
+  "event_registry_hooks": {
+    "audit_events_pending_evt1_registration": [
+      "audit.incident.opened",
+      "audit.incident.scope_approved",
+      "audit.incident.containment.executed",
+      "audit.incident.break_glass.invoked",
+      "audit.incident.release_approved",
+      "audit.incident.postmortem.recorded",
+      "audit.incident.plane_isolation.approved",
+      "audit.incident.freeze_queue_policy.applied",
+      "audit.incident.forward_recovery.progressed",
+      "audit.incident.boot_barrier.denied_ready",
+      "audit.incident.provider_receipt.quarantined",
+      "audit.incident.readiness_state.transitioned",
+      "audit.incident.provider_receipt.unverified_quarantined",
+      "audit.incident.integration.severed",
+      "audit.incident.signal_volume_circuit_breaker.activated",
+      "audit.incident.live_session.revoked"
+    ],
+    "rules": [
+      "These event names MUST be registered in EVT-1 before IR-1 is locked for implementation.",
+      "Implementation MUST NOT invent alternate event names for the same lifecycle steps.",
+      "Telemetry, audit, and post-incident evidence MUST use the same canonical event names or explicit mapped aliases recorded in EVT-1."
+    ]
+  },
+  "failure_modes": [
+    {
+      "behavior": "Reject action; return ERR-1 compliant blocked-operation envelope with correlation_id.",
+      "class": "business_error",
+      "mode": "stale_incident_action"
+    },
+    {
+      "behavior": "Fail closed; do not broaden target scope; require investigation update.",
+      "class": "business_error",
+      "mode": "scope_resolution_failed"
+    },
+    {
+      "behavior": "Record per-operation authoritative and propagation completion evidence, keep incident open, and require forward recovery, compensation tracking, or retry-safe replay according to destructive operation class.",
+      "class": "system_error",
+      "mode": "partial_containment_execution"
+    },
+    {
+      "behavior": "Containment remains active until criteria pass; release attempt is audited.",
+      "class": "business_error",
+      "mode": "release_rejected"
+    },
+    {
+      "behavior": "No disruptive auto-escalation in C-mode; investigation required.",
+      "class": "business_error",
+      "mode": "detector_only_false_positive"
+    },
+    {
+      "behavior": "Incident freeze and evidence continuity MUST be reloaded before sensitive surfaces reopen.",
+      "class": "system_error",
+      "mode": "restore_with_open_incident"
+    },
+    {
+      "behavior": "Reject approval or release attempt; keep incident state unchanged; audit the violation and require alternate approver chain.",
+      "class": "business_error",
+      "mode": "approval_distinctness_violation"
+    },
+    {
+      "behavior": "Fail closed; do not execute scoped containment until segmentation dimensions are complete or broader scope is explicitly approved.",
+      "class": "business_error",
+      "mode": "containment_selector_under_scoped_session_gap"
+    },
+    {
+      "behavior": "Attach evidence only when scope, vector_class, severity, affected_plane, and lifecycle_state remain unchanged; otherwise fork or escalate incident handling.",
+      "class": "business_error",
+      "mode": "incident_retrigger_suppressed"
+    },
+    {
+      "behavior": "Deny trust restoration for the device until offline evidence replay and reconciliation complete; keep incident or successor incident open.",
+      "class": "business_error",
+      "mode": "device_quarantined_until_reconciliation"
+    },
+    {
+      "behavior": "Open successor incident, restore required freeze posture, and record predecessor linkage and failed validation evidence.",
+      "class": "system_error",
+      "mode": "post_release_validation_failed"
+    },
+    {
+      "behavior": "Apply declared freeze_queue_policy, drop or quarantine excess work with audit, and keep release blocked until backlog disposition is safe.",
+      "class": "system_error",
+      "mode": "freeze_queue_overflow"
+    },
+    {
+      "behavior": "Keep node or process unready for privileged traffic, emit readiness failure telemetry, and forbid affected surfaces from reopening.",
+      "class": "system_error",
+      "mode": "boot_without_incident_posture"
+    },
+    {
+      "behavior": "Preserve append-only receipt ingest, quarantine unsafe downstream processing, and require replay disposition before release.",
+      "class": "business_error",
+      "mode": "provider_truth_ingest_quarantined"
+    },
+    {
+      "behavior": "Open successor incident or escalate existing incident rather than silently merging materially different attack vectors.",
+      "class": "business_error",
+      "mode": "vector_escalation_breaks_dedup"
+    },
+    {
+      "behavior": "Use staged revocation or jittered re-auth controls for non-privileged sessions and keep incident active until auth load stabilizes within approved degraded mode.",
+      "class": "system_error",
+      "mode": "thundering_herd_revocation_risk"
+    }
+  ],
+  "freeze_queue_policy": {
+    "bounded_queue_requirements": [
+      "Queue entries MUST carry expires_at_utc and correlation_id.",
+      "Queue entries that outlive declared TTL MUST be dropped or quarantined according to surface policy; release MUST NOT drain stale backlog blindly.",
+      "Backlog replay after release MUST be rate-limited and jittered to avoid stampede behavior."
+    ],
+    "rules": [
+      "A frozen surface MUST declare one of: reject_immediately, drop_with_audit, bounded_queue_with_ttl, or async_quarantine; implicit infinite queueing is forbidden.",
+      "Freeze queue behavior MUST be selected per surface and incident plane and MUST be recorded in incident evidence.",
+      "Release MUST verify that backlog handling completed according to the declared freeze policy before affected surfaces reopen."
+    ],
+    "surface_policies": [
+      {
+        "default_policy": "reject_immediately",
+        "reason": "Avoid approval and config backlog explosions during active containment.",
+        "surface": "privileged_admin_mutations"
+      },
+      {
+        "default_policy": "reject_immediately",
+        "reason": "Money-moving requests MUST not silently queue during security containment.",
+        "surface": "payout_and_refund_mutations"
+      },
+      {
+        "default_policy": "bounded_queue_with_ttl",
+        "reason": "Buyer-facing degraded mode MAY admit bounded request buffering only where correctness truth is intact.",
+        "surface": "checkout_creation_without_finalization"
+      },
+      {
+        "default_policy": "reject_immediately",
+        "reason": "Finalizing inventory or payment truth during affected planes is forbidden.",
+        "surface": "checkout_finalization_and_inventory_commit"
+      },
+      {
+        "default_policy": "async_quarantine",
+        "reason": "Provider receipts MUST ingest durably while unsafe downstream processing is quarantined.",
+        "surface": "webhook_processing_downstream"
+      },
+      {
+        "default_policy": "async_quarantine",
+        "reason": "Payload review MAY continue without restoring device trust.",
+        "surface": "offline_scanner_replay"
+      }
+    ]
+  },
+  "generated_at_utc": "2026-03-09T20:40:00Z",
+  "implementation_order": [
+    "P0 hygiene alignment to CS-0@2.3.0 across dependent bundles.",
+    "GOV-0 incident-operation governance addendum.",
+    "OBS-1 security anomaly taxonomy addendum.",
+    "IAM-1 and IAM-3 and TEN-1 scope semantics for session revoke and epoch invalidation.",
+    "SEC-1 incident-tier binding for key and secret rotation.",
+    "DMSC-1 security-tier deployment gating.",
+    "LOCKS-1 containment lock ordering.",
+    "PSC-1 and OBQC-1 chaos and admission hooks."
+  ],
+  "incident_artifact_export_controls": {
+    "default_org_export_mode": "curated_summary_only",
+    "required_controls": [
+      "step_up_auth",
+      "bounded_justification",
+      "ttl_bound_access",
+      "encryption",
+      "immutable_audit",
+      "redaction_profiles"
+    ],
+    "rules": [
+      "Incident evidence bundles, timelines, and forensic exports MUST be treated as security-sensitive artifacts and MUST NOT inherit ordinary analytics or support export posture by default.",
+      "Export of incident artifacts MUST require step-up authentication, explicit authorization, bounded justification, encryption at rest and in transit, TTL-bound access, and immutable audit logging.",
+      "Exports MUST support redaction profiles so customer-facing or tenant-facing disclosures can exclude internal security posture, partner secrets, or unrelated-org evidence.",
+      "Org-facing disclosure of incident artifacts MUST default to curated summaries unless a stricter approval path explicitly authorizes raw forensic export."
+    ]
+  },
+  "incident_artifact_sensitivity": {
+    "classification": "security_sensitive_operational_evidence",
+    "rules": [
+      "Incident evidence bundles, approval records, signal details, and scope decisions MUST be treated as sensitive security artifacts, not generic analytics output.",
+      "Access to incident artifacts MUST be least-privilege, auditable, and export-controlled.",
+      "Incident artifacts MUST NOT be exposed to tenant-facing or public surfaces except through explicitly approved redacted summaries.",
+      "Retention and deletion policy for incident artifacts MUST respect legal hold, regulator-ready evidence requirements, and security sensitivity.",
+      "Incident artifacts containing quarantined provider payload references, severance decisions, or live-session disposition evidence MUST be treated as security-sensitive operational evidence and export-restricted by default.",
+      "Export or disclosure of incident artifacts MUST obey incident_artifact_export_controls and MUST be auditable as a security-sensitive export."
+    ]
+  },
+  "incident_lifecycle": {
+    "rules": [
+      "Every disruptive action MUST reference a stable incident_id and current lifecycle state.",
+      "State regression is forbidden except detected\u2192triaged restarts caused by duplicate signal merge or restored replay, and such regression MUST be auditable.",
+      "Released incidents that fail post-release validation MUST open a new incident_id linked to the predecessor rather than silently mutating history."
+    ],
+    "states": [
+      {
+        "meaning": "One or more signals exist but scope and severity are not yet approved.",
+        "state": "detected"
+      },
+      {
+        "meaning": "Incident record exists and provisional scope and tier have been assessed.",
+        "state": "triaged"
+      },
+      {
+        "meaning": "Human approver chain or break-glass has approved disruptive action.",
+        "state": "approved_for_containment"
+      },
+      {
+        "meaning": "Approved containment actions have executed and active freeze posture is in effect where relevant.",
+        "state": "contained"
+      },
+      {
+        "meaning": "Underlying compromise path is being removed or rotated out.",
+        "state": "eradication_in_progress"
+      },
+      {
+        "meaning": "Containment remains in force while evidence verifies system stability and safe reopen.",
+        "state": "recovery_validation"
+      },
+      {
+        "meaning": "Containment has been lifted under explicit release criteria and audit.",
+        "state": "released"
+      },
+      {
+        "meaning": "Release occurred but post-incident review remains mandatory before closure.",
+        "state": "postmortem_required"
+      },
+      {
+        "meaning": "Evidence package and review are complete.",
+        "state": "closed"
+      }
+    ]
+  },
+  "incident_plane_isolation_matrix": {
+    "planes": [
+      {
+        "buyer_continuity_default": "allowed_under_degraded_mode",
+        "examples": [
+          "admin portal",
+          "approval workflows",
+          "privileged settings mutation"
+        ],
+        "must_fail_closed_when": [
+          "approval_chain_untrusted",
+          "privileged_write_integrity_uncertain"
+        ],
+        "plane": "control_plane"
+      },
+      {
+        "buyer_continuity_default": "allowed_only_if_authoritative_revocation_checks_remain_available",
+        "examples": [
+          "session verification",
+          "step-up enforcement",
+          "token validation"
+        ],
+        "must_fail_closed_when": [
+          "authoritative_session_validation_unavailable",
+          "revocation_selectors_inconsistent"
+        ],
+        "plane": "auth_plane"
+      },
+      {
+        "buyer_continuity_default": "allowed_only_if_cache_is_advisory_for_affected_flow",
+        "examples": [
+          "distributed cache",
+          "local hot state",
+          "seat advisory cache"
+        ],
+        "must_fail_closed_when": [
+          "cache_participation_required_for_inventory_truth",
+          "cache_invalidation_convergence_incomplete_beyond_allowed_window"
+        ],
+        "plane": "cache_plane"
+      },
+      {
+        "buyer_continuity_default": "forbidden",
+        "examples": [
+          "seat holds",
+          "allocation registry",
+          "checkout queue state tied to inventory"
+        ],
+        "must_fail_closed_when": [
+          "plane_affected_true"
+        ],
+        "plane": "inventory_plane"
+      },
+      {
+        "buyer_continuity_default": "checkout_creation_only_if_unpaid_and_nonfinalizing",
+        "examples": [
+          "payment confirmation",
+          "refund execution",
+          "payout release"
+        ],
+        "must_fail_closed_when": [
+          "payment_confirmation_truth_uncertain",
+          "ledger_or_reconciliation_integrity_uncertain"
+        ],
+        "plane": "payment_plane"
+      },
+      {
+        "buyer_continuity_default": "n_a",
+        "examples": [
+          "device trust",
+          "offline replay",
+          "reentry state"
+        ],
+        "must_fail_closed_when": [
+          "device_trust_uncertain_for_reentry_or_capacity_sensitive_paths"
+        ],
+        "plane": "scanner_plane"
+      }
+    ],
+    "rules": [
+      "Containment decisions MUST classify the affected plane before buyer continuity or surface freeze decisions are approved.",
+      "If the affected plane includes inventory truth, seat allocation truth, payment confirmation truth, or shared warm state required for correctness, checkout finalization MUST fail closed regardless of buyer disruption.",
+      "If the affected plane is limited to privileged control surfaces and correctness truth remains uncompromised, buyer continuity MAY remain available under degraded mode with explicit approval and evidence.",
+      "Plane isolation decisions MUST be recorded per incident and MUST bind freeze_queue_policy and release decisions."
+    ]
+  },
+  "integration_severance_rules": {
+    "examples": [
+      "Payment-provider webhook secret rotation stalls because partner fails to cut over; webhook processing for that integration is severed and quarantined while unrelated buyer browsing continues.",
+      "Third-party admin SSO key rotation stalls; admin SSO remains disabled while buyer auth and unaffected org scopes continue under approved degraded mode."
+    ],
+    "rules": [
+      "If an external integration required by containment remains incomplete beyond its approved timeout budget, the platform MAY sever that integration scope rather than hold unrelated surfaces hostage indefinitely.",
+      "Severance MUST record the disabled integration surface, residual risk, customer or organizer impact summary, and the narrowed incident scope that remains frozen.",
+      "Severance MUST NOT relax containment on unrelated mandatory success classes; it only permits release of unaffected surfaces once the compromised integration is isolated.",
+      "A severed integration MUST remain blocked until separate recovery criteria are met and approved.",
+      "Release from severance MUST satisfy severance_reconciliation_requirements; severance alone is not sufficient to reopen affected surfaces."
+    ],
+    "timeout_budget_rule": "Each forward_recovery_only or externally_destructive integration operation MUST declare a timeout budget and severance owner before execution."
+  },
+  "interactive_upgrade_barriers": {
+    "required_states": [
+      "degraded_alive",
+      "buyer_limited_ready",
+      "privileged_not_ready",
+      "fully_ready"
+    ],
+    "rules": [
+      "A node in degraded_alive MUST NOT accept LiveView, WebSocket, SSE, or other long-lived interactive upgrades that depend on authoritative incident posture.",
+      "A node in buyer_limited_ready MAY accept only explicitly allowlisted buyer-facing upgrade routes whose authorization and mutation paths are proven safe for the current incident plane posture.",
+      "Interactive upgrade denial MUST return a generic temporary-unavailable boundary response with correlation_id and MUST NOT leak internal IR scope or tier labels.",
+      "Load balancer or ingress routing MUST be able to distinguish privileged_not_ready from hard-dead node posture so degraded nodes are not recycled solely for failing privileged readiness.",
+      "Authoritative incident posture, not cached posture alone, MUST be required before privileged interactive upgrades are accepted."
+    ]
+  },
+  "job_execution_barriers": {
+    "required_barriers": [
+      {
+        "barrier": "pre_dispatch",
+        "purpose": "prevent new work on frozen surfaces from starting"
+      },
+      {
+        "barrier": "pre_side_effect",
+        "purpose": "stop external or irreversible effects once incident posture is active"
+      },
+      {
+        "barrier": "pre_commit",
+        "purpose": "prevent durable local commit after late-arriving freeze or revocation"
+      },
+      {
+        "barrier": "pre_enqueue_release",
+        "purpose": "prevent frozen surfaces from enqueueing work that will only die later under known active incident posture"
+      }
+    ],
+    "rules": [
+      "Jobs that can mutate money, inventory, membership, key material, or payout state MUST perform incident checks at pre_dispatch, pre_side_effect, and pre_commit boundaries.",
+      "A job leased before containment began MUST still fail closed if a later barrier detects active incident posture affecting its scope.",
+      "Barrier failures MUST produce auditable quarantine or retry decisions and MUST NOT silently complete side effects.",
+      "Jobs leased before containment and jobs spawned during containment MUST both honor barrier checks; in-flight work is not grandfathered past incident posture.",
+      "Barrier outcomes MUST distinguish retry, quarantine, sever, and hard-fail dispositions; indefinite silent retry loops are forbidden.",
+      "Leased jobs MUST additionally obey leased_job_incident_barriers when incident posture changes after lease acquisition."
+    ]
+  },
+  "leased_job_incident_barriers": {
+    "blocked_dispositions": [
+      "abort_with_no_side_effect",
+      "quarantine_for_review",
+      "retry_after_incident"
+    ],
+    "required_barriers": [
+      "pre_dispatch",
+      "pre_side_effect",
+      "pre_commit"
+    ],
+    "rules": [
+      "Jobs already leased before an incident freeze or scope escalation MUST re-check incident posture before side effects and again before commit when the job can mutate sensitive surfaces.",
+      "A job leased under pre-incident posture MUST NOT be treated as trusted solely because it was dequeued earlier.",
+      "If an in-flight job becomes blocked by incident posture, it MUST enter a deterministic blocked disposition: abort_with_no_side_effect, quarantine_for_review, or retry_after_incident, as defined per job class.",
+      "Jobs affecting money, inventory, issuance, payout, membership, or security posture MUST implement pre-dispatch, pre-side-effect, and pre-commit incident barriers."
+    ]
+  },
+  "live_session_revocation_backpressure": {
+    "required_metrics": [
+      "revocation_wave_size",
+      "revocation_backlog",
+      "disconnect_latency",
+      "scheduler_pressure"
+    ],
+    "required_modes": [
+      "immediate_privileged_revoke",
+      "batched_non_privileged_revoke"
+    ],
+    "rules": [
+      "High-volume live-session revocation MUST be partitioned, jittered, or batched; single-shot global fan-out is forbidden when it would exceed scheduler, PubSub, or queue budgets.",
+      "Privileged session revocation MAY remain immediate when required, but non-privileged session revocation MUST respect backpressure budgets and approved wave sizing.",
+      "Revocation waves MUST emit progress metrics and backlog metrics so operators can distinguish completed revocation from merely scheduled revocation.",
+      "Revocation planning MUST preserve a dedicated control path for incident responders so the cluster does not self-lock by saturating all scheduler or message-queue capacity with disconnect traffic."
+    ]
+  },
+  "live_session_revocation_rules": {
+    "dispositions": [
+      "disconnect_immediately",
+      "downgrade_to_read_only",
+      "force_reauth_on_next_heartbeat",
+      "deny_privileged_channel_actions"
+    ],
+    "rules": [
+      "Long-lived sessions including LiveView, WebSocket, scanner streams, and admin subscriptions MUST define incident revocation behavior explicitly; HTTP-only revocation is insufficient.",
+      "For privileged or incident-affected live sessions, the default action MUST be immediate disconnect or downgrade to read-only according to approved plane policy.",
+      "Heartbeat or channel revalidation intervals MUST be short enough to make revocation effective within the approved risk window for the affected surface.",
+      "Live-session revocation decisions MUST emit telemetry linking session_id_or_channel_ref, incident_id, and resulting disposition.",
+      "Live-session revocation MUST obey live_session_revocation_backpressure and MUST NOT saturate scheduler or message fan-out budgets."
+    ]
+  },
+  "notes": [
+    "v1.1.0 legalizes the prior invalid notes object by moving normative content into explicit top-level sections and protocol fields.",
+    "IR-1 is intentionally C-mode first: disruptive actions remain human-approved until D-mode graduation gates are satisfied.",
+    "IR-1 does not introduce ERR-1 subcodes yet; it declares required ERR-1 integration work without creating suite drift before ERR-1 is patched.",
+    "v1.2.0 hardening pass: added session segmentation law, atomicity and compensation semantics, approval distinctness constraints, release quorum, event and ERR-1 integration hooks, and runtime validation matrix.",
+    "v1.3.0 hardening pass adds plane isolation, queue freeze policy, forward-recovery doctrine, boot/readiness barriers, job execution barriers, webhook ingest continuity rules, and incident artifact sensitivity controls.",
+    "v1.4.0 hardening pass adds readiness state model, verified/unverified provider ingest lanes, integration severance rules, signal volume circuit breakers, dual-privilege principal rules, and live-session/job runtime protections.",
+    "v1.5.0 hardening pass adds interactive upgrade barriers, quarantine replay side-effect policy, severance reconciliation requirements, live-session revocation backpressure, edge-shedding observability requirements, leased-job barriers, and incident artifact export controls."
+  ],
+  "production_readiness_checklist": [
+    "Incident IDs are stable, unique, and required before disruptive actions.",
+    "Signals include required correlation fields and evidence refs.",
+    "Scoped containment is supported for org, actor, role, and platform scopes as defined.",
+    "Disruptive actions are idempotent and audit-linked.",
+    "Payout freeze can be applied and released without bypassing finance integrity.",
+    "Runbooks exist for every signal family and containment operation.",
+    "Regulator-ready evidence package can be generated for Tier 2 and Tier 3 incidents.",
+    "Chaos scenarios are defined before D-mode automation is enabled.",
+    "Incident plane isolation matrix is implemented for all sensitive surfaces.",
+    "Freeze queue policy exists per frozen surface and backlog replay is bounded and rate-limited.",
+    "Boot and readiness barriers prevent privileged traffic before incident posture is loaded.",
+    "Webhook/provider truth ingest remains append-only during incidents and downstream quarantine is replay-safe.",
+    "Externally destructive containment operations use forward recovery, not rollback assumptions."
+  ],
+  "protocol": {
+    "containment_operation_registry": [
+      {
+        "allowed_scopes": [
+          "actor_scoped",
+          "org_scoped",
+          "role_scoped",
+          "platform_wide"
+        ],
+        "operation": "session_revoke",
+        "rules": [
+          "IR-1 MUST support revoking org-admin sessions without revoking buyer sessions for unaffected orgs.",
+          "Every session_revoke action MUST be idempotent and record target_scope, target_selector, approval_ref_or_break_glass_ref, and correlation_id.",
+          "session_revoke MUST record whether buyer continuity, staff continuity, and platform-staff continuity were expected to remain available after execution."
+        ]
+      },
+      {
+        "allowed_scopes": [
+          "actor_scoped",
+          "org_scoped",
+          "role_scoped",
+          "platform_wide"
+        ],
+        "operation": "step_up_force",
+        "rules": [
+          "step_up_force MAY be used before password or session invalidation as a lower-disruption control.",
+          "step_up_force MUST expire deterministically and MUST be auditable."
+        ]
+      },
+      {
+        "allowed_scopes": [
+          "actor_scoped",
+          "org_scoped",
+          "platform_wide"
+        ],
+        "operation": "assurance_epoch_bump",
+        "rules": [
+          "actor_assurance_epoch semantics from IAM-3 MUST be honored.",
+          "NEW proposed invariant: org_assurance_epoch and global_credential_epoch MUST exist before D-mode auto-escalation is enabled.",
+          "Epoch bumps MUST invalidate only scopes explicitly targeted by approved scope."
+        ]
+      },
+      {
+        "allowed_scopes": [
+          "material_scoped",
+          "platform_wide"
+        ],
+        "operation": "key_rotate",
+        "rules": [
+          "Key rotation MUST honor SEC-1 overlap windows and MUST NOT create unverifiable in-flight traffic.",
+          "Key rotation actions MUST record old_epoch_ref, new_epoch_ref, overlap_policy_ref, and completion evidence."
+        ]
+      },
+      {
+        "allowed_scopes": [
+          "actor_scoped",
+          "org_scoped",
+          "platform_wide"
+        ],
+        "operation": "api_key_revoke",
+        "rules": [
+          "API key revocation MUST preserve evidence linking each revoked key to incident_id and approved scope."
+        ]
+      },
+      {
+        "allowed_scopes": [
+          "org_scoped",
+          "platform_wide"
+        ],
+        "operation": "webhook_secret_rotate",
+        "rules": [
+          "Webhook secret rotation MUST provide overlap or explicit partner-facing cutover semantics; silent secret swaps are forbidden."
+        ]
+      },
+      {
+        "allowed_scopes": [
+          "org_scoped",
+          "platform_wide"
+        ],
+        "operation": "sensitive_surface_freeze",
+        "rules": [
+          "Freeze controls MAY block payout destination changes, refund execution, ticket transfers, org membership changes, or other high-risk surfaces defined by GOV-0 and OBS-1.",
+          "Freeze controls MUST map to ERR-1 compliant error envelopes and MUST emit active-incident evidence."
+        ]
+      },
+      {
+        "allowed_scopes": [
+          "org_scoped",
+          "platform_wide"
+        ],
+        "operation": "payout_freeze",
+        "rules": [
+          "Payout freeze MUST be available whenever integrity, reconciliation, or security compromise makes payout safety uncertain.",
+          "A payout freeze MUST remain in effect until release criteria are met and evidence is attached.",
+          "payout_freeze MUST be idempotent per approved scope and MUST survive restore until explicit release is approved."
+        ]
+      }
+    ],
+    "governance_posture": [
+      "IR-1 MUST prefer scoped containment over platform-wide disruption when evidence supports bounded scope.",
+      "IR-1 MUST support C-mode now: tool-assisted investigation plus human approval for disruptive containment.",
+      "IR-1 MAY evolve to D-mode automation only after approved thresholds, evidence quality, and chaos validation exist."
+    ],
+    "investigation_workflow": [
+      "Every incident MUST have a stable incident_id before any disruptive containment action executes.",
+      "Investigation MUST classify provisional scope as one of actor_scoped, org_scoped, role_scoped, multi_org, or platform_wide.",
+      "Investigation MUST record suggested_scope separately from approved_scope; suggested scope MAY be machine-produced, but approved scope MUST be human-approved in C-mode.",
+      "If evidence is insufficient to prove bounded scope, investigators MUST escalate one level higher rather than assume safety.",
+      "If approved_scope exceeds suggested_scope or approved_tier exceeds the highest default tier of originating signals, the approval record MUST include explicit justification and post-incident review owner."
+    ],
+    "release_criteria": [
+      "An incident MUST NOT be released from containment until evidence shows targeted signals are stable or resolved, approvals are recorded, and blocked high-risk surfaces are safe to re-open.",
+      "Payout freeze release MUST respect existing finance integrity and reconciliation gates in V42 and OBS-1.",
+      "Release MUST be auditable and MUST record residual risk notes if any.",
+      "Release MUST verify all mandatory containment success classes for the approved tier are complete and no required compensation items remain unresolved.",
+      "Release MUST verify no pending device quarantine or offline reconciliation remains for scopes whose trust depends on device state."
+    ],
+    "signal_taxonomy": [
+      {
+        "default_tier": "tier_1_scoped_suspicion",
+        "minimum_fields": [
+          "occurred_at",
+          "org_id_or_null",
+          "actor_id_or_null",
+          "request_id",
+          "risk_score",
+          "evidence_ref"
+        ],
+        "signal": "security.auth.login_velocity_anomaly"
+      },
+      {
+        "default_tier": "tier_1_scoped_suspicion",
+        "minimum_fields": [
+          "occurred_at",
+          "org_id_or_null",
+          "request_id",
+          "source_cluster_ref",
+          "risk_score",
+          "evidence_ref"
+        ],
+        "signal": "security.auth.credential_stuffing_suspected"
+      },
+      {
+        "default_tier": "tier_2_multi_org_or_admin_surface",
+        "minimum_fields": [
+          "occurred_at",
+          "org_id_or_null",
+          "actor_id",
+          "target_role_or_capability",
+          "request_id",
+          "risk_score",
+          "evidence_ref"
+        ],
+        "signal": "security.admin.privilege_escalation_anomaly"
+      },
+      {
+        "default_tier": "tier_1_scoped_suspicion",
+        "minimum_fields": [
+          "occurred_at",
+          "org_id_or_null",
+          "session_id",
+          "actor_id_or_null",
+          "request_id",
+          "risk_score",
+          "evidence_ref"
+        ],
+        "signal": "security.session.replay_suspected"
+      },
+      {
+        "default_tier": "tier_2_multi_org_or_admin_surface",
+        "minimum_fields": [
+          "occurred_at",
+          "org_id_or_null",
+          "api_key_id",
+          "request_id",
+          "risk_score",
+          "evidence_ref"
+        ],
+        "signal": "security.api.key_abuse_suspected"
+      },
+      {
+        "default_tier": "tier_2_multi_org_or_admin_surface",
+        "minimum_fields": [
+          "occurred_at",
+          "actor_id_or_null",
+          "request_id",
+          "target_org_id_or_pattern",
+          "risk_score",
+          "evidence_ref"
+        ],
+        "signal": "security.tenancy.cross_tenant_probe_suspected"
+      },
+      {
+        "default_tier": "tier_3_platform_compromise",
+        "minimum_fields": [
+          "occurred_at",
+          "material_class",
+          "request_id_or_incident_id",
+          "risk_score",
+          "evidence_ref"
+        ],
+        "signal": "security.secret.signing_material_exposure_suspected"
+      },
+      {
+        "default_tier": "tier_2_multi_org_or_admin_surface",
+        "minimum_fields": [
+          "occurred_at",
+          "org_id",
+          "actor_id_or_null",
+          "request_id",
+          "payout_surface",
+          "risk_score",
+          "evidence_ref"
+        ],
+        "signal": "security.payout.mutation_anomaly"
+      }
+    ],
+    "tier_ladder": {
+      "tier_0_monitoring": {
+        "intent": "Normal posture with anomaly detection active and no containment action applied.",
+        "rules": [
+          "Signals MAY be recorded and investigated without user-visible disruption.",
+          "Tier 0 MUST preserve enough evidence to support later escalation."
+        ]
+      },
+      "tier_1_scoped_suspicion": {
+        "intent": "Org-scoped or actor-scoped suspicion requiring fast investigation and limited reversible controls.",
+        "rules": [
+          "Tier 1 MUST prefer actor-scoped or org-scoped actions over global invalidation.",
+          "Tier 1 MAY force scoped step-up auth, revoke org-admin sessions for an affected org, or temporarily freeze high-risk admin mutations within approved scope.",
+          "Tier 1 disruptive actions remain human-approved in C-mode."
+        ]
+      },
+      "tier_2_multi_org_or_admin_surface": {
+        "intent": "Evidence suggests compromise spans multiple orgs, shared admin surfaces, shared keys, or platform support paths.",
+        "rules": [
+          "Tier 2 MUST permit role-scoped containment such as revoking privileged admin sessions, forcing recent step-up revalidation, freezing payout-destination changes, and rotating affected signing material.",
+          "Tier 2 MAY preserve buyer continuity only when the approved incident plane isolation matrix explicitly permits it; if the affected plane includes inventory truth, checkout finalization, payment confirmation, or shared warm state required for seat integrity, buyer checkout MUST fail closed.",
+          "Tier 2 disruptive actions MUST require dual approval unless GOV-0 break-glass criteria are satisfied."
+        ]
+      },
+      "tier_3_platform_compromise": {
+        "intent": "Evidence indicates platform-wide credential, key, session, secret, or infrastructure compromise.",
+        "rules": [
+          "Tier 3 MUST allow global credential invalidation, global privileged-session revocation, platform-wide key rotation, webhook and API secret rotation, and payout freeze until integrity checks are green.",
+          "Tier 3 MUST be treated as SEV1 security posture for deployment and migration gating.",
+          "Tier 3 MUST record exact start time, scope, reason, approval chain, and release conditions."
+        ]
+      }
+    }
+  },
+  "purpose": {
+    "non_goals": [
+      "IR-1 does not define UI copy, legal advice, or customer communications templates.",
+      "IR-1 does not weaken V42 fail-closed posture, org_id isolation, payout safety, or immutable audit expectations."
+    ],
+    "one_liner": "Bind signals, investigation, scope selection, containment operations, escalation, release, regulatory evidence, and chaos-readiness into one enforceable law.",
+    "scope": [
+      "Detection signals, investigation workflow, scoped containment operations, escalation tiers, evidence capture, release criteria, regulatory reporting hooks, and chaos-readiness requirements.",
+      "Applies to platform-wide incidents and org-scoped incidents affecting identities, sessions, credentials, keys, API clients, payout safety, privileged operations, and device trust."
+    ]
+  },
+  "quarantine_replay_side_effect_policy": {
+    "default_mode": "silent_reconcile",
+    "forbidden_defaults": [
+      "normal_business_event_replay",
+      "customer_notification_replay",
+      "partner_callback_replay"
+    ],
+    "rules": [
+      "Replays from quarantine MUST default to silent reconciliation paths that do not re-emit customer notifications, downstream partner callbacks, or derived side-effect jobs unless explicitly approved.",
+      "Replay mutation paths MUST be able to repair order, payment, ticket, seat, and ledger state without treating replay as a fresh business event.",
+      "If replay of quarantined payloads would cause externally visible side effects, those side effects MUST require explicit approval and MUST be emitted through a separately auditable replay side-effect lane.",
+      "Replay completion evidence MUST record whether reconciliation was silent, whether any side effects were intentionally emitted, and which customer- or partner-facing channels were suppressed."
+    ]
+  },
+  "readiness_state_model": {
+    "rules": [
+      "Readiness MUST distinguish process liveness from privileged readiness; failing a privileged readiness barrier MUST NOT require orchestrator termination by default.",
+      "Orchestrator probes MUST tolerate degraded_alive and buyer_limited_ready states without killing the node, provided the node is not falsely advertising privileged readiness.",
+      "Release MUST NOT depend on cached readiness state alone; authoritative incident posture remains the source of truth.",
+      "Stale cached incident posture MAY keep a node in degraded_alive but MUST expire aggressively and MUST fail closed on ambiguity."
+    ],
+    "states": [
+      {
+        "allowed_traffic": [
+          "health_reporting",
+          "cluster_membership",
+          "edge_rejection_or_static_degraded_responses"
+        ],
+        "forbidden_traffic": [
+          "privileged_writes",
+          "money_mutations",
+          "inventory_commit",
+          "platform_admin_actions"
+        ],
+        "intent": "Node remains process-alive and cluster-visible but MUST NOT advertise privileged readiness while incident posture is stale or unavailable.",
+        "state": "degraded_alive"
+      },
+      {
+        "allowed_traffic": [
+          "read_only_buyer_views",
+          "checkout_creation_without_finalization_when_plane_allows",
+          "generic_error_and_retry_guidance"
+        ],
+        "forbidden_traffic": [
+          "checkout_finalization_when_blocked_by_plane",
+          "privileged_admin_writes",
+          "payout_and_refund_mutations"
+        ],
+        "intent": "Node may serve explicitly allowed buyer-safe degraded traffic once incident plane rules and freeze posture are loaded.",
+        "state": "buyer_limited_ready"
+      },
+      {
+        "allowed_traffic": [
+          "incident_safe_background_checks",
+          "buyer_limited_ready_traffic_when_allowed"
+        ],
+        "forbidden_traffic": [
+          "platform_admin_sessions",
+          "finance_admin_mutations",
+          "break_glass_execution"
+        ],
+        "intent": "Node has loaded incident posture but MUST keep privileged surfaces disabled until propagation and barrier checks pass.",
+        "state": "privileged_not_ready"
+      },
+      {
+        "allowed_traffic": [
+          "authorized_normal_traffic"
+        ],
+        "forbidden_traffic": [],
+        "intent": "Node may serve all authorized traffic after incident posture, freeze posture, and runtime barriers satisfy required convergence.",
+        "state": "fully_ready"
+      },
+      {
+        "allowed_traffic": [
+          "health_reporting",
+          "cluster_membership",
+          "edge_rejection_or_static_degraded_responses"
+        ],
+        "forbidden_traffic": [
+          "interactive_upgrades",
+          "privileged_writes",
+          "money_mutations",
+          "inventory_commit",
+          "platform_admin_actions"
+        ],
+        "intent": "Node is alive for liveness and limited degraded responses but MUST reject long-lived interactive upgrades until authoritative incident posture is loaded.",
+        "state": "interactive_not_ready"
+      }
+    ]
+  },
+  "regulatory_reporting_hooks": {
+    "minimum_evidence_fields": [
+      "incident_id",
+      "opened_at_utc",
+      "first_signal_at_utc",
+      "tier",
+      "approved_scope",
+      "approval_chain_refs",
+      "executed_operations",
+      "affected_orgs_or_principals",
+      "customer_impact_summary",
+      "regulatory_clock_started_at_utc_or_null",
+      "notification_decision_status",
+      "released_at_utc_or_null",
+      "notification_decision_basis_ref_or_null",
+      "jurisdiction_assessment_ref_or_null"
+    ],
+    "rules": [
+      "IR-1 MUST capture a regulator-ready evidence package for Tier 2 and Tier 3 incidents.",
+      "Evidence package MUST include incident_id, timestamps, triggering signals, approved scope, executed containment operations, user or org impact summary, and release criteria.",
+      "IR-1 MUST track notification_decision_status separately from legal advice; the platform records evidence and timing, but legal determination remains outside this contract.",
+      "IR-1 MUST support a 72-hour reporting clock field for jurisdictions that require it; absence of a reporting obligation MUST be an explicit recorded decision."
+    ]
+  },
+  "release_quorum_requirements": {
+    "minimum_quiet_period_rule": "Quiet-period duration MUST be defined in OBS-1 runbooks per signal family before D-mode is enabled.",
+    "rules": [
+      "Release MUST verify that all mandatory containment success classes for the incident tier are complete and auditable.",
+      "Release MUST verify a minimum detector quiet period appropriate to the signal family or must record an explicit override rationale under GOV-0 break-glass.",
+      "Release MUST verify no unresolved compensation items remain for required operation classes.",
+      "Release MUST verify no pending device quarantine or offline reconciliation remains for scopes whose trust depends on device state.",
+      "A post-release validation failure MUST open a successor incident linked to the predecessor and MUST NOT silently re-open the released incident.",
+      "Release MUST verify plane-specific convergence requirements, including authoritative_complete and propagation_complete where required, before affected surfaces reopen.",
+      "Release MUST verify backlog disposition under freeze_queue_policy and MUST NOT unleash accumulated requests without bounded replay controls."
+    ]
+  },
+  "restore_and_failover_semantics": [
+    "Active incident state, approved scope, and active freezes MUST survive restore and failover before sensitive surfaces reopen.",
+    "Revocation completeness MUST be re-verified after restore for sessions, keys, secrets, and payout freeze posture.",
+    "Regulatory clocks and evidence package continuity MUST survive restore; restored incidents MUST NOT lose original opened_at_utc or first_signal_at_utc.",
+    "Restore and failover MUST reload incident freeze posture before sensitive write surfaces, payout release, or privileged approval surfaces become available.",
+    "Queue and admission posture associated with active incidents MUST be re-applied or explicitly revalidated after restore before traffic normalization.",
+    "Evidence, approvals, and notification decision refs MUST remain linked across restore or failover boundaries.",
+    "Processes and nodes recovering during an active incident MUST remain unready for incident-affected privileged traffic until boot_and_readiness_barriers are satisfied."
+  ],
+  "runtime_validation_matrix": [
+    {
+      "pass_criteria": "Replay suspicion signal emitted, scoped containment blocks target surface, unaffected scopes remain available, correlation_id preserved.",
+      "required_artifacts": [
+        "signal_trace_ref",
+        "blocked_operation_error_sample",
+        "incident_timeline_ref"
+      ],
+      "required_dynamic_assertions": [
+        "telemetry_signal_emitted",
+        "error_envelope_correlation",
+        "attribute_presence_assert"
+      ],
+      "simulation_label": "security.token_replay_wave"
+    },
+    {
+      "pass_criteria": "Detector deduplicates repeated triggers, C-mode avoids disruptive escalation without approval, and unaffected scopes stay usable.",
+      "required_artifacts": [
+        "rate_limit_evidence_ref",
+        "incident_timeline_ref",
+        "approval_or_break_glass_ref"
+      ],
+      "required_dynamic_assertions": [
+        "telemetry_signal_emitted",
+        "sampling_decision",
+        "error_envelope_correlation"
+      ],
+      "simulation_label": "security.credential_stuffing_burst"
+    },
+    {
+      "pass_criteria": "Privileged mutation is blocked or contained, audit events chain correctly, and release remains unavailable until criteria pass.",
+      "required_artifacts": [
+        "approval_chain_ref",
+        "audit_event_refs",
+        "blocked_privileged_action_sample"
+      ],
+      "required_dynamic_assertions": [
+        "telemetry_signal_emitted",
+        "trace_span_relationship",
+        "error_envelope_correlation"
+      ],
+      "simulation_label": "security.admin_takeover_attempt"
+    },
+    {
+      "pass_criteria": "Target org admin surface is contained while unrelated buyer continuity and unrelated org continuity remain available.",
+      "required_artifacts": [
+        "scope_resolution_ref",
+        "session_revoke_ref",
+        "buyer_continuity_check_ref"
+      ],
+      "required_dynamic_assertions": [
+        "attribute_presence_assert",
+        "error_envelope_correlation"
+      ],
+      "simulation_label": "security.partial_org_containment"
+    },
+    {
+      "pass_criteria": "Rotation honors overlap policy, no unverifiable traffic occurs, and queue/backpressure posture remains within approved degraded mode.",
+      "required_artifacts": [
+        "old_new_epoch_refs",
+        "overlap_policy_ref",
+        "queue_health_ref",
+        "incident_timeline_ref"
+      ],
+      "required_dynamic_assertions": [
+        "trace_span_relationship",
+        "attribute_presence_assert"
+      ],
+      "simulation_label": "security.key_rotation_under_load"
+    },
+    {
+      "pass_criteria": "Frozen surfaces do not queue infinitely, stale work is dropped or quarantined according to policy, and release replays only bounded safe backlog.",
+      "required_artifacts": [
+        "queue_policy_ref",
+        "backlog_disposition_ref",
+        "rate_limited_replay_ref"
+      ],
+      "required_dynamic_assertions": [
+        "telemetry_signal_emitted",
+        "attribute_presence_assert",
+        "trace_span_relationship"
+      ],
+      "simulation_label": "security.freeze_queue_backlog_replay"
+    },
+    {
+      "pass_criteria": "Recovered nodes remain deny-by-default until incident posture is reloaded and privileged surfaces stay unavailable until barriers pass.",
+      "required_artifacts": [
+        "boot_barrier_ref",
+        "incident_posture_reload_ref",
+        "privileged_surface_readiness_ref"
+      ],
+      "required_dynamic_assertions": [
+        "attribute_presence_assert",
+        "trace_span_relationship"
+      ],
+      "simulation_label": "security.restore_with_open_incident"
+    },
+    {
+      "pass_criteria": "New nodes survive in degraded_alive or buyer_limited_ready without advertising privileged readiness or entering orchestrator crash loops.",
+      "required_artifacts": [
+        "readiness_state_transition_ref",
+        "degraded_alive_probe_ref",
+        "privileged_not_ready_probe_ref"
+      ],
+      "required_dynamic_assertions": [
+        "attribute_presence_assert",
+        "trace_span_relationship"
+      ],
+      "simulation_label": "security.boot_barrier_autoscale_under_load"
+    },
+    {
+      "pass_criteria": "Verified receipts continue on the primary lane while stale-signature overlap receipts are isolated into quarantine and never mutate primary truth.",
+      "required_artifacts": [
+        "verified_lane_ref",
+        "unverified_quarantine_lane_ref",
+        "overlap_window_ref",
+        "disposition_ref"
+      ],
+      "required_dynamic_assertions": [
+        "telemetry_signal_emitted",
+        "attribute_presence_assert",
+        "error_envelope_correlation"
+      ],
+      "simulation_label": "security.webhook_secret_overlap_quarantine"
+    },
+    {
+      "pass_criteria": "A stalled external forward-recovery operation can be severed without holding unrelated surfaces hostage, and severed scope remains explicitly blocked.",
+      "required_artifacts": [
+        "timeout_budget_ref",
+        "severance_decision_ref",
+        "unaffected_surface_release_ref"
+      ],
+      "required_dynamic_assertions": [
+        "trace_span_relationship",
+        "attribute_presence_assert"
+      ],
+      "simulation_label": "security.integration_severance_timeout"
+    },
+    {
+      "pass_criteria": "High-volume duplicate storms transition to aggregate accounting and edge shedding before application-layer OOM or lock exhaustion occurs.",
+      "required_artifacts": [
+        "volume_threshold_ref",
+        "edge_drop_rule_ref",
+        "aggregate_counter_ref"
+      ],
+      "required_dynamic_assertions": [
+        "telemetry_signal_emitted",
+        "sampling_decision",
+        "attribute_presence_assert"
+      ],
+      "simulation_label": "security.signal_volume_circuit_breaker"
+    },
+    {
+      "pass_criteria": "A dual-privilege principal sharing one auth surface is globally revoked for that principal rather than silently retaining platform authority.",
+      "required_artifacts": [
+        "principal_scope_ref",
+        "global_revoke_decision_ref",
+        "reauth_requirement_ref"
+      ],
+      "required_dynamic_assertions": [
+        "attribute_presence_assert",
+        "error_envelope_correlation"
+      ],
+      "simulation_label": "security.dual_privilege_principal_revoke"
+    },
+    {
+      "pass_criteria": "Privileged and incident-affected live sessions disconnect, downgrade, or force re-auth within the approved risk window.",
+      "required_artifacts": [
+        "heartbeat_revocation_ref",
+        "channel_disposition_ref",
+        "incident_link_ref"
+      ],
+      "required_dynamic_assertions": [
+        "telemetry_signal_emitted",
+        "trace_span_relationship",
+        "attribute_presence_assert"
+      ],
+      "simulation_label": "security.live_session_revocation"
+    },
+    {
+      "pass_criteria": "Nodes lacking authoritative posture reject or redirect interactive upgrades instead of mounting zombie UIs.",
+      "required_artifacts": [
+        "upgrade_rejection_ref",
+        "authoritative_posture_ref",
+        "load_balancer_disposition_ref"
+      ],
+      "required_dynamic_assertions": [
+        "attribute_presence_assert",
+        "error_envelope_correlation",
+        "trace_span_relationship"
+      ],
+      "simulation_label": "security.degraded_alive_interactive_upgrade"
+    },
+    {
+      "pass_criteria": "Quarantine replay repairs state through silent reconcile paths and does not re-emit customer or partner side effects by default.",
+      "required_artifacts": [
+        "replay_lane_ref",
+        "suppressed_side_effect_ref",
+        "state_reconcile_ref"
+      ],
+      "required_dynamic_assertions": [
+        "attribute_presence_assert",
+        "trace_span_relationship"
+      ],
+      "simulation_label": "security.quarantine_replay_silent_reconcile"
+    },
+    {
+      "pass_criteria": "A severed integration cannot reopen until all applicable reconciliation classes are green and residual risk is recorded.",
+      "required_artifacts": [
+        "severance_ref",
+        "reconciliation_class_refs",
+        "reopen_decision_ref"
+      ],
+      "required_dynamic_assertions": [
+        "attribute_presence_assert",
+        "trace_span_relationship"
+      ],
+      "simulation_label": "security.severance_reconciliation_reopen"
+    },
+    {
+      "pass_criteria": "Live-session revocation respects batching or backpressure budgets and does not collapse scheduler or message fan-out capacity.",
+      "required_artifacts": [
+        "revocation_wave_ref",
+        "scheduler_pressure_ref",
+        "backlog_progress_ref"
+      ],
+      "required_dynamic_assertions": [
+        "telemetry_signal_emitted",
+        "attribute_presence_assert"
+      ],
+      "simulation_label": "security.live_session_revocation_backpressure"
+    },
+    {
+      "pass_criteria": "Edge shedding produces aggregate observability and collateral estimates rather than making the attack invisible internally.",
+      "required_artifacts": [
+        "edge_rule_ref",
+        "aggregate_drop_metric_ref",
+        "collateral_estimate_ref"
+      ],
+      "required_dynamic_assertions": [
+        "telemetry_signal_emitted",
+        "attribute_presence_assert"
+      ],
+      "simulation_label": "security.edge_shedding_aggregate_observability"
+    },
+    {
+      "pass_criteria": "Jobs leased before freeze re-check incident posture before side effect and commit, and blocked jobs enter deterministic dispositions.",
+      "required_artifacts": [
+        "lease_ref",
+        "pre_commit_barrier_ref",
+        "blocked_disposition_ref"
+      ],
+      "required_dynamic_assertions": [
+        "trace_span_relationship",
+        "attribute_presence_assert"
+      ],
+      "simulation_label": "security.leased_job_freeze_barrier"
+    }
+  ],
+  "runtime_validation_requirements": [
+    "Static JSON gates are insufficient by themselves; runtime harness validation MUST prove telemetry emission, correlation integrity, freeze enforcement, and safe release behavior.",
+    "No D-mode automation may be enabled until runtime validation passes under representative load and failure injection.",
+    "Runtime validation MUST produce scenario-specific evidence artifacts defined in runtime_validation_matrix before IR-1 is considered implementation-ready."
+  ],
+  "schema_version": "contract-suite/1.0",
+  "session_scope_segmentation": {
+    "fail_closed_rule": "Any missing segmentation dimension required for approved scope MUST block the scoped containment action and record containment_selector_under_scoped_session_gap.",
+    "minimum_dimensions": [
+      "actor_id",
+      "org_id_or_null",
+      "role_surface",
+      "auth_surface",
+      "issued_at_utc",
+      "revocation_selector_ref"
+    ],
+    "rules": [
+      "Sessions, grants, and revocation selectors MUST be segmentable by actor_id, org_id when present, role_surface, and auth_surface before org-scoped or role-scoped containment is allowed.",
+      "If a principal session or grant cannot be deterministically segmented to the approved scope, IR-1 MUST fail closed and either escalate scope explicitly or deny the scoped action with audit.",
+      "Org-scoped revocation MUST NOT erase unrelated buyer continuity, unrelated org continuity, or non-target auth surfaces unless approved scope explicitly includes them.",
+      "Role-scoped revocation MUST use deterministic selector criteria; fuzzy matching or ad-hoc manual principal lists are forbidden.",
+      "Dual-privilege principals MUST not rely on partial token invalidation unless platform authority and org authority are cryptographically or session-issuance separated."
+    ]
+  },
+  "severance_reconciliation_requirements": {
+    "minimum_reconciliation_classes": [
+      "provider_receipts",
+      "internal_ledger",
+      "order_or_payment_intent",
+      "inventory_or_issuance"
+    ],
+    "release_gate": "all_applicable_reconciliation_classes_green",
+    "rules": [
+      "An integration severed under incident response MUST NOT reopen until the required reconciliation classes for that integration have completed and evidence is attached to the incident record.",
+      "Minimum reconciliation classes MUST include provider receipt reconciliation, internal ledger reconciliation where money moves, order or payment-intent reconciliation where commerce state is affected, and inventory or issuance reconciliation where tickets or allocations are affected.",
+      "Reopen decisions MUST record mismatch thresholds, residual risk, and whether any quarantined receipts remain unresolved.",
+      "If a reconciliation class is not applicable to a severed integration, the release record MUST explicitly state not_applicable with justification."
+    ]
+  },
+  "signal_volume_circuit_breakers": {
+    "required_controls": [
+      "edge_drop_or_waf_rule_ref",
+      "aggregate_counter_ref",
+      "circuit_breaker_activation_threshold_ref",
+      "circuit_breaker_release_threshold_ref"
+    ],
+    "rules": [
+      "Deduplication MUST stop being per-event application logic once identical signal volume exceeds the approved edge or WAF transfer threshold for that vector and scope.",
+      "When volume circuit breaker activates, the system MUST switch to aggregate telemetry accounting and edge shedding or firewall enforcement rather than evaluating every duplicate in the application layer.",
+      "Circuit-breaker activation MUST preserve enough aggregate evidence to support incident review without requiring full packet-by-packet ingest.",
+      "Volume circuit breakers MUST break deduplication cooling windows immediately if severity, vector class, or affected plane rises."
+    ]
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "Tiered incident response law hardened for runtime survivability, including interactive upgrade barriers, quarantine replay suppression, severance reconciliation, live-session revocation backpressure, edge-shed observability, leased-job barriers, and security-sensitive incident artifact export controls.",
+  "tags": [
+    "incident-response",
+    "security",
+    "containment",
+    "observability",
+    "governance",
+    "tenancy",
+    "chaos",
+    "cs-0@2.3.0"
+  ],
+  "title": "IR-1 Incident Response and Containment Protocol",
+  "updated_at": "2026-03-09T20:40:00Z",
+  "verified_vs_unverified_provider_ingest": {
+    "lanes": [
+      {
+        "destination": "normal append-only receipt ledger",
+        "entry_condition": "signature_or_auth_validation_passes under active approved secret and overlap policy",
+        "lane": "verified_primary_ingest",
+        "rules": [
+          "Verified receipts MAY continue through normal durable ingest even when downstream processing is quarantined."
+        ]
+      },
+      {
+        "destination": "isolated cold quarantine holding store separated from primary ingest pipelines",
+        "entry_condition": "signature validation fails but the receipt falls within an explicitly approved overlap or severance investigation window for the affected integration",
+        "lane": "overlap_window_unverified_quarantine",
+        "rules": [
+          "Quarantined unverified receipts MUST NOT flow into normal processing or mutate money, inventory, or payout truth until cryptographic or equivalent provenance is proven.",
+          "Quarantine records MUST preserve raw payload evidence, arrival timestamp, candidate integration scope, and disposition owner."
+        ]
+      },
+      {
+        "destination": "no primary ingest; retain only minimal safe rejection evidence",
+        "entry_condition": "validation fails outside an approved overlap or severance window or payload is malformed beyond safe retention policy",
+        "lane": "reject_and_alert",
+        "rules": [
+          "Rejected receipts MUST raise alerting and MUST NOT be silently accepted to satisfy ingest continuity language."
+        ]
+      }
+    ],
+    "rules": [
+      "Ingest continuity during incident MUST distinguish verified and unverified payload lanes; accepting unverified partner payloads into the primary ingest path is forbidden.",
+      "Overlap windows MUST be explicitly approved, time-bounded, and tied to an incident or severance record.",
+      "Release of affected financial or webhook-dependent surfaces MUST verify all unverified quarantine receipts are dispositioned.",
+      "Any replay from unverified quarantine MUST obey quarantine_replay_side_effect_policy before mutating primary truth or emitting side effects."
+    ]
+  },
+  "version": "1.5.0",
+  "webhook_and_provider_truth_during_incident": {
+    "rules": [
+      "Provider webhook or receipt ingest MUST remain append-only and idempotent during incidents; dropping provider truth is forbidden.",
+      "Verified receipts MUST continue through the verified_primary_ingest lane; unverified overlap-window receipts MUST be diverted to isolated quarantine and MUST NOT reach normal processing.",
+      "Unsafe downstream processing MAY be quarantined, but receipt preservation MUST continue with evidence linking each receipt to incident posture decisions.",
+      "Release MUST verify quarantined provider receipts were replayed, superseded, severed, or dispositioned according to policy before affected financial surfaces reopen."
+    ]
+  }
+}

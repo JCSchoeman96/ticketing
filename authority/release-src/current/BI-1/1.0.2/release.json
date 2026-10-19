@@ -1,0 +1,13 @@
+{
+  "doc_id": "BI-1",
+  "version": "1.0.2",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch release changes the PSC minimum to the first evidenced read-replica bulkhead capability, PSC-1@1.8.0.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "423adce56c3de7cf961752014ac22c15f2ff0dedbb7e60a2798019c9e7a561d3"
+  }
+}

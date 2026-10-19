@@ -1,0 +1,724 @@
+{
+  "artifact_kind": "contract",
+  "banned_anti_patterns": [
+    {
+      "id": "no_spreadsheets",
+      "rule": "Reconciliation evidence MUST NOT be manual spreadsheets or ad-hoc adjustments."
+    },
+    {
+      "id": "no_todo",
+      "rule": "Contract MUST NOT contain TBD/TODO/WIP placeholders."
+    },
+    {
+      "id": "no_uuid_string_sort_for_crypto",
+      "rule": "UUID strings MUST NOT be sorted for hashing/signature/tie-break; use 16-byte lexicographic sort."
+    }
+  ],
+  "change_log": [
+    {
+      "date_utc": "2026-02-11T12:16:59Z",
+      "summary": "Align with LOCKS-1 ledger_period ordering; define recon_window key encoding + shared/exclusive semantics; add OBQC admission + jitter; add currency_mismatch variance; require zero-value evidence artifacts.",
+      "type": "patch",
+      "version": "1.0.2"
+    }
+  ],
+  "close_and_payout_blockers": {
+    "blocker_behavior": {
+      "on_block_close": [
+        "emit_close_blocked_signal",
+        "open_or_update_incident",
+        "schedule_rerun"
+      ],
+      "on_block_payout": [
+        "freeze_payouts",
+        "require_finance_signoff"
+      ]
+    },
+    "close_blocker_classes": [
+      "expected_backfill",
+      "data_gap_missing_evidence",
+      "corruption_suspected",
+      "provider_mismatch"
+    ],
+    "payout_blocker_classes": [
+      "expected_backfill",
+      "data_gap_missing_evidence",
+      "corruption_suspected",
+      "provider_mismatch"
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "V42-0",
+      "edge_type": "requires",
+      "min_version": "1.8.1",
+      "reason": "Constitutional invariants: payouts blocked on integrity violations; tenancy; ledger immutability."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "Suite schema; contract family validation."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Gate schema and patterns."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.6.1",
+      "reason": "Canonical error envelope + subcode registry."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.12",
+      "reason": "Multi-tenancy invariants for org_id partitioning + RLS."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.10",
+      "reason": "Authorization model; override and manual trigger permissions."
+    },
+    {
+      "doc_id": "BI-1",
+      "edge_type": "requires",
+      "min_version": "1.0.1",
+      "reason": "Metric registry + reconciliation lane schedule + truth source semantics."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "4.4.7",
+      "reason": "Financial truth store; ledger rollup evidence source; immutability constraints."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.7.0",
+      "reason": "Order snapshots and committed counts used as reconciliation evidence for committed metrics."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.5.4",
+      "reason": "Price snapshot semantics; forbids recomputation during reconciliation."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.3",
+      "reason": "Exclusive locks preventing concurrent recon/close/payout actions; includes ledger_period < recon_window < payout_run ordering and recon_window key encoding."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.17",
+      "reason": "Alerting + incident linkage requirements for blocker variances."
+    },
+    {
+      "doc_id": "DP-1",
+      "edge_type": "requires",
+      "min_version": "2.0.5",
+      "reason": "NEW: proposed invariant — async job idempotency/retry posture standardization."
+    },
+    {
+      "doc_id": "DMSC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "reason": "NEW: proposed invariant — controlled rebuild/backfill markers and recon interlock."
+    },
+    {
+      "doc_id": "ARCH-1",
+      "edge_type": "requires",
+      "min_version": "3.0.4",
+      "reason": "NEW: proposed invariant — retention requirements for recon artifacts/evidence."
+    },
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "requires",
+      "min_version": "1.3.1",
+      "reason": "NEW: proposed invariant — classification + retention tiers for evidence artifacts."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.4.2",
+      "reason": "NEW: proposed invariant — evidence signing/integrity posture if signatures are required."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.4",
+      "reason": "Queue admission + backpressure to prevent thundering herd during period-close scheduled recon runs."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "requires",
+      "min_version": "1.7.0",
+      "reason": "Performance/capacity posture; recon concurrency ceilings and DB saturation prevention."
+    }
+  ],
+  "doc_id": "RECON-1",
+  "emits_events": false,
+  "errors": {
+    "notes": "NEW: proposed invariant — ERR-1 MUST add the above RECON_* subcodes to remain canonical.",
+    "subcodes_new_proposed": [
+      {
+        "subcode": "RECON_EVIDENCE_MISSING",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "RECON_JOIN_KEY_MISMATCH",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "RECON_TOLERANCE_EXCEEDED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "RECON_WINDOW_LOCKED",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "RECON_OVERRIDE_FORBIDDEN",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "subcode": "RECON_REBUILD_IN_PROGRESS",
+        "top_level": "ERR_CONFLICT"
+      },
+      {
+        "subcode": "RECON_BLOCKER_ACTIVE",
+        "top_level": "ERR_CONFLICT"
+      }
+    ],
+    "top_level_codes_used": [
+      "ERR_CONFLICT",
+      "ERR_VALIDATION",
+      "ERR_FORBIDDEN",
+      "ERR_INTERNAL"
+    ]
+  },
+  "evidence_ingestion_and_integrity": {
+    "accepted_artifacts": [
+      {
+        "evidence_kind": "evidence.led_rollup_v1",
+        "immutability": "append_only",
+        "integrity": {
+          "checksum": "sha256",
+          "signature": "forbidden_without_SEC-1"
+        },
+        "required_fields": [
+          "org_id",
+          "window_start_utc",
+          "window_end_utc",
+          "currency",
+          "amount_minor_units",
+          "posting_ids_sorted_binary",
+          "semantic_hash"
+        ],
+        "source_contract": "LED-1"
+      },
+      {
+        "evidence_kind": "evidence.bi_metric_extract_v1",
+        "immutability": "append_only",
+        "integrity": {
+          "checksum": "sha256"
+        },
+        "required_fields": [
+          "org_id",
+          "metric_id",
+          "window_start_utc",
+          "window_end_utc",
+          "dimensions",
+          "value",
+          "provenance"
+        ],
+        "source_contract": "BI-1"
+      },
+      {
+        "evidence_kind": "evidence.ord_snapshot_extract_v1",
+        "immutability": "append_only",
+        "integrity": {
+          "checksum": "sha256"
+        },
+        "required_fields": [
+          "org_id",
+          "window_start_utc",
+          "window_end_utc",
+          "order_ids_sorted_binary",
+          "count",
+          "amount_minor_units"
+        ],
+        "source_contract": "ORD-1"
+      }
+    ],
+    "producer_requirements": [
+      {
+        "id": "recon1.requirement.zero_value_artifacts",
+        "must": true,
+        "statement": "Evidence producers (LED-1 rollups, BI-1 extracts, ORD-1 snapshots) MUST emit an artifact for every required evidence_kind for every scheduled window even when the value is zero. Absence of the artifact is classified as data_gap_missing_evidence."
+      }
+    ],
+    "retention_policy": {
+      "minimum_tier": "long",
+      "requires_ARCH-1": "NEW: proposed invariant — evidence retention tiers MUST be governed by ARCH-1 + DATA-1; until adopted, RECON evidence MUST be retained >= 400 days."
+    }
+  },
+  "generated_at_utc": "2026-02-11T12:16:59Z",
+  "idempotency_hash_spec": {
+    "notes": "When hashing over lists of posting_ids/order_ids, normalize to 16-byte UUID and sort by unsigned byte order.",
+    "uuid_sorting": "binary_16_byte_lexicographic_ascending"
+  },
+  "last_updated_utc": "2026-02-11T12:16:59Z",
+  "matching_rules": {
+    "fx_policy": {
+      "allowed": false,
+      "rule": "FX MUST NOT be applied inside RECON-1. If multi-currency consolidation is required, a dedicated FX contract MUST be introduced and referenced."
+    },
+    "invariants": [
+      {
+        "id": "recon1.invariant.currency_source_of_truth",
+        "must": true,
+        "statement": "If a reconciled metric declares a currency dimension, all evidence sources participating in the join MUST use the same ISO 4217 currency code for the same org_id and window. If not, the variance MUST be classified as currency_mismatch and treated as payout/close blocking."
+      },
+      {
+        "id": "recon1.invariant.binary_uuid_sort_producer",
+        "must": true,
+        "statement": "Any evidence artifact consumed by RECON-1 that includes lists of UUID identifiers (e.g., posting_ids, order_ids) MUST normalize each UUID to raw 16-byte form and sort by unsigned lexicographic byte order (ascending) before hashing/signing. Sorting UUID strings is forbidden."
+      }
+    ],
+    "join_keys_policies": [
+      {
+        "join_keys": [
+          "org_id",
+          "currency",
+          "time_bucket",
+          "window_start_utc",
+          "window_end_utc"
+        ],
+        "join_keys_policy_id": "join_keys.standard_finance_v1",
+        "notes": "All financial reconciliations are per-org, per-currency, per-window."
+      },
+      {
+        "join_keys": [
+          "org_id",
+          "time_bucket",
+          "window_start_utc",
+          "window_end_utc"
+        ],
+        "join_keys_policy_id": "join_keys.standard_ops_v1"
+      }
+    ],
+    "missingness_rules": {
+      "late_arriving_postings": "Late postings within lag allowance MUST classify as timing_lag and trigger rerun; after deadline MUST classify as corruption_suspected.",
+      "missing_evidence_vs_zero": "Missing evidence artifact MUST classify as data_gap_missing_evidence; zero values MUST require an explicit evidence artifact with value=0."
+    },
+    "tolerance_policies": [
+      {
+        "max_abs_delta": 0,
+        "policy": "absolute_minor_units",
+        "rounding": "none",
+        "tolerance_policy_id": "tolerance.exact_zero"
+      },
+      {
+        "max_abs_delta": 100,
+        "policy": "absolute_minor_units",
+        "rounding": "bankers_rounding_minor_units",
+        "timing_lag_allowance": "within late_arrival_policy.max_lag_after_window_close",
+        "tolerance_policy_id": "tolerance.default_bounded_v1"
+      }
+    ]
+  },
+  "normative_source": {
+    "mode": "legislative",
+    "program": "V42 Enterprise Ticketing"
+  },
+  "observability": {
+    "alerting": {
+      "blocker_classes_alert_severity": "P0",
+      "incident_linkage": "MUST link blocker alerts to incident_id if OBS-1 incident system is enabled.",
+      "warn_classes_alert_severity": "P2"
+    },
+    "requires_OBS-1": true,
+    "telemetry_minimum": [
+      "recon.run.started",
+      "recon.run.completed",
+      "recon.run.failed",
+      "recon.variance.count_by_class",
+      "recon.blocker.count_by_class",
+      "recon.evidence.missing_rate",
+      "recon.blocker.time_to_clear_seconds"
+    ]
+  },
+  "override_and_adjudication": {
+    "audit_requirements": {
+      "append_only": true,
+      "notes": "Overrides document acceptance only and MUST NOT mutate ledger or snapshots.",
+      "reason_code_enum": [
+        "evidence_late_expected",
+        "known_provider_delay",
+        "known_ops_delay",
+        "accepted_rounding",
+        "approved_emergency_hold"
+      ],
+      "required_fields": [
+        "org_id",
+        "run_id",
+        "variance_class",
+        "decision",
+        "reason_code",
+        "reason_text",
+        "actor_id",
+        "approved_by_actor_id",
+        "created_at_utc"
+      ]
+    },
+    "capabilities_required": {
+      "apply_override": "NEW: proposed invariant — recon.override.apply",
+      "approve_override_two_person": "NEW: proposed invariant — recon.override.approve",
+      "run_manual": "NEW: proposed invariant — recon.run.manual"
+    },
+    "two_person_rule": {
+      "required_for_classes": [
+        "corruption_suspected",
+        "provider_mismatch",
+        "data_gap_missing_evidence"
+      ],
+      "rule": "One actor MUST propose override, a distinct actor MUST approve."
+    }
+  },
+  "purpose_and_boundaries": {
+    "does_not_own": [
+      "metric_definitions_and_units (BI-1)",
+      "ledger_postings_and_journals (LED-1)",
+      "order_lifecycle_and_state_machine (ORD-1)",
+      "price_snapshot_mutation (PRICE-1)"
+    ],
+    "hard_bans": [
+      "RECON-1 MUST NOT mutate ledger postings.",
+      "RECON-1 MUST NOT recompute or rewrite order or price snapshots.",
+      "RECON-1 MUST NOT accept manual spreadsheet adjustments as reconciliation evidence."
+    ],
+    "owns": [
+      "reconciliation_runs",
+      "evidence_requirements",
+      "deterministic_matching_rules",
+      "variance_classification",
+      "override_and_adjudication_workflow",
+      "close_and_payout_blockers",
+      "rebuild_backfill_interlock",
+      "reconciliation_observability"
+    ]
+  },
+  "rebuild_backfill_interaction": {
+    "behavior": {
+      "during_rebuild": "Classify as expected_backfill and block close/payout.",
+      "post_rebuild": "A post-rebuild reconciliation rerun MUST be triggered for all affected windows before close unlock."
+    },
+    "requires_DMSC-1": "NEW: proposed invariant — a DMSC-1 controlled rebuild/backfill window MUST publish a rebuild_marker evidence artifact."
+  },
+  "reconciliation_matrix": {
+    "targets": [
+      {
+        "evidence_requirements": [
+          "evidence.led_rollup_v1",
+          "evidence.bi_metric_extract_v1"
+        ],
+        "join_keys_policy_id": "join_keys.standard_finance_v1",
+        "lane": "reconciliation_lane",
+        "metric_id": "finance.gross_revenue_settled.day",
+        "time_bucket": "day",
+        "tolerance_policy_id": "tolerance.exact_zero",
+        "truth_alignment": "ledger_exact",
+        "truth_source": "led_settled"
+      },
+      {
+        "evidence_requirements": [
+          "evidence.led_rollup_v1",
+          "evidence.bi_metric_extract_v1"
+        ],
+        "join_keys_policy_id": "join_keys.standard_finance_v1",
+        "lane": "reconciliation_lane",
+        "metric_id": "finance.net_revenue_settled.day",
+        "time_bucket": "day",
+        "tolerance_policy_id": "tolerance.exact_zero",
+        "truth_alignment": "ledger_exact",
+        "truth_source": "led_settled"
+      },
+      {
+        "evidence_requirements": [
+          "evidence.led_rollup_v1",
+          "evidence.bi_metric_extract_v1"
+        ],
+        "join_keys_policy_id": "join_keys.standard_finance_v1",
+        "lane": "reconciliation_lane",
+        "metric_id": "finance.refunds_settled.day",
+        "time_bucket": "day",
+        "tolerance_policy_id": "tolerance.exact_zero",
+        "truth_alignment": "ledger_exact",
+        "truth_source": "led_settled"
+      },
+      {
+        "evidence_requirements": [
+          "evidence.ord_snapshot_extract_v1",
+          "evidence.bi_metric_extract_v1"
+        ],
+        "join_keys_policy_id": "join_keys.standard_finance_v1",
+        "lane": "reconciliation_lane",
+        "metric_id": "finance.gross_revenue_committed.day",
+        "time_bucket": "day",
+        "tolerance_policy_id": "tolerance.default_bounded_v1",
+        "truth_alignment": "ledger_bounded",
+        "truth_source": "ord_committed"
+      },
+      {
+        "evidence_requirements": [
+          "evidence.ord_snapshot_extract_v1",
+          "evidence.bi_metric_extract_v1"
+        ],
+        "join_keys_policy_id": "join_keys.standard_finance_v1",
+        "lane": "reconciliation_lane",
+        "metric_id": "finance.tickets_sold_committed.day",
+        "time_bucket": "day",
+        "tolerance_policy_id": "tolerance.default_bounded_v1",
+        "truth_alignment": "ledger_bounded",
+        "truth_source": "ord_committed"
+      }
+    ],
+    "truth_alignment_definitions": {
+      "ledger_bounded": "MUST match within the referenced tolerance_policy; exceeding tolerance MUST classify as blocker unless override is applied.",
+      "ledger_exact": "MUST match LED-1 derived rollups exactly (0 tolerance) for the window and join domain.",
+      "provider_matched": "MUST match external provider statement AND reconcile back to LED-1; FORBIDDEN unless a provider_statement contract is a declared dependency."
+    },
+    "windowing": {
+      "late_arrival_policy": {
+        "after_deadline_classify_as": "corruption_suspected",
+        "classify_as": "timing_lag",
+        "max_lag_after_window_close": "72h"
+      },
+      "time_buckets": {
+        "day": {
+          "end_exclusive": "24:00:00Z",
+          "start_inclusive": "00:00:00Z"
+        }
+      },
+      "timezone": "UTC",
+      "truth_timestamp_rules": {
+        "led_settled": "posting_time_utc",
+        "ord_committed": "event_time_utc"
+      }
+    }
+  },
+  "run_model": {
+    "admission_control": {
+      "jitter_start_seconds": {
+        "max": 120,
+        "min": 5
+      },
+      "max_concurrent_global": 8,
+      "max_concurrent_per_org": 1,
+      "must_use_obqc_admission": true,
+      "obqc_queue_name": "recon_window_runs",
+      "statement": "Scheduled recon runs MUST apply jitter and MUST pass OBQC admission before attempting to acquire LOCKS-1 recon_window locks. If admission is denied, the run MUST backoff with exponential delay capped at 10 minutes."
+    },
+    "concurrency_and_locking": {
+      "lock_contract": "LOCKS-1",
+      "lock_key_shape": [
+        "org_id",
+        "recon_profile_id",
+        "window_start_utc",
+        "window_end_utc"
+      ],
+      "lock_mode": "exclusive",
+      "lock_namespace": "NEW: proposed invariant — recon_window",
+      "lock_ordering": "recon_window locks MUST be acquired after ledger_posting and before payout_run in the LOCKS-1 canonical order; until LOCKS-1 is patched to include recon_window, RECON-1 MUST NOT be deployed.",
+      "single_active_run_per_org_window_profile": true
+    },
+    "locking": {
+      "entity_key_encoding": "[window_start_iso8601]#[recon_profile_id]",
+      "exclusive_required_for_runs": true,
+      "lock_order_required": "ledger_period < recon_window < payout_run",
+      "namespace": "recon_window",
+      "shared_required_for_payout_consumers": true,
+      "statement": "RECON-1 runs MUST acquire exclusive recon_window locks for their scope. Consumers that must not operate mid-reconciliation (e.g., payout pipelines) MUST acquire shared recon_window locks on the same scope before acquiring payout_run locks."
+    },
+    "retry_posture": {
+      "mechanism": "Oban_only",
+      "requires_DP-1": "NEW: proposed invariant — async retry/backoff policy SHOULD be governed by DP-1; until adopted, retries MUST use exponential backoff with max 12 attempts."
+    },
+    "run_identity": {
+      "idempotency_key_fields": [
+        "org_id",
+        "recon_profile_id",
+        "window_start_utc",
+        "window_end_utc",
+        "schema_rev",
+        "contract_version"
+      ],
+      "run_id": "uuid_v7",
+      "schema_rev": "integer monotonically increasing for breaking changes"
+    },
+    "scheduling": {
+      "default_schedule_from_BI-1_lane": {
+        "reconciliation_lane": {
+          "cadence": "15m",
+          "jitter_sec": 90
+        }
+      },
+      "minimum_first_run_delay_after_window_end": "10m"
+    },
+    "triggers_allowed": [
+      "scheduled",
+      "manual_admin_trigger (requires IAM capability)",
+      "post_rebuild_trigger (requires DMSC-1 interlock)"
+    ]
+  },
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines deterministic reconciliation runs, evidence requirements, variance taxonomy, adjudication workflow, and close/payout blockers that bridge BI-1 definitions with LED-1 financial truth.",
+  "tenancy": {
+    "cross_tenant_access": "hard_fail",
+    "requires_org_id": true,
+    "tenant_injection": "transaction_local (Postgres RLS)"
+  },
+  "tier": "foundational",
+  "title": "RECON-1 — Reconciliation, Variance Classification, and Close Enforcement",
+  "variance_taxonomy": {
+    "classes": [
+      {
+        "actions": [
+          "record_ok"
+        ],
+        "blocks_close": false,
+        "blocks_payout": false,
+        "class": "none",
+        "severity": "info"
+      },
+      {
+        "actions": [
+          "record_ok"
+        ],
+        "blocks_close": false,
+        "blocks_payout": false,
+        "class": "tolerance_ok",
+        "severity": "info"
+      },
+      {
+        "actions": [
+          "alert_ops_if_rate_high"
+        ],
+        "blocks_close": false,
+        "blocks_payout": false,
+        "class": "rounding",
+        "severity": "warn"
+      },
+      {
+        "actions": [
+          "schedule_rerun_until_deadline"
+        ],
+        "blocks_close": false,
+        "blocks_payout": false,
+        "class": "timing_lag",
+        "severity": "warn"
+      },
+      {
+        "actions": [
+          "block_close",
+          "require_post_backfill_rerun"
+        ],
+        "blocks_close": true,
+        "blocks_payout": true,
+        "class": "expected_backfill",
+        "severity": "warn"
+      },
+      {
+        "actions": [
+          "alert_p0",
+          "open_incident"
+        ],
+        "blocks_close": true,
+        "blocks_payout": true,
+        "class": "data_gap_missing_evidence",
+        "severity": "blocker"
+      },
+      {
+        "actions": [
+          "alert_p0",
+          "open_incident",
+          "freeze_payouts"
+        ],
+        "blocks_close": true,
+        "blocks_payout": true,
+        "class": "corruption_suspected",
+        "severity": "blocker"
+      },
+      {
+        "actions": [
+          "alert_p0",
+          "open_incident"
+        ],
+        "blocks_close": true,
+        "blocks_payout": true,
+        "class": "provider_mismatch",
+        "severity": "blocker"
+      },
+      {
+        "actions": [
+          "require_audit",
+          "schedule_remediation_ticket"
+        ],
+        "blocks_close": false,
+        "blocks_payout": false,
+        "class": "manual_override_applied",
+        "severity": "warn"
+      },
+      {
+        "actions": [
+          "alert_p0",
+          "open_incident",
+          "block_close",
+          "freeze_payouts"
+        ],
+        "blocks_close": true,
+        "blocks_payout": true,
+        "class": "currency_mismatch",
+        "severity": "blocker"
+      }
+    ],
+    "classification_rules": {
+      "corruption_suspected": "Deltas exceed tolerance OR evidence contradicts immutable sources OR late arrival beyond deadline.",
+      "currency_mismatch": "Join keys incompatible due to currency dimension mismatch between evidence sources; treated as configuration/data contract mismatch.",
+      "data_gap_missing_evidence": "One or more required evidence artifacts missing.",
+      "expected_backfill": "Run occurs during an approved rebuild/backfill window; close MUST be blocked.",
+      "manual_override_applied": "Variance accepted by authorized override; remediation ticket MUST be created.",
+      "none": "All joins match and deltas are zero.",
+      "provider_mismatch": "External provider statement mismatch where provider_matched is enabled.",
+      "rounding": "Deltas attributable to rounding policy only.",
+      "timing_lag": "Deltas attributable to late-arriving evidence within lag allowance.",
+      "tolerance_ok": "All joins match and deltas within tolerance."
+    },
+    "required_classes": [
+      "none",
+      "tolerance_ok",
+      "rounding",
+      "timing_lag",
+      "expected_backfill",
+      "data_gap_missing_evidence",
+      "corruption_suspected",
+      "provider_mismatch",
+      "manual_override_applied"
+    ]
+  },
+  "version": "1.0.3",
+  "outbox_events": [],
+  "notes": [
+    "RECON-1 MUST NOT emit domain events unless EVT-1 defines and registers the event types; observability signals are governed by OBS-1."
+  ]
+}

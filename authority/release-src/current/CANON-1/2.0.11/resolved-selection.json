@@ -1,0 +1,650 @@
+{
+  "dependency_closure": {
+    "below_minimum_edges": 0,
+    "edge_count": 728,
+    "invalid_dependency_records": 0,
+    "unresolved_required_edges": 0
+  },
+  "exclusions": [
+    {
+      "accepted_artifact_path": "contracts/EXT-1/EXT-1_bundle_v2.1.7.zip",
+      "doc_id": "EXT-1",
+      "membership_status": "ACCEPTED_DEPENDENCY_ONLY",
+      "reason": "Remediation D resolved EXT-1 as a valid accepted dependency that is not a top-level CANON member.",
+      "sha256": "01d843bdfde57a719a39f110536668efad4f7fa0ff34e69fea330194e06dd6a1",
+      "version": "2.1.7"
+    },
+    {
+      "doc_id": "FR-1",
+      "membership_status": "DEFERRED_NONBLOCKING",
+      "reason": "Owner decision D5 deferred FR-1; no current required dependency requires its promotion."
+    }
+  ],
+  "generated_contract": {
+    "doc_id": "CANON-1",
+    "version": "2.0.11"
+  },
+  "generation_inputs": {
+    "active_manifest_sha256": "e47dd6bee01c222ef7613f703e2c94c80b9c1cf64914729ef29380ef45ad453a",
+    "base_canon_version": "2.0.10",
+    "base_canon_zip_sha256": "ad893d881413f3407b8b3c608ac7c75008e88c47c88941d61d6fbb80a4708cfe",
+    "candidate_releases": [
+      {
+        "doc_id": "API-0",
+        "sha256": "72daa231aa64358318050bcaf0bb82c0d36d6e8e38a9638e911e9464201a3113",
+        "version": "1.2.0"
+      },
+      {
+        "doc_id": "DP-1",
+        "sha256": "da9f704013786f1931659659d5a59f6d3986600e56ec584a1e43ac93d8c41c5b",
+        "version": "3.0.0"
+      },
+      {
+        "doc_id": "ERR-1",
+        "sha256": "4376f55bc7ad6b64ec84ce7af19c3f26d39cecc0cae5324dc58ec498c5da7bce",
+        "version": "2.0.0"
+      },
+      {
+        "doc_id": "EVT-1",
+        "sha256": "8bb2eb3eb506fdfcd15efce4c0e09420e17d51b19fb98c9bc20d5f4d9f41ecd3",
+        "version": "3.0.0"
+      },
+      {
+        "doc_id": "EVT-2",
+        "sha256": "61eddff7863a5e77d05ad45533a8b8dd6e19bf436fdc8a07ec2897c394e914eb",
+        "version": "3.0.0"
+      },
+      {
+        "doc_id": "IAM-1",
+        "sha256": "68cb1313d52214933cb6f4ba2277ccbc464c7393879b5078085cd3ba8aed57cf",
+        "version": "4.0.0"
+      },
+      {
+        "doc_id": "IAM-2",
+        "sha256": "559e07f6ebb1c1f90b64dd73fd7f082b5089a391ed7dd22a1ff3ed399621b16b",
+        "version": "1.4.0"
+      },
+      {
+        "doc_id": "LOCKS-1",
+        "sha256": "af9f4be1af16a9818634553f49d510f8d1c59af009213ba06214dc87991949a8",
+        "version": "3.0.0"
+      },
+      {
+        "doc_id": "OBS-1",
+        "sha256": "dbe74836e2f0a784cebea332efd74cb76d87ea2016637f8d1b55ad3a68eb5c06",
+        "version": "2.9.0"
+      },
+      {
+        "doc_id": "OFFER-1",
+        "sha256": "6cda1ebf017fbd412d3ab6a542d068b428e8074cf94d4de2653ecfa5d614cfd8",
+        "version": "2.0.0"
+      },
+      {
+        "doc_id": "ORD-1",
+        "sha256": "01124134e3bc69de16762eaa83e8d407be8dba3ff3720aec8db4b10df690f428",
+        "version": "4.0.0"
+      },
+      {
+        "doc_id": "PII-1",
+        "sha256": "d665e5a95bf42f8070a446d15f8ec4941b9929a980f04e786cf6a3499672d193",
+        "version": "2.0.0"
+      },
+      {
+        "doc_id": "PRICE-1",
+        "sha256": "f5363937b2c1e514a190bfdea72e54757df0894aee18a7170d0acf47fa1d39e4",
+        "version": "4.0.0"
+      },
+      {
+        "doc_id": "RP-0",
+        "sha256": "c54779b88cb6068485ba3ecf78bd162a4c1eb2b62408a95cb5363246b91303d5",
+        "version": "4.0.0"
+      },
+      {
+        "doc_id": "SEAT-1",
+        "sha256": "3ee42fbc6e43e1a58233abb9de8b1cf5b23037d62dcf4add256af750267b07cc",
+        "version": "4.0.0"
+      },
+      {
+        "doc_id": "SEC-1",
+        "sha256": "58bea9f2f27e41e763a4fe48063565ca69d8d8ed5300f5a3ef5c872e18d3a556",
+        "version": "3.5.0"
+      },
+      {
+        "doc_id": "SM-0",
+        "sha256": "3e03291058d1b83c61531c2f1b40d1f556cf2c2a6d9d6049fc6e1bdd58fabd60",
+        "version": "1.3.0"
+      },
+      {
+        "doc_id": "TAX-1",
+        "sha256": "8ebaa619e4af2574fdfc72401fa7ff01e90a43bd32e75e59323487df22230749",
+        "version": "3.0.0"
+      },
+      {
+        "doc_id": "TEN-1",
+        "sha256": "11db8e130cfe63d4f32cf0dfd61356f27a69232899b872b082f5d9dd2008d8c8",
+        "version": "2.0.0"
+      }
+    ],
+    "dependency_closure_sha256": "2a566a10e1dea355faeaafd48a17793e8bff1e35cd8827aa7413873e4055c261",
+    "generator_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+    "generator_version": "2.0.0",
+    "manifest_validation_status": "VALID",
+    "superseded_identity_defects": []
+  },
+  "members": [
+    {
+      "accepted_artifact_path": "contracts/API-0/API-0_bundle_v1.2.0.zip",
+      "doc_id": "API-0",
+      "selection_basis": [
+        "explicit validated successor candidate for API-0"
+      ],
+      "sha256": "72daa231aa64358318050bcaf0bb82c0d36d6e8e38a9638e911e9464201a3113",
+      "version": "1.2.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/ARCH-1/ARCH-1_bundle_v3.0.4.zip",
+      "doc_id": "ARCH-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "28cc399b7bd42a7283e5d9420136f0c3fc62bf6b0af2a76132c3823565765621",
+      "version": "3.0.4"
+    },
+    {
+      "accepted_artifact_path": "contracts/ATP-1/ATP-1_bundle_v2.0.2.zip",
+      "doc_id": "ATP-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "8f40d2e2c99b9c473c55e5906696e4fd210e2c5c460a46a11171c4380672f2b0",
+      "version": "2.0.2"
+    },
+    {
+      "accepted_artifact_path": "contracts/BI-1/BI-1_bundle_v1.0.2.zip",
+      "doc_id": "BI-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "15ffc4865fe4d7179541100b41024446d39447bd4c70b91f021aad1dbaa2e1f5",
+      "version": "1.0.2"
+    },
+    {
+      "accepted_artifact_path": "contracts/BP-0/BP-0_bundle_v3.0.1.zip",
+      "doc_id": "BP-0",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "dfd12e89e6e38cf63b281247934028e0533023c6ce670d84d3b7178920270964",
+      "version": "3.0.1"
+    },
+    {
+      "accepted_artifact_path": "contracts/CG-0/CG-0_bundle_v2.2.2.zip",
+      "doc_id": "CG-0",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "95d41a8578518e38d9b6a54572ee60145b0895281d5f9f80a469b0fe0784e017",
+      "version": "2.2.2"
+    },
+    {
+      "accepted_artifact_path": "contracts/COMM-1/COMM-1_bundle_v1.1.6.zip",
+      "doc_id": "COMM-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "5d4fe258d032ea8b1c0fa934e3b37f7b77e6850a5aa0f25bafe3f5d1df6f5b59",
+      "version": "1.1.6"
+    },
+    {
+      "accepted_artifact_path": "contracts/CONSENT-1/CONSENT-1_bundle_v1.1.3.zip",
+      "doc_id": "CONSENT-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "51c25cbd5ef0d13d4e8adb9c59333d173cc2c9570bce955b5ac977e670c30750",
+      "version": "1.1.3"
+    },
+    {
+      "accepted_artifact_path": "contracts/CS-0/CS-0_bundle_v3.0.1.zip",
+      "doc_id": "CS-0",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "23bdfa2b2ca4f298518f715e34cff697f2263bb29b0f6915ffdbede63cecb6bf",
+      "version": "3.0.1"
+    },
+    {
+      "accepted_artifact_path": "contracts/DATA-1/DATA-1_bundle_v2.0.3.zip",
+      "doc_id": "DATA-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "b1da2c34cbae81d8ab69d80cb8e222e6c90bb7048bcc0ee7f658fe040b159de5",
+      "version": "2.0.3"
+    },
+    {
+      "accepted_artifact_path": "contracts/DMSC-1/DMSC-1_bundle_v2.2.2.zip",
+      "doc_id": "DMSC-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "09f179d93a759673be2aa39f50fe231e282a671f010cd2af204107e119305f7b",
+      "version": "2.2.2"
+    },
+    {
+      "accepted_artifact_path": "contracts/DP-1/DP-1_bundle_v3.0.0.zip",
+      "doc_id": "DP-1",
+      "selection_basis": [
+        "explicit validated successor candidate for DP-1"
+      ],
+      "sha256": "da9f704013786f1931659659d5a59f6d3986600e56ec584a1e43ac93d8c41c5b",
+      "version": "3.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/DSAR-1/DSAR-1_bundle_v1.2.2.zip",
+      "doc_id": "DSAR-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "9ddc86a9ab88b9a9921ef937f620c462af8bee0679b76565399a810f1652086c",
+      "version": "1.2.2"
+    },
+    {
+      "accepted_artifact_path": "contracts/ERR-1/ERR-1_bundle_v2.0.0.zip",
+      "doc_id": "ERR-1",
+      "selection_basis": [
+        "explicit validated successor candidate for ERR-1"
+      ],
+      "sha256": "4376f55bc7ad6b64ec84ce7af19c3f26d39cecc0cae5324dc58ec498c5da7bce",
+      "version": "2.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/EVT-1/EVT-1_bundle_v3.0.0.zip",
+      "doc_id": "EVT-1",
+      "selection_basis": [
+        "explicit validated successor candidate for EVT-1"
+      ],
+      "sha256": "8bb2eb3eb506fdfcd15efce4c0e09420e17d51b19fb98c9bc20d5f4d9f41ecd3",
+      "version": "3.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/EVT-2/EVT-2_bundle_v3.0.0.zip",
+      "doc_id": "EVT-2",
+      "selection_basis": [
+        "explicit validated successor candidate for EVT-2"
+      ],
+      "sha256": "61eddff7863a5e77d05ad45533a8b8dd6e19bf436fdc8a07ec2897c394e914eb",
+      "version": "3.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/GOV-0/GOV-0_bundle_v2.1.1.zip",
+      "doc_id": "GOV-0",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "95c1e2c2a72c67dfa7422fe2bd5bd94e219df5ef7c4dd89c26a6af94797d0048",
+      "version": "2.1.1"
+    },
+    {
+      "accepted_artifact_path": "contracts/IAM-1/IAM-1_bundle_v4.0.0.zip",
+      "doc_id": "IAM-1",
+      "selection_basis": [
+        "explicit validated successor candidate for IAM-1"
+      ],
+      "sha256": "68cb1313d52214933cb6f4ba2277ccbc464c7393879b5078085cd3ba8aed57cf",
+      "version": "4.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/IAM-2/IAM-2_bundle_v1.4.0.zip",
+      "doc_id": "IAM-2",
+      "selection_basis": [
+        "explicit validated successor candidate for IAM-2"
+      ],
+      "sha256": "559e07f6ebb1c1f90b64dd73fd7f082b5089a391ed7dd22a1ff3ed399621b16b",
+      "version": "1.4.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/IAM-3/IAM-3_bundle_v1.1.2.zip",
+      "doc_id": "IAM-3",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "453a57d85efbff63a2e887376cf67ff80c1f3300015b9837790ee15a5928791d",
+      "version": "1.1.2"
+    },
+    {
+      "accepted_artifact_path": "contracts/INT-1/INT-1_bundle_v1.0.4.zip",
+      "doc_id": "INT-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "bfd7e5328c4334bcbfb93dce81602bee226e9a4003e09048d0e1a141df0046ef",
+      "version": "1.0.4"
+    },
+    {
+      "accepted_artifact_path": "contracts/IR-1/IR-1_bundle_v1.5.0.zip",
+      "doc_id": "IR-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "17ae23b64eca50fc5e11e921042a62968698d243b2ae7b251653db90263d5597",
+      "version": "1.5.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/LED-1/LED-1_bundle_v4.4.7.zip",
+      "doc_id": "LED-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "983cdc88d02c4563481164305511a286c71a306de72017153d829888f5c6fae3",
+      "version": "4.4.7"
+    },
+    {
+      "accepted_artifact_path": "contracts/LINT-0/LINT-0_bundle_v2.1.1.zip",
+      "doc_id": "LINT-0",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "d19790df443a402f5be0af64dff67eca143249afc16e066c67bb3315547eb48f",
+      "version": "2.1.1"
+    },
+    {
+      "accepted_artifact_path": "contracts/LOCKS-1/LOCKS-1_bundle_v3.0.0.zip",
+      "doc_id": "LOCKS-1",
+      "selection_basis": [
+        "explicit validated successor candidate for LOCKS-1"
+      ],
+      "sha256": "af9f4be1af16a9818634553f49d510f8d1c59af009213ba06214dc87991949a8",
+      "version": "3.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/NOTIF-1/NOTIF-1_bundle_v1.0.5.zip",
+      "doc_id": "NOTIF-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "2ba23b56b39a89e6df4b3acbc303a996442c1db7b3b8313614a624edf26dee54",
+      "version": "1.0.5"
+    },
+    {
+      "accepted_artifact_path": "contracts/OBQC-1/OBQC-1_bundle_v2.1.9.zip",
+      "doc_id": "OBQC-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "f5da57378e0f8f294f020af98c397c1ca84e632f2cdcd22a63b7db9c07800eea",
+      "version": "2.1.9"
+    },
+    {
+      "accepted_artifact_path": "contracts/OBS-1/OBS-1_bundle_v2.9.0.zip",
+      "doc_id": "OBS-1",
+      "selection_basis": [
+        "explicit validated successor candidate for OBS-1"
+      ],
+      "sha256": "dbe74836e2f0a784cebea332efd74cb76d87ea2016637f8d1b55ad3a68eb5c06",
+      "version": "2.9.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/OFFER-1/OFFER-1_bundle_v2.0.0.zip",
+      "doc_id": "OFFER-1",
+      "selection_basis": [
+        "explicit validated successor candidate for OFFER-1"
+      ],
+      "sha256": "6cda1ebf017fbd412d3ab6a542d068b428e8074cf94d4de2653ecfa5d614cfd8",
+      "version": "2.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/ORD-1/ORD-1_bundle_v4.0.0.zip",
+      "doc_id": "ORD-1",
+      "selection_basis": [
+        "explicit validated successor candidate for ORD-1"
+      ],
+      "sha256": "01124134e3bc69de16762eaa83e8d407be8dba3ff3720aec8db4b10df690f428",
+      "version": "4.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/PAY-1/PAY-1_bundle_v2.10.3.zip",
+      "doc_id": "PAY-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "b77d6d6187a675a683e0bf97fc0e1121499b63e6d3d101af6fba4343967b6d94",
+      "version": "2.10.3"
+    },
+    {
+      "accepted_artifact_path": "contracts/PAY-2/PAY-2_bundle_v2.10.3.zip",
+      "doc_id": "PAY-2",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "baa91ead9beae3b6b2efc932884ef582e8569943789b907671ac38b4f911570f",
+      "version": "2.10.3"
+    },
+    {
+      "accepted_artifact_path": "contracts/PAY-3/PAY-3_bundle_v2.10.8.zip",
+      "doc_id": "PAY-3",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "bab4c2499c59191b71cb1950c14e70e59974a2db5ab797d341edd43847b5ae6a",
+      "version": "2.10.8"
+    },
+    {
+      "accepted_artifact_path": "contracts/PAY-4/PAY-4_bundle_v2.5.2.zip",
+      "doc_id": "PAY-4",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "5a74cdf165493d48c5500c948aa982f5d8d8eccf1bc8fa270f715a8cdcb23bcf",
+      "version": "2.5.2"
+    },
+    {
+      "accepted_artifact_path": "contracts/PII-1/PII-1_bundle_v2.0.0.zip",
+      "doc_id": "PII-1",
+      "selection_basis": [
+        "explicit validated successor candidate for PII-1"
+      ],
+      "sha256": "d665e5a95bf42f8070a446d15f8ec4941b9929a980f04e786cf6a3499672d193",
+      "version": "2.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/PRICE-1/PRICE-1_bundle_v4.0.0.zip",
+      "doc_id": "PRICE-1",
+      "selection_basis": [
+        "explicit validated successor candidate for PRICE-1"
+      ],
+      "sha256": "f5363937b2c1e514a190bfdea72e54757df0894aee18a7170d0acf47fa1d39e4",
+      "version": "4.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/PROD-1/PROD-1_bundle_v1.2.2.zip",
+      "doc_id": "PROD-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "eaa3f06faa44cd49917dedf53e8f8859755b4f9d52a4ed9ff72008ea48d8a3fa",
+      "version": "1.2.2"
+    },
+    {
+      "accepted_artifact_path": "contracts/PSC-1/PSC-1_bundle_v1.8.3.zip",
+      "doc_id": "PSC-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "3fd0e937199d6eb4cd74b453d723fe0c73011f6352339d3dc1164ee708789289",
+      "version": "1.8.3"
+    },
+    {
+      "accepted_artifact_path": "contracts/QA-0/QA-0_bundle_v1.1.1.zip",
+      "doc_id": "QA-0",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "d8a6fbe9e7e0f569bfa509d3982d661e40f4865b74d13e79ec50aa58698e580b",
+      "version": "1.1.1"
+    },
+    {
+      "accepted_artifact_path": "contracts/QUORUM-1/QUORUM-1_bundle_v1.0.1.zip",
+      "doc_id": "QUORUM-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "3081d0b51a1e3c9c3bde55698ec27c26459e8e173cbbdbf91c5c4b2dd24861b8",
+      "version": "1.0.1"
+    },
+    {
+      "accepted_artifact_path": "contracts/RECON-1/RECON-1_bundle_v1.0.3.zip",
+      "doc_id": "RECON-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "3515434a76568794c6f7510b86d56f7443e6d5d5348b0a7293781df2e511a875",
+      "version": "1.0.3"
+    },
+    {
+      "accepted_artifact_path": "contracts/REFUND-1/REFUND-1_bundle_v1.7.3.zip",
+      "doc_id": "REFUND-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "7fff0df53bcc364546c4db0f37e14ec6f06eaa646b4a0cadf94b3d0d5c89d7b0",
+      "version": "1.7.3"
+    },
+    {
+      "accepted_artifact_path": "contracts/RP-0/RP-0_bundle_v4.0.0.zip",
+      "doc_id": "RP-0",
+      "selection_basis": [
+        "explicit validated successor candidate for RP-0"
+      ],
+      "sha256": "c54779b88cb6068485ba3ecf78bd162a4c1eb2b62408a95cb5363246b91303d5",
+      "version": "4.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/RUST-1/RUST-1_bundle_v1.4.0.zip",
+      "doc_id": "RUST-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "65e4fb0b8fad66f27ed3ce9f4980109dd881beef4306229fd83a876509e35267",
+      "version": "1.4.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/SCA-1/SCA-1_bundle_v1.0.5.zip",
+      "doc_id": "SCA-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "0a3570c31646d312df7c680c2023348222445639e3b80143c71465631b487279",
+      "version": "1.0.5"
+    },
+    {
+      "accepted_artifact_path": "contracts/SCAN-1/SCAN-1_bundle_v1.6.4.zip",
+      "doc_id": "SCAN-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "edbcf29ad6f0630aa968351cf2d2409af589d73d5ed5217737c92909d5bdddac",
+      "version": "1.6.4"
+    },
+    {
+      "accepted_artifact_path": "contracts/SEAT-1/SEAT-1_bundle_v4.0.0.zip",
+      "doc_id": "SEAT-1",
+      "selection_basis": [
+        "explicit validated successor candidate for SEAT-1"
+      ],
+      "sha256": "3ee42fbc6e43e1a58233abb9de8b1cf5b23037d62dcf4add256af750267b07cc",
+      "version": "4.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/SEC-1/SEC-1_bundle_v3.5.0.zip",
+      "doc_id": "SEC-1",
+      "selection_basis": [
+        "explicit validated successor candidate for SEC-1"
+      ],
+      "sha256": "58bea9f2f27e41e763a4fe48063565ca69d8d8ed5300f5a3ef5c872e18d3a556",
+      "version": "3.5.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/SM-0/SM-0_bundle_v1.3.0.zip",
+      "doc_id": "SM-0",
+      "selection_basis": [
+        "explicit validated successor candidate for SM-0"
+      ],
+      "sha256": "3e03291058d1b83c61531c2f1b40d1f556cf2c2a6d9d6049fc6e1bdd58fabd60",
+      "version": "1.3.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/SUB-1/SUB-1_bundle_v1.2.1.zip",
+      "doc_id": "SUB-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "8f2952a910f07fa67d9d3058fc8df5e27d2ccabd16302509ae8958c3b6dcdd6b",
+      "version": "1.2.1"
+    },
+    {
+      "accepted_artifact_path": "contracts/TAX-1/TAX-1_bundle_v3.0.0.zip",
+      "doc_id": "TAX-1",
+      "selection_basis": [
+        "explicit validated successor candidate for TAX-1"
+      ],
+      "sha256": "8ebaa619e4af2574fdfc72401fa7ff01e90a43bd32e75e59323487df22230749",
+      "version": "3.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/TEN-1/TEN-1_bundle_v2.0.0.zip",
+      "doc_id": "TEN-1",
+      "selection_basis": [
+        "explicit validated successor candidate for TEN-1"
+      ],
+      "sha256": "11db8e130cfe63d4f32cf0dfd61356f27a69232899b872b082f5d9dd2008d8c8",
+      "version": "2.0.0"
+    },
+    {
+      "accepted_artifact_path": "contracts/TG-0/TG-0_bundle_v2.3.2.zip",
+      "doc_id": "TG-0",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "86ada69596f9724b387c59a559a6bb3cbfd0375175e294e50401e358280a3fcc",
+      "version": "2.3.2"
+    },
+    {
+      "accepted_artifact_path": "contracts/TKT-1/TKT-1_bundle_v1.5.12.zip",
+      "doc_id": "TKT-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "daba9e0f6d653f99a52ac571da77498f4016fa48b2d8cc754154ff71518f59fb",
+      "version": "1.5.12"
+    },
+    {
+      "accepted_artifact_path": "contracts/TRK-1/TRK-1_bundle_v1.3.3.zip",
+      "doc_id": "TRK-1",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "dbf006c1e7b289e4757bc962c207280c6315f8823c213f21276da6073d626abb",
+      "version": "1.3.3"
+    },
+    {
+      "accepted_artifact_path": "contracts/V42-0/V42-0_bundle_v1.8.2.zip",
+      "doc_id": "V42-0",
+      "selection_basis": [
+        "preserved from validated current CANON pin"
+      ],
+      "sha256": "8a293eb436912842a1b88ddd83e83d81c6bf8142118c5d2833ae92b35372556e",
+      "version": "1.8.2"
+    }
+  ],
+  "not_current_versions": [
+    {
+      "doc_id": "LED-1",
+      "path": "ticketing-contracts/CS3.0-REFACTORED/LED-1_bundle_v4.6.1_refactored.zip",
+      "reason": "Owner selected accepted LED-1 v4.4.7; v4.6.1 is an incomplete successor whose removed controls and revenue-proof concerns remain unresolved.",
+      "sha256": "9c0ac99da959e854f4a9d2dc4a1938617865e84e39da6be4b45b797552369325",
+      "status": "INCOMPLETE_SUPERSESSOR_NOT_CURRENT",
+      "version": "4.6.1"
+    }
+  ]
+}

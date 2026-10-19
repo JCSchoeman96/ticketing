@@ -1,0 +1,2211 @@
+{
+  "admission_scope": {
+    "notes": [
+      "occurrence_id is the admission truth key (suite-wide no-drift decision).",
+      "EVT-2 owns check-in open/close and scan_policy per occurrence; scanners enforce those windows."
+    ],
+    "scope": "occurrence_level",
+    "truth_key": "occurrence_id"
+  },
+  "artifact_kind": "contract",
+  "artifact_name": "TKT-1_Contract_v1.5.12.json",
+  "change_log": [
+    {
+      "date_utc": "2026-02-07T14:58:10Z",
+      "items": [
+        "Add offline hydration slot production rules for ticket revocations (SEC-1.HYDRATION_MANIFEST.v1).",
+        "Align credential canonicalization + encoding with SEC-1 (JCS + Base64URL no padding).",
+        "Harden dependency floors: EVT-1 2.16.4, EVT-2 2.4.1, SEC-1 3.3.1, SCAN-1 1.4.2, IAM-1 3.4.4."
+      ],
+      "summary": "Hydration revocation slot + crypto primitive alignment (SEC-1 3.3.1).",
+      "version": "1.5.3"
+    },
+    {
+      "changes": [
+        "Lock Ticket trinity bindings: occurrence_id, pricing_snapshot_id, pricing_line_id, order_id, checkout_group_id (immutable after issuance).",
+        "Standardize occurrence binding to a single occurrence_id (Ticket + TicketCredential).",
+        "Rename ticket pricing snapshot field to pricing_snapshot_id; update issuance triggers accordingly.",
+        "Expand Ticket.status enum to: issued, active, scanned, completed, revoked, expired; define semantics in P0 invariants."
+      ],
+      "date_utc": "2026-01-28T07:10:19Z",
+      "version": "1.3.1"
+    },
+    {
+      "changes": [
+        "Initial draft defining ticket issuance boundary (paid/verified), credential lifecycle, revocation, transfer, and PII-free QR/wallet rules.",
+        "Defines core data model resources: Ticket, TicketCredential, TicketRevocation, TicketTransfer, TicketTemplate, TicketRenderArtifact, TicketWalletBinding."
+      ],
+      "date_utc": "2026-01-24T08:36:31Z",
+      "version": "1.0.0"
+    },
+    {
+      "changes": [
+        "Patch: CS-0 schema compliance for bundle.manifest.json and Test Gates assertions (mode/details).",
+        "No semantic changes to ticket issuance, credentialing, or offline/online scan posture."
+      ],
+      "date_utc": "2026-01-24T12:49:22Z",
+      "version": "1.0.1"
+    },
+    {
+      "changes": [
+        "CI strict compliance: rebuilt Test Gates to match deterministic assertion whitelist (v2.7.0).",
+        "CI strict compliance: regenerated bundle.manifest.json per CS-0@2.2.0 (bundle_id/bundle_version, bytes, relative paths)."
+      ],
+      "date_utc": "2026-01-24T12:51:49Z",
+      "version": "1.0.2"
+    },
+    {
+      "changes": [
+        "P0: Issuance boundary pinned to ORD-1 ticketing.order.finalized.v1 (money-confirmed) and explicit non-final money states forbidden.",
+        "P0: Normative credential envelope TKT-CRED-V1 with required header/claims, Ed25519 signing, kid requirement, and explicit non-PII forbidden claim list.",
+        "P0: Key management semantics: active/grace/revoked key states; offline hydration MUST include active+grace keys; compromise requires forced reissue + kid revocation.",
+        "P0: Offline-enforceable supersession: transfer/reissue/rotation MUST create a new TicketCredential; old credential MUST be superseded + appended TicketRevocation with superseded_by_ticket_credential_id; hydration MUST include revoked/superseded sets.",
+        "P0: Revocation reasons now require reason_subcode (ERR-1) + revocation_authority with optional causal refs (refund/dispute/transfer/admin/security).",
+        "P0: EVT-2 occurrence reschedule hooks: artifacts marked stale; wallet updates enqueued; PDFs regenerated without changing credential identity unless binding changes.",
+        "P1: Wallet binding operational state expanded (provider/external_pass_id/status/retries/last_error_subcode).",
+        "P1: Render artifact versioning expanded (kinds/statuses/superseded_by/last_error_subcode) and private-object + time-limited token serving rule made normative.",
+        "P1: Template theming policy constrained to explicit, controlled fields; external URLs forbidden."
+      ],
+      "date_utc": "2026-01-24T19:34:36Z",
+      "version": "1.1.1"
+    },
+    {
+      "changes": [
+        "P0: Dispute risk policy (enterprise-safe) — active dispute blocks automated transfer/reissue/supersession; explicit admin override requires auditable evidence fields.",
+        "P0: Dependency floors updated to align with current suite patch wave (ERR-1/PAY-*/ORD/REFUND/SCAN).",
+        "P0: ERR-1 subcodes referenced deterministically for denials + override evidence requirements."
+      ],
+      "date_utc": "2026-01-25",
+      "summary": "Dispute-risk hardening + dependency alignment"
+    },
+    {
+      "changes": [
+        "Rename duplicate gate id TKT-1-GATE-095 to TKT-1-GATE-096 to preserve uniqueness requirement."
+      ],
+      "date_utc": "2026-01-28",
+      "summary": "Hygiene: fix duplicate gate id in TKT-1 gates; no semantic changes.",
+      "version": "1.3.2"
+    },
+    {
+      "date_utc": "2026-02-04T10:46:13Z",
+      "summary": "Structural Sovereignty: authoritative outbox_events; No Shadow Law; PII/DATA/PROD/GOV dependency alignment; topic pinned to ticketing.ticket.",
+      "version": "1.5.0"
+    },
+    {
+      "at_utc": "2026-02-06T15:11:57Z",
+      "by": "legislative.patch",
+      "summary": "Phase 5 hardening: remove envelope keys from outbox payload required_keys; normalize schema_ref to literal EVT-2; bump EVT-1 floor to 2.16.4; align key dependency floors to suite head for ORD-1/PAY-3/REFUND-1/SEAT-1/SCAN-1/PRICE-1/CANON-1; add gates preventing regression."
+    },
+    {
+      "chg_id": "TKT-1-CHG-SEC1-REPINS-PH7-0001",
+      "date_utc": "2026-02-08T16:36:30Z",
+      "kind": "patch",
+      "summary": "Repin SEC-1 to v3.3.6 and SEC1 conformance runner v1.3.1; require Evidence v3 (nonce+attestation tied to transcript_sha256)."
+    }
+  ],
+  "conformance_requirements": {
+    "sec1_byte_truth": {
+      "evidence_filename": "SEC1-CONF-EVIDENCE-074d4a10f8f447ca3d35fb88af786419266fc4ca84559a072fdaf37b5b64b851.json",
+      "evidence_schema_version": "sec1-conformance-evidence/3.0",
+      "must_match": {
+        "result": "pass",
+        "runner_sha256": "2badcc09c255914a6d15ee89569ae6f747773ac9d3a21d3380bd221975fbd394",
+        "runner_version": "1.3.1",
+        "sec1_contract_sha256": "074d4a10f8f447ca3d35fb88af786419266fc4ca84559a072fdaf37b5b64b851"
+      },
+      "required": true,
+      "required_fields": [
+        "schema_version",
+        "tool",
+        "sec1",
+        "signed_payload",
+        "attestation",
+        "attestation_verification",
+        "transcript_sha256",
+        "result"
+      ]
+    }
+  },
+  "created_at_utc": "2026-01-25T08:57:33Z",
+  "credential_envelope": {
+    "canonicalization": {
+      "must": "All signed JSON inputs MUST be canonicalized using JSON Canonicalization Scheme (JCS) prior to signing/verifying.",
+      "ref": "RFC 8785",
+      "type": "JCS"
+    },
+    "claims": {
+      "forbidden": [
+        "account_id",
+        "user_id",
+        "email",
+        "phone",
+        "name",
+        "first_name",
+        "last_name",
+        "order_number",
+        "order_id_external",
+        "delivery_address",
+        "id_number",
+        "passport_number",
+        "tenant_slug",
+        "org_slug"
+      ],
+      "optional": [
+        "seat_allocation_id",
+        "event_id"
+      ],
+      "required": [
+        "org_id",
+        "ticket_id",
+        "ticket_credential_id",
+        "occurrence_id",
+        "iat_utc",
+        "nbf_utc",
+        "exp_utc"
+      ]
+    },
+    "encoding": {
+      "must": "All base64 encoding MUST use Base64URL without padding.",
+      "ref": "RFC 4648 §5",
+      "type": "base64url_no_padding"
+    },
+    "format_id": "TKT-CRED-V1",
+    "header": {
+      "alg": "EdDSA",
+      "curve": "Ed25519",
+      "kid_required": true,
+      "required_fields": [
+        "typ",
+        "alg",
+        "kid"
+      ],
+      "typ": "TKT-CRED-V1"
+    }
+  },
+  "data_model": {
+    "resources": [
+      {
+        "constraints": [
+          {
+            "kind": "check",
+            "rule": "org_id != 'NONE'"
+          },
+          {
+            "kind": "check",
+            "rule": "ticket_id != order_id"
+          }
+        ],
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "ticket_id"
+            ],
+            "name": "pk",
+            "unique": true
+          },
+          {
+            "fields": [
+              "org_id",
+              "order_id",
+              "ticket_id"
+            ],
+            "name": "order_ticket_uniqueness",
+            "unique": true
+          }
+        ],
+        "immutability": "Ticket records are append-only after issuance; changes require compensating actions (e.g., revocation + reissue). The following fields MUST be immutable after issuance: occurrence_id, pricing_snapshot_id, pricing_line_id, order_id, checkout_group_id.",
+        "name": "Ticket",
+        "optimistic_lock": {
+          "enabled": true,
+          "field": "version"
+        },
+        "optional_attributes": [
+          {
+            "name": "current_holder_actor_id",
+            "notes": [
+              "Derived convenience field: current resolved holder actor_id after applying TicketTransfer chain.",
+              "Not part of signed claims; MUST NOT be used as the sole source of truth."
+            ],
+            "nullable": true,
+            "type": "uuid_v7"
+          }
+        ],
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ticket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "order_id",
+            "notes": "Immutable.",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "checkout_group_id",
+            "notes": "Cross-org checkout aggregate identifier from ORD-1. MUST match the referenced order_id.checkout_group_id. Organizer access MUST remain scoped to org_id.Immutable.",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "purchaser_actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "issued",
+              "active",
+              "scanned",
+              "completed",
+              "revoked",
+              "expired"
+            ],
+            "name": "status",
+            "notes": "Lifecycle status. See TKT-INV-TRINITY-STATUS for meanings and allowed transitions.",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "occurrence_id",
+            "notes": "Immutable. Binds the ticket to exactly one occurrence (admission truth key). Must match SEAT-1 holds and SCAN-1 scan context.",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "seat_allocation_ids",
+            "notes": "References SEAT-1 allocations. MUST be within org_id and MUST only target occurrences listed in occurrence_id.",
+            "nullable": true,
+            "type": "array_uuid_v7"
+          },
+          {
+            "name": "pricing_snapshot_id",
+            "notes": "Immutable. References PRICE-1 PricingSnapshot.snapshot_id used to compute pricing_line_id and tax/fee basis.",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "pricing_line_id",
+            "notes": "References PRICE-1 PriceLine.line_id within pricing_snapshot_id. MUST correspond to the purchased ticket/admission line that produced this Ticket. If ORD-1 uses pricing_line_key, it MUST be the string form of this UUIDv7.Immutable.",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "issued_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "example": "1",
+            "name": "version",
+            "nullable": false,
+            "type": "integer"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "constraints": [
+          {
+            "kind": "check",
+            "rule": "org_id != 'NONE'"
+          }
+        ],
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "credential_id"
+            ],
+            "name": "pk",
+            "unique": true
+          },
+          {
+            "fields": [
+              "org_id",
+              "ticket_id",
+              "status"
+            ],
+            "name": "ticket_active_credential_uniqueness",
+            "notes": "At most one active credential per ticket enforced by rules/actions; enforceable via lock ordering (LOCKS-1).",
+            "unique": false
+          }
+        ],
+        "immutability": {
+          "rule": "Credentials are immutable after issuance; any change MUST be done by superseding with a new credential and revoking the old one."
+        },
+        "name": "TicketCredential",
+        "notes": [
+          "Credential payload MUST match TKT-CRED-V1; see credential_envelope.",
+          "Credential claims MUST NOT include PII; see credential_envelope.claims.forbidden.",
+          "credential_status values: active|revoked|superseded; superseded is treated as revoked for scanning."
+        ],
+        "optimistic_lock": {
+          "enabled": true,
+          "field": "version"
+        },
+        "optional_attributes": [
+          {
+            "name": "key_id",
+            "notes": "DEPRECATED. If present, MUST equal kid.",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "key_epoch",
+            "notes": "Optional key epoch for offline rotation semantics; authoritative semantics owned by SEC-1.",
+            "nullable": true,
+            "type": "integer"
+          },
+          {
+            "name": "seat_allocation_id",
+            "notes": "Seat allocation reference (non-PII).",
+            "nullable": true,
+            "type": "uuid_v7"
+          }
+        ],
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "credential_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ticket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "qr_static",
+              "wallet_pass"
+            ],
+            "name": "mode",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "enum": [
+              "active",
+              "revoked",
+              "superseded"
+            ],
+            "name": "status",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "payload_fingerprint_sha256",
+            "notes": "Hash of canonicalized credential payload (PII-free). (value is sha256 hex or JSON object serialized as string; see contract rules).",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "issued_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "revoked_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "superseded_by_credential_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "example": "1",
+            "name": "version",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "occurrence_id",
+            "notes": "Immutable. Binds the credential to exactly one occurrence (must equal Ticket.occurrence_id).",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "valid_from_utc",
+            "notes": "Maps to nbf_utc claim.",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "valid_until_utc",
+            "notes": "Maps to exp_utc claim.",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "kid",
+            "notes": "Signing key id used for this credential. MUST appear in credential header.",
+            "nullable": false,
+            "type": "string"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "constraints": [
+          {
+            "kind": "check",
+            "rule": "org_id != 'NONE'"
+          },
+          {
+            "id": "TKT-1-REVOC-010",
+            "must": "If credential_id is null, the revocation applies to all active credentials for ticket_id at revoked_at_utc."
+          }
+        ],
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "revocation_id"
+            ],
+            "name": "pk",
+            "unique": true
+          }
+        ],
+        "immutability": {
+          "rule": "Revocations are append-only evidence records."
+        },
+        "name": "TicketRevocation",
+        "notes": [
+          "TicketRevocation is append-only evidence; records MUST NOT be deleted or edited.",
+          "reason_subcode MUST come from ERR-1; it is the canonical user-facing and operator-facing explanation code."
+        ],
+        "optional_attributes": [
+          {
+            "name": "superseded_by_ticket_credential_id",
+            "notes": "If revocation is due to supersession, points to the replacement credential.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "refund_id",
+            "notes": "REFUND-1 causal reference.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "dispute_id",
+            "notes": "PAY/chargeback dispute causal reference.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "transfer_id",
+            "notes": "Transfer workflow causal reference.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "admin_case_id",
+            "notes": "Admin/support case reference.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "security_incident_id",
+            "notes": "Security incident reference.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "credential_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "refund",
+              "chargeback",
+              "transfer",
+              "fraud",
+              "admin_action",
+              "event_cancelled"
+            ],
+            "name": "reason",
+            "notes": "DEPRECATED. Use reason_subcode + revocation_authority for enforcement and messaging.",
+            "nullable": true,
+            "type": "enum"
+          }
+        ],
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "revocation_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ticket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "requested_by_actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "reason_subcode",
+            "notes": "MUST reference ERR-1 registry subcodes.",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "revocation_authority",
+            "notes": "Authority that caused revocation/supersession.",
+            "nullable": false,
+            "type": "enum",
+            "values": [
+              "system",
+              "admin",
+              "refund",
+              "dispute",
+              "transfer",
+              "security"
+            ]
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "constraints": [
+          {
+            "kind": "check",
+            "rule": "from_actor_id != to_actor_id"
+          }
+        ],
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "transfer_id"
+            ],
+            "name": "pk",
+            "unique": true
+          }
+        ],
+        "immutability": {
+          "rule": "Transfers are append-only evidence records; they MUST supersede prior credentials."
+        },
+        "name": "TicketTransfer",
+        "optional_attributes": [
+          {
+            "name": "admin_case_id",
+            "notes": "Required for explicit admin override decisions.",
+            "type": "uuid"
+          },
+          {
+            "name": "override_evidence_digest_sha256",
+            "notes": "sha256 hex digest of the evidence package; MUST NOT embed PII.",
+            "type": "string"
+          },
+          {
+            "name": "override_approved_by_actor_id",
+            "notes": "Actor that approved the override (org-scoped).",
+            "type": "uuid"
+          },
+          {
+            "name": "override_approved_at_utc",
+            "notes": "When the override was approved.",
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "transfer_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ticket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "from_actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "to_actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "old_credential_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "new_credential_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "constraints": [
+          {
+            "kind": "check",
+            "rule": "template_version >= 1"
+          }
+        ],
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "template_id",
+              "template_version"
+            ],
+            "name": "pk",
+            "unique": true
+          }
+        ],
+        "immutability": {
+          "rule": "Templates are versioned; changes MUST create a new template_version."
+        },
+        "name": "TicketTemplate",
+        "notes": [
+          "Templates MUST NOT reference external URLs directly; all assets MUST be internal refs."
+        ],
+        "optimistic_lock": {
+          "enabled": true,
+          "field": "version"
+        },
+        "optional_attributes": [
+          {
+            "name": "background_asset_ref",
+            "notes": "Optional internal background asset reference (no external URL).",
+            "nullable": true,
+            "type": "string"
+          }
+        ],
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "template_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "template_version",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "applies_to_ticket_type",
+            "notes": "Ticket type identifier from ORD/PRICE context.",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "version",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "brand_primary_hex",
+            "notes": "Primary brand color hex (#RRGGBB).",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "brand_secondary_hex",
+            "notes": "Secondary brand color hex (#RRGGBB).",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "logo_asset_ref",
+            "notes": "Internal asset reference for logo (no external URL).",
+            "nullable": false,
+            "type": "string"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "constraints": [
+          {
+            "kind": "check",
+            "rule": "bytes > 0"
+          }
+        ],
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "render_id"
+            ],
+            "name": "pk",
+            "unique": true
+          }
+        ],
+        "immutability": {
+          "rule": "Render artifacts are immutable integrity-addressed references."
+        },
+        "name": "TicketRenderArtifact",
+        "notes": [
+          "Artifacts are not canonical truth; the signed credential + revocation state is authoritative.",
+          "Artifacts MUST be served via time-limited tokens; public URLs MUST NOT be the source of truth."
+        ],
+        "optional_attributes": [
+          {
+            "name": "superseded_by_artifact_id",
+            "notes": "Points to replacement artifact when superseded.",
+            "nullable": true,
+            "type": "uuid_v7"
+          }
+        ],
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "render_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ticket_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "credential_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "pdf",
+              "png"
+            ],
+            "name": "format",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "bytes",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "sha256",
+            "notes": [
+              "sha256 hex of the rendered artifact bytes (PDF/PNG).",
+              "Used for integrity + cache-busting; MUST match the stored object."
+            ],
+            "nullable": false,
+            "type": "sha256_hex"
+          },
+          {
+            "name": "storage_ref",
+            "notes": "Private object storage reference; MUST NOT be a public URL.",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "last_error_subcode",
+            "notes": "ERR-1 subcode for last failure; use empty string when no error.",
+            "nullable": false,
+            "type": "string"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "constraints": [
+          {
+            "kind": "check",
+            "rule": "org_id != 'NONE'"
+          }
+        ],
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "binding_id"
+            ],
+            "name": "pk",
+            "unique": true
+          }
+        ],
+        "immutability": {
+          "rule": "Wallet bindings are append-only per credential issuance; updates occur via new credential supersession."
+        },
+        "name": "TicketWalletBinding",
+        "notes": [
+          "Wallet binding MUST support retries and deterministic state transitions.",
+          "last_error_subcode MUST reference ERR-1; use empty string when status is not failed."
+        ],
+        "optional_attributes": [
+          {
+            "name": "revoked_at_utc",
+            "notes": "When revoked.",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "binding_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "credential_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "provider",
+            "notes": "Wallet provider.",
+            "nullable": false,
+            "type": "enum",
+            "values": [
+              "apple",
+              "google"
+            ]
+          },
+          {
+            "name": "wallet_token_ref",
+            "notes": "Opaque provider token reference (non-PII).",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "notes": "Operational state for issue/update/revoke lifecycle.",
+            "nullable": false,
+            "type": "enum",
+            "values": [
+              "pending",
+              "active",
+              "update_pending",
+              "revoked",
+              "failed"
+            ]
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "external_pass_id",
+            "notes": "Provider identifier for the pass (e.g., pass serial / id).",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "last_attempt_at_utc",
+            "notes": "Timestamp of last provider call attempt.",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "attempt_count",
+            "notes": "Bounded retry counter.",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "last_error_subcode",
+            "notes": "ERR-1 subcode for last failure; use empty string when no error.",
+            "nullable": false,
+            "type": "string"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "constraints": [
+          {
+            "id": "TKT-1-ABUSE-010",
+            "must": "details MUST NOT contain PII as defined by PII-1; only pseudonymous identifiers and operational fields are allowed."
+          }
+        ],
+        "name": "TicketAbuseSignal",
+        "notes": [
+          "This record enables repeat-offender detection and audit trails without putting identity into the credential itself.",
+          "Downstream sanctions (suspension/ban) are owned by IAM-1 and MUST be policy-configurable per org."
+        ],
+        "optional_attributes": [
+          {
+            "name": "ticket_credential_id",
+            "notes": [
+              "Credential presented (may be unknown until sync in some offline flows)."
+            ],
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "scan_id",
+            "notes": [
+              "Reference to SCAN-1 scan evidence if available."
+            ],
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "actor_id",
+            "notes": [
+              "Resolved server-side (NOT from QR claims)."
+            ],
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "gate_id",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "scanner_device_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "reason_subcode",
+            "notes": [
+              "ERR-1 / SCAN-1 subcode for denial/notice."
+            ],
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "details",
+            "notes": [
+              "Limited structured metadata; MUST NOT include PII."
+            ],
+            "nullable": true,
+            "type": "map"
+          }
+        ],
+        "purpose": "Immutable, pseudonymous audit record for ticket misuse/anomalies and enforcement linkage.",
+        "required_attributes": [
+          {
+            "name": "signal_id",
+            "notes": [
+              "Primary identifier."
+            ],
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ticket_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "signal_kind",
+            "type": "enum",
+            "values": [
+              "duplicate_scan",
+              "multi_gate_attempt",
+              "revoked_presented",
+              "superseded_presented",
+              "outside_time_window",
+              "outside_admission_scope",
+              "device_stale",
+              "suspected_screenshot",
+              "other"
+            ]
+          },
+          {
+            "name": "severity",
+            "type": "enum",
+            "values": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          {
+            "name": "decision",
+            "type": "enum",
+            "values": [
+              "allow_with_notice",
+              "deny",
+              "deny_and_flag",
+              "deny_and_lock_device",
+              "deny_and_require_online"
+            ]
+          },
+          {
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          }
+        ]
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "BP-0",
+      "edge_type": "requires",
+      "min_version": "1.0.6",
+      "reason": "Blueprint baseline patterns and anti-pattern bans."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "CI contract gate strict expectations and bundle integrity rules."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "Schema compliance for contract/test-gates/manifest artifacts."
+    },
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "requires",
+      "min_version": "1.3.1",
+      "reason": "Data classification + retention doctrine; minimization and labeling requirements."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.6.1",
+      "reason": "Canonical error envelope and subcodes."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "requires",
+      "min_version": "2.16.4",
+      "reason": "Event Registry floor parity."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.1",
+      "reason": "Envelope + offline policy attributes referenced by SEC-1/SCAN-1."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "requires",
+      "min_version": "2.0.14",
+      "reason": "Governance baseline for deterministic enforceable gates."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.4",
+      "reason": "Allow-lists + actor identities aligned for offline auth."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.1",
+      "reason": "Idempotency locks for issue/transfer/revoke."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.8",
+      "reason": "Async issuance and wallet operations."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.17",
+      "reason": "Observability and redaction requirements."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.7.2",
+      "reason": "Paid/verified boundary for issuance."
+    },
+    {
+      "doc_id": "PAY-1",
+      "edge_type": "requires",
+      "min_version": "2.9.0",
+      "reason": "Payment status concepts feeding ORD paid/verified boundary."
+    },
+    {
+      "doc_id": "PAY-3",
+      "edge_type": "requires",
+      "min_version": "2.10.3",
+      "purpose": "required"
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "requires",
+      "min_version": "1.1.1",
+      "reason": "PII boundary doctrine; forbids PII in events/logs; vault-token mapping only."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.5.3",
+      "reason": "Price snapshot binding; ticket MUST preserve order price snapshot references."
+    },
+    {
+      "doc_id": "PROD-1",
+      "edge_type": "requires",
+      "min_version": "1.1.3",
+      "reason": "Producer identity governance + allowlist (ticketing.tickets legalized)."
+    },
+    {
+      "doc_id": "REFUND-1",
+      "edge_type": "requires",
+      "min_version": "1.6.2",
+      "reason": "Refund finalization MUST revoke related credentials and artifacts."
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "requires",
+      "min_version": "3.2.1",
+      "reason": "UUIDv7 and utc_datetime_usec."
+    },
+    {
+      "doc_id": "SCAN-1",
+      "edge_type": "requires",
+      "min_version": "1.4.2",
+      "reason": "Offline scanner consumer contract; hydration consumption + dispute semantics."
+    },
+    {
+      "doc_id": "SEAT-1",
+      "edge_type": "requires",
+      "min_version": "3.5.4",
+      "reason": "Seat allocation truth when tickets reference seats/inventory."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.4.2",
+      "reason": "Offline hydration manifest root-of-trust + crypto primitives (JCS, Base64URL, Ed25519) pinned."
+    },
+    {
+      "doc_id": "SM-0",
+      "edge_type": "requires",
+      "min_version": "1.2.0",
+      "reason": "Mandatory CAS fencing for state transitions / zombie hardening"
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.11",
+      "reason": "Tenant isolation using org_id key and hide-existence semantics."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Gate authoring discipline and baseline mandatory gate sets."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "requires",
+      "min_version": "1.6.0",
+      "reason": "Constitutional invariants applied to tickets and credentials."
+    }
+  ],
+  "dependency_floors": {
+    "API-0": "1.1.1",
+    "DATA-1": "1.3.1",
+    "ERR-1": "1.6.1",
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.1",
+    "GOV-0": "2.0.14",
+    "IAM-1": "3.4.4",
+    "LOCKS-1": "2.1.1",
+    "OBQC-1": "2.1.8",
+    "OBS-1": "2.7.17",
+    "ORD-1": "3.7.4",
+    "PAY-1": "2.10.0",
+    "PAY-3": "2.10.5",
+    "PII-1": "1.1.1",
+    "PRICE-1": "3.5.4",
+    "PROD-1": "1.1.1",
+    "PSC-1": "1.8.2",
+    "REFUND-1": "1.6.4",
+    "RP-0": "3.2.1",
+    "SCAN-1": "1.4.2",
+    "SEAT-1": "3.5.5",
+    "SEC-1": "3.4.2",
+    "TEN-1": "1.7.11"
+  },
+  "dependency_pins": {
+    "API-0": {
+      "artifact": "API-0_Contract_v1.1.1.json",
+      "sha256": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991",
+      "version": "1.1.1"
+    },
+    "PROD-1": {
+      "artifact": "PROD-1_Contract_v1.1.3.json",
+      "sha256": "1b53890c44a5387244d6d2eac803180e77b716629bfc00d294d500e79a70194f",
+      "version": "1.1.3"
+    },
+    "PSC-1": {
+      "artifact": "PSC-1_Contract_v1.8.2.json",
+      "sha256": "d29f4e93d95677713d2b16d6e2e60a5916f5f3a99da1ff24e70b50303f10c9a1",
+      "version": "1.8.2"
+    },
+    "SEC-1": {
+      "artifact": "SEC-1_Contract_v3.4.3.json",
+      "sha256": "074d4a10f8f447ca3d35fb88af786419266fc4ca84559a072fdaf37b5b64b851",
+      "version": "3.4.3"
+    }
+  },
+  "dispute_risk_policy": {
+    "admin_override": {
+      "allowed": true,
+      "override_blocked_reason_subcode": "GOV_ADMIN_OVERRIDE_BLOCKED_DISPUTE_ACTIVE",
+      "override_missing_evidence_reason_subcode": "GOV_DISPUTE_OVERRIDE_EVIDENCE_REQUIRED",
+      "required": true,
+      "required_fields": [
+        "admin_case_id",
+        "override_evidence_digest_sha256",
+        "override_approved_by_actor_id",
+        "override_approved_at_utc"
+      ]
+    },
+    "blocks_automated_actions": [
+      "ticket_transfer",
+      "ticket_reissue",
+      "credential_supersession",
+      "wallet_pass_update",
+      "pdf_regeneration_if_requires_new_credential"
+    ],
+    "denial_reason_subcodes": {
+      "reissue_blocked": "TKT_REISSUE_BLOCKED_DISPUTE_ACTIVE",
+      "transfer_blocked": "TKT_TRANSFER_BLOCKED_DISPUTE_ACTIVE"
+    },
+    "fail_closed": {
+      "notes": "If dispute status cannot be determined online and no fresh hydrated snapshot exists, automated operations MUST deny.",
+      "when_unknown": true
+    },
+    "source": {
+      "concept": "active_dispute",
+      "doc_id": "PAY-3",
+      "notes": "Active dispute status is treated as a risk flag; not a refund decision."
+    }
+  },
+  "doc_id": "TKT-1",
+  "emits_events": true,
+  "err_subcodes_used": [
+    {
+      "subcode": "TKT_ISSUANCE_BLOCKED_NOT_PAID"
+    },
+    {
+      "subcode": "TKT_ISSUANCE_BLOCKED_PAYMENT_UNVERIFIED"
+    },
+    {
+      "subcode": "TKT_CREDENTIAL_REVOKED"
+    },
+    {
+      "subcode": "TKT_CREDENTIAL_SUPERSEDED"
+    },
+    {
+      "subcode": "TKT_WALLET_UPDATE_FAILED"
+    },
+    {
+      "subcode": "TKT_RENDER_FAILED"
+    },
+    {
+      "subcode": "SCAN_CREDENTIAL_REVOKED"
+    },
+    {
+      "subcode": "SCAN_CREDENTIAL_SUPERSEDED"
+    },
+    {
+      "subcode": "SCAN_TICKET_REFUNDED"
+    },
+    {
+      "subcode": "TKT_TRANSFER_BLOCKED_DISPUTE_ACTIVE"
+    },
+    {
+      "subcode": "TKT_REISSUE_BLOCKED_DISPUTE_ACTIVE"
+    },
+    {
+      "subcode": "GOV_DISPUTE_OVERRIDE_EVIDENCE_REQUIRED"
+    },
+    {
+      "subcode": "GOV_ADMIN_OVERRIDE_BLOCKED_DISPUTE_ACTIVE"
+    }
+  ],
+  "errors": {
+    "envelope_ref": {
+      "doc_id": "ERR-1",
+      "min_version": "1.3.33"
+    },
+    "note": "Some TKT_* subcodes are proposed and must be added to ERR-1 in the alignment phase.",
+    "subcodes_referenced": [
+      "ORD_ORDER_NOT_FINALIZED",
+      "PAY_NOT_VERIFIED",
+      "TEN_TENANT_CONTEXT_MISSING",
+      "TKT_ISSUANCE_PRECONDITION_FAILED",
+      "TKT_CREDENTIAL_REVOKED",
+      "TKT_TRANSFER_PRECONDITION_FAILED",
+      "TKT_QR_PII_FORBIDDEN",
+      "TKT_WALLET_UPDATE_FAILED"
+    ]
+  },
+  "events": {
+    "consumes": [
+      {
+        "doc_id": "ORD-1",
+        "name": "ticketing.order.finalized.v1",
+        "notes": "Money-confirmed boundary; triggers issuance."
+      },
+      {
+        "doc_id": "REFUND-1",
+        "name": "ticketing.refund.finalized.v2",
+        "notes": "Triggers credential revocation and artifact revoke."
+      },
+      {
+        "doc_id": "EVT-2",
+        "name": "ticketing.occurrence.rescheduled.v1",
+        "notes": "Marks artifacts stale; enqueues wallet updates; may regenerate PDFs."
+      },
+      {
+        "doc_id": "SEC-1",
+        "name": "ticketing.security.key.rotated.v1",
+        "notes": "Updates key hydration sets (active/grace) for scanners."
+      }
+    ],
+    "emits": [
+      {
+        "doc_id": "TKT-1",
+        "name": "ticketing.ticket.issued.v1",
+        "notes": "Ticket created + initial credential issued."
+      },
+      {
+        "doc_id": "TKT-1",
+        "name": "ticketing.ticket.credential.superseded.v1",
+        "notes": "Old credential superseded by new credential."
+      },
+      {
+        "doc_id": "TKT-1",
+        "name": "ticketing.ticket.credential.revoked.v1",
+        "notes": "Credential revoked."
+      },
+      {
+        "doc_id": "TKT-1",
+        "name": "ticketing.ticket.render.generated.v1",
+        "notes": "Artifact generated."
+      },
+      {
+        "doc_id": "TKT-1",
+        "name": "ticketing.ticket.render.stale.v1",
+        "notes": "Artifact marked stale due to reschedule."
+      },
+      {
+        "doc_id": "TKT-1",
+        "name": "ticketing.ticket.wallet.update_requested.v1",
+        "notes": "Wallet pass update enqueued."
+      },
+      {
+        "doc_id": "TKT-1",
+        "name": "ticketing.ticket.wallet.revoked.v1",
+        "notes": "Wallet pass revoked."
+      },
+      {
+        "doc_id": "TKT-1",
+        "name": "ticketing.ticket.abuse_signal.recorded.v1",
+        "notes": "A TicketAbuseSignal was recorded for enforcement/analytics."
+      }
+    ]
+  },
+  "events_and_ordering": {
+    "event_envelope_required_keys": [
+      "org_id",
+      "request_id",
+      "trace_id"
+    ],
+    "event_registry_authority": "EVT-1",
+    "no_shadow_law": {
+      "enforced_by_gates": true,
+      "rule": "If an event payload is not legislated structurally in outbox_events, it SHALL be treated as non-existent by the platform."
+    },
+    "outbox_authority": "TKT-1",
+    "outbox_required": true,
+    "topic": "ticketing.ticket"
+  },
+  "generated_at_utc": "2026-02-08T16:36:30Z",
+  "invariants": [
+    {
+      "id": "TKT-INV-001",
+      "rule": "Tickets MUST be issued ONLY after money is confirmed: issuance MUST be triggered solely by ORD-1 order finalization (money-confirmed) and MUST NOT occur on order creation, pending, on_hold, partial payments, or any non-final money state."
+    },
+    {
+      "id": "TKT-INV-002",
+      "rule": "Ticket credentials MUST be bearer credentials with a non-PII QR payload; credentials MUST NOT include account identifiers, names, emails, phone numbers, addresses, or any direct personal identifiers; identity linkage SHALL be server-side only."
+    },
+    {
+      "id": "TKT-INV-003",
+      "rule": "Admission scope MUST be occurrence-level: occurrence_id is the admission truth key; each credential MUST bind to one-or-more occurrence_id; scanners SHALL enforce EVT-2 admission windows and scan_policy for each occurrence."
+    },
+    {
+      "id": "TKT-INV-004",
+      "rule": "Credential lifecycle MUST be explicit and offline-enforceable: any transfer/reissue/rotation/wallet-update SHALL create a new TicketCredential and the prior credential MUST be marked superseded or revoked and MUST fail scanning; supersession MUST be distributed to offline devices via revocation hydration."
+    },
+    {
+      "id": "TKT-INV-005",
+      "rule": "Revocations MUST be explainable: TicketRevocation MUST carry reason_subcode referencing ERR-1 registry and a revocation_authority; free-form reasons MUST NOT be used for enforcement decisions or user messaging."
+    },
+    {
+      "id": "TKT-INV-006",
+      "rule": "Offline authority is bounded: scanners MUST hydrate signing keys and revocation/supersession sets within EVT-2 max_offline_age_seconds; stale devices MUST deny or validate_only exactly per EVT-2 scan_policy; fail-closed safety is mandatory."
+    },
+    {
+      "id": "TKT-INV-007",
+      "rule": "Key rotation MUST be safe for offline operation: credentials MUST carry kid; TKT MUST support active/grace/revoked key states; rotation MUST NOT invalidate valid credentials during an active event lifecycle; compromise SHALL trigger forced reissue and old-kid revocation."
+    },
+    {
+      "id": "TKT-INV-008",
+      "rule": "Render artifacts (PDF, wallet passes) MUST be versioned and revocable: artifacts MUST be marked stale on occurrence reschedule and MUST be revoked/superseded on credential revocation/supersession; artifacts MUST be stored as private objects and served via time-limited access tokens."
+    },
+    {
+      "id": "TKT-INV-009",
+      "rule": "Wallet passes MUST support issue, update, and revoke with deterministic retry state; failures MUST map to ERR-1 subcodes and SHALL trigger deterministic COMM messaging (COMM-1) and re-download policy."
+    },
+    {
+      "id": "TKT-INV-010",
+      "rule": "P0: Each Ticket MUST store checkout_group_id for correlation with multi-org checkout. Ticket.checkout_group_id MUST match the referenced ORD-1 Order.checkout_group_id. Organizer access MUST remain scoped to Ticket.org_id; cross-org checkout MUST NOT weaken tenancy."
+    },
+    {
+      "id": "TKT-INV-011",
+      "rule": "P0: Each Ticket MUST reference the immutable price snapshot (pricing_snapshot_id) AND the specific purchased admission line (pricing_line_id) within that snapshot. The pricing_line_id MUST resolve to a PRICE-1 PriceLine in that snapshot; ad-hoc tickets not backed by a signed PricingSnapshot/PriceLine are forbidden."
+    },
+    {
+      "id": "TKT-INV-012",
+      "rule": "P0: Admission/redemption truth is occurrence-scoped and owned by SCAN-1. Only SCAN-1 accepted scan attempts MAY advance SCAN-1.RedemptionStatus; validate_only scans MUST NOT mutate RedemptionStatus. TKT-1 MUST NOT create an independent redemption truth store."
+    },
+    {
+      "id": "TKT-INV-013",
+      "rule": "P1: Offline verification MUST use two independent mechanisms: (1) TicketCredential QR payload signature for authenticity (anti-forgery), and (2) SCAN-1 signed manifests/policy for eligibility and revocation (anti-replay/anti-reentry). These mechanisms are complementary and MUST NOT be conflated."
+    },
+    {
+      "id": "TKT-INV-014",
+      "rule": "P0: Trinity bindings MUST be enforced. Each Ticket MUST bind immutably to: occurrence_id (time/admission scope), pricing_snapshot_id (price snapshot), pricing_line_id (priced item), order_id (money), and checkout_group_id (checkout aggregate). After issuance, these fields MUST NOT change; any correction MUST be expressed via compensating events (e.g., revocation + reissue)."
+    },
+    {
+      "id": "TKT-INV-015",
+      "rule": "P0: Ticket.status MUST be one of: issued, active, scanned, completed, revoked, expired. issued is the initial state at issuance creation. active indicates the ticket is scan-eligible (payment confirmed AND at least one TicketCredential is available). scanned indicates at least one successful scan/redeem recorded in SCAN-1 for the bound occurrence_id. completed indicates the admission lifecycle is finished as defined by SCAN-1 re-entry/exit policy (if used). revoked indicates the ticket is invalid (e.g., refund/chargeback/admin action) and MUST be rejected by scanners. expired indicates the ticket is no longer valid due to time bounds for the bound occurrence_id. Status transitions MUST be driven by authoritative domain events (ORD-1 payment confirmation, SCAN-1 scan events, REFUND-1 outcomes) and MUST be auditable."
+    },
+    {
+      "enforcement": {
+        "applies_to": [
+          "issue_ticket",
+          "reissue_ticket",
+          "revoke_ticket"
+        ],
+        "pattern": "atomic_outbox"
+      },
+      "id": "TKT-INV-016",
+      "severity": "P0",
+      "text": "Ticket issuance MUST use an atomic outbox pattern: the Ticket record write and the emission of 'ticketing.ticket.issued.v1' MUST be persisted in the same database transaction. Direct publish to the broker without an outbox is FORBIDDEN."
+    },
+    {
+      "enforcement": {
+        "applies_to": [
+          "ticketing.ticket.issued.v1",
+          "ticketing.ticket.credential.revoked.v1",
+          "ticketing.ticket.wallet_pass.generated.v1"
+        ],
+        "pattern": "no_pii_in_events"
+      },
+      "id": "TKT-INV-017",
+      "severity": "P0",
+      "text": "PII MUST NOT appear in TKT-1 emitted events. Fields such as 'guest_name' (and any other PII in security_posture.pii) MUST be stripped or replaced with reference IDs before publishing events."
+    }
+  ],
+  "issuance_trigger": {
+    "issuance_threshold": {
+      "default_percent_paid": 100,
+      "notes": [
+        "If payment plans are supported, contract extension MUST explicitly define issuance thresholds; default is 100% paid."
+      ],
+      "partial_payment_allowed": false
+    },
+    "must_include_fields": [
+      "org_id",
+      "order_id",
+      "checkout_group_id",
+      "pricing_snapshot_id",
+      "payment_reference",
+      "signature_hash",
+      "request_id",
+      "trace_id",
+      "verified_payment_attempt_id",
+      "paid_confirmed_at_utc"
+    ],
+    "must_not_issue_on_states": [
+      "pending",
+      "on_hold",
+      "awaiting_manual_verification",
+      "payment_plan_partial",
+      "failed",
+      "canceled"
+    ],
+    "paid_confirmed_at_utc": "derived from outbox envelope emitted_at_utc for ticketing.order.finalized.v1 (or PAY confirmation timestamp if present)",
+    "source_doc_id": "ORD-1",
+    "source_event_name": "ticketing.order.finalized.v1",
+    "trigger_kind": "event",
+    "verified_payment_attempt_id": "payment_reference (opaque; MUST reference a verified/final payment attempt per PAY-*)"
+  },
+  "key_management": {
+    "compromise_handling": [
+      "On confirmed key compromise, TKT MUST force reissue of affected credentials and mark the compromised kid as revoked.",
+      "COMM/fulfillment MUST notify affected holders; offline scanners MUST deny credentials signed by revoked kids after hydration bounds."
+    ],
+    "distribution_requirements": [
+      "Scanner hydration MUST include public keys for all active and grace kids relevant to the event lifecycle.",
+      "Grace keys MUST remain verifiable at least until the associated occurrence has ended (EVT-2 end time).",
+      "Grace overlap MUST be > EVT-2.occurrence.scan_max_offline_age_seconds, per SEC-1.key_lifecycle.grace_window_seconds.",
+      "Any offline snapshot_valid_until_utc MUST be <= snapshot_at_utc + EVT-2.occurrence.scan_max_offline_age_seconds (SEC-1 enforced)."
+    ],
+    "key_states": [
+      {
+        "may_sign": true,
+        "must_verify": true,
+        "state": "active"
+      },
+      {
+        "may_sign": false,
+        "must_verify": true,
+        "state": "grace"
+      },
+      {
+        "may_sign": false,
+        "must_verify": false,
+        "state": "revoked"
+      }
+    ],
+    "kid_semantics": {
+      "must": "kid MUST be treated as an opaque identifier; allowed format and epoch semantics are governed by SEC-1.key_lifecycle (kid_format + epoch). Implementations MUST NOT embed or parse epochs inside kid strings unless explicitly mandated by SEC-1.",
+      "refs": [
+        "SEC-1.key_lifecycle",
+        "SEC-1.kid_format"
+      ]
+    }
+  },
+  "last_updated_utc": "2026-02-08T16:36:30Z",
+  "limits_and_budgets": {
+    "credential_payload_max_bytes": 2048,
+    "issuance_latency_budget_ms": {
+      "notes": "Includes async render; admission validation must not rely on render completion.",
+      "p95": 5000
+    }
+  },
+  "normative_source": [
+    {
+      "doc_id": "V42-0",
+      "reason": "Constitutional invariants: seat/inventory truth, order snapshots, ledger immutability, strict tenancy.",
+      "version": "1.6.0"
+    },
+    {
+      "doc_id": "TEN-1",
+      "reason": "Multi-tenant isolation rules using org_id; hide-existence semantics.",
+      "version": "1.7.3"
+    },
+    {
+      "doc_id": "ORD-1",
+      "reason": "Order finalization and paid/verified boundary for issuance.",
+      "version": "3.0.14"
+    },
+    {
+      "doc_id": "SEAT-1",
+      "reason": "Seat allocation truth and reconciliation on revocation/refund.",
+      "version": "3.0.5"
+    },
+    {
+      "doc_id": "SCAN-1",
+      "reason": "Scan evidence semantics and dedupe/conflict concepts (scanner side).",
+      "version": "1.0.1"
+    },
+    {
+      "doc_id": "ERR-1",
+      "reason": "Canonical error envelope + subcode registry referenced by issuance/validation outcomes.",
+      "version": "1.3.33"
+    },
+    {
+      "doc_id": "PII-1",
+      "reason": "PII vaulting and tokenization boundary; tickets/QR MUST be PII-free.",
+      "version": "1.0.6"
+    },
+    {
+      "doc_id": "DSAR-1",
+      "reason": "Cryptoshred + DSAR handling for linkability without deleting immutable truth.",
+      "version": "1.1.4"
+    },
+    {
+      "doc_id": "OBS-1",
+      "reason": "Observability + redaction + trace_id requirements; no raw credential payload logging.",
+      "version": "2.7.9"
+    },
+    {
+      "doc_id": "OBQC-1",
+      "reason": "Async job taxonomy used for issuance rendering, wallet ops, and revocation propagation.",
+      "version": "2.1.4"
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "reason": "Idempotency + lock ordering for issuance and transfer workflows.",
+      "version": "2.0.13"
+    },
+    {
+      "doc_id": "RP-0",
+      "reason": "UUIDv7 + utc_datetime_usec patterns and naming conventions.",
+      "version": "3.0.1"
+    },
+    {
+      "external_standard": "RFC 8785",
+      "reason": "JSON Canonicalization Scheme for signing and verification inputs."
+    }
+  ],
+  "observability": {
+    "metrics_required": [
+      "tkt_issue_success_total",
+      "tkt_issue_failure_total",
+      "tkt_wallet_issue_success_total",
+      "tkt_wallet_issue_failure_total",
+      "tkt_revocation_total"
+    ],
+    "trace_propagation": "trace_id MUST be carried through issuance and wallet jobs; logs MUST redact credential payloads and wallet tokens."
+  },
+  "offline_hydration_slot_production": {
+    "notes": [
+      "This contract defines slot production rules only. The hydration manifest assembler MUST comply with SEC-1 ordering + signature rules.",
+      "Any divergence in dedup/sort rules is a P0 split-brain risk for offline scanners."
+    ],
+    "owned_slots": [
+      {
+        "description": "Populate SEC-1 OfflineHydrationPayloadV1.{revoked_ticket_credential_ids,superseded_ticket_credential_ids} for a given org_id + occurrence_id snapshot.",
+        "fields": {
+          "revoked_ticket_credential_ids": {
+            "dominance_rule": "If a credential_id appears in superseded_ticket_credential_ids for the snapshot, it MUST NOT also appear in revoked_ticket_credential_ids (supersede dominates).",
+            "extract_field": "credential_id",
+            "source_event": "ticketing.ticket.credential.revoked.v1"
+          },
+          "superseded_ticket_credential_ids": {
+            "extract_field": "old_credential_id",
+            "source_event": "ticketing.ticket.credential.superseded.v1"
+          }
+        },
+        "ordering": {
+          "deduplicate": true,
+          "must": "Arrays MUST be de-duplicated and sorted lexicographically ascending prior to signing the manifest.",
+          "sort": "lexicographic_ASC"
+        },
+        "slot_id": "ticket_revocations",
+        "snapshot_cutoff": {
+          "revoked_timestamp_field": "revoked_at_utc",
+          "rule": "Only include items with their effective timestamp <= snapshot_at_utc.",
+          "superseded_timestamp_field": "effective_at_utc"
+        }
+      }
+    ],
+    "refs": [
+      "SEC-1.offline_hydration_manifest",
+      "SEC-1.OfflineHydrationPayloadV1"
+    ],
+    "schema_id": "SEC-1.HYDRATION_MANIFEST.v1"
+  },
+  "offline_revocation_propagation": {
+    "hydrate_items": [
+      "active_public_keys",
+      "grace_public_keys",
+      "revoked_kids",
+      "revoked_ticket_credential_ids",
+      "superseded_ticket_credential_ids"
+    ],
+    "max_offline_age_seconds_source": "EVT-2.scan_policy.max_offline_age_seconds",
+    "notes": [
+      "Superseded credentials MUST be treated as revoked for scan decisions.",
+      "Future optimization (Bloom filter) is permitted only if false-positives fail-closed and are bounded by policy."
+    ],
+    "requires_hydration": true,
+    "revocation_set_format": "list_v1",
+    "stale_device_behavior_source": "EVT-2.scan_policy.stale_device_behavior"
+  },
+  "outbox_events": [
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "ticket_id"
+      },
+      "event_name": "ticketing.ticket.issued.v1",
+      "notes": "Emitted exactly once when a ticket reaches status=issued and the initial credential is minted. MUST be atomic with ticket persistence.",
+      "optional_keys": [
+        "seat_allocation_ids"
+      ],
+      "required_keys": [
+        "ticket_id",
+        "order_id",
+        "checkout_group_id",
+        "purchaser_actor_id",
+        "occurrence_id",
+        "issued_at_utc",
+        "pricing_snapshot_id",
+        "pricing_line_id",
+        "credential_id",
+        "mode",
+        "kid",
+        "valid_from_utc",
+        "valid_until_utc",
+        "payload_fingerprint_sha256"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "new_credential_id"
+      },
+      "event_name": "ticketing.ticket.credential.superseded.v1",
+      "notes": "Emitted when a credential is superseded by a newly minted credential for the same ticket. Old credential remains revoked/invalid for admission.",
+      "optional_keys": [
+        "transfer_id",
+        "admin_case_id",
+        "security_incident_id"
+      ],
+      "required_keys": [
+        "ticket_id",
+        "occurrence_id",
+        "old_credential_id",
+        "new_credential_id",
+        "kid",
+        "effective_at_utc",
+        "revocation_authority",
+        "reason_subcode"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "credential_id"
+      },
+      "event_name": "ticketing.ticket.credential.revoked.v1",
+      "notes": "Emitted when a credential is revoked and MUST be treated as final for admission decisions (deny).",
+      "optional_keys": [
+        "refund_id",
+        "dispute_id",
+        "transfer_id",
+        "admin_case_id",
+        "security_incident_id"
+      ],
+      "required_keys": [
+        "ticket_id",
+        "occurrence_id",
+        "credential_id",
+        "revoked_at_utc",
+        "revocation_authority",
+        "reason_subcode"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "render_id"
+      },
+      "event_name": "ticketing.ticket.render.generated.v1",
+      "notes": "Emitted when a render artifact is generated (PDF/PKPASS/etc). Payload MUST NOT include URLs; use sha256/bytes for audit.",
+      "optional_keys": [
+        "storage_ref",
+        "last_error_subcode"
+      ],
+      "required_keys": [
+        "render_id",
+        "ticket_id",
+        "credential_id",
+        "format",
+        "bytes",
+        "sha256",
+        "created_at_utc"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "render_id"
+      },
+      "event_name": "ticketing.ticket.render.stale.v1",
+      "notes": "Emitted when an existing render artifact is marked stale and MUST be regenerated before distribution.",
+      "optional_keys": [
+        "caused_by_event_name"
+      ],
+      "required_keys": [
+        "render_id",
+        "ticket_id",
+        "credential_id",
+        "marked_stale_at_utc",
+        "reason_subcode"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "binding_id"
+      },
+      "event_name": "ticketing.ticket.wallet.update_requested.v1",
+      "notes": "Emitted when a wallet binding update is queued/requested for external wallet providers.",
+      "required_keys": [
+        "binding_id",
+        "credential_id",
+        "provider",
+        "external_pass_id",
+        "status",
+        "last_attempt_at_utc",
+        "attempt_count",
+        "last_error_subcode"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "binding_id"
+      },
+      "event_name": "ticketing.ticket.wallet.revoked.v1",
+      "notes": "Emitted when a wallet binding is revoked and the pass MUST be considered invalid.",
+      "required_keys": [
+        "binding_id",
+        "credential_id",
+        "provider",
+        "external_pass_id",
+        "revoked_at_utc",
+        "reason_subcode"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "signal_id"
+      },
+      "event_name": "ticketing.ticket.abuse_signal.recorded.v1",
+      "notes": "Emitted when an abuse signal is recorded for enforcement/analytics. MUST be pseudonymous (no PII).",
+      "optional_keys": [
+        "scan_id",
+        "scanner_device_id",
+        "gate_id",
+        "reason_subcode",
+        "details"
+      ],
+      "required_keys": [
+        "signal_id",
+        "ticket_id",
+        "occurrence_id",
+        "signal_kind",
+        "severity",
+        "decision",
+        "created_at_utc"
+      ],
+      "schema_ref": "EVT-2"
+    }
+  ],
+  "purpose_and_boundaries": {
+    "does_not_own": [
+      "Payment authorization/capture (PAY-*).",
+      "Order pricing and checkout finalization (ORD-1, PRICE-1).",
+      "Seat map modeling and inventory truth (SEAT-1).",
+      "Scanner device sessioning and scan event reconciliation (SCAN-1).",
+      "PII vault storage (PII-1) or DSAR orchestration (DSAR-1)."
+    ],
+    "notes": "- Redemption/admission state for occurrences is owned by SCAN-1 (ScanAttemptLog + RedemptionStatus). TKT-1 MUST NOT invent an independent redemption truth store.\n- PII mapping for ticket buyer identity is out of scope for TKT-1 and MUST be held in a dedicated PII/PCI boundary (future contract), not inside Ticket or TicketCredential.",
+    "owns": [
+      "Ticket records (access entitlements) scoped to org_id and bound to finalized/paid orders.",
+      "Credential issuance lifecycle and revocation/supersession semantics.",
+      "Template constraints and render artifact integrity references (hashes, not blobs)."
+    ],
+    "purpose": "Provide an authoritative, enforceable definition of what a ticket is, when it may be issued, and how its credentials (QR/wallet) are generated, verified, transferred, and revoked without embedding PII."
+  },
+  "render_artifacts": {
+    "artifact_kinds": [
+      "pdf",
+      "apple_pkpass",
+      "google_pass_payload"
+    ],
+    "artifact_statuses": [
+      "generated",
+      "stale",
+      "revoked",
+      "failed"
+    ],
+    "reschedule_policy": [
+      "On EVT-2 occurrence reschedule, related artifacts MUST be marked stale and regenerated; credential identity MUST NOT change unless the occurrence_id binding changes."
+    ],
+    "storage_policy": [
+      "Artifacts MUST be stored as private objects.",
+      "Artifacts MUST be served via time-limited access tokens; public CDN URLs MUST NOT be the source of truth."
+    ]
+  },
+  "rules": {
+    "abuse_signals": {
+      "must": [
+        "The platform MUST record a TicketAbuseSignal for every denied scan decision and for any allow_with_notice decision (see SCAN-1).",
+        "TicketAbuseSignal MUST be linkable to actor_id server-side (via ticket ownership/transfer resolution) but MUST NOT require embedding identity in the QR claims.",
+        "Repeated abuse signals MUST be eligible for downstream sanctions (suspension/ban) owned by IAM-1 policy configuration."
+      ],
+      "notes": [
+        "This is a pseudonymous enforcement trail: keep it minimal, auditable, and DSAR/PII compliant."
+      ]
+    },
+    "credential_modes": {
+      "must": [
+        "The canonical QR payload format is TKT-CRED-V1 as defined in credential_envelope.",
+        "Credentials MUST carry kid and MUST be signed with Ed25519 (EdDSA).",
+        "Claims MUST include occurrence_id and time bounds (iat_utc, nbf_utc, exp_utc).",
+        "Claims MUST NOT contain PII or durable identity."
+      ],
+      "notes": [
+        "Human-readable ticket labels (order number, name) may exist in the PDF/pass UI layer, but MUST NOT be part of the signed QR claims."
+      ]
+    },
+    "issuance_boundary": {
+      "inputs_must_include": [
+        "org_id",
+        "order_id",
+        "verified_payment_attempt_id (via payment_reference)",
+        "paid_confirmed_at_utc"
+      ],
+      "must": [
+        "Issuance MUST be triggered only by ORD-1 ticketing.order.finalized.v1 (money-confirmed).",
+        "Issuance MUST NOT occur for pending, on_hold, awaiting_manual_verification, payment_plan_partial, failed, or canceled orders.",
+        "If payment plans exist, issuance_threshold MUST default to 100% paid unless an explicit contract extension overrides it."
+      ],
+      "notes": [
+        "This boundary is the irreversible seam: once issued, credentials are bearer instruments and must be revocable/supersedable."
+      ]
+    },
+    "rendering": {
+      "must": [
+        "Render artifacts MUST be versioned and can be stale/revoked/failed.",
+        "Artifacts MUST be stored privately and served via time-limited tokens.",
+        "On occurrence reschedule, artifacts MUST be marked stale and regenerated; wallet updates MUST be enqueued where bound."
+      ],
+      "notes": [
+        "Artifacts are not the 'truth'; the signed credential + revocation state is."
+      ]
+    },
+    "replay_and_sharing": {
+      "must": [
+        "The QR is a bearer credential; replay/sharing is mitigated by SCAN-1 evidence, scan intents, and EVT-2 scan_policy (e.g., anti-passback).",
+        "Supersession and revocation MUST be enforceable offline via SCAN-1 hydration payloads that include revocation/supersession state for the occurrence(s) (owned by SCAN-1; referenced here)."
+      ],
+      "notes": [
+        "Do NOT embed account identity in the credential to 'solve enforcement'—it breaks PII posture and increases sharing attack surface.",
+        "Screenshots are still bearer-presentations; anti-passback and anomaly signals are the primary mitigations unless a future dynamic-barcode extension is adopted."
+      ]
+    },
+    "wallet_binding": {
+      "must": [
+        "Wallet bindings MUST track provider, external_pass_id, lifecycle status, last_attempt_at_utc, attempt_count, and last_error_subcode.",
+        "Wallet update/revoke retries MUST be bounded; failures MUST map to ERR-1 subcodes."
+      ],
+      "notes": [
+        "Wallet binding is operational state; it MUST survive retries and be auditable."
+      ]
+    }
+  },
+  "schema_version": "contract-suite/1.0",
+  "security_posture": {
+    "anti_abuse": {
+      "rule": "Repeat-offender tracking MUST be pseudonymous; enforcement actions (warnings, suspensions, bans) MUST be capability-gated and auditable."
+    },
+    "crypto": {
+      "credential_signing": {
+        "canonicalization": "JCS (RFC 8785), as specified by RFC 8785.",
+        "payload_policy": "Signed payload MUST include org_id, ticket_id, credential_id, and a nonce/issue_epoch; MUST NOT include PII.",
+        "recommended_alg": "ed25519"
+      }
+    },
+    "pii": {
+      "forbidden_fields_in_events": [
+        "address",
+        "device_id_hash",
+        "email",
+        "first_name",
+        "full_name",
+        "gov_id",
+        "guest_name",
+        "id_number",
+        "ip_address_hash",
+        "last_name",
+        "name",
+        "phone",
+        "phone_e164",
+        "user_agent_hash",
+        "wallet_token_ref"
+      ],
+      "forbidden_fields_in_payload": [
+        "email",
+        "phone",
+        "full_name",
+        "first_name",
+        "last_name",
+        "id_number",
+        "address"
+      ],
+      "rule": "Ticket and credential payloads MUST be PII-free. Any mapping to email/phone/name occurs only via PII-1 vault tokens."
+    }
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines the authoritative, PII-free issuance, lifecycle, transfer, and revocation rules for event tickets and their scannable credentials (QR/wallet) in a strict multi-tenant suite.\n\nv1.5.0: Structural Sovereignty (No Shadow Law) — authoritative outbox_events legislated; PII-1/DATA-1/PROD-1/GOV-0 alignment.",
+  "template_theming_policy": {
+    "assets_must_be_internal_refs": true,
+    "external_urls_forbidden": true,
+    "layout_variants": [
+      "standard",
+      "compact",
+      "wallet_compact"
+    ],
+    "notes": [
+      "Template theming is controlled; layout remains deterministic and policy-limited to avoid HTML chaos."
+    ],
+    "theme_fields": [
+      "brand_primary_hex",
+      "brand_secondary_hex",
+      "logo_asset_ref",
+      "background_asset_ref",
+      "layout_variant"
+    ]
+  },
+  "tenancy": {
+    "context_required": [
+      "org_id",
+      "actor_id",
+      "request_id",
+      "trace_id"
+    ],
+    "cross_tenant_lookup": {
+      "error_code": "ERR_NOT_FOUND",
+      "retryable": false
+    },
+    "forbid_ambient_tenancy": true,
+    "leakage_policy": "hide_existence",
+    "missing_tenant_context": {
+      "error_code": "ERR_FORBIDDEN",
+      "retryable": false,
+      "subcode": "TEN_TENANT_CONTEXT_MISSING"
+    },
+    "none_sentinel_forbidden": true,
+    "sentinel_values_forbidden": [
+      "NONE"
+    ],
+    "strategy": "attribute",
+    "tenant_key": "org_id"
+  },
+  "tier": 3,
+  "title": "Ticket Issuance, Credentials, Rendering, and Wallet Bindings",
+  "updated_at": "2026-02-08T15:15:47Z",
+  "updated_at_utc": "2026-02-08T16:36:30Z",
+  "version": "1.5.12",
+  "wallet_passes": {
+    "binding_statuses": [
+      "pending",
+      "active",
+      "update_pending",
+      "revoked",
+      "failed"
+    ],
+    "failure_policy": [
+      "Failures MUST be recorded with ERR-1 subcodes and bounded retry counters.",
+      "Failure to update MUST trigger deterministic user messaging (COMM-1) and re-download policy."
+    ],
+    "must_support": [
+      "issue",
+      "update",
+      "revoke"
+    ],
+    "providers": [
+      "apple",
+      "google"
+    ]
+  }
+}

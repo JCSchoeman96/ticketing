@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/COMM-1_bundle_v1.1.5.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/COMM-1_bundle_v1.1.5.zip",
+  "source_zip_sha256": "41ef46ea018b8b333a7aa226f3a7a49dd7f4e287d9b977fada06bcd8f8d3de68",
+  "source_zip_bytes": 21701,
+  "source_version": "1.1.5",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "COMM-1_bundle_v1.1.5/COMM-1_Contract_v1.1.5.json",
+      "sha256": "a1845966025fa06c07a1476a1d4009cba6ec740668da3c18cf1a98378b3ccdc4",
+      "bytes": 63649
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "COMM-1_bundle_v1.1.5/COMM-1_Test_Gates_v1.1.5.json",
+      "sha256": "6f8f86f32cc0d0709cfd6174cd8cab3b1d282667b11a07556801f5503addf98c",
+      "bytes": 44022
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "COMM-1_bundle_v1.1.5/COMM-1_Contract_v1.1.5.json",
+      "sha256": "a1746e03faa5f7f739af1edb1e65d9cc4968a119483341bb7cced9f763ece037",
+      "bytes": 63889
+    },
+    {
+      "source_member_path": "COMM-1_bundle_v1.1.5/COMM-1_Test_Gates_v1.1.5.json",
+      "sha256": "eafca34b2b2a91df6efe60f19bb6c058b372c0438933c81709c638a3134ffd44",
+      "bytes": 44024
+    }
+  ]
+}

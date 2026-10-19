@@ -1,0 +1,14 @@
+{
+  "doc_id": "GOV-0",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "proposed_successor_version": "2.1.1",
+  "release_intent": "Patch release correcting known bundle/schema identity defects while preserving existing contract behavior.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "5f3fee5e279e4776915b5ce78b3b1ce92422bedf08e96fb54401f820781bbd29"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.1.1"
+}

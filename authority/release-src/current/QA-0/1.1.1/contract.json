@@ -1,0 +1,641 @@
+{
+  "artifact_kind": "contract",
+  "audience": [
+    "humans",
+    "coding_agents",
+    "ci_systems"
+  ],
+  "baseline_mandatory_gates": [
+    "JSON_SCHEMA_VALID",
+    "BUNDLE_MANIFEST_INTEGRITY",
+    "CONTRACT_GATE_LINKAGE",
+    "NO_PLACEHOLDERS",
+    "MIX_ENTRYPOINT_LOCKED",
+    "RUNTIME_HARNESS_PATH_LOCKED",
+    "CI_BLOCKING_JOBS_DECLARED",
+    "REGRESSION_RULE_DECLARED",
+    "TOOLCHAIN_PINNING_DECLARED",
+    "TEST_HELPER_ROOT_DECLARED",
+    "QUARANTINE_AND_FOCUS_DISCIPLINE_DECLARED",
+    "DATABASE_TEST_ISOLATION_DECLARED",
+    "COVERAGE_NON_SUBSTITUTION_DECLARED",
+    "TRACEABILITY_POLICY_DECLARED"
+  ],
+  "canonical": true,
+  "change_log": [
+    {
+      "changes": [
+        "Hardened QA-0 with explicit toolchain pinning, test helper ownership, quarantine/focus/skip controls, database test isolation rules, coverage non-substitution rules, and contract-to-test traceability requirements.",
+        "Expanded blocking CI job declarations and strengthened gate coverage over mix entrypoints, runtime harness, and regression obligations.",
+        "Added BP-0 and CS-0 as explicit dependencies and normalized metadata for suite consistency."
+      ],
+      "date_utc": "2026-03-09T20:00:00Z",
+      "version": "1.1.0"
+    },
+    {
+      "changes": [
+        "Initial QA execution, ExUnit topology, CI blocking-job, runtime-harness, and regression-prevention standard."
+      ],
+      "date_utc": "2026-03-09T19:14:31Z",
+      "version": "1.0.0"
+    }
+  ],
+  "changelog": [
+    {
+      "changes": [
+        "Hardened QA-0 with explicit toolchain pinning, test helper ownership, quarantine/focus/skip controls, database test isolation rules, coverage non-substitution rules, and contract-to-test traceability requirements.",
+        "Expanded blocking CI job declarations and strengthened gate coverage over mix entrypoints, runtime harness, and regression obligations.",
+        "Added BP-0 and CS-0 as explicit dependencies and normalized metadata for suite consistency."
+      ],
+      "date_utc": "2026-03-09T20:00:00Z",
+      "version": "1.1.0"
+    },
+    {
+      "changes": [
+        "Initial QA execution, ExUnit topology, CI blocking-job, runtime-harness, and regression-prevention standard."
+      ],
+      "date_utc": "2026-03-09T19:14:31Z",
+      "version": "1.0.0"
+    }
+  ],
+  "ci_pipeline_contract": {
+    "failure_policy": [
+      "Any failing required job MUST fail the pipeline.",
+      "A pipeline MUST NOT turn blocking failures into warnings for protected branches.",
+      "Automatic rerun-until-green behavior MUST NOT be treated as release proof for a failing blocking job.",
+      "Skipped or absent required jobs are failures, not neutral states.",
+      "Protected-branch proof MUST come from required jobs running against the pinned toolchain, not from a contributor-local variant.",
+      "A quarantined test is debt, not a pass; protected-branch CI MUST surface quarantine state explicitly."
+    ],
+    "required_blocking_jobs": {
+      "contracts_runtime_suite": {
+        "design_note": "Harness-backed contract runtime lane.",
+        "must_block_merge": true,
+        "must_block_release": true,
+        "primary_command": "mix test test/contracts_runtime",
+        "purpose": "Executes the runtime harness proof surface required by TG-0 dynamic assertions."
+      },
+      "contracts_strict": {
+        "design_note": "Contract bundle integrity lane.",
+        "must_block_merge": true,
+        "must_block_release": true,
+        "primary_command": "python ci_contract_gate_strict_v2.7.0.py --root . --canon <CANON_BUNDLE> --cs <CS_BUNDLE> --contracts-dir <CONTRACTS_DIR> --run-gate-assertions --assertion-scope must",
+        "purpose": "Prevents contract drift, bundle mismatch, and gate linkage failures."
+      },
+      "governance_lint": {
+        "design_note": "Repo governance and anti-bypass lane.",
+        "must_block_merge": true,
+        "must_block_release": true,
+        "primary_command": "python ci_ash_governance_lint_v1.2.0.py --root . --rules <LINT0_CONTRACT_JSON> --fail_on P1",
+        "purpose": "Prevents banned governance patterns and waiver abuse from entering the repository."
+      },
+      "integration_suite": {
+        "design_note": "Database-backed and denial-path lane.",
+        "must_block_merge": true,
+        "must_block_release": true,
+        "primary_command": "mix test test/integration test/tenancy test/security",
+        "purpose": "Proves database-backed flows and denial-path correctness remain intact."
+      },
+      "property_suite": {
+        "design_note": "Generated invariant lane.",
+        "must_block_merge": true,
+        "must_block_release": true,
+        "primary_command": "mix test test/property",
+        "purpose": "Exercises generated invariants that catch drift beyond fixed examples."
+      },
+      "quality_static": {
+        "design_note": "This job intentionally overlaps with targeted suite jobs so the normative developer entrypoint and the CI entrypoints cannot drift apart silently.",
+        "must_block_merge": true,
+        "must_block_release": true,
+        "primary_command": "mix check",
+        "purpose": "Runs formatting, compile, Credo, Dialyzer, and the full deterministic ExUnit surface through the mandated entrypoint."
+      },
+      "regression_suite": {
+        "design_note": "Permanent reproducer lane.",
+        "must_block_merge": true,
+        "must_block_release": true,
+        "primary_command": "mix test test/regression",
+        "purpose": "Replays the permanent defect-prevention corpus."
+      },
+      "unit_suite": {
+        "design_note": "Fast isolation lane for pure logic drift.",
+        "must_block_merge": true,
+        "must_block_release": true,
+        "primary_command": "mix test test/unit",
+        "purpose": "Provides fast isolation for deterministic pure logic regressions."
+      }
+    },
+    "required_evidence": [
+      "Blocking mix test jobs MUST emit the ExUnit seed in CI logs.",
+      "Property test failures MUST emit enough seed and counterexample information to reproduce the failure locally.",
+      "Protected-branch CI logs MUST retain the full failing command and failing suite path."
+    ]
+  },
+  "constitutional_mapping": [
+    {
+      "invariant": "money_and_ledger_immutability",
+      "required_suites": [
+        "integration",
+        "regression",
+        "property"
+      ],
+      "why": "Ledger and payout errors are not acceptable and require both example-based and generative proof."
+    },
+    {
+      "invariant": "seat_and_inventory_truth",
+      "required_suites": [
+        "integration",
+        "security",
+        "regression",
+        "property"
+      ],
+      "why": "Inventory drift and oversell behavior require denial-path and generated-case coverage."
+    },
+    {
+      "invariant": "strict_multi_tenancy",
+      "required_suites": [
+        "tenancy",
+        "security",
+        "integration",
+        "regression"
+      ],
+      "why": "Cross-tenant leakage is a hard failure and must be tested directly."
+    },
+    {
+      "invariant": "error_envelope_consistency",
+      "required_suites": [
+        "security",
+        "contracts_runtime",
+        "regression"
+      ],
+      "why": "User-safe errors and emitted signals must stay aligned."
+    },
+    {
+      "invariant": "observability_backed_runtime_assertions",
+      "required_suites": [
+        "contracts_runtime"
+      ],
+      "why": "Dynamic gates are false comfort unless they execute through a repository harness."
+    }
+  ],
+  "coverage_policy": {
+    "rules": [
+      "Line-coverage thresholds MAY be collected, but they MUST NOT be the sole merge or release proof for correctness.",
+      "A high aggregate coverage percentage MUST NOT waive missing denial-path, tenancy, ledger, inventory, or regression suites.",
+      "Coverage reports are evidence supplements, not substitutes, for the blocking QA-0 suite topology."
+    ]
+  },
+  "created_at": "2026-03-09T19:14:31Z",
+  "database_test_isolation_contract": {
+    "applies_to": [
+      "test/integration",
+      "test/tenancy",
+      "test/security",
+      "test/regression when persistence or concurrency is exercised"
+    ],
+    "rules": [
+      "Database-backed tests MUST use an isolation mechanism such as SQL sandbox or an equivalent per-test transaction boundary.",
+      "Tests that mutate shared persisted state MUST clean up deterministically; order-dependent leakage between tests is forbidden.",
+      "Async database-backed tests are allowed only when the isolation mechanism and shared fixtures prove they cannot interfere."
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Schema source of truth for contract-suite/1.0, test-gates/1.0, and bundle-manifest/1.0 used by QA-0 validation."
+    },
+    {
+      "doc_id": "BP-0",
+      "edge_type": "governance_floor",
+      "min_version": "1.0.6",
+      "reason": "Blueprint-of-blueprints template that QA-0 now follows more explicitly for contract/gate hardening discipline."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Defines the gate shape, severity model, dynamic runtime assertion semantics, and Harness Interlock."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "Defines strict CI validation expectations for contract bundles and canonical pinning behavior."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.10",
+      "reason": "Defines Ash 3.x governance rules that QA-0 requires the implementation repository to enforce continuously."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.11",
+      "reason": "Provides deterministic governance scanning rules that QA-0 treats as a required blocking CI job."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.7.12",
+      "reason": "Provides tenancy invariants that QA-0 requires dedicated denial-path test suites to preserve."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.4.10",
+      "reason": "Provides canonical error envelope expectations that QA-0 requires tests to assert."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.8.1",
+      "reason": "Provides the constitutional invariants that QA-0 maps to executable repo checks."
+    }
+  ],
+  "determinism_policy": {
+    "clock": "Tests that depend on time MUST freeze, inject, or deterministically control time rather than reading ambient wall-clock state.",
+    "external_dependencies": "Unit and integration suites MUST stub or fake unstable external dependencies; live external calls belong only in separately-governed suites outside the default blocking ExUnit surface.",
+    "parallelism": "Suites MAY run asynchronously only when shared-state isolation is proven; hidden test-order coupling is forbidden.",
+    "randomness": "Property and randomized tests MUST capture failing seeds and bound execution so failures are reproducible.",
+    "seed_reporting": "CI and local reruns MUST preserve and expose failing ExUnit and property-test seeds so counterexamples are replayable."
+  },
+  "doc_id": "QA-0",
+  "exunit_execution_contract": {
+    "forbidden_shortcuts": [
+      "mix test --only <subset> used as merge proof for protected branches",
+      "mix test --exclude <blocking_tag> used as merge proof for protected branches",
+      "Environment-variable branches that silently downgrade required suites"
+    ],
+    "global_rules": [
+      "CI MUST print the ExUnit seed for every blocking mix test invocation so failures are reproducible.",
+      "The default blocking ExUnit surface MUST be deterministic, non-interactive, and runnable from a clean checkout without manual environment mutation.",
+      "A repository MUST NOT rely on test order, previously persisted database state, or leftover files from earlier runs."
+    ]
+  },
+  "generated_at_utc": "2026-03-09T20:00:00Z",
+  "last_updated_utc": "2026-03-09T20:00:00Z",
+  "lineage": {
+    "foundation_refs": [
+      {
+        "doc_id": "V42-0",
+        "min_version": "1.8.1",
+        "reason": "V42 is the constitutional foundation; QA-0 defines executable QA and regression-prevention discipline without weakening those invariants."
+      }
+    ],
+    "supersedes": [
+      {
+        "doc_id": "QA-0",
+        "reason": "Hardens the QA standard while preserving contract intent.",
+        "version": "1.0.0"
+      }
+    ]
+  },
+  "mix_entrypoint_contract": {
+    "prohibitions": [
+      "A repository MUST NOT redefine mix check as a non-blocking convenience command.",
+      "A repository MUST NOT exclude regression, tenancy, security, property, or contracts_runtime suites from mix test for speed unless QA-0 is revised.",
+      "A repository MUST NOT treat compiler warnings as informational only.",
+      "A repository MUST NOT claim protected-branch proof from mix test invocations that use only or exclude flags to bypass required suites.",
+      "A repository MUST NOT move required blocking suites outside test/ and still describe the default surface as QA-0 compliant."
+    ],
+    "required_entrypoints": {
+      "mix_check": {
+        "blocking": true,
+        "invocation": "mix check",
+        "kind": "alias",
+        "must_exist_in_mix_exs": true,
+        "ordered_commands": [
+          "mix format --check-formatted",
+          "mix compile --warnings-as-errors",
+          "mix credo --strict",
+          "mix dialyzer",
+          "mix test"
+        ],
+        "rule": "The command order is normative. A repository MUST NOT silently weaken mix check by removing, reordering, or downgrading these steps without a QA-0 version bump."
+      },
+      "mix_test": {
+        "blocking": true,
+        "invocation": "mix test",
+        "kind": "builtin_with_repo_topology_contract",
+        "rule": "mix test MUST execute the full deterministic blocking ExUnit surface under test/ including regression, tenancy, security, property, and contracts_runtime suites."
+      },
+      "mix_test_integration": {
+        "blocking": true,
+        "invocation": "mix test test/integration test/tenancy test/security",
+        "kind": "alias_or_documented_ci_entrypoint",
+        "rule": "The repository MUST provide a stable way to run integration and denial-path suites together."
+      },
+      "mix_test_property": {
+        "blocking": true,
+        "invocation": "mix test test/property",
+        "kind": "alias_or_documented_ci_entrypoint",
+        "rule": "The repository MUST provide a stable way to run property tests alone with deterministic seed capture."
+      },
+      "mix_test_regression": {
+        "blocking": true,
+        "invocation": "mix test test/regression",
+        "kind": "alias_or_documented_ci_entrypoint",
+        "rule": "The repository MUST provide a stable way to run permanent regression tests alone."
+      },
+      "mix_test_runtime": {
+        "blocking": true,
+        "invocation": "mix test test/contracts_runtime",
+        "kind": "alias_or_documented_ci_entrypoint",
+        "rule": "The repository MUST provide a stable way to run runtime-harness-backed contract tests alone."
+      },
+      "mix_test_unit": {
+        "blocking": true,
+        "invocation": "mix test test/unit",
+        "kind": "alias_or_documented_ci_entrypoint",
+        "rule": "The repository MUST provide a stable way to run the unit suite alone."
+      }
+    }
+  },
+  "new_proposed_invariants": [
+    {
+      "id": "QA0-NEW-001",
+      "statement": "The implementation repository MUST define a stable mix check entrypoint with a fixed ordered command chain so repo-wide quality enforcement does not drift by contributor, branch, or agent.",
+      "title": "mix check is mandatory and ordered"
+    },
+    {
+      "id": "QA0-NEW-002",
+      "statement": "Blocking tests MUST live in deterministic path classes under test/ so mix test and CI jobs can select suites without tag ambiguity.",
+      "title": "Directory-first ExUnit classification is mandatory"
+    },
+    {
+      "id": "QA0-NEW-003",
+      "statement": "Any bugfix, incident patch, or hotfix MUST add or update a regression test that fails before the fix and passes after the fix.",
+      "title": "Every defect fix requires a permanent reproducer test"
+    },
+    {
+      "id": "QA0-NEW-004",
+      "statement": "If any contract gate declares a TG-0 dynamic runtime assertion primitive, the repository MUST provide test/support/v42_harness.ex and a blocking runtime harness CI job.",
+      "title": "Harness interlock is repo law"
+    },
+    {
+      "id": "QA0-NEW-005",
+      "statement": "A failing blocking test suite MUST fail the pipeline; automatic rerun-until-green behavior MUST NOT be used as release proof.",
+      "title": "Flaky green-through-rerun is banned"
+    },
+    {
+      "id": "QA0-NEW-006",
+      "statement": "Property-based tests MUST run with deterministic seed capture and bounded execution settings so failures can be reproduced exactly.",
+      "title": "Property tests must be reproducible"
+    },
+    {
+      "id": "QA0-NEW-007",
+      "statement": "Protected-branch CI MUST execute on explicitly pinned Elixir and OTP versions so test outcomes do not drift across machines.",
+      "title": "Pinned toolchains are mandatory for protected-branch proof"
+    },
+    {
+      "id": "QA0-NEW-008",
+      "statement": "Global ExUnit configuration MUST originate from test/test_helper.exs so seed handling, exclusions, and support wiring remain auditable.",
+      "title": "test/test_helper.exs owns global ExUnit setup"
+    },
+    {
+      "id": "QA0-NEW-009",
+      "statement": "Focused tests, committed skip tags, and silent quarantine patterns MUST NOT be used as protected-branch merge proof.",
+      "title": "Focus, skip, and quarantine abuse are banned"
+    },
+    {
+      "id": "QA0-NEW-010",
+      "statement": "Database-backed suites MUST use deterministic isolation such as SQL sandbox or equivalent per-test transaction boundaries.",
+      "title": "Database-backed tests require deterministic isolation"
+    },
+    {
+      "id": "QA0-NEW-011",
+      "statement": "Coverage thresholds MUST NOT replace invariant-mapped negative tests, tenancy tests, or regression suites.",
+      "title": "Coverage is evidence, not proof"
+    },
+    {
+      "id": "QA0-NEW-012",
+      "statement": "High-risk contract implementations MUST preserve a discoverable path from governing doc_id or invariant family to blocking test modules.",
+      "title": "High-risk contracts must remain traceable to tests"
+    }
+  ],
+  "purpose": {
+    "non_goals": [
+      "QA-0 does not redefine business semantics already owned by subsystem contracts.",
+      "QA-0 does not define performance-load tooling owned by PSC-1 or incident operations owned by OBS-1.",
+      "QA-0 does not relax V42, tenancy, pricing, ledger, or seat invariants for implementation convenience."
+    ],
+    "one_liner": "Locks the repository execution, ExUnit, and CI quality regime required to prevent implementation regressions and governance drift after development begins.",
+    "scope": [
+      "mix entrypoints that MUST exist and remain stable.",
+      "ExUnit suite topology and blocking categories.",
+      "CI jobs that MUST block merge and release.",
+      "Runtime harness obligations for TG-0 dynamic assertions.",
+      "Regression-test obligations for defects, incidents, and hotfixes.",
+      "Toolchain, lockfile, formatter, and test-helper ownership needed for reproducible QA execution.",
+      "Quarantine, focus, skip, and database-isolation discipline for blocking suites.",
+      "Coverage and traceability rules that prevent false confidence and unowned regressions."
+    ],
+    "why": [
+      "Contracts without executable repo checks still allow code-level drift.",
+      "A deterministic test topology is required so coding agents and humans produce the same enforcement surface.",
+      "Bug fixes without permanent reproducer tests cause repeat incidents.",
+      "Unpinned toolchains and ad hoc ExUnit globals create machine-specific false greens and false reds.",
+      "Skip/focus abuse and weak quarantine discipline silently hollow out protected-branch confidence.",
+      "Coverage percentages without invariant-mapped tests create measurement theater, not safety."
+    ]
+  },
+  "quarantine_control_policy": {
+    "forbidden_patterns_on_protected_branches": [
+      "@tag :focus",
+      "@tag focus: true",
+      "@describetag :focus",
+      "@tag :skip",
+      "@tag skip: true",
+      "exclude: [skip: true]"
+    ],
+    "rules": [
+      "Focused tests, committed skip tags, and blanket skip exclusions MUST NOT be used on protected branches as a substitute for fixing the suite.",
+      "Any temporary quarantine of a blocking test MUST be recorded in a machine-readable registry with an issue reference, owner, expiry date, and containment note.",
+      "A quarantined test MUST remain visible in CI output as quarantined debt; silent disappearance is forbidden."
+    ],
+    "why": "The fastest way to rot a suite is to hide failing tests behind convenience tags and call the branch green."
+  },
+  "references": [
+    {
+      "doc_id": "CS-0",
+      "kind": "contract",
+      "note": "Schema source of truth for bundle, contract, and test-gate validation."
+    },
+    {
+      "doc_id": "BP-0",
+      "kind": "contract",
+      "note": "Template-of-templates used as the hardening baseline for bundle, manifest, and gate discipline."
+    },
+    {
+      "doc_id": "TG-0",
+      "kind": "contract",
+      "note": "Gate structure, dynamic assertion semantics, and Harness Interlock."
+    },
+    {
+      "doc_id": "CG-0",
+      "kind": "contract",
+      "note": "Strict bundle and canonical validation rules."
+    },
+    {
+      "doc_id": "GOV-0",
+      "kind": "contract",
+      "note": "Ash 3.x implementation governance that QA-0 requires to remain continuously enforced."
+    },
+    {
+      "doc_id": "LINT-0",
+      "kind": "contract",
+      "note": "Governance scanning rules consumed by QA-0 CI."
+    },
+    {
+      "doc_id": "TEN-1",
+      "kind": "contract",
+      "note": "Tenancy denial-path invariants that QA-0 maps to dedicated suites."
+    },
+    {
+      "doc_id": "ERR-1",
+      "kind": "contract",
+      "note": "Canonical error envelope invariants used in security and runtime tests."
+    },
+    {
+      "doc_id": "V42-0",
+      "kind": "contract",
+      "note": "Constitutional correctness baseline that QA-0 turns into executable repository law."
+    }
+  ],
+  "regression_prevention_policy": {
+    "bugfix_rule": "Every defect fix, incident remediation, and hotfix MUST include a reproducer test added or updated under the appropriate blocking suite before merge.",
+    "incident_rule": "If a production incident escaped existing tests, the post-incident patch MUST add at least one permanent regression test that would have prevented the escape.",
+    "naming_rule": "Regression tests SHOULD encode the invariant or defect class in the test module or test name so the preserved lesson remains discoverable.",
+    "quarantine_registry_rule": "If a regression test is temporarily quarantined, the quarantine registry entry MUST reference the exact regression test, incident or defect identifier, owner, expiry, and compensating control.",
+    "waiver_rule": "Temporary skipping or quarantine of a blocking regression test MUST carry an explicit issue reference, an owner, an expiry date, and a replacement containment measure; indefinite suppression is forbidden."
+  },
+  "required_repository_layout": {
+    "classification_model": "directory_first",
+    "required_paths": {
+      "contracts_runtime": "test/contracts_runtime",
+      "integration": "test/integration",
+      "property": "test/property",
+      "regression": "test/regression",
+      "runtime_harness": "test/support/v42_harness.ex",
+      "security": "test/security",
+      "support": "test/support",
+      "tenancy": "test/tenancy",
+      "test_helper": "test/test_helper.exs",
+      "test_root": "test",
+      "unit": "test/unit"
+    },
+    "rules": [
+      "Blocking deterministic suites MUST live under the declared test/ subpaths.",
+      "Load, soak, chaos, and benchmark suites MUST NOT hide under the default blocking ExUnit tree; they MUST live under a non-default path such as perf/ or bench/ and be governed separately.",
+      "A repository MAY add more test/ subpaths, but it MUST NOT repurpose the required path classes for unrelated concerns.",
+      "Shared ExUnit helpers, case templates, and harness adapters MUST live under test/support unless a downstream contract explicitly governs another location.",
+      "Production lib/ modules MUST NOT become the hiding place for test-only helper behavior that changes blocking suite semantics."
+    ]
+  },
+  "runtime_harness_contract": {
+    "ci_rule": "CI MUST run a dedicated blocking job for runtime harness tests whenever any contracts_runtime tests exist or any dynamic runtime gates are present in the suite.",
+    "entrypoint": "test/support/v42_harness.ex",
+    "must_provide": [
+      "A deterministic adapter callable from ExUnit tests.",
+      "Fixture loading for Ash actions, HTTP routes, and worker jobs as required by TG-0 trigger schemas.",
+      "Capture helpers for telemetry, tracing, and canonical error envelope assertions.",
+      "Stable helper functions that allow contract-runtime tests to assert doc_id- and invariant-specific outcomes without copy-pasted ad hoc harness code."
+    ],
+    "trigger_rule": "This file becomes mandatory when any suite contract declares TG-0 dynamic runtime assertion primitives."
+  },
+  "schema_version": "contract-suite/1.0",
+  "stability": "stable",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Enterprise QA execution standard for Ash 3.x Elixir repositories: locks mix entrypoints, ExUnit suite topology, CI release blockers, runtime harness requirements, and defect-to-regression-test workflow.",
+  "test_helper_contract": {
+    "entrypoint": "test/test_helper.exs",
+    "rules": [
+      "test/test_helper.exs MUST be the single root for global ExUnit configuration.",
+      "Global test exclusions, case templates, sandbox checkout helpers, and seed/reporting configuration MUST be wired from test/test_helper.exs or files it explicitly requires under test/support.",
+      "test/test_helper.exs MUST NOT silently exclude any blocking QA-0 suite or tag class on protected branches."
+    ]
+  },
+  "test_taxonomy": {
+    "blocking_categories": {
+      "contracts_runtime": {
+        "must_prove": [
+          "TG-0 dynamic runtime assertions are executable in-repo using the harness adapter.",
+          "Telemetry, spans, and error-envelope-to-signal correlations required by contract gates are testable and blocking."
+        ],
+        "path": "test/contracts_runtime"
+      },
+      "integration": {
+        "must_prove": [
+          "Ash domains, resources, actions, repo persistence, and transaction boundaries preserve contract semantics end to end.",
+          "Database-backed flows preserve invariants under normal success and expected business-failure paths."
+        ],
+        "path": "test/integration"
+      },
+      "property": {
+        "must_prove": [
+          "Invariant-heavy logic such as ledger balancing, idempotency normalization, UUID ordering rules, allocation monotonicity, or snapshot immutability holds across generated cases.",
+          "Seeds, bounds, and shrinking output are captured so failures are reproducible."
+        ],
+        "path": "test/property"
+      },
+      "regression": {
+        "must_prove": [
+          "Every previously fixed defect, incident class, or contract drift case remains permanently covered by a concrete reproducer test.",
+          "Regression tests MUST be named after the invariant, defect class, or incident they prevent."
+        ],
+        "path": "test/regression"
+      },
+      "security": {
+        "must_prove": [
+          "Authorization denials, enumeration resistance, idempotency abuse prevention, replay resistance, and privileged boundary checks remain intact.",
+          "Public error responses remain user-safe and do not leak tenant existence or internal state."
+        ],
+        "path": "test/security"
+      },
+      "tenancy": {
+        "must_prove": [
+          "Cross-tenant reads, writes, relationship traversals, background jobs, and administrative boundaries fail closed.",
+          "Canonical tenant key usage remains org_id only."
+        ],
+        "path": "test/tenancy"
+      },
+      "unit": {
+        "must_prove": [
+          "Pure domain logic, validation modules, policy helpers, serializers, calculators, and canonical formatters behave deterministically.",
+          "No network I/O, filesystem I/O, or cross-process orchestration is required."
+        ],
+        "path": "test/unit"
+      }
+    },
+    "negative_test_rule": "High-risk invariants for tenancy, authorization, money, ledger, inventory, scanning, and idempotency MUST include explicit denial-path tests, not only happy-path assertions.",
+    "selection_rule": "mix test MUST execute all deterministic blocking categories under test/ by default."
+  },
+  "tier": 0,
+  "title": "QA Execution, ExUnit, and Regression Prevention Standard",
+  "toolchain_contract": {
+    "required_repository_files": {
+      "formatter": ".formatter.exs",
+      "mix_lock": "mix.lock",
+      "tool_versions": ".tool-versions"
+    },
+    "rules": [
+      "Protected-branch CI MUST run on explicitly pinned Elixir and OTP versions recorded in .tool-versions or an equivalently committed repository file.",
+      "The repository MUST commit mix.lock and MUST treat dependency graph drift as a reviewed change, not an ambient CI variable.",
+      "The repository MUST provide .formatter.exs and MUST keep formatting deterministic across developer and CI environments."
+    ],
+    "why": "Unpinned toolchains and floating dependency graphs create false regressions, false greens, and non-reproducible ExUnit behavior."
+  },
+  "traceability_policy": {
+    "rules": [
+      "High-risk subsystem implementations MUST have at least one blocking test module whose name, tag, or module documentation references the governing doc_id or invariant family.",
+      "When a contract invariant fails in production, the replacement regression test MUST be traceable back to the governing doc_id, incident, or defect class."
+    ]
+  },
+  "updated_at": "2026-03-09T20:00:00Z",
+  "updated_at_utc": "2026-03-09T20:00:00Z",
+  "version": "1.1.1"
+}

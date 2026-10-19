@@ -1,0 +1,21 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "artifact_name": "bundle.manifest.json",
+  "doc_id": "PAY-4",
+  "files": [
+    {
+      "bytes": 53299,
+      "path": "PAY-4_Contract_v2.5.2.json",
+      "sha256": "0b44988049369e3e0e565bd5b8de47cbbf4b137c49b7ee216938b39c3f1abebd"
+    },
+    {
+      "bytes": 36999,
+      "path": "PAY-4_Test_Gates_v2.5.2.json",
+      "sha256": "7ad97164ffb98066bc53a8527c15c0e226fc33211a5357789d0bb986de11cd31"
+    }
+  ],
+  "generated_at_utc": "2026-04-17T05:46:40Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.0",
+  "version": "2.5.2"
+}

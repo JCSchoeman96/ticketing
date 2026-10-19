@@ -1,0 +1,797 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "OFFER-1",
+    "version": "1.3.4"
+  },
+  "doc_id": "OFFER-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "Suite schema pin",
+      "id": "OFFER-1.GATE.0001",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0001 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "Manifest filename required",
+      "id": "OFFER-1.GATE.0002",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0002 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle files must match manifest",
+      "id": "OFFER-1.GATE.0003",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0003 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.3.4",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "OFFER-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Doc/version pointers",
+      "id": "OFFER-1.GATE.0004",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0004 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)\\bTBD\\b",
+              "(?i)\\bTODO\\b",
+              "(?i)\\bFIXME\\b",
+              "\\?\\?"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "(?i)\\bTBD\\b",
+              "(?i)\\bTODO\\b",
+              "(?i)\\bFIXME\\b",
+              "\\?\\?"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders (contract + gates)",
+      "id": "OFFER-1.GATE.0005",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0005 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-ANCHOR-001",
+            "json_pointer": "/invariants/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-TAX-001",
+            "json_pointer": "/invariants/1/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-CURRENCY-001",
+            "json_pointer": "/invariants/2/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Anchor + tax + currency invariants exist",
+      "id": "OFFER-1.GATE.0006",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0006 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-BREADCRUMB",
+            "json_pointer": "/invariants/5/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-LEAD-TIE-BREAKER",
+            "json_pointer": "/invariants/6/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ORD-1 breadcrumb invariant + bundle lead tie-breaker invariant exist",
+      "id": "OFFER-1.GATE.0007",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0007 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-INV-PREREQ-001",
+            "json_pointer": "/invariants/7/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OfferWindow",
+            "json_pointer": "/data_model/resources/3/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "prerequisite_policy",
+            "json_pointer": "/data_model/resources/3/required_attributes/8/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Prerequisite proof invariant exists and OfferWindow exposes prerequisite_policy field",
+      "id": "OFFER-1.GATE.0008",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.0008 failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-LAW-T0-KEY-CLAIM-QUARANTINE",
+            "json_pointer": "/rules/4/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "T0 issuer-key and eligibility-claim path is quarantined; quote and setup actions do not depend on it.",
+      "id": "OFFER-1.GATE.0009",
+      "level": "P0",
+      "must": true,
+      "failure_message": "T0 issuer-key and eligibility-claim quarantine gate failed."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "entitlement_grant_id",
+            "json_pointer": "/data_model/resources/4/required_attributes/11/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "consumption_nonce",
+            "json_pointer": "/data_model/resources/4/required_attributes/12/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Claim schema fields remain defined for non-T0 authority; T0 actions quarantine claim creation and consumption.",
+      "id": "OFFER-1-P0-CLAIM-NONCE-AND-GRANT-REQUIRED-0001",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1-P0-CLAIM-NONCE-AND-GRANT-REQUIRED-0001 failed."
+    },
+    {
+      "id": "OFFER-1-T0-SETUP-ACTIONS",
+      "title": "OFFER-1-T0-SETUP-ACTIONS",
+      "level": "P0",
+      "must": true,
+      "description": "Governed organizer create actions exist.",
+      "failure_message": "OFFER-1-T0-SETUP-ACTIONS failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_offer/purpose",
+            "equals": "Create an Offer in draft state for organizer-managed occurrences."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_product/purpose",
+            "equals": "Create a Product in draft state under an authorized same-tenant Offer."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_product_revision/inputs_required",
+            "equals": [
+              "org_id",
+              "product_id",
+              "revision_seq",
+              "anchor_occurrence_ids",
+              "inventory_claim_specs",
+              "entitlement_specs",
+              "pricing_program_revision_id",
+              "is_bundle",
+              "bundle_apportionment_map",
+              "rounding_strategy",
+              "primary_entitlement_id",
+              "currency_code",
+              "tax_profile_id",
+              "actor_id",
+              "request_id",
+              "trace_id"
+            ]
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_offer_window/purpose",
+            "equals": "Create an OfferWindow for an existing same-tenant Offer."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_product_revision/persisted_attribute_sources/is_bundle",
+            "equals": "inputs.is_bundle"
+          }
+        }
+      ]
+    },
+    {
+      "id": "OFFER-1-T0-ACTIVATION-GUARDS",
+      "title": "OFFER-1-T0-ACTIVATION-GUARDS",
+      "level": "P0",
+      "must": true,
+      "description": "Offer and Product activation transitions are guarded and terminal archival is explicit.",
+      "failure_message": "OFFER-1-T0-ACTIVATION-GUARDS failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/activate_offer/state_transition/to",
+            "equals": "active"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/activate_product/state_transition/to",
+            "equals": "active"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/archive_offer/state_transition/terminal",
+            "equals": true
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/archive_product/state_transition/terminal",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "OFFER-1-T0-PRICE-BINDING",
+      "title": "OFFER-1-T0-PRICE-BINDING",
+      "level": "P0",
+      "must": true,
+      "description": "Reusable product pricing points to a program revision, never a consumable snapshot.",
+      "failure_message": "OFFER-1-T0-PRICE-BINDING failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/outputs",
+            "equals": [
+              "quote_id",
+              "pricing_snapshot_id",
+              "line_quotes[]",
+              "tax_context",
+              "currency_code",
+              "expires_at_utc"
+            ]
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/invariants/9/id",
+            "equals": "OFFER-1-INV-PRICE-REUSABLE-001"
+          }
+        }
+      ]
+    },
+    {
+      "id": "OFFER-1-T0-QUOTE-GUARDS",
+      "title": "OFFER-1-T0-QUOTE-GUARDS",
+      "level": "P0",
+      "must": true,
+      "description": "T0 quotes require the exact pinned active same-tenant TaxProfile with default_tax_basis=org_location and half_even_minor_units, map its single resolved tax_rate_id to a one-element PRICE rate-reference list, pass explicit null PII evidence fields, and never infer jurisdiction from Occurrence.venue.",
+      "failure_message": "OFFER-1-T0-QUOTE-GUARDS failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/quote_preconditions/offer_status",
+            "equals": "active"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/quote_preconditions/product_status",
+            "equals": "active"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/quote_preconditions/offer_window/database_utc_interval",
+            "equals": "starts_at_utc <= now < ends_at_utc"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/quote_preconditions/invalid_behavior/quote_created",
+            "equals": false
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/create_product_revision/persisted_attribute_sources/tax_profile_id",
+            "equals": "inputs.tax_profile_id; immutable tenant TaxProfile identity"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/price_snapshot_input_mapping/tax_pricing_mode",
+            "equals": "Map the resolved TAXCTX-V2 inclusion_mode using PRICE-1 authority: inclusive -> inclusive; exclusive -> exclusive_add_on."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/price_snapshot_input_mapping/applicable_tax_rate_revision_refs",
+            "equals": "[the one resolved TAX-1 tax_rate_id] for the single T0 TAXCTX-V2 context"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/price_snapshot_input_mapping/opaque_pii_jurisdiction_evidence_ref",
+            "equals": "null for T0 org_location quotes"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/price_snapshot_input_mapping/jurisdiction_evidence_sha256",
+            "equals": "null for T0 org_location quotes"
+          }
+        },
+        {
+          "details": {
+            "criterion": "T0 requires an explicitly org_location TaxProfile; maps exactly one resolved tax_rate_id; signs explicit null evidence fields; and fails closed for unsupported bases without projecting Occurrence.venue."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_t0_tax_quote_uses_locked_rate_and_null_evidence_mappings"
+          }
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "null for T0 org_location quotes; do not project EVT-2 Occurrence.venue",
+            "json_pointer": "/domain_actions/build_cart_quote/tax_context_resolution_input_mapping/event_jurisdiction_hint"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/tax_context_t0_lock/required_tax_profile_default_tax_basis",
+            "equals": "org_location"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/tax_context_t0_lock/required_rounding_mode",
+            "equals": "half_even_minor_units"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_final_locks.py::test_t0_quote_uses_only_explicit_org_location_tax_basis"
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_final_locks.py::test_t0_single_tax_context_maps_one_rate_and_null_evidence"
+          }
+        }
+      ],
+      "acceptance_criteria": [
+        "T0 quotes require the pinned TaxProfile to declare default_tax_basis=org_location.",
+        "T0 quotes require resolved rounding_mode=half_even_minor_units without narrowing general TAX-1 rounding modes.",
+        "T0 sends no event_jurisdiction_hint and never projects Occurrence.venue.",
+        "T0 maps one resolved tax_rate_id to one PRICE rate reference and signs explicit null evidence values."
+      ]
+    },
+    {
+      "id": "OFFER-1-T0-ARCHIVE-TIMESTAMP",
+      "title": "OFFER-1-T0-ARCHIVE-TIMESTAMP",
+      "level": "P0",
+      "must": true,
+      "description": "Offer and Product archive transitions persist database time.",
+      "failure_message": "OFFER-1-T0-ARCHIVE-TIMESTAMP failed.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/archive_offer/state_transition/side_effects",
+            "equals": "Persist status=archived and archived_at_utc=database_now atomically; preserve all history."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/archive_product/state_transition/side_effects",
+            "equals": "Persist status=archived and archived_at_utc=database_now atomically; preserve all history."
+          }
+        }
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/inputs/4",
+            "equals": "idempotency_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/price_snapshot_input_mapping/idempotency_key",
+            "equals": "inputs.idempotency_key (pass through unchanged)"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/idempotency_semantics/mismatch",
+            "equals": "Same identity with a different request_hash returns ERR_CONFLICT / EXT_IDEMPOTENCY_REPLAY without repeating side effects."
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/dependencies/4/min_version",
+            "equals": "3.8.3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/ord_checkout_binding/persisted_order_field",
+            "equals": "Order.price_snapshot_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Quote creation supplies PRICE idempotency authority and binds the exact quote to ORD.",
+      "id": "OFFER-1-T0-PRICE-IDEMPOTENCY-ORD-BINDING",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1-T0-PRICE-IDEMPOTENCY-ORD-BINDING failed."
+    },
+    {
+      "id": "OFFER-1.GATE.T0.001",
+      "title": "OFFER-1.GATE.T0.001",
+      "description": "Buyer capability offer.quote.create authorizes OFFER-1.build_cart_quote. OFFER invokes PRICE-1.create_snapshot and PRICE-1.activate_snapshot under scoped authenticated delegation, preserving originating actor attribution, org_id, request_id, trace_id, and the boundary Idempotency-Key. Generic authorization bypass is forbidden.",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.T0.001 failed.",
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "criterion": "Buyer capability offer.quote.create authorizes OFFER-1.build_cart_quote. OFFER invokes PRICE-1.create_snapshot and PRICE-1.activate_snapshot under scoped authenticated delegation, preserving originating actor attribution, org_id, request_id, trace_id, and the boundary Idempotency-Key. Generic authorization bypass is forbidden."
+          }
+        }
+      ]
+    },
+    {
+      "id": "OFFER-1.GATE.T0.002",
+      "title": "OFFER-1.GATE.T0.002",
+      "description": "ProductRevision pins tax_profile_id, and quote tax context is deterministic TAXCTX-V2 without a persisted TaxContext resource.",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.T0.002 failed.",
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "criterion": "ProductRevision pins tax_profile_id, and quote tax context is deterministic TAXCTX-V2 without a persisted TaxContext resource."
+          }
+        }
+      ]
+    },
+    {
+      "id": "OFFER-1.GATE.T0.003",
+      "title": "OFFER-1.GATE.T0.003",
+      "description": "OFFER-1 uses durable identity (org_id, operation_id, key), a separate canonical request_hash, same-input replay, changed-input conflict, and concurrent replay of the original outcome.",
+      "level": "P0",
+      "must": true,
+      "failure_message": "OFFER-1.GATE.T0.003 failed.",
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "criterion": "OFFER-1 uses durable identity (org_id, operation_id, key), a separate canonical request_hash, same-input replay, changed-input conflict, and concurrent replay of the original outcome."
+          }
+        },
+        {
+          "mode": "automated",
+          "type": "json_pointer_equals",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/domain_actions/build_cart_quote/idempotency_semantics/durable_storage_field_mapping",
+            "equals": "LOCKS-1 field operation_id stores the stable operation_id value; uniqueness is (org_id, operation_id, key)."
+          }
+        }
+      ],
+      "acceptance_criteria": [
+        "OFFER-1 uses durable identity (org_id, operation_id, key), a separate canonical request_hash, same-input replay, changed-input conflict, and concurrent replay of the original outcome."
+      ]
+    },
+    {
+      "id": "OFFER-1-T0-CLAIM-PATH-QUARANTINE",
+      "level": "P0",
+      "must": true,
+      "description": "T0 setup and quote actions reject claim-dependent eligibility, prerequisites, and child occurrences.",
+      "failure_message": "OFFER-1-T0-CLAIM-PATH-QUARANTINE failed.",
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OFFER-1-LAW-T0-KEY-CLAIM-QUARANTINE",
+            "json_pointer": "/rules/4/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "T0 MUST require public eligibility and MUST fail closed when an EligibilityIssuerKey, SignedEligibilityClaim, or claim nonce is needed.",
+            "json_pointer": "/domain_actions/build_cart_quote/validation_rules/25"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "T0 MUST reject any anchor Occurrence with EVT-2 depth_level=1 or parent_occurrence_id present.",
+            "json_pointer": "/domain_actions/create_product_revision/validation_rules/10"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "T0 MUST accept only eligibility_policy.mode=public and prerequisite_policy.mode=none or null; signed_claim_required and requires_entitlement are unsupported.",
+            "json_pointer": "/domain_actions/create_offer_window/validation_rules/4"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ]
+    },
+    {
+      "id": "OFFER-1-T0-ACTION-ERRORS",
+      "title": "OFFER-1-T0-ACTION-ERRORS",
+      "level": "P0",
+      "must": true,
+      "description": "Every T0-required OFFER domain action uses unique top-level error codes registered in ERR-1.",
+      "failure_message": "OFFER-1-T0-ACTION-ERRORS failed.",
+      "assertions": [
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_t0_offer_action_errors_are_registered_and_unique"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-10-09T16:48:29Z",
+  "last_updated_utc": "2026-10-09T16:48:29Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "OFFER-1 Test Gates",
+  "updated_at": "2026-10-09T16:33:00Z",
+  "version": "1.3.4"
+}

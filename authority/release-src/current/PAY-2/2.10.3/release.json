@@ -1,0 +1,13 @@
+{
+  "doc_id": "PAY-2",
+  "version": "2.10.3",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch successor preserving PAY-2 semantics while repairing the recorded CS-0/gate/manifest identity defects.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "89b85c6f150fd801c46fe69d56618fd66ac9e01162b84c0af9a99bc10ad28766"
+  }
+}

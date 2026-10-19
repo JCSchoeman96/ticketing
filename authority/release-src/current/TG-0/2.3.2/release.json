@@ -1,0 +1,14 @@
+{
+  "doc_id": "TG-0",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "proposed_successor_version": "2.3.2",
+  "release_intent": "Patch release correcting known bundle/schema identity defects while preserving existing contract behavior.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "a89657e2f9d286ad5b91327f62a2abea1c7dca2dcf805e8eb164d532fbb0b64a"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.3.2"
+}

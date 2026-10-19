@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "TRK-1",
+    "bundle_version": "1.3.3"
+  },
+  "doc_id": "TRK-1",
+  "files": [
+    {
+      "bytes": 54393,
+      "path": "TRK-1_Contract_v1.3.3.json",
+      "sha256": "97c2683a84cbf145956de95bdf0fa79ff0b1e0bf2da72530a630fe5f24160cc7"
+    },
+    {
+      "bytes": 24004,
+      "path": "TRK-1_Test_Gates_v1.3.3.json",
+      "sha256": "32822b2de0a50e4ef3fbce244d62cef99f8fb4b0823020a46868a530003c0ad5"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.3.3"
+}

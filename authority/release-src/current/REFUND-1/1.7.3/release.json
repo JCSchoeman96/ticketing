@@ -1,0 +1,13 @@
+{
+  "doc_id": "REFUND-1",
+  "version": "1.7.3",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch successor preserving REFUND-1 semantics while repairing the recorded CS-0/gate/manifest identity defects.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "f2f0a23b5c3be9ff5a9b71d052cebb139faf0a3867ef4bf29271fb7124ac8612"
+  }
+}

@@ -1,0 +1,1674 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "COMM-1_Contract_v1.1.6.json",
+  "ash_3x_resource_map": {
+    "domain": "Ticketing.Communications",
+    "policies": {
+      "capabilities_expected": [
+        "comm:template_admin",
+        "comm:send_transactional",
+        "comm:send_marketing",
+        "comm:override_suppression",
+        "comm:dead_letter_replay",
+        "comm:view_audit"
+      ],
+      "policy_rules": [
+        "template_admin_required_for_publish_and_deprecate",
+        "override_suppression_requires_explicit_capability_and_audit_reason_new_proposed_invariant",
+        "marketing_send_requires_marketing_consent_basis_and_comm:send_marketing_capability"
+      ]
+    },
+    "resources": [
+      {
+        "actions": [
+          "create_draft",
+          "publish",
+          "deprecate"
+        ],
+        "append_only": "false",
+        "immutability_rule": "published_records_shall_be_immutable_except_state_transition_metadata",
+        "resource": "Ticketing.Communications.MessageTemplate",
+        "tenancy": "org_id_optional_platform_templates_allowed_if_explicit"
+      },
+      {
+        "actions": [
+          "request"
+        ],
+        "append_only": "true",
+        "idempotency": "dedupe_key_unique_within_window",
+        "resource": "Ticketing.Communications.MessageRequest",
+        "tenancy": "org_id_required"
+      },
+      {
+        "actions": [
+          "record_attempt"
+        ],
+        "append_only": "true",
+        "resource": "Ticketing.Communications.MessageDispatchAttempt",
+        "tenancy": "org_id_required"
+      },
+      {
+        "actions": [
+          "record_receipt"
+        ],
+        "append_only": "true",
+        "resource": "Ticketing.Communications.MessageReceipt",
+        "tenancy": "org_id_required"
+      },
+      {
+        "actions": [
+          "add",
+          "remove"
+        ],
+        "append_only": "true",
+        "effective_state": "derived_current_effective_suppression_by_subject_and_channel",
+        "resource": "Ticketing.Communications.SuppressionEntry",
+        "tenancy": "org_id_required"
+      }
+    ],
+    "validations": [
+      "variable_allowlist_enforced_on_request_and_render",
+      "template_version_pin_enforced_on_request",
+      "marketing_consent_basis_required_validation",
+      "recipient_ref_format_validation"
+    ]
+  },
+  "banned_anti_patterns": {
+    "ap_ash2_drift": {
+      "ban": true,
+      "rule": "Ash 2.x API terminology MUST NOT be used; use Ash 3.x Domains/Resources/Actions.",
+      "severity": "P0"
+    },
+    "ap_banned_tokens": {
+      "ban": true,
+      "rule": "Placeholder markers are forbidden in lockable artifacts.",
+      "severity": "P0"
+    },
+    "ap_hybrid_message_class": {
+      "ban": true,
+      "rule": "A message MUST have exactly one message_class; embedding marketing content inside transactional messages is forbidden.",
+      "severity": "P0"
+    },
+    "ap_implicit": {
+      "ban": true,
+      "rule": "No implicit defaults for consent, tenancy, dispatch, dedupe, or retention; all MUST rules explicit.",
+      "severity": "P0"
+    },
+    "ap_key_naming": {
+      "ban": true,
+      "rule": "Do not use api_actions in contracts; use domain_actions.",
+      "severity": "P0"
+    },
+    "ap_regex_theater": {
+      "ban": true,
+      "rule": "Subsystem contracts MUST NOT introduce repo-wide scanning gates; only bundle-scoped assertions are permitted.",
+      "severity": "P0"
+    },
+    "ap_secrets_in_comm": {
+      "ban": true,
+      "rule": "COMM artifacts and logs MUST NOT store provider secrets (API keys, SMTP passwords) or raw signing material.",
+      "severity": "P0"
+    },
+    "ap_store_rendered_content": {
+      "ban": true,
+      "rule": "Storing full rendered message content is forbidden by default; only render_hash + template pin + redacted variables may be persisted unless legal-required and explicitly enabled.",
+      "severity": "P1"
+    },
+    "ap_sync_dispatch": {
+      "ban": true,
+      "rule": "Synchronous message dispatch in checkout/payment/ledger request paths is forbidden; COMM must be async-only.",
+      "severity": "P0"
+    },
+    "ap_vendor_template_drift": {
+      "ban": true,
+      "rule": "Provider-native templates MUST NOT be used as the canonical source of truth for auth or transactional messages; vendor UI edits must not silently alter pinned templates.",
+      "severity": "P0"
+    }
+  },
+  "canonical": false,
+  "change_log": [
+    {
+      "changes": [
+        "Renamed test-gates artifact to BP-0 Test_Gates filename format.",
+        "Fixed artifact_name metadata to match the current contract artifact filename.",
+        "Raised ERR-1 and INT-1 dependency floors to the coordinated clean versions.",
+        "Preserved COMM as communications authority while provider routing remains delegated to INT-1."
+      ],
+      "released_at_utc": "2026-06-03T14:50:00Z",
+      "summary": "Coordinated dependency-floor and artifact-metadata hygiene patch.",
+      "version": "1.1.5"
+    },
+    {
+      "changes": [
+        "Updated COMM-1 dependency floors for CS-0@3.0.0, INT-1 v1.0.3, and ERR-1 v1.8.1.",
+        "Replaced stale INT integration_registry wording with ProviderRoutingRule and provider_account_ref semantics.",
+        "Normalized string-only COMM error subcode entries to object entries with base and retryable metadata.",
+        "Updated automated suite_schema gate from CS-0@2.3.0 to CS-0@3.0.0."
+      ],
+      "summary": "CS-0@3.0.0 final hardening for COMM dependency floors, INT-1 provider routing alignment, and ERR-1 registry parity.",
+      "version": "1.1.4"
+    },
+    {
+      "changes": [
+        "Removed non-normative PRICE_1 formatting reference from variable_type_system and replaced with deterministic money_display_policy.",
+        "Introduced money_display_policy with pinned engine semantics and locale fallback rules (no floating point; ISO-4217 currency codes).",
+        "Extended variable_type_system with currency_code_iso_4217 type (append-only).",
+        "Fixed artifact_name fields to match bundle filenames and version.",
+        "Hardened placeholder ban gate coverage to include all gate entries."
+      ],
+      "released_at_utc": "2026-02-25T14:45:04Z",
+      "summary": "Remove ambiguous PRICE_1 currency formatting reference; lock deterministic money_display_policy; fix artifact metadata drift; extend gates placeholder coverage.",
+      "version": "1.1.3"
+    },
+    {
+      "changes": [
+        "Declared PII-1, INT-1, SEC-1 as MUST dependencies to make PII boundary and provider posture enforceable.",
+        "Locked deterministic_uuid_sorting for all UUID list hashing/signing and apportionment tie-breaks.",
+        "Pinned bulk_send audience_snapshot requirements (ref, hash, count) to prevent audience drift after approval.",
+        "Enforced strict example variable typing for url_https and iso_datetime_utc."
+      ],
+      "released_at_utc": "2026-02-25T12:29:43Z",
+      "summary": "Hardening: enforce no-secrets posture; add INT/SEC/PII dependencies; lock uuid binary sorting; pin bulk audience snapshot fields; enforce strict example variable types.",
+      "version": "1.1.2"
+    },
+    {
+      "changes": [
+        "Bumped suite_schema to CS-0@2.3.0 to align with planned suite migration and CANON-1/ERR-1 head.",
+        "Locked template canonicality rules (platform source-of-truth for auth/transactional) and introduced versioned layout components with hash pinning.",
+        "Defined template import pipeline: import-to-draft only; lint clean required for publish; forbid unsafe links and PII query parameters.",
+        "Defined provider_kind matrix (smtp_relay, api_transactional, campaign_platform) and disallowed campaign_platform for auth/transactional.",
+        "Locked platform/org audience model and unsubscribe precedence layering via CONSENT-1 + COMM suppression.",
+        "Introduced bulk_send governance requiring QUORUM approval above thresholds with cancellation window.",
+        "Classified cart abandonment and post-purchase upsell as marketing-only; banned hybrid marketing in receipts.",
+        "Aligned retention profiles to DATA-1 (p1_operational, p2_audit_evidence) and reinforced DSAR cryptoshred unlinkability."
+      ],
+      "released_at_utc": "2026-02-25T11:29:43Z",
+      "summary": "Semantics hardening: template source-of-truth + import pipeline + layout components; provider kind matrix; platform/org scope + bulk send governance; funnel messaging (abandonment/upsell) classified as marketing; DATA-1 retention alignment; CS-0@2.3.0 adoption.",
+      "version": "1.1.0"
+    },
+    {
+      "changes": [
+        "NEW: Initial contract defining message classes, consent gating, template registry, async dispatch semantics, suppression, observability, and retention posture."
+      ],
+      "date_utc": "2026-02-25",
+      "version": "1.0.0"
+    }
+  ],
+  "channels": {
+    "allowed_channels": [
+      "email",
+      "sms",
+      "whatsapp",
+      "push",
+      "in_app"
+    ],
+    "channel_general_rules": [
+      "channel_selection_must_be_deterministic_and_auditable",
+      "channel_must_be_enabled_at_platform_and_tenant_scope_before_sending",
+      "channel_specific_opt_out_keywords_and_mechanics_must_be_supported_where_applicable"
+    ]
+  },
+  "consent_opt_out_unsubscribe": {
+    "channel_mechanics": {
+      "email": "unsubscribe_link_required_for_marketing",
+      "in_app": "settings_opt_out_respected_new_proposed_invariant",
+      "push": "device_level_opt_out_respected_new_proposed_invariant",
+      "sms": "stop_keyword_required_for_marketing_new_proposed_invariant",
+      "whatsapp": "provider_opt_out_mechanics_required_new_proposed_invariant"
+    },
+    "rules": [
+      "Marketing messages MUST require explicit consent per CONSENT-1 for the applicable scope (org_id or platform_org_id).",
+      "Transactional messages MUST NOT require marketing consent and MUST NOT be blocked by marketing opt-out.",
+      "Unsubscribe and opt-out MUST take effect immediately for future sends within the applicable scope and channel.",
+      "Opt-out and suppression decisions MUST be auditable and tenant-scoped; platform scope uses platform_org_id.",
+      "Effective send eligibility MUST be computed as: consent_allow (CONSENT-1) AND channel_allowed (COMM opt-out) AND NOT suppressed (deliverability safety). Deny wins within scope; deliverability safety always wins."
+    ],
+    "unsubscribe_scope_model": {
+      "layers": [
+        {
+          "authority": "CONSENT-1",
+          "layer": "consent",
+          "scopes": [
+            "org_id",
+            "platform_org_id"
+          ]
+        },
+        {
+          "authority": "COMM-1",
+          "default": "channel_specific",
+          "layer": "channel_opt_out",
+          "scopes": [
+            "org_id",
+            "platform_org_id"
+          ]
+        },
+        {
+          "authority": "COMM-1",
+          "layer": "deliverability_safety",
+          "platform_scoped_allowed_for_global_reputation_protection": true,
+          "scopes": [
+            "org_id"
+          ]
+        }
+      ],
+      "rules": [
+        "Channel opt-out MUST be channel-specific by default. Global opt-out MUST be explicit and recorded as a separate opt_out_scope value.",
+        "Complaint-based suppression MUST be treated as deliverability_safety and MUST override all other allowances for that channel."
+      ]
+    }
+  },
+  "dependencies": [
+    {
+      "doc_id": "BP-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "BP-0 defines the CS-0@3.0.0 blueprint discipline and template-of-templates expectations."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Schema compliance for contract/test-gates/manifest artifacts (suite_schema pinned to CS-0@3.0.0)."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Test-gates schema and gate authoring conventions."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "requires",
+      "min_version": "1.8.1",
+      "reason": "Constitutional reliability, money, tenancy, and observability invariants applied to comms side effects."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "requires",
+      "min_version": "2.0.10",
+      "reason": "Governance baseline; contract-level anti-pattern bans and enforcement posture."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "requires",
+      "min_version": "2.0.11",
+      "reason": "Repo governance lint alignment for snake_case and banned-token rules."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.12",
+      "reason": "Multi-tenancy: org_id scoping for all message artifacts and RLS expectations."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.10",
+      "reason": "Actor identity, capabilities, and audit context."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.8.2",
+      "reason": "ERR-1 governs the canonical error envelope and includes COMM_* subcodes for COMM-1 v1.1.5 and later."
+    },
+    {
+      "doc_id": "CONSENT-1",
+      "edge_type": "requires",
+      "min_version": "1.1.2",
+      "reason": "Marketing consent gating and consent proof hash model; platform-wide consent via dedicated platform org_id."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "Recipient identity boundary, subject mapping, and cryptoshred primitives used by COMM for pseudonymous recipient_ref and webhook PII stripping."
+    },
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "requires",
+      "min_version": "1.3.1",
+      "reason": "Data classification and retention profile taxonomy (p0..p4) used for COMM retention posture."
+    },
+    {
+      "doc_id": "DSAR-1",
+      "edge_type": "requires",
+      "min_version": "1.2.2",
+      "reason": "Cryptoshred semantics and DSAR orchestration: unlinkability without mutating immutable truth."
+    },
+    {
+      "doc_id": "TRK-1",
+      "edge_type": "requires",
+      "min_version": "1.3.2",
+      "reason": "Tracking token issuance and PII deny-pattern sanitization; COMM tracking is delegated to TRK only."
+    },
+    {
+      "doc_id": "QUORUM-1",
+      "edge_type": "requires",
+      "min_version": "1.0.0",
+      "reason": "Dual-control approvals for platform-scoped and high-impact bulk sends, template kill-switch actions, and overrides."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.6",
+      "reason": "Telemetry and alerting conventions for delivery outcomes."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.4",
+      "reason": "Queue capacity, backpressure, and safe mode alignment for async dispatch."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "requires",
+      "min_version": "1.7.0",
+      "reason": "Performance budgets and degraded mode posture for non-checkout side effects."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.1",
+      "reason": "Lock semantics for publish workflow and dedupe locks (when implemented)."
+    },
+    {
+      "doc_id": "INT-1",
+      "edge_type": "requires",
+      "min_version": "1.0.4",
+      "reason": "INT-1 owns provider account registry, sender identity, and deterministic ProviderRoutingRule resolution consumed by COMM-1 dispatch attempts."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.0.7",
+      "reason": "Provider secrets governance and webhook authentication material; COMM stores only opaque references."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "CI strict gate expectations and bundle integrity enforcement."
+    }
+  ],
+  "deterministic_uuid_sorting": {
+    "required": true,
+    "rules": [
+      "When hashing/signing over a list of UUIDs or using UUIDs for apportionment tie-breaks, the system MUST normalize each UUID to raw 16-byte form.",
+      "The system MUST sort UUIDs by unsigned lexicographic byte order (ascending) over the 16-byte representation.",
+      "The system MUST NOT sort UUID strings for any cryptographic or tie-break logic.",
+      "COMM bulk/audience snapshot hashing and any multi-UUID hashes in COMM MUST apply these rules."
+    ]
+  },
+  "doc_id": "COMM-1",
+  "err_subcodes_used": [
+    {
+      "subcode": "COMM_TEMPLATE_NOT_FOUND"
+    },
+    {
+      "subcode": "COMM_TEMPLATE_VERSION_NOT_ALLOWED"
+    },
+    {
+      "subcode": "COMM_TEMPLATE_IMPORT_LINT_FAILED"
+    },
+    {
+      "subcode": "COMM_TEMPLATE_COMPONENT_UNPINNED"
+    },
+    {
+      "subcode": "COMM_RENDER_VARIABLE_MISSING"
+    },
+    {
+      "subcode": "COMM_VARIABLE_FORBIDDEN"
+    },
+    {
+      "subcode": "COMM_VARIABLE_TYPE_INVALID"
+    },
+    {
+      "subcode": "COMM_LOCALE_UNRESOLVABLE"
+    },
+    {
+      "subcode": "COMM_RECIPIENT_SUPPRESSED"
+    },
+    {
+      "subcode": "COMM_RECIPIENT_UNRESOLVABLE"
+    },
+    {
+      "subcode": "COMM_CONSENT_REQUIRED"
+    },
+    {
+      "subcode": "COMM_CONSENT_PROOF_INVALID"
+    },
+    {
+      "subcode": "COMM_CHANNEL_DISABLED"
+    },
+    {
+      "subcode": "COMM_RATE_LIMITED"
+    },
+    {
+      "subcode": "COMM_RESEND_RATE_LIMITED"
+    },
+    {
+      "subcode": "COMM_PROVIDER_UNAVAILABLE"
+    },
+    {
+      "subcode": "COMM_PROVIDER_KIND_NOT_ALLOWED"
+    },
+    {
+      "subcode": "COMM_WEBHOOK_AUTH_FAILED"
+    },
+    {
+      "subcode": "COMM_WEBHOOK_REPLAY_DETECTED"
+    },
+    {
+      "subcode": "COMM_DEDUPE_HIT"
+    },
+    {
+      "subcode": "COMM_SAFE_MODE_ACTIVE"
+    },
+    {
+      "subcode": "COMM_ATTACHMENT_FORBIDDEN"
+    },
+    {
+      "subcode": "COMM_BULK_SEND_REQUIRES_QUORUM"
+    },
+    {
+      "subcode": "COMM_TRACKING_TOKEN_REQUIRED"
+    },
+    {
+      "subcode": "COMM_TEMPLATE_NOT_PUBLISHED"
+    },
+    {
+      "subcode": "COMM_PII_MAPPING_REQUIRED"
+    },
+    {
+      "subcode": "COMM_PROVIDER_WEBHOOK_UNAUTHENTICATED"
+    }
+  ],
+  "errors": {
+    "alignment_rule": "All errors MUST be emitted using ERR-1 RFC9457 envelope; COMM_* are ERR-1 subcodes recorded in extensions.subcode.",
+    "notes": [
+      "COMM_* subcodes are domain-specific; top-level code MUST be one of ERR-1 registry.top_level_codes[].code.",
+      "Error envelopes MUST include correlation_id/request_id as applicable and MUST avoid raw PII."
+    ],
+    "primary_codes_used": [
+      "ERR_CONFLICT",
+      "ERR_FORBIDDEN",
+      "ERR_NOT_FOUND",
+      "ERR_PRECONDITION",
+      "ERR_RATE_LIMITED",
+      "ERR_UNAVAILABLE",
+      "ERR_VALIDATION"
+    ],
+    "subcodes": {
+      "COMM_ATTACHMENT_FORBIDDEN": {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false
+      },
+      "COMM_BULK_SEND_REQUIRES_QUORUM": {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false
+      },
+      "COMM_CHANNEL_DISABLED": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "COMM_CONSENT_PROOF_INVALID": {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false
+      },
+      "COMM_CONSENT_REQUIRED": {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false
+      },
+      "COMM_DEDUPE_HIT": {
+        "base": "ERR_CONFLICT",
+        "retryable": false
+      },
+      "COMM_LOCALE_UNRESOLVABLE": {
+        "base": "ERR_VALIDATION",
+        "retryable": false
+      },
+      "COMM_PII_MAPPING_REQUIRED": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "COMM_PROVIDER_KIND_NOT_ALLOWED": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "COMM_PROVIDER_UNAVAILABLE": {
+        "base": "ERR_UNAVAILABLE",
+        "retryable": true
+      },
+      "COMM_PROVIDER_WEBHOOK_UNAUTHENTICATED": {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false
+      },
+      "COMM_RATE_LIMITED": {
+        "base": "ERR_RATE_LIMITED",
+        "retryable": true
+      },
+      "COMM_RECIPIENT_SUPPRESSED": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "COMM_RECIPIENT_UNRESOLVABLE": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "COMM_RENDER_VARIABLE_MISSING": {
+        "base": "ERR_VALIDATION",
+        "retryable": false
+      },
+      "COMM_RESEND_RATE_LIMITED": {
+        "base": "ERR_RATE_LIMITED",
+        "retryable": true
+      },
+      "COMM_SAFE_MODE_ACTIVE": {
+        "base": "ERR_UNAVAILABLE",
+        "retryable": true
+      },
+      "COMM_TEMPLATE_COMPONENT_UNPINNED": {
+        "base": "ERR_VALIDATION",
+        "retryable": false
+      },
+      "COMM_TEMPLATE_IMPORT_LINT_FAILED": {
+        "base": "ERR_VALIDATION",
+        "retryable": false
+      },
+      "COMM_TEMPLATE_NOT_FOUND": {
+        "base": "ERR_NOT_FOUND",
+        "retryable": false
+      },
+      "COMM_TEMPLATE_NOT_PUBLISHED": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "COMM_TEMPLATE_VERSION_NOT_ALLOWED": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "COMM_TRACKING_TOKEN_REQUIRED": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "COMM_VARIABLE_FORBIDDEN": {
+        "base": "ERR_VALIDATION",
+        "retryable": false
+      },
+      "COMM_VARIABLE_TYPE_INVALID": {
+        "base": "ERR_VALIDATION",
+        "retryable": false
+      },
+      "COMM_WEBHOOK_AUTH_FAILED": {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false
+      },
+      "COMM_WEBHOOK_REPLAY_DETECTED": {
+        "base": "ERR_CONFLICT",
+        "retryable": false
+      }
+    }
+  },
+  "generated_at_utc": "2026-06-03T14:30:00Z",
+  "last_updated_utc": "2026-06-03T14:50:00Z",
+  "message_classes": {
+    "class_conflict_rule": "most_restrictive_wins_for_opt_out_and_suppression",
+    "classes": [
+      {
+        "consent_rule": "transactional_messages_must_not_require_marketing_consent",
+        "description": "Messages required to fulfill or secure a user-initiated transaction or account action.",
+        "message_class": "transactional",
+        "priority": "high"
+      },
+      {
+        "consent_rule": "marketing_messages_must_require_explicit_marketing_consent",
+        "description": "Promotional or engagement messages not required to fulfill a transaction.",
+        "message_class": "marketing",
+        "priority": "low"
+      },
+      {
+        "consent_rule": "operational_messages_must_be_explicitly_authorized_and_auditable",
+        "description": "Operational notices such as incident notices, status updates, and admin alerts.",
+        "message_class": "operational",
+        "priority": "medium"
+      },
+      {
+        "consent_rule": "legal_messages_must_be_explicitly_authorized_and_auditable",
+        "description": "Legally required notices such as terms updates or legally required invoices.",
+        "message_class": "legal",
+        "priority": "high"
+      }
+    ],
+    "default_classification_rule": "every_template_shall_be_pinned_to_exactly_one_message_class"
+  },
+  "message_request_and_dispatch": {
+    "async_dispatch": {
+      "attempt_policy": {
+        "initial_backoff_seconds": "NEW_proposed_invariant:30",
+        "max_attempts_default": "NEW_proposed_invariant:8",
+        "max_backoff_seconds": "NEW_proposed_invariant:3600"
+      },
+      "circuit_breaker": {
+        "rules": [
+          "provider_failure_rate_thresholds_shall_trip_circuit_breaker",
+          "when_tripped_marketing_messages_shall_be_dropped_or_deferred_first",
+          "transactional_messages_shall_fallback_to_alternate_provider_if_configured"
+        ],
+        "thresholds": {
+          "new_proposed_invariant": "trip_if_provider_5xx_rate_over_5_percent_over_5_minutes_or_latency_p95_over_10_seconds_over_5_minutes"
+        }
+      },
+      "dead_letter_policy": {
+        "rules": [
+          "failed_after_max_attempts_shall_be_written_to_dead_letter_queue",
+          "dead_letter_entries_shall_be_queryable_by_tenant_admins_with_capability",
+          "dead_letter_replay_shall_require_explicit_operator_action_and_audit_reason"
+        ]
+      },
+      "rules": [
+        "dispatch_must_be_async_via_job_queue",
+        "dispatch_must_not_run_in_checkout_request_path",
+        "retries_must_be_job_queue_managed_with_exponential_backoff_and_jitter"
+      ]
+    },
+    "auth_message_rules": {
+      "rules": [
+        "Auth message requests MUST be non-enumerating: the caller MUST NOT be able to infer account existence from API responses or timing.",
+        "Auth message requests MUST be rate-limited per {recipient_ref, org_id, purpose_id} and per caller fingerprint (e.g., ip_hash).",
+        "Auth messages MUST use high-priority queues but MUST still respect abuse throttles and safe mode."
+      ]
+    },
+    "bulk_send_governance": {
+      "bulk_send_request_schema": {
+        "fields": [
+          "bulk_send_id",
+          "org_id",
+          "purpose_id",
+          "template_id",
+          "template_version",
+          "locale",
+          "audience_selector_ref",
+          "audience_snapshot_ref",
+          "audience_snapshot_hash_sha256",
+          "audience_snapshot_subject_id_count",
+          "audience_size_estimate",
+          "consent_proof_hash_sha256",
+          "start_at_utc",
+          "cancel_before_utc",
+          "throttle_plan",
+          "requested_by_actor_ref"
+        ]
+      },
+      "rules": [
+        "Bulk sends MUST be expressed as bulk_send_request objects; direct per-recipient loops are forbidden for bulk operations.",
+        "Bulk sends above thresholds MUST require QUORUM-1 approval before dispatch starts.",
+        "Bulk sends MUST declare cancel_before_utc and MUST support cancellation until that timestamp.",
+        "Bulk sends MUST declare throttle_plan and must not exceed per-provider send limits.",
+        "NEW: proposed invariant — bulk sends MUST pin an audience_snapshot_ref at approval time; dynamic audience evaluation after approval is forbidden.",
+        "NEW: proposed invariant — bulk send audience snapshot hashing MUST be deterministic and MUST apply deterministic_uuid_sorting when UUID lists are part of the hash base."
+      ],
+      "thresholds": {
+        "org_scoped_quorum_required_audience_size_ge": 5000,
+        "platform_scoped_quorum_required_audience_size_ge": 1000
+      }
+    },
+    "dedupe_and_idempotency": {
+      "dedupe_key_derivation": {
+        "new_proposed_invariant": "dedupe_key_shall_be_sha256_of_canonical_json_of_{org_id,recipient_ref,channel,message_class,template_id,template_version,intent_ref,day_bucket_utc} where intent_ref is a stable domain reference (e.g., ord_id) and day_bucket_utc is derived from requested_at_utc for windowing."
+      },
+      "dedupe_windows_seconds": {
+        "legal": 31536000,
+        "marketing": 604800,
+        "operational": 3600,
+        "transactional": 86400
+      },
+      "rules": [
+        "same_dedupe_key_must_not_send_twice_within_dedupe_window",
+        "dedupe_state_must_be_shared_across_retries_and_provider_failovers",
+        "dedupe_key_must_be_stable_for_the_same_intent"
+      ]
+    },
+    "delivery_receipts": {
+      "receipt_states": [
+        "provider_accepted",
+        "delivered",
+        "failed",
+        "bounced",
+        "complained",
+        "unsubscribed"
+      ],
+      "rules": [
+        "provider_acceptance_and_delivery_state_shall_be_recorded_as_receipts",
+        "receipt_events_shall_not_mutate_business_truth",
+        "receipt_processing_shall_update_suppression_entries_for_bounce_and_complaint"
+      ]
+    },
+    "idempotency_rules": {
+      "dedupe_key": {
+        "algorithm": "sha256_hex",
+        "basis_fields_ordered": [
+          "org_id",
+          "recipient_ref",
+          "channel",
+          "message_class",
+          "purpose_id",
+          "template_id",
+          "template_version",
+          "dedupe_bucket"
+        ],
+        "encoding": "utf8",
+        "prefix": "comm1:",
+        "string_format": "newline_separated"
+      },
+      "dedupe_windows_seconds_by_message_class": {
+        "legal": 86400,
+        "marketing": 604800,
+        "operational": 3600,
+        "transactional": 86400
+      },
+      "rules": [
+        "Same dedupe_key MUST NOT dispatch more than once within its dedupe window.",
+        "Dedupe key MUST be computed deterministically from basis_fields_ordered with dedupe_bucket derived from requested_at_utc and message_class window."
+      ]
+    },
+    "locale_resolution": {
+      "fallback_chain": [
+        "exact_locale",
+        "language_only",
+        "org_default_locale",
+        "platform_default_locale"
+      ],
+      "rules": [
+        "Locale selection MUST be deterministic and MUST follow fallback_chain.",
+        "If no locale can be resolved, dispatch MUST fail with COMM_LOCALE_UNRESOLVABLE."
+      ]
+    },
+    "message_purpose_catalog": {
+      "purposes": [
+        {
+          "channels": [
+            "email",
+            "sms"
+          ],
+          "message_class": "transactional",
+          "notes": "Auth; must be non-enumerating.",
+          "purpose_id": "auth_password_reset"
+        },
+        {
+          "channels": [
+            "sms",
+            "whatsapp"
+          ],
+          "message_class": "transactional",
+          "notes": "Auth; abuse-throttled.",
+          "purpose_id": "auth_otp"
+        },
+        {
+          "channels": [
+            "email",
+            "in_app"
+          ],
+          "message_class": "transactional",
+          "purpose_id": "order_confirmation"
+        },
+        {
+          "channels": [
+            "email",
+            "in_app"
+          ],
+          "message_class": "transactional",
+          "purpose_id": "ticket_delivery"
+        },
+        {
+          "channels": [
+            "email",
+            "in_app"
+          ],
+          "message_class": "transactional",
+          "purpose_id": "payment_receipt"
+        },
+        {
+          "channels": [
+            "email",
+            "sms"
+          ],
+          "message_class": "marketing",
+          "notes": "Marketing by default; consent proof required.",
+          "purpose_id": "cart_abandonment_nudge"
+        },
+        {
+          "channels": [
+            "email"
+          ],
+          "message_class": "marketing",
+          "notes": "Marketing; consent proof required.",
+          "purpose_id": "post_purchase_upsell"
+        },
+        {
+          "channels": [
+            "email"
+          ],
+          "message_class": "marketing",
+          "notes": "Bulk/campaign.",
+          "purpose_id": "newsletter_broadcast"
+        },
+        {
+          "channels": [
+            "email",
+            "in_app"
+          ],
+          "message_class": "operational",
+          "notes": "Platform-scoped; quorum governed.",
+          "purpose_id": "platform_incident_notice"
+        },
+        {
+          "channels": [
+            "email",
+            "in_app"
+          ],
+          "message_class": "legal",
+          "notes": "Legal; quorum governed for platform scope.",
+          "purpose_id": "terms_update_notice"
+        }
+      ],
+      "rules": [
+        "Every message_request MUST declare purpose_id and message_class; purpose_id MUST map deterministically to exactly one message_class.",
+        "Cart abandonment, upsell funnels, and newsletter/campaign messages MUST be marketing class and consent-gated."
+      ]
+    },
+    "message_request_schema": {
+      "field_rules": [
+        "message_id MUST be uuid_v7.",
+        "org_id MUST be present; platform-wide messages MUST use platform_org_id (not null).",
+        "recipient_ref MUST be pseudonymous subject_key; raw PII is forbidden.",
+        "purpose_id MUST be present and MUST map to exactly one message_class via message_purpose_catalog.",
+        "template_id and template_version MUST be pinned; dispatch MUST reference a published template version.",
+        "locale MUST be resolved deterministically using locale_resolution rules.",
+        "variables MUST be allowlisted and typed per template variable_types; unknown keys are forbidden.",
+        "Marketing messages MUST include consent_proof_hash_sha256 evaluated by CONSENT-1; missing/invalid proof forbids dispatch.",
+        "If tracking tokens are embedded, tracking_proof_hash_sha256 MUST be present and must reference TRK-issued tracking under CONSENT gating.",
+        "dedupe_key MUST be present and computed deterministically; same dedupe_key must not dispatch twice within dedupe window."
+      ],
+      "fields": [
+        "message_id",
+        "org_id",
+        "recipient_ref",
+        "channel",
+        "message_class",
+        "purpose_id",
+        "template_id",
+        "template_version",
+        "locale",
+        "variables",
+        "consent_proof_hash_sha256",
+        "tracking_proof_hash_sha256",
+        "dedupe_key",
+        "requested_at_utc",
+        "requested_by_actor_ref",
+        "request_reason",
+        "priority_hint"
+      ]
+    },
+    "platform_scoped_governance": {
+      "rules": [
+        "Platform-scoped messages MUST use platform_org_id and MUST be limited to operational or legal message_class unless explicitly approved as marketing via platform consent.",
+        "Platform-scoped sends MUST require QUORUM-1 approval when audience_size_estimate exceeds platform_scoped_quorum_required_audience_size_ge or when purpose_id is legal or operational platform notice.",
+        "Platform-scoped override actions (template disable, suppression override) MUST require QUORUM-1."
+      ]
+    },
+    "resend_governance": {
+      "rate_limits": {
+        "auth_resend_max_per_10_minutes": 3,
+        "marketing_resend_forbidden": true,
+        "transactional_resend_max_per_10_minutes": 3
+      },
+      "rules": [
+        "Resend MUST be an explicit action with resend_intent=true and MUST be rate-limited per {recipient_ref, template_id}.",
+        "Resend MUST be audited with actor and reason.",
+        "Resend MUST NOT bypass suppression, consent gating, or safe mode."
+      ]
+    },
+    "scope_and_audience": {
+      "precedence": "deny_wins_within_scope_and_deliverability_always_wins",
+      "rules": [
+        "All message_request records MUST be scoped to an org_id; platform-wide communication MUST use a dedicated platform_org_id.",
+        "Platform-wide marketing MUST target subjects who have consented within platform_org_id scope; cross-tenant broadcast to org-scoped subjects is forbidden.",
+        "Org-scoped messages MUST NOT target subjects outside the org_id scope."
+      ],
+      "unsubscribe_layers": [
+        "consent_scope_via_consent_1",
+        "channel_opt_out_via_comm_suppression",
+        "deliverability_safety_suppression"
+      ]
+    },
+    "tracking_delegation": {
+      "rules": [
+        "COMM MUST NOT define tracking semantics. Any tracking tokens, click redirect links, or pixels MUST be issued and governed by TRK-1.",
+        "Any tracking embedded in messages MUST be consent-gated via CONSENT-1 with proof hash recorded on the message_request."
+      ]
+    }
+  },
+  "money_display_policy": {
+    "determinism": {
+      "changes_require": "New policy_id and contract version bump; previously rendered content MUST remain reproducible via pinned template_version + policy_id + engine version.",
+      "fallback_locale": "en-US",
+      "money_display_engine_id": "cldr_currency_formatting",
+      "money_display_engine_version": "pinned_by_release"
+    },
+    "examples": [
+      {
+        "amount_minor": 12345,
+        "currency_code": "ZAR",
+        "display": "ZAR 123.45",
+        "locale": "en-US"
+      },
+      {
+        "amount_minor": 12345,
+        "currency_code": "ZAR",
+        "display": "ZAR 123,45",
+        "locale": "af-ZA"
+      }
+    ],
+    "policy_id": "comm_1_money_display_policy_v1",
+    "rules": [
+      "Rendering MUST treat money_minor as integer minor units and MUST NOT use floating point arithmetic.",
+      "Rendering MUST format amounts deterministically using a single, platform-pinned formatting engine and version (money_display_engine_id + money_display_engine_version).",
+      "Rendering MUST require a currency_code for each money amount; currency_code MUST be ISO-4217 alpha-3 uppercase.",
+      "Rendering MUST apply locale-specific separators and currency presentation based on locale; when locale is missing or unsupported, fallback_locale MUST be used.",
+      "Rendering MUST NOT embed recipient PII in any currency formatting output, metadata, or link parameters.",
+      "NEW: proposed invariant — When a template declares variable_types for a money amount {x}_minor, it SHOULD also declare {x}_currency_code with type currency_code_iso_4217; if absent, renderer MUST use a deterministic currency source (org_default_currency_code) and log currency_source='org_default' in metadata."
+    ],
+    "scope": "Applies to formatting of money_minor variables for all channels (email, sms, whatsapp, push, in_app).",
+    "value_model": {
+      "amount_minor": "int",
+      "currency_code": "currency_code_iso_4217"
+    }
+  },
+  "observability_and_audit": {
+    "alerts": {
+      "new_proposed_invariant": "alert_if_bounce_rate_over_5_percent_5m_or_complaint_rate_over_0_point_3_percent_1h_or_provider_unavailable_over_2m"
+    },
+    "append_only_events": [
+      "ticketing.comm.message_requested.v1",
+      "ticketing.comm.message_rendered_metadata.v1",
+      "ticketing.comm.message_dispatch_attempted.v1",
+      "ticketing.comm.provider_receipt_recorded.v1",
+      "ticketing.comm.suppression_updated.v1"
+    ],
+    "audit_log_rules": [
+      "audit_logs_shall_not_store_full_rendered_content_by_default",
+      "audit_logs_shall_store_template_id_version_channel_message_class_and_redacted_variable_keys",
+      "audit_logs_shall_store_correlation_ids_and_dedupe_key",
+      "audit_logs_shall_be_append_only"
+    ],
+    "metrics_minimum": [
+      "comm_send_success_rate",
+      "comm_request_to_delivered_latency_ms",
+      "comm_bounce_rate",
+      "comm_complaint_rate",
+      "comm_suppression_hit_rate",
+      "comm_dedupe_hit_rate",
+      "comm_safe_mode_active_gauge"
+    ]
+  },
+  "provider_governance": {
+    "deliverability_minimums": {
+      "email": {
+        "dmarc_policy_minimum": "p=none_or_stricter",
+        "require_dkim": true,
+        "require_dmarc": true,
+        "require_spf": true
+      },
+      "rules": [
+        "Providers MUST declare sending_domain for email channels.",
+        "Org-scoped sending domains MUST require verification and warmup throttling; unverified org domains are forbidden."
+      ]
+    },
+    "provider_model": {
+      "examples_non_normative": [
+        {
+          "provider_id": "aws_ses",
+          "provider_kind": "api_transactional"
+        },
+        {
+          "provider_id": "elasticmail",
+          "provider_kind": "smtp_relay"
+        },
+        {
+          "provider_id": "brevo",
+          "provider_kind": "api_transactional"
+        },
+        {
+          "provider_id": "mailchimp",
+          "provider_kind": "campaign_platform"
+        }
+      ],
+      "provider_kind_definitions": [
+        {
+          "notes": "SMTP relay/transactional send; content rendered by platform; receipts may require separate event integration.",
+          "provider_kind": "smtp_relay"
+        },
+        {
+          "notes": "Transactional API send; platform renders content; provider supports idempotency keys and webhook receipts.",
+          "provider_kind": "api_transactional"
+        },
+        {
+          "notes": "Audience/campaign platform; provider may own template rendering; NOT allowed for auth/transactional.",
+          "provider_kind": "campaign_platform"
+        }
+      ],
+      "provider_kind_matrix": {
+        "legal": {
+          "allowed_provider_kinds": [
+            "smtp_relay",
+            "api_transactional"
+          ],
+          "forbidden_provider_kinds": [
+            "campaign_platform"
+          ]
+        },
+        "marketing": {
+          "allowed_provider_kinds": [
+            "smtp_relay",
+            "api_transactional",
+            "campaign_platform"
+          ],
+          "forbidden_provider_kinds": []
+        },
+        "operational": {
+          "allowed_provider_kinds": [
+            "smtp_relay",
+            "api_transactional"
+          ],
+          "forbidden_provider_kinds": [
+            "campaign_platform"
+          ]
+        },
+        "transactional": {
+          "allowed_provider_kinds": [
+            "smtp_relay",
+            "api_transactional"
+          ],
+          "forbidden_provider_kinds": [
+            "campaign_platform"
+          ]
+        }
+      },
+      "provider_resolution_contract": {
+        "owner_contract": "INT-1",
+        "required_input_fields": [
+          "org_id",
+          "channel",
+          "message_class",
+          "purpose_id_optional"
+        ],
+        "required_output_fields": [
+          "provider_account_ref",
+          "provider_id",
+          "provider_kind",
+          "sender_identity_ref"
+        ],
+        "rules": [
+          "COMM MUST NOT use application runtime config as provider routing truth.",
+          "COMM MessageDispatchAttempt MUST record provider_account_ref and provider_id used for every outbound attempt.",
+          "COMM MUST fail closed with COMM_PROVIDER_UNAVAILABLE or COMM_PROVIDER_KIND_NOT_ALLOWED when INT-1 routing cannot produce an allowed provider_account_ref."
+        ]
+      },
+      "rules": [
+        "Auth and transactional messages MUST NOT be sent via campaign_platform providers.",
+        "Provider accounts and routing policies MUST be declared in INT-1; COMM provider selection MUST resolve via INT-1 ProviderRoutingRule to one provider_account_ref.",
+        "Provider secrets (API keys, SMTP credentials, webhook shared secrets) MUST be governed by SEC-1; COMM MUST store only opaque references.",
+        "Provider selection MUST be deterministic: {org_id, channel, message_class, purpose_id?} MUST resolve to exactly one provider_account_ref at dispatch time."
+      ]
+    },
+    "receipt_ingestion": {
+      "authentication_model": "provider_native_signature_or_shared_secret",
+      "idempotency_key": "provider_event_id",
+      "required_receipt_types_by_channel": {
+        "email": [
+          "accepted",
+          "delivered_or_attempted",
+          "bounced",
+          "complained"
+        ],
+        "in_app": [
+          "delivered"
+        ],
+        "push": [
+          "accepted",
+          "delivered_or_failed"
+        ],
+        "sms": [
+          "accepted",
+          "delivered_or_failed"
+        ],
+        "whatsapp": [
+          "accepted",
+          "delivered_or_failed"
+        ]
+      },
+      "rules": [
+        "Provider receipt ingestion MUST be authenticated (signature or shared secret) and replay-safe.",
+        "Receipts MUST be idempotent by provider_event_id and MUST map deterministically to message_id or provider_message_id.",
+        "Hard bounces and complaints MUST update suppression lists immediately.",
+        "Webhook events MUST NOT contain raw PII; if provider includes PII, it MUST be stripped and replaced with hashes before storage.",
+        "NEW: proposed invariant — when provider webhook payload includes recipient PII (e.g., email address or phone), COMM ingestion MUST call PII-1 mapping to derive recipient_ref and MUST NOT persist the raw PII."
+      ]
+    },
+    "rules": [
+      "providers_shall_be_allowlisted_and_configured_per_tenant_or_platform",
+      "provider_selection_shall_be_deterministic",
+      "secrets_shall_not_be_stored_in_templates_or_message_requests"
+    ],
+    "suppression_authority_model": {
+      "rules": [
+        "COMM suppression entries are the authoritative source of truth; vendor suppression MUST be ingested into COMM suppression deterministically.",
+        "Suppression updates from provider receipts MUST be applied within the same org_id scope unless explicitly declared platform_scoped for deliverability safety.",
+        "Complaint suppression MUST require governance review to lift (QUORUM-1 for platform-scoped; IAM capability for org-scoped)."
+      ],
+      "source_of_truth": "comm"
+    }
+  },
+  "recipient_identity_and_pii_boundary": {
+    "rules": [
+      "recipient_ref MUST be a pseudonymous subject_key (or equivalent) and MUST NOT contain raw email/phone/device token.",
+      "PII resolution (email address, phone number, device token) MUST occur only at final provider handoff, in-memory, and MUST NOT be persisted in message_request, attempt, or receipt records.",
+      "If subject mapping is cryptoshredded, COMM MUST NOT recreate or infer PII; dispatch MUST fail closed with COMM_RECIPIENT_UNRESOLVABLE.",
+      "Any provider-supplied PII in receipts/webhooks MUST be stripped and replaced with hashes prior to storage (DATA-1 alignment).",
+      "PII subject mapping and recipient_ref derivation MUST be governed by PII-1; COMM MUST NOT define or store raw PII identifiers.",
+      "COMM MUST treat recipient_ref as the only join key for message lifecycle records; if PII-1 cryptoshreds the mapping, COMM MUST fail closed for delivery resolution."
+    ],
+    "suppression": {
+      "reasons": [
+        "unsubscribed",
+        "bounce_soft",
+        "bounce_hard",
+        "complaint",
+        "manual",
+        "legal_hold"
+      ],
+      "scope_rules": [
+        "Suppression entries MUST be scoped to org_id or platform_org_id; cross-scope effects are forbidden unless explicitly classified as deliverability_safety.",
+        "Deliverability safety suppression MAY be platform_scoped only when required to protect a shared sending domain reputation; such entries MUST avoid raw PII and MUST be governed by QUORUM-1 when applied platform-wide."
+      ]
+    }
+  },
+  "reliability_and_safe_mode": {
+    "rate_limiting": {
+      "behavior": "rate_limit_exceed_shall_return_COMM_RATE_LIMITED_and_not_enqueue",
+      "defaults": {
+        "per_org_per_minute": "NEW_proposed_invariant:1000",
+        "per_recipient_per_day_marketing": "NEW_proposed_invariant:3",
+        "per_recipient_per_day_transactional": "NEW_proposed_invariant:20"
+      }
+    },
+    "rules": [
+      "system_shall_support_safe_mode_states_and_backpressure",
+      "in_safe_mode_marketing_shall_drop_or_defer_before_transactional",
+      "transactional_sends_shall_have_priority_over_marketing",
+      "rate_limits_shall_apply_per_org_id_channel_and_recipient_ref"
+    ]
+  },
+  "retention_and_deletion": {
+    "alignment_note": {
+      "new_proposed_invariant": "when_DATA-1_and_ARCH-1_exist_COMM-1_shall_map_retention_tiers_to_DATA-1_classification_and_ARCH-1_storage_policies_without_drift"
+    },
+    "baseline_rules": [
+      "retention_must_be_defined_per_message_class",
+      "content_storage_shall_be_minimized_and_redacted",
+      "pseudonymous_logs_may_be_retained_after_pii_cryptoshred",
+      "deletion_shall_not_break_auditability_of_platform_integrity"
+    ],
+    "data_1_alignment": {
+      "default_retention_profiles_by_artifact_kind": {
+        "bulk_send_request": "p2_audit_evidence",
+        "message_dispatch_attempt": "p2_audit_evidence",
+        "message_receipt": "p2_audit_evidence",
+        "message_request": "p2_audit_evidence",
+        "suppression_entry": "p2_audit_evidence",
+        "template_draft": "p1_operational",
+        "template_published_metadata": "p2_audit_evidence"
+      },
+      "rules": [
+        "COMM artifacts MUST use DATA-1 retention_profile ids; parallel taxonomies are forbidden.",
+        "Message lifecycle metadata (requested/rendered/dispatched/receipts/suppression) SHOULD be labeled p2_audit_evidence unless explicitly downgraded for operational-only records.",
+        "Full rendered content MUST NOT be stored by default; store render_hash_sha256, template pin, and redacted variables."
+      ]
+    },
+    "dsar_1_interaction": {
+      "rules": [
+        "After DSAR cryptoshred, COMM MUST NOT be able to resolve recipient PII; dispatch attempts MUST fail closed.",
+        "COMM audit metadata MAY remain but MUST be non-joinable (no recipient PII, no direct identifiers).",
+        "COMM MUST NOT recreate PII or re-link subjects after cryptoshred."
+      ]
+    },
+    "retention_tiers": {
+      "legal": "NEW_proposed_invariant:7_years_metadata_plus_required_legal_artifacts",
+      "marketing": "NEW_proposed_invariant:90_days_metadata_only",
+      "operational": "NEW_proposed_invariant:365_days_metadata_only",
+      "transactional": "NEW_proposed_invariant:180_days_metadata_only"
+    }
+  },
+  "schema_version": "contract-suite/1.0",
+  "scope": {
+    "does_not_own": [
+      "business_truth_mutation_or_domain_state_transitions",
+      "general_integration_registry_vendor_catalog_and_secrets_storage",
+      "product_analytics_tracking_and_attribution",
+      "payment_or_order_truth_or_reconciliation"
+    ],
+    "non_bypass_rules": [
+      "marketing_messages_shall_not_bypass_consent_gating",
+      "no_synchronous_message_sending_on_checkout_request_path"
+    ],
+    "owns": [
+      "message_template_registry_and_publish_workflow",
+      "message_request_schema_and_dispatch_semantics",
+      "recipient_identity_boundary_and_pii_minimization_rules",
+      "consent_opt_out_unsubscribe_and_suppression_semantics",
+      "provider_posture_retries_dedupe_receipts_and_dead_letter",
+      "safe_mode_backpressure_and_checkout_path_protection",
+      "observability_audit_evidence_and_delivery_telemetry",
+      "tenant_scoping_for_all_message_artifacts"
+    ]
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "template_registry": {
+    "attachment_policy": {
+      "rules": [
+        "Tickets MUST NOT be attached to emails by default; ticket delivery MUST use signed download links with TTL.",
+        "Legal invoice attachments MAY be allowed only for legal class messages and MUST be explicitly declared per template with DATA-1 retention_profile alignment."
+      ],
+      "ticket_delivery": {
+        "default_mode": "signed_link",
+        "signed_link_requirements": {
+          "https_only": true,
+          "one_time_token_supported": true,
+          "ttl_seconds_max": 86400
+        }
+      }
+    },
+    "layout_component_registry": {
+      "component_schema": {
+        "fields": [
+          "component_id",
+          "version",
+          "owner_scope",
+          "template_source_kind",
+          "source_ref",
+          "compiled_output_hash_sha256",
+          "state",
+          "published_at_utc",
+          "deprecated_at_utc",
+          "migration_notes"
+        ]
+      },
+      "rules": [
+        "Layout components MUST be versioned and immutable when published.",
+        "Published templates MUST pin layout components by explicit component_id + version; referencing latest is forbidden.",
+        "A change to a shared layout MUST publish a new component version; existing published templates MUST NOT change."
+      ]
+    },
+    "publish_workflow": {
+      "rules": [
+        "Draft templates MAY be modified.",
+        "Publish action MUST acquire a template_id scoped lock (LOCKS-1) to prevent concurrent publish.",
+        "On publish, template version MUST become immutable and compiled_output_hash_sha256 MUST be populated.",
+        "Deprecated templates MUST NOT be used for new message requests.",
+        "Disabled templates MUST stop new renders immediately (emergency control)."
+      ],
+      "states": [
+        "draft",
+        "published",
+        "deprecated",
+        "disabled"
+      ]
+    },
+    "registry_rules": [
+      "template_ids_must_be_stable_snake_case_identifiers",
+      "templates_must_be_versioned_with_semver",
+      "templates_must_be_locale_scoped",
+      "published_templates_shall_be_immutable",
+      "template_changes_shall_require_new_version_and_migration_notes",
+      "template_rendering_must_use_allowlisted_variables_only",
+      "template_rendering_must_apply_escaping_and_sanitization_per_channel",
+      "template_body_must_not_be_embedded_raw_in_this_contract;_body_template_ref_shall_be_a_storage_pointer",
+      "Templates MUST declare template_source_kind and compiled_output_hash_sha256 when published.",
+      "Templates MUST declare owner_scope and (if applicable) override_of for deterministic precedence.",
+      "Templates MUST declare variable_types for all required/optional variables."
+    ],
+    "rendering_profiles": {
+      "profiles": [
+        {
+          "channel": "email",
+          "escape": "html",
+          "forbid_query_params_matching_pii_patterns": true,
+          "link_policy": "https_allowlist",
+          "rendering_profile_id": "email_html_owasp_baseline_v1",
+          "sanitize": "owasp_baseline"
+        },
+        {
+          "channel": "sms",
+          "escape": "text",
+          "forbid_query_params_matching_pii_patterns": true,
+          "link_policy": "https_allowlist",
+          "rendering_profile_id": "sms_text_strict_v1",
+          "sanitize": "none"
+        },
+        {
+          "channel": "in_app",
+          "escape": "markup",
+          "forbid_query_params_matching_pii_patterns": true,
+          "link_policy": "https_allowlist",
+          "rendering_profile_id": "in_app_markup_strict_v1",
+          "sanitize": "strict_allowlist"
+        }
+      ],
+      "rules": [
+        "Published templates MUST reference a rendering_profile_id; ad-hoc rendering rules are forbidden for published state.",
+        "In-app templates MUST NOT use raw html; only constrained markup is allowed."
+      ]
+    },
+    "rendering_rules_baseline": {
+      "email": {
+        "html_sanitization": "required",
+        "link_safety": "required_https_only_and_domain_allowlist",
+        "tracking_pixels": "forbidden_by_default_new_proposed_invariant"
+      },
+      "in_app": {
+        "markdown_or_safe_html_only": "required"
+      },
+      "push": {
+        "payload_size_limit": "provider_limit_enforced_new_proposed_invariant"
+      },
+      "sms": {
+        "link_safety": "required_https_only_and_domain_allowlist",
+        "max_length_chars": "NEW_proposed_invariant:160_gsm7_or_provider_equivalent"
+      },
+      "whatsapp": {
+        "template_policy": "provider_preapproved_templates_only_new_proposed_invariant"
+      }
+    },
+    "template_import_pipeline": {
+      "allowed_import_sources": [
+        "stripo_export_html",
+        "bee_free_export_html",
+        "mailchimp_export_html",
+        "brevo_export_html"
+      ],
+      "import_rules": [
+        "Template import MUST create templates in draft state only.",
+        "Import MUST run deterministic lint: forbid tracking pixels unless explicitly declared as TRK-issued; forbid unsafe links; forbid PII query params; enforce variable allowlist + typing.",
+        "Publish MUST be blocked if lint_report.forbidden_pattern_count > 0."
+      ],
+      "lint_required_outputs": [
+        "lint_report_hash_sha256",
+        "forbidden_pattern_count",
+        "forbidden_patterns",
+        "normalized_template_source_ref"
+      ]
+    },
+    "template_schema": {
+      "fields": [
+        "template_id",
+        "channel",
+        "message_class",
+        "purpose_id",
+        "version",
+        "locale",
+        "owner_scope",
+        "override_of",
+        "template_source_kind",
+        "subject_template",
+        "body_template_ref",
+        "layout_component_refs",
+        "required_variables",
+        "optional_variables",
+        "pii_variables",
+        "variable_types",
+        "rendering_profile_id",
+        "compiled_output_hash_sha256",
+        "test_render_examples",
+        "state",
+        "published_at_utc",
+        "deprecated_at_utc",
+        "import_metadata",
+        "migration_notes"
+      ]
+    },
+    "template_source_of_truth": {
+      "by_message_class": {
+        "legal": "platform_canonical",
+        "marketing": "platform_published_artifact_required",
+        "operational": "platform_canonical",
+        "transactional": "platform_canonical"
+      },
+      "rules": [
+        "Platform MUST be the source of truth for auth and transactional templates; provider-native templates MUST NOT be the canonical source of truth for those message classes.",
+        "Marketing templates MAY be authored externally, but MUST be imported into COMM as draft and published as an immutable versioned artifact before dispatch.",
+        "Published templates MUST be immutable; modifications MUST publish a new template version with migration_notes."
+      ]
+    },
+    "templates": [
+      {
+        "body_template_ref": "tpl://comm/order_confirmation_email/1.0.0/en",
+        "channel": "email",
+        "compiled_output_hash_sha256": null,
+        "deprecated_at_utc": null,
+        "import_metadata": null,
+        "layout_component_refs": [
+          {
+            "component_id": "email_base_layout",
+            "version": "1.0.0"
+          }
+        ],
+        "locale": "en",
+        "message_class": "transactional",
+        "migration_notes": "draft_example_only",
+        "optional_variables": [
+          "event_name",
+          "occurrence_starts_at_utc"
+        ],
+        "override_of": null,
+        "owner_scope": "platform",
+        "pii_variables": [],
+        "published_at_utc": null,
+        "purpose_id": "order_confirmation_email",
+        "rendering_profile_id": "email_html_owasp_baseline_v1",
+        "required_variables": [
+          "order_ref",
+          "support_url"
+        ],
+        "state": "draft",
+        "subject_template": "Your order confirmation: {{order_ref}}",
+        "template_id": "order_confirmation_email",
+        "template_source_kind": "html_ref",
+        "test_render_examples": [
+          {
+            "variables": {
+              "order_ref": "ORD-ABCD1234-5",
+              "support_url": "https://support.example"
+            }
+          }
+        ],
+        "variable_types": {
+          "event_name": "string",
+          "occurrence_starts_at_utc": "iso_datetime_utc",
+          "order_ref": "string",
+          "support_url": "url_https"
+        },
+        "version": "1.0.0"
+      },
+      {
+        "body_template_ref": "tpl://comm/ticket_delivery_email/1.0.0/en",
+        "channel": "email",
+        "compiled_output_hash_sha256": null,
+        "deprecated_at_utc": null,
+        "import_metadata": null,
+        "layout_component_refs": [
+          {
+            "component_id": "email_base_layout",
+            "version": "1.0.0"
+          }
+        ],
+        "locale": "en",
+        "message_class": "transactional",
+        "migration_notes": "draft_example_only",
+        "optional_variables": [
+          "event_name"
+        ],
+        "override_of": null,
+        "owner_scope": "platform",
+        "pii_variables": [],
+        "published_at_utc": null,
+        "purpose_id": "ticket_delivery_email",
+        "rendering_profile_id": "email_html_owasp_baseline_v1",
+        "required_variables": [
+          "order_ref",
+          "ticket_download_url",
+          "support_url"
+        ],
+        "state": "draft",
+        "subject_template": "Your tickets: {{order_ref}}",
+        "template_id": "ticket_delivery_email",
+        "template_source_kind": "html_ref",
+        "test_render_examples": [
+          {
+            "variables": {
+              "order_ref": "ORD-ABCD1234-5",
+              "support_url": "https://support.example",
+              "ticket_download_url": "https://t.example/dl"
+            }
+          }
+        ],
+        "variable_types": {
+          "event_name": "string",
+          "order_ref": "string",
+          "support_url": "url_https",
+          "ticket_download_url": "url_https"
+        },
+        "version": "1.0.0"
+      },
+      {
+        "body_template_ref": "tpl://comm/password_reset_email/1.0.0/en",
+        "channel": "email",
+        "compiled_output_hash_sha256": null,
+        "deprecated_at_utc": null,
+        "import_metadata": null,
+        "layout_component_refs": [
+          {
+            "component_id": "email_base_layout",
+            "version": "1.0.0"
+          }
+        ],
+        "locale": "en",
+        "message_class": "transactional",
+        "migration_notes": "draft_example_only",
+        "optional_variables": [
+          "ip_country_hint"
+        ],
+        "override_of": null,
+        "owner_scope": "platform",
+        "pii_variables": [],
+        "published_at_utc": null,
+        "purpose_id": "password_reset_email",
+        "rendering_profile_id": "email_html_owasp_baseline_v1",
+        "required_variables": [
+          "reset_link",
+          "support_url"
+        ],
+        "state": "draft",
+        "subject_template": "Password reset request",
+        "template_id": "password_reset_email",
+        "template_source_kind": "html_ref",
+        "test_render_examples": [
+          {
+            "variables": {
+              "reset_link": "https://example/reset?token=***",
+              "support_url": "https://support.example"
+            }
+          }
+        ],
+        "variable_types": {
+          "ip_country_hint": "string",
+          "reset_link": "url_https",
+          "support_url": "url_https"
+        },
+        "version": "1.0.0"
+      },
+      {
+        "body_template_ref": "tpl://comm/marketing_newsletter_email/1.0.0/en",
+        "channel": "email",
+        "compiled_output_hash_sha256": null,
+        "deprecated_at_utc": null,
+        "import_metadata": null,
+        "layout_component_refs": [
+          {
+            "component_id": "email_base_layout",
+            "version": "1.0.0"
+          }
+        ],
+        "locale": "en",
+        "message_class": "marketing",
+        "migration_notes": "draft_example_only",
+        "optional_variables": [
+          "headline"
+        ],
+        "override_of": null,
+        "owner_scope": "platform",
+        "pii_variables": [],
+        "published_at_utc": null,
+        "purpose_id": "marketing_newsletter_email",
+        "rendering_profile_id": "email_html_owasp_baseline_v1",
+        "required_variables": [
+          "brand_name",
+          "unsubscribe_url"
+        ],
+        "state": "draft",
+        "subject_template": "{{brand_name}} updates",
+        "template_id": "marketing_newsletter_email",
+        "template_source_kind": "html_ref",
+        "test_render_examples": [
+          {
+            "variables": {
+              "brand_name": "Ticketing",
+              "unsubscribe_url": "https://example/unsub?u=***"
+            }
+          }
+        ],
+        "variable_types": {
+          "brand_name": "string",
+          "headline": "string",
+          "unsubscribe_url": "url_https"
+        },
+        "version": "1.0.0"
+      }
+    ],
+    "variable_type_system": {
+      "allowed_types": [
+        "string",
+        "int",
+        "bool",
+        "money_minor",
+        "iso_datetime_utc",
+        "url_https",
+        "enum",
+        "currency_code_iso_4217"
+      ],
+      "rules": [
+        "Templates MUST declare variable_types for all required/optional variables using allowed_types.",
+        "money_minor MUST be integer minor units; rendering MUST format per money_display_policy.policy_id=comm_1_money_display_policy_v1.",
+        "url_https MUST be https and must satisfy link allowlist rules.",
+        "NEW: proposed invariant — variable names ending with '_url' MUST use type url_https.",
+        "NEW: proposed invariant — variable names ending with '_at_utc' MUST use type iso_datetime_utc.",
+        "NEW: proposed invariant — variable names ending with '_minor' MUST use type money_minor."
+      ]
+    }
+  },
+  "title": "COMM-1 — communications and message delivery governance",
+  "updated_at": "2026-06-03T14:50:00Z",
+  "updated_at_utc": "2026-06-03T14:50:00Z",
+  "version": "1.1.6"
+}

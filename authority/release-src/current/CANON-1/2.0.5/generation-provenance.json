@@ -1,0 +1,31 @@
+{
+  "canonical_member_count": 56,
+  "format_version": 1,
+  "generated_release": {
+    "doc_id": "CANON-1",
+    "version": "2.0.5"
+  },
+  "generation_inputs": {
+    "active_manifest_sha256": "1a42303e9bf77f62b6c84117b8e2d0f5d098dfcf3d304926409e43c8be7160d2",
+    "base_canon_version": "2.0.4",
+    "base_canon_zip_sha256": "126af012c0769ed0a23fb0185745148df7492f1d6b52bcd210ad3b0b13607336",
+    "candidate_releases": [
+      {
+        "doc_id": "SM-0",
+        "sha256": "c8386a1e1009b68c1473553f727a65fb4eaf407fcadb13beee20883bd8d05122",
+        "version": "1.2.3"
+      }
+    ],
+    "dependency_closure_sha256": "e5b3135878bbd7dc8c12147ae925038d619e2f8ebbbc6e2e9c040b2e573083e7",
+    "generator_commit": "593236f98e3e89045f443a780e093eac12990924",
+    "generator_version": "2.0.0",
+    "manifest_validation_status": "VALID",
+    "superseded_identity_defects": []
+  },
+  "generation_status": "BUILT_CANDIDATE_SOURCE",
+  "generator": "tools/generate_canon.py",
+  "generator_commit": "593236f98e3e89045f443a780e093eac12990924",
+  "generator_version": "2.0.0",
+  "resolved_selection_path": "release-src/current/CANON-1/2.0.5/resolved-selection.json",
+  "resolved_selection_sha256": "843589a7af686b48d237072092f1b6be498b0f93376faea6e10dffcef375eddb"
+}

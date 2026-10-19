@@ -1,0 +1,13 @@
+{
+  "doc_id": "EVT-2",
+  "version": "3.0.0",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "release_status": "candidate",
+  "release_intent": "Review-only successor package for the frozen T0 authority snapshot, EVT-2@3.0.0.",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "4536e77cdb83360c36ac2bedb0a8140d36ee9190a14134734b450a987e5880df"
+  }
+}

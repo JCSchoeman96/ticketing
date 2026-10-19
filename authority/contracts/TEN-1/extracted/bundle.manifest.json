@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "TEN-1",
+    "bundle_version": "2.0.0"
+  },
+  "doc_id": "TEN-1",
+  "files": [
+    {
+      "bytes": 44552,
+      "path": "TEN-1_Contract_v2.0.0.json",
+      "sha256": "0384ab11eb1efbf345352a5b590fca7b4d4192152049a3a2c50115e2fbd61c77"
+    },
+    {
+      "bytes": 31012,
+      "path": "TEN-1_Test_Gates_v2.0.0.json",
+      "sha256": "c70479461b54c402c0527f6a037493a610aaab67f8306ddb5f9daa04a0b8bb4e"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.0.0"
+}

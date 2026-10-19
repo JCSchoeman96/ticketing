@@ -1,0 +1,71 @@
+{
+  "bootstrap_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "candidate_preparation_base_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "provenance_statement": "Candidate EVT-2@3.0.0 uses the exact active EVT-2@2.6.2 ZIP as its installed baseline and replaces contract and test-gates content with the frozen authority-staging/t0-hardening/EVT-2 pair. Only release identity, version-bound assertion, and generated timestamp fields were mechanically normalized.",
+  "source_bundle_path": "contracts/EVT-2/EVT-2_bundle_v2.6.2.zip",
+  "source_zip_sha256": "4536e77cdb83360c36ac2bedb0a8140d36ee9190a14134734b450a987e5880df",
+  "source_zip_bytes": 68991,
+  "source_version": "2.6.2",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "authority-staging/t0-hardening/EVT-2/contract.json",
+      "sha256": "486a2403e458f881d464408cd728ce35f1f719408722bfdc5a5fdc42ba0750c8",
+      "bytes": 65717,
+      "frozen_input_sha256": "70b30f99169ca4e352a1971e3ddc6db0ee8a346ee62e16bb88d7eb123ee2528d",
+      "frozen_input_bytes": 65717
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "authority-staging/t0-hardening/EVT-2/test-gates.json",
+      "sha256": "9fa1d0f92144d1cb012bd413e37271c31ffd9ed9aa8cf54cbdd427135d8906a5",
+      "bytes": 20863,
+      "frozen_input_sha256": "ac75c917260e45081cfafef3062a4cebd61d8e7b2787de715f28ff456c123423",
+      "frozen_input_bytes": 20863
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "EVT-2_bundle_v2.6.2/EVT-2_Contract_v2.6.2.json",
+      "sha256": "bd32baab634ceddb429076668cc13b2c24e2fd560fe2325450572ffb8d228287",
+      "bytes": 55849
+    },
+    {
+      "source_member_path": "EVT-2_bundle_v2.6.2/EVT-2_Test_Gates_v2.6.2.json",
+      "sha256": "f96ca17a368f8cbbfb6ae8e3c74b524539d38148be9c1f51bd55b82fb9be9a9f",
+      "bytes": 12001
+    },
+    {
+      "source_member_path": "EVT-2_bundle_v2.6.2/bundle.manifest.json",
+      "sha256": "5ced141993a95ed705e77b77a5e9640dd05536254bf49b934244a0d74596775b",
+      "bytes": 623
+    }
+  ],
+  "frozen_authority_sources": [
+    {
+      "path": "authority-staging/t0-hardening/EVT-2/contract.json",
+      "sha256": "70b30f99169ca4e352a1971e3ddc6db0ee8a346ee62e16bb88d7eb123ee2528d",
+      "bytes": 65717
+    },
+    {
+      "path": "authority-staging/t0-hardening/EVT-2/test-gates.json",
+      "sha256": "ac75c917260e45081cfafef3062a4cebd61d8e7b2787de715f28ff456c123423",
+      "bytes": 20863
+    }
+  ],
+  "mechanical_normalization": {
+    "suite_schema": "CS-0@3.0.1",
+    "target_version": "3.0.0",
+    "generated_at_utc": "2026-10-18T09:26:57Z",
+    "contract_json_pointers": [
+      "/artifact_name",
+      "/generated_at_utc",
+      "/version"
+    ],
+    "test_gates_json_pointers": [
+      "/contract_ref/version",
+      "/title",
+      "/version"
+    ]
+  }
+}

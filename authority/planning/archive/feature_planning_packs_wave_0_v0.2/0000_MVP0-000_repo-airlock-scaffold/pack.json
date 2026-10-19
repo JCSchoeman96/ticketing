@@ -1,0 +1,16 @@
+{
+  "class": "MVP0",
+  "files": [
+    "00_FEATURE_PLAN.md",
+    "01_CODING_AGENT_PROMPT.md",
+    "02_EVIDENCE_CHECKLIST.md"
+  ],
+  "folder": "0000_MVP0-000_repo-airlock-scaffold",
+  "mvp_blocker": "yes",
+  "next": "0010_TB-000_governance-tracer-bullet",
+  "order": "0000",
+  "pack_id": "FP-MVP0-000-repo-airlock-scaffold",
+  "release_phase": "foundation",
+  "source_row": "A-to-Z \u00a717 / \u00a729, TB-000 preconditions",
+  "title": "Repo and Airlock Scaffolding"
+}

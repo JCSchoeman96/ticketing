@@ -1,0 +1,306 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "ATP-1",
+    "version": "2.0.2"
+  },
+  "doc_id": "ATP-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        },
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Suite schema consistency and bundle manifest integrity.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "ATP-1 bundle suite schema or manifest integrity drift detected.",
+      "id": "ATP-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle suite schema and manifest integrity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ATP-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.0.2",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "ATP-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "2.0.2",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "ATP-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "2.0.2",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract\u2194gates linkage and version parity.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "ATP-1 contract and gates linkage/version parity drift detected.",
+      "id": "ATP-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Contract and test-gates linkage parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "TODO",
+              "TBD",
+              "FIXME",
+              "REPLACEME"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "forbid_regex": [
+              "TODO",
+              "TBD",
+              "FIXME",
+              "REPLACEME"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\btenant_id\\b",
+              "\\baccount_id\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "forbid_regex": [
+              "\\btenant_id\\b",
+              "\\baccount_id\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Hard-banned tokens and keys forbidden (lockability + tenancy key drift prevention).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "ATP-1 contains forbidden placeholders or banned tenancy/key drift tokens.",
+      "id": "ATP-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "Forbidden placeholders and key drift ban"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/scanner/deterministic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ci",
+            "json_pointer": "/scanner/mode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/tenancy/tenant_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Scanner determinism and bounded scope are required.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "ATP-1 scanner determinism, mode, or tenant key requirements are not satisfied.",
+      "id": "ATP-1-GATE-040",
+      "level": "P0",
+      "must": true,
+      "title": "Deterministic CI scanner scope"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "ERRBADREQUEST",
+              "ERRCONFLICT",
+              "ERRFORBIDDEN",
+              "ERRNOTFOUND",
+              "ERRUNAUTHENTICATED",
+              "ERRUNAVAILABLE",
+              "ERRINTERNAL",
+              "ERRPRECONDITION",
+              "ERRRATELIMITED",
+              "ERRTIMEOUT",
+              "ERRTHIRDPARTY"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "forbid_regex": [
+              "ERRBADREQUEST",
+              "ERRCONFLICT",
+              "ERRFORBIDDEN",
+              "ERRNOTFOUND",
+              "ERRUNAUTHENTICATED",
+              "ERRUNAVAILABLE",
+              "ERRINTERNAL",
+              "ERRPRECONDITION",
+              "ERRRATELIMITED",
+              "ERRTIMEOUT",
+              "ERRTHIRDPARTY"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Non-canonical ERR-1 error code spellings MUST NOT appear (only ERR_* underscore format allowed).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "ATP-1 contains non-canonical ERR-1 error code spellings.",
+      "id": "ATP-1-GATE-050",
+      "level": "P0",
+      "must": true,
+      "title": "Canonical ERR-1 naming only"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ATP-1 MUST declare itself as a non-producer by keeping emits_events=false and outbox_events=[].",
+      "failure_message": "ATP-1 MUST be an explicit non-producer (emits_events=false and outbox_events=[]).",
+      "id": "ATP-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P1",
+      "must": true,
+      "title": "Explicit non-producer contract"
+    }
+  ],
+  "generated_at_utc": "2026-01-09T06:58:25Z",
+  "normative_source": "json",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "ATP-1 Test Gates",
+  "version": "2.0.2"
+}

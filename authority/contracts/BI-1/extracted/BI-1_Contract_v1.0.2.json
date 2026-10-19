@@ -1,0 +1,1037 @@
+{
+  "access_control": {
+    "capabilities": {
+      "bi.dashboard.view": {
+        "description": "View aggregated dashboards.",
+        "scope": [
+          "org",
+          "platform"
+        ]
+      },
+      "bi.metric.drilldown": {
+        "description": "Request drilldown into allowed dimensions (subject to privacy_class).",
+        "scope": [
+          "org",
+          "platform"
+        ]
+      },
+      "data.export": {
+        "description": "Request exports of C0-C2 aggregate data (non-sensitive).",
+        "scope": [
+          "org",
+          "platform"
+        ]
+      },
+      "data.export.c3": {
+        "description": "Request exports of C3 pseudonymous/sensitive data (requires AAL2).",
+        "scope": [
+          "org",
+          "platform"
+        ]
+      },
+      "data.export.c4": {
+        "description": "Request exports of C4 PII/restricted data (requires AAL2 + audit + DSAR tagging).",
+        "scope": [
+          "org",
+          "platform"
+        ]
+      }
+    },
+    "recommended_role_grants": [
+      {
+        "actor_kind": "org_owner",
+        "grant": [
+          "bi.dashboard.view",
+          "data.export"
+        ]
+      },
+      {
+        "actor_kind": "org_finance_manager",
+        "grant": [
+          "bi.dashboard.view",
+          "data.export",
+          "data.export.c3"
+        ]
+      },
+      {
+        "actor_kind": "platform_finance_admin",
+        "grant": [
+          "bi.dashboard.view",
+          "bi.metric.drilldown",
+          "data.export",
+          "data.export.c3",
+          "data.export.c4"
+        ]
+      },
+      {
+        "actor_kind": "super_admin",
+        "grant": [
+          "bi.dashboard.view",
+          "bi.metric.drilldown",
+          "data.export",
+          "data.export.c3",
+          "data.export.c4"
+        ]
+      }
+    ],
+    "resource_kinds": [
+      "bi_dashboard",
+      "bi_metric",
+      "export_job",
+      "export_artifact"
+    ]
+  },
+  "anti_patterns": [
+    {
+      "id": "BI-1-ANTI-TRK-REVENUE",
+      "severity": "P0",
+      "text": "Do not compute or display 'revenue' from TRK-1 events or client-side payments. This creates phantom revenue."
+    },
+    {
+      "id": "BI-1-ANTI-OLTP-SCAN",
+      "severity": "P0",
+      "text": "Do not run SUM/COUNT queries over ORD-1/LED-1 OLTP tables in the hot path or per page load."
+    },
+    {
+      "id": "BI-1-ANTI-UNLABELED-APPROX",
+      "severity": "P1",
+      "text": "Do not hide exactness. If a metric is approximate, it must say so."
+    }
+  ],
+  "artifact_kind": "contract",
+  "change_log": [
+    {
+      "date_utc": "2026-02-02",
+      "summary": "Initial BI contract: metric registry, dashboards, rollup read-models, exports, and reconciliation rules.",
+      "type": "create",
+      "version": "1.0.0"
+    }
+  ],
+  "changelog": [
+    {
+      "changes": [
+        "P1: Declared explicit non-producer surface (emits_events=false, outbox_events=[]).",
+        "P1: Added registry floor parity dependency pin on EVT-1@2.16.4.",
+        "P1: Added ASSERT-NON-PRODUCER gate to prevent CI theatre."
+      ],
+      "date_utc": "2026-02-07T00:00:00.000000Z",
+      "type": "patch",
+      "version": "1.0.1"
+    }
+  ],
+  "dashboards": {
+    "dashboard_id_rules": [
+      "Lowercase, dot-separated: dash.<scope>.<name>"
+    ],
+    "dashboards": [
+      {
+        "dashboard_id": "dash.org.live_sales_overview",
+        "default_refresh_sec": 60,
+        "notes": [
+          "All tiles are indicators during live sales, not settlement truth.",
+          "Breakdowns by ticket_type are daily (per PII-1 minimum_time_bucket_for_breakdowns)."
+        ],
+        "scope": "org",
+        "tiles": [
+          {
+            "label": "Last hour (committed)",
+            "metric_id": "ops.gross_revenue_committed.hour_total",
+            "show_truth_badge": true
+          },
+          {
+            "label": "Orders last hour",
+            "metric_id": "ops.orders_committed.hour_total",
+            "show_truth_badge": true
+          },
+          {
+            "label": "Tickets last hour",
+            "metric_id": "ops.tickets_sold_committed.hour_total",
+            "show_truth_badge": true
+          },
+          {
+            "label": "Today (committed)",
+            "metric_id": "finance.gross_revenue_committed.day",
+            "show_truth_badge": true
+          }
+        ],
+        "title": "Live Sales Overview"
+      },
+      {
+        "dashboard_id": "dash.org.settled_finance",
+        "default_refresh_sec": 900,
+        "scope": "org",
+        "tiles": [
+          {
+            "label": "Gross settled",
+            "metric_id": "finance.gross_revenue_settled.day",
+            "show_truth_badge": true
+          },
+          {
+            "label": "Refunds settled",
+            "metric_id": "finance.refunds_settled.day",
+            "show_truth_badge": true
+          },
+          {
+            "label": "Net settled",
+            "metric_id": "finance.net_revenue_settled.day",
+            "show_truth_badge": true
+          }
+        ],
+        "title": "Settled Finance"
+      },
+      {
+        "dashboard_id": "dash.platform.reconciliation_overview",
+        "default_refresh_sec": 900,
+        "required_actor_kinds": [
+          "platform_finance_admin",
+          "super_admin"
+        ],
+        "scope": "platform",
+        "tiles": [
+          {
+            "label": "Committed (today)",
+            "metric_id": "finance.gross_revenue_committed.day",
+            "show_truth_badge": true
+          },
+          {
+            "label": "Settled (today)",
+            "metric_id": "finance.gross_revenue_settled.day",
+            "show_truth_badge": true
+          }
+        ],
+        "title": "Reconciliation Overview"
+      }
+    ]
+  },
+  "definitions": {
+    "terms": [
+      {
+        "definition": "The authoritative data plane for a metric: ledger-settled, order-committed, or tracking-derived. This is a governance label with enforcement requirements.",
+        "term": "truth_source"
+      },
+      {
+        "definition": "Exact or bounded-exact computations that derive finance panels from LED-1 postings and ORD-1 committed states.",
+        "term": "reconciliation_lane"
+      },
+      {
+        "definition": "Fast panels optimized for operator situational awareness during sales; may use ORD-1 committed snapshots, but must never be presented as 'settled'.",
+        "term": "live_lane"
+      },
+      {
+        "definition": "A period close that freezes finance aggregates for that period; any correction becomes a new revision with explicit variance accounting.",
+        "term": "close_and_lock"
+      },
+      {
+        "definition": "C0..C4 sensitivity tier aligned to PII-1.",
+        "term": "privacy_class"
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "V42-0",
+      "edge_type": "requires",
+      "min_version": "1.6.0",
+      "reason": "Constitutional governance and cross-suite invariants."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "Contract suite schema."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Machine-checkable test gates."
+    },
+    {
+      "doc_id": "BP-0",
+      "edge_type": "requires",
+      "min_version": "1.0.6",
+      "reason": "Blueprint conventions (invariants, events, ordering, anti-patterns)."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "Contract governance rules."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.11",
+      "reason": "Tenant isolation and org_id scoping."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.3.0",
+      "reason": "Capabilities, resource kinds, assurance levels (AAL step-up)."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "requires",
+      "min_version": "1.0.6",
+      "reason": "Privacy classes, anti-differencing, analytics thresholds."
+    },
+    {
+      "doc_id": "CONSENT-1",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "Consent and lawful-basis recording for analytics."
+    },
+    {
+      "doc_id": "DSAR-1",
+      "edge_type": "requires",
+      "min_version": "1.1.4",
+      "reason": "Data subject access and export traceability."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.17",
+      "reason": "Standard error taxonomy and codes."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.0.13",
+      "reason": "Close-and-lock semantics and lock acquisition patterns."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "requires",
+      "min_version": "1.8.0",
+      "reason": "Dedicated read_replica bulkhead for analytics/reporting reads first appears in PSC-1 v1.8.0."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "1.0.4",
+      "reason": "Structured logs, metrics, and audit event emission."
+    },
+    {
+      "doc_id": "ARCH-1",
+      "edge_type": "requires",
+      "min_version": "3.0.1",
+      "reason": "Async job model, queue discipline for rollups and exports."
+    },
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "requires",
+      "min_version": "1.1.5",
+      "reason": "Data classification, retention tiers, and storage posture."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.3.3",
+      "reason": "Order truth for committed sales during live operations."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "4.1.2",
+      "reason": "Ledger truth for settled revenue, fees, and refunds."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.0.15",
+      "reason": "Price snapshot lineage and rounding semantics."
+    },
+    {
+      "doc_id": "TRK-1",
+      "edge_type": "requires",
+      "min_version": "1.3.1",
+      "reason": "Behavioral tracking signals (non-financial)."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "requires",
+      "min_version": "2.16.4",
+      "reason": "Registry floor parity for Phase-5 Airlock."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4"
+  },
+  "doc_id": "BI-1",
+  "emits_events": false,
+  "errors": {
+    "error_codes": [
+      {
+        "code": "BI_METRIC_NOT_FOUND",
+        "http_status": 404,
+        "retryable": false
+      },
+      {
+        "code": "BI_DASHBOARD_NOT_FOUND",
+        "http_status": 404,
+        "retryable": false
+      },
+      {
+        "code": "BI_FORBIDDEN",
+        "http_status": 403,
+        "retryable": false
+      },
+      {
+        "code": "BI_STEP_UP_REQUIRED",
+        "http_status": 401,
+        "retryable": false
+      },
+      {
+        "code": "BI_PRIVACY_THRESHOLD",
+        "http_status": 422,
+        "retryable": false
+      },
+      {
+        "code": "BI_EXPORT_FAILED",
+        "http_status": 500,
+        "retryable": true
+      },
+      {
+        "code": "BI_READMODEL_STALE",
+        "http_status": 503,
+        "retryable": true
+      }
+    ],
+    "reference": "ERR-1"
+  },
+  "events": {
+    "event_emissions": [
+      {
+        "channel": "obs",
+        "event_name": "bi.query_executed",
+        "min_fields": [
+          "org_id",
+          "actor_id",
+          "dashboard_id_optional",
+          "metric_ids",
+          "privacy_class_max",
+          "computed_at_utc"
+        ],
+        "purpose": "Audit and telemetry for BI query execution (no payload PII)."
+      },
+      {
+        "channel": "obs",
+        "event_name": "bi.export_artifact_created",
+        "min_fields": [
+          "org_id",
+          "actor_id",
+          "export_job_id",
+          "dataset_id",
+          "privacy_class",
+          "assurance_level",
+          "artifact_expires_at_utc"
+        ],
+        "purpose": "Audit and telemetry for export artifact creation and delivery."
+      }
+    ],
+    "ordering": [
+      "bi.query_executed precedes any bi.export_artifact_created emitted for the same request_id",
+      "bi.export_artifact_created MUST be emitted after export_artifact persistence succeeds"
+    ]
+  },
+  "exports": {
+    "artifact_ttl_days_default": 7,
+    "audit_fields": [
+      "export_job_id",
+      "org_id",
+      "actor_id",
+      "requested_at_utc",
+      "assurance_level",
+      "dataset_id",
+      "filters",
+      "result_status",
+      "artifact_uri",
+      "artifact_expires_at_utc",
+      "dsar_case_id_optional"
+    ],
+    "datasets": [
+      {
+        "columns": [
+          "day_utc",
+          "event_id",
+          "currency",
+          "gross_revenue_minor",
+          "refunds_minor",
+          "net_revenue_minor"
+        ],
+        "dataset_id": "export.org_finance_daily_c0_c2",
+        "min_assurance": "aal1",
+        "privacy_class": "c0",
+        "read_model_ref": "rm_bi_led_settled_finance_day",
+        "required_capability": "data.export",
+        "retention_tier": "short",
+        "title": "Org finance daily aggregates (C0-C2)"
+      },
+      {
+        "columns": [
+          "day_utc",
+          "event_id",
+          "ticket_type_id",
+          "tickets_sold_count"
+        ],
+        "dataset_id": "export.org_sales_by_ticket_type_daily_c0_c2",
+        "min_assurance": "aal1",
+        "privacy_class": "c0",
+        "read_model_ref": "rm_bi_ord_committed_sales_day",
+        "required_capability": "data.export",
+        "retention_tier": "short",
+        "title": "Org sales by ticket type daily (C0-C2)"
+      }
+    ],
+    "dsar_linking": {
+      "allow_dsar_case_id_for_all": true,
+      "reference": "DSAR-1.case_id",
+      "require_dsar_case_id_for_c4": true
+    },
+    "export_job_states": [
+      "queued",
+      "running",
+      "succeeded",
+      "failed",
+      "revoked"
+    ],
+    "formats": [
+      "csv",
+      "parquet",
+      "jsonl"
+    ]
+  },
+  "invariants": [
+    {
+      "assertion": "Revenue and fee dashboards MUST derive from LED-1 (settled) and/or ORD-1 (committed). TRK-1 MUST NOT be used as the truth_source for finance metrics.",
+      "domain": "finance",
+      "enforcement": "schema + gates",
+      "id": "BI-1-REV-TRUTH-LED-ORD",
+      "level": "P0"
+    },
+    {
+      "assertion": "Any live_lane metric MUST display its truth_source and exactness class (e.g., committed/approximate) on every dashboard tile and export header.",
+      "domain": "ux",
+      "enforcement": "api + ui contract",
+      "id": "BI-1-LIVE-LANE-LABELS",
+      "level": "P0"
+    },
+    {
+      "assertion": "BI queries MUST NOT run against OLTP write models. All BI reads MUST come from BI read_models or a read replica dedicated to analytics.",
+      "domain": "performance",
+      "enforcement": "db role + code review",
+      "id": "BI-1-OLTP-ISOLATION",
+      "level": "P0"
+    },
+    {
+      "assertion": "Time buckets smaller than 'day' are allowed ONLY for org-owned totals with no dimensions (dimensions_allowed must be empty) and privacy_class must be C0..C2.",
+      "domain": "privacy",
+      "enforcement": "schema + gates",
+      "id": "BI-1-HOURLY-TOTALS-NO-DIMS",
+      "level": "P0"
+    },
+    {
+      "assertion": "Any drilldown or export that includes C3 or C4 data MUST require IAM-1 assurance_level >= aal2 and MUST produce an immutable audit record.",
+      "domain": "security",
+      "enforcement": "auth middleware + audit",
+      "id": "BI-1-PII-DRILLDOWN-STEPUP",
+      "level": "P0"
+    },
+    {
+      "assertion": "When a period is closed, finance aggregates for that period MUST become immutable. Corrections MUST be recorded as variances (never silent overwrite).",
+      "domain": "finance",
+      "enforcement": "db constraints + ledger variance",
+      "id": "BI-1-CLOSE-AND-LOCK",
+      "level": "P0"
+    },
+    {
+      "assertion": "All export_job and export_artifact records are append-only and must be retained per DATA-1 retention tiers; artifacts may expire but audit records must not be deleted.",
+      "domain": "compliance",
+      "enforcement": "db constraints",
+      "id": "BI-1-EXPORT-AUDIT-IMMUTABLE",
+      "level": "P0"
+    }
+  ],
+  "metric_registry": {
+    "dimension_catalog": [
+      {
+        "dimension": "event_id",
+        "notes": "Event occurrence or event master id.",
+        "type": "uuid_v7"
+      },
+      {
+        "dimension": "ticket_type_id",
+        "notes": "Ticket class/type id.",
+        "type": "uuid_v7"
+      },
+      {
+        "dimension": "currency",
+        "notes": "ISO 4217 currency code.",
+        "type": "atom"
+      },
+      {
+        "dimension": "payment_status",
+        "notes": "Committed/paid/failed states (ORD-1/LED-1).",
+        "type": "atom"
+      }
+    ],
+    "metric_definitions": [
+      {
+        "category": "finance",
+        "definition": "Sum of settled gross ticket revenue (before refunds) derived from LED-1 postings for the period.",
+        "dimensions_allowed": [
+          "event_id",
+          "currency"
+        ],
+        "exactness": "exact",
+        "lane": "reconciliation_lane",
+        "metric_id": "finance.gross_revenue_settled.day",
+        "min_cohort_size": 0,
+        "privacy_class": "c0",
+        "read_model_ref": "rm_bi_led_settled_finance_day",
+        "reconciliation_required": true,
+        "retention_tier": "long",
+        "time_bucket": "day",
+        "title": "Gross revenue (settled)",
+        "truth_source": "led_settled",
+        "unit": "money_minor_units"
+      },
+      {
+        "category": "finance",
+        "definition": "Gross revenue minus refunds and chargebacks, derived from LED-1 postings for the period.",
+        "dimensions_allowed": [
+          "event_id",
+          "currency"
+        ],
+        "exactness": "exact",
+        "lane": "reconciliation_lane",
+        "metric_id": "finance.net_revenue_settled.day",
+        "min_cohort_size": 0,
+        "privacy_class": "c0",
+        "read_model_ref": "rm_bi_led_settled_finance_day",
+        "reconciliation_required": true,
+        "retention_tier": "long",
+        "time_bucket": "day",
+        "title": "Net revenue (settled)",
+        "truth_source": "led_settled",
+        "unit": "money_minor_units"
+      },
+      {
+        "category": "finance",
+        "definition": "Sum of settled refunds derived from LED-1 refund postings for the period.",
+        "dimensions_allowed": [
+          "event_id",
+          "currency"
+        ],
+        "exactness": "exact",
+        "lane": "reconciliation_lane",
+        "metric_id": "finance.refunds_settled.day",
+        "min_cohort_size": 0,
+        "privacy_class": "c0",
+        "read_model_ref": "rm_bi_led_settled_finance_day",
+        "reconciliation_required": true,
+        "retention_tier": "long",
+        "time_bucket": "day",
+        "title": "Refunds (settled)",
+        "truth_source": "led_settled",
+        "unit": "money_minor_units"
+      },
+      {
+        "category": "finance",
+        "definition": "Sum of committed order totals for the period. This is not settlement truth; it is a live indicator aligned to ORD-1 committed states.",
+        "dimensions_allowed": [
+          "event_id",
+          "currency"
+        ],
+        "exactness": "bounded",
+        "lane": "reconciliation_lane",
+        "metric_id": "finance.gross_revenue_committed.day",
+        "min_cohort_size": 0,
+        "privacy_class": "c0",
+        "read_model_ref": "rm_bi_ord_committed_finance_day",
+        "reconciliation_required": true,
+        "reconciliation_target_metric_id": "finance.gross_revenue_settled.day",
+        "retention_tier": "short",
+        "time_bucket": "day",
+        "title": "Gross revenue (committed)",
+        "truth_source": "ord_committed",
+        "unit": "money_minor_units"
+      },
+      {
+        "category": "finance",
+        "definition": "Count of ticket quantities in committed orders for the period.",
+        "dimensions_allowed": [
+          "event_id",
+          "ticket_type_id"
+        ],
+        "exactness": "bounded",
+        "lane": "reconciliation_lane",
+        "metric_id": "finance.tickets_sold_committed.day",
+        "min_cohort_size": 0,
+        "privacy_class": "c0",
+        "read_model_ref": "rm_bi_ord_committed_sales_day",
+        "reconciliation_required": true,
+        "retention_tier": "short",
+        "time_bucket": "day",
+        "title": "Tickets sold (committed)",
+        "truth_source": "ord_committed",
+        "unit": "count"
+      },
+      {
+        "category": "ops",
+        "definition": "Rolling total committed revenue for the last complete hour (no dimensions). For operator awareness only.",
+        "dimensions_allowed": [],
+        "exactness": "approximate",
+        "lane": "live_lane",
+        "metric_id": "ops.gross_revenue_committed.hour_total",
+        "min_cohort_size": 0,
+        "privacy_class": "c0",
+        "read_model_ref": "rm_bi_ord_committed_hour_totals",
+        "reconciliation_required": false,
+        "retention_tier": "short",
+        "time_bucket": "hour",
+        "title": "Gross revenue (committed) — last hour total",
+        "truth_source": "ord_committed",
+        "unit": "money_minor_units"
+      },
+      {
+        "category": "ops",
+        "definition": "Rolling total committed orders for the last complete hour (no dimensions).",
+        "dimensions_allowed": [],
+        "exactness": "approximate",
+        "lane": "live_lane",
+        "metric_id": "ops.orders_committed.hour_total",
+        "min_cohort_size": 0,
+        "privacy_class": "c0",
+        "read_model_ref": "rm_bi_ord_committed_hour_totals",
+        "reconciliation_required": false,
+        "retention_tier": "short",
+        "time_bucket": "hour",
+        "title": "Orders (committed) — last hour total",
+        "truth_source": "ord_committed",
+        "unit": "count"
+      },
+      {
+        "category": "ops",
+        "definition": "Rolling total committed ticket quantities for the last complete hour (no dimensions).",
+        "dimensions_allowed": [],
+        "exactness": "approximate",
+        "lane": "live_lane",
+        "metric_id": "ops.tickets_sold_committed.hour_total",
+        "min_cohort_size": 0,
+        "privacy_class": "c0",
+        "read_model_ref": "rm_bi_ord_committed_hour_totals",
+        "reconciliation_required": false,
+        "retention_tier": "short",
+        "time_bucket": "hour",
+        "title": "Tickets sold (committed) — last hour total",
+        "truth_source": "ord_committed",
+        "unit": "count"
+      }
+    ],
+    "metric_id_rules": [
+      "Lowercase, dot-separated: <category>.<name>.<grain>",
+      "Must be stable; changing a definition requires a new metric_id"
+    ],
+    "required_fields": [
+      "metric_id",
+      "title",
+      "category",
+      "unit",
+      "truth_source",
+      "exactness",
+      "definition",
+      "dimensions_allowed",
+      "time_bucket",
+      "privacy_class",
+      "min_cohort_size",
+      "retention_tier",
+      "reconciliation_required"
+    ],
+    "time_buckets": [
+      "hour",
+      "day",
+      "week",
+      "month"
+    ],
+    "truth_sources": [
+      {
+        "contract": "LED-1",
+        "meaning": "Ledger-posted, provider-reconciled truth.",
+        "truth_source": "led_settled"
+      },
+      {
+        "contract": "ORD-1",
+        "meaning": "Orders committed by state machine; may include unpaid/awaiting settlement depending on ORD-1 state.",
+        "truth_source": "ord_committed"
+      },
+      {
+        "contract": "TRK-1",
+        "meaning": "Behavioral/intent signals (non-financial).",
+        "truth_source": "trk_derived"
+      }
+    ]
+  },
+  "outbox_events": [],
+  "owner": {
+    "contact": "architecture",
+    "team": "platform"
+  },
+  "privacy": {
+    "anti_differencing": {
+      "enforce_min_population": true,
+      "min_population_default": 30,
+      "minimum_time_bucket_for_breakdowns": "day",
+      "reference": "PII-1.anonymization_threshold.anti_differencing"
+    },
+    "drilldown_rules": [
+      {
+        "allowed": true,
+        "min_assurance": "aal1",
+        "privacy_class": "c0"
+      },
+      {
+        "allowed": true,
+        "min_assurance": "aal1",
+        "privacy_class": "c1"
+      },
+      {
+        "allowed": true,
+        "min_assurance": "aal1",
+        "privacy_class": "c2"
+      },
+      {
+        "allowed": true,
+        "min_assurance": "aal2",
+        "privacy_class": "c3"
+      },
+      {
+        "allowed": false,
+        "min_assurance": "aal2",
+        "note": "C4 drilldown is not provided via BI query APIs; only via DSAR export flows.",
+        "privacy_class": "c4"
+      }
+    ],
+    "privacy_classes": [
+      "c0",
+      "c1",
+      "c2",
+      "c3",
+      "c4"
+    ]
+  },
+  "purpose": {
+    "non_goals": [
+      "Ad-tech style tracking, attribution modeling, funnels, or visitor/session analytics (reserved for AN-1).",
+      "Treating behavioral tracking as financial truth.",
+      "Ad-hoc OLTP queries against production tables."
+    ],
+    "summary": "Defines the BI data plane: metric registry, dashboard composition, aggregation read-models, export jobs, and revenue-reconciliation rules. BI-1 is the only allowed source for live dashboards and exports."
+  },
+  "read_models": [
+    {
+      "keys": [
+        "org_id",
+        "day_utc",
+        "event_id",
+        "currency"
+      ],
+      "measures": [
+        "gross_revenue_minor",
+        "refunds_minor",
+        "net_revenue_minor"
+      ],
+      "provenance_fields": [
+        "computed_at_utc",
+        "input_cutoff_watermark_utc",
+        "schema_rev",
+        "source_led_posting_highwater_id"
+      ],
+      "purpose": "Daily finance aggregates from LED-1 postings (settled truth).",
+      "read_model_id": "rm_bi_led_settled_finance_day",
+      "refresh": {
+        "cadence": "15m",
+        "mode": "incremental"
+      },
+      "source_contracts": [
+        "LED-1"
+      ],
+      "storage": {
+        "db": "reporting",
+        "kind": "materialized_view"
+      }
+    },
+    {
+      "keys": [
+        "org_id",
+        "day_utc",
+        "event_id",
+        "currency"
+      ],
+      "measures": [
+        "committed_revenue_minor",
+        "committed_order_count"
+      ],
+      "provenance_fields": [
+        "computed_at_utc",
+        "input_cutoff_watermark_utc",
+        "schema_rev",
+        "source_ord_highwater_id"
+      ],
+      "purpose": "Daily committed aggregates from ORD-1 (live indicators aligned to order state).",
+      "read_model_id": "rm_bi_ord_committed_finance_day",
+      "refresh": {
+        "cadence": "5m",
+        "mode": "incremental"
+      },
+      "source_contracts": [
+        "ORD-1"
+      ],
+      "storage": {
+        "db": "reporting",
+        "kind": "materialized_view"
+      }
+    },
+    {
+      "keys": [
+        "org_id",
+        "day_utc",
+        "event_id",
+        "ticket_type_id"
+      ],
+      "measures": [
+        "tickets_sold_count"
+      ],
+      "provenance_fields": [
+        "computed_at_utc",
+        "input_cutoff_watermark_utc",
+        "schema_rev",
+        "source_ord_highwater_id"
+      ],
+      "purpose": "Daily committed ticket counts by ticket_type (breakdowns are day-grained).",
+      "read_model_id": "rm_bi_ord_committed_sales_day",
+      "refresh": {
+        "cadence": "15m",
+        "mode": "incremental"
+      },
+      "source_contracts": [
+        "ORD-1"
+      ],
+      "storage": {
+        "db": "reporting",
+        "kind": "materialized_view"
+      }
+    },
+    {
+      "keys": [
+        "org_id",
+        "hour_utc"
+      ],
+      "measures": [
+        "committed_revenue_minor",
+        "committed_order_count",
+        "tickets_sold_count"
+      ],
+      "provenance_fields": [
+        "computed_at_utc",
+        "input_cutoff_watermark_utc",
+        "schema_rev",
+        "source_ord_highwater_id"
+      ],
+      "purpose": "Rolling hourly totals (no dimensions) for live operator tiles.",
+      "read_model_id": "rm_bi_ord_committed_hour_totals",
+      "refresh": {
+        "cadence": "1m",
+        "mode": "incremental"
+      },
+      "source_contracts": [
+        "ORD-1"
+      ],
+      "storage": {
+        "db": "reporting",
+        "kind": "table"
+      }
+    }
+  ],
+  "reconciliation": {
+    "close_states": [
+      {
+        "description": "Period is mutable; aggregates may be recomputed.",
+        "state": "open"
+      },
+      {
+        "description": "Operational close; recompute allowed only by platform_finance_admin with variance logging.",
+        "state": "soft_closed"
+      },
+      {
+        "description": "Final close; only ledger adjustments allowed; aggregates immutable except new variance rows.",
+        "state": "hard_closed"
+      }
+    ],
+    "lanes": [
+      {
+        "close_and_lock": {
+          "enabled": true,
+          "lock_granularity": "day"
+        },
+        "exactness_default": "exact",
+        "lane": "reconciliation_lane",
+        "schedule": {
+          "cadence": "15m",
+          "jitter_sec": 90
+        },
+        "sources_allowed": [
+          "led_settled",
+          "ord_committed"
+        ]
+      },
+      {
+        "close_and_lock": {
+          "enabled": false
+        },
+        "exactness_default": "approximate",
+        "lane": "live_lane",
+        "schedule": {
+          "cadence": "1m",
+          "jitter_sec": 10
+        },
+        "sources_allowed": [
+          "ord_committed"
+        ]
+      }
+    ],
+    "variance_policy": {
+      "fee_ownership_policy_ref": "PRICE-1.fee_ownership",
+      "money_tolerance_minor_units": 0,
+      "rounding_policy_ref": "PRICE-1.rounding_adjustment_output"
+    }
+  },
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "tags": [
+    "bi",
+    "analytics",
+    "dashboards",
+    "exports",
+    "reconciliation"
+  ],
+  "tenancy": {
+    "org_views": [
+      {
+        "description": "Org-only dashboards and exports scoped by org_id and enforced by RLS.",
+        "name": "org_scoped"
+      }
+    ],
+    "partition_key": "org_id",
+    "platform_views": [
+      {
+        "description": "Cross-org views for super_admin and platform_finance_admin with cohorting and threshold enforcement.",
+        "name": "platform_global"
+      }
+    ]
+  },
+  "title": "Business Intelligence (Dashboards, Metrics, Exports)",
+  "version": "1.0.2"
+}

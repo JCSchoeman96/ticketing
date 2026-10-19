@@ -1,0 +1,1787 @@
+{
+  "analytics_attribution": {
+    "purchase_attribution": {
+      "orders_capture_num_views_before_purchase": true,
+      "orders_capture_revision_and_variant": true
+    },
+    "required_dimensions": [
+      "org_id",
+      "event_id",
+      "occurrence_id",
+      "revision_id",
+      "experiment_id",
+      "variant_id",
+      "subject_key",
+      "session_id"
+    ],
+    "sticky_identity": {
+      "anon_subject_seed": "consent_gated",
+      "dedupe_mode": "subject_key + session_id + event_id"
+    }
+  },
+  "artifact_kind": "contract",
+  "artifact_name": "EVT-2_Contract_v2.6.2.json",
+  "banned_anti_patterns": {
+    "EVT-AP-050-LOCK-SPLIT-PHASE": {
+      "ban": true,
+      "rationale": "Lock ownership is session-bound in Postgres; split-phase locking provides no safety under concurrency and can cause double-writes.",
+      "rule": "Taking an advisory lock on one DB connection/session and performing the protected write on a different connection/session (lock-on-conn-A / write-on-conn-B).",
+      "severity": "P0"
+    },
+    "EVT-AP-051-SESSION-SCOPED-LOCKS-FOR-STATE": {
+      "ban": true,
+      "rationale": "Transaction-scoped locks auto-release at commit/rollback and reduce orphan/lease drift risk; aligns with LOCKS-1@2.1.0.",
+      "rule": "Using session-scoped advisory locks (pg_advisory_lock / pg_try_advisory_lock) for state transitions instead of transaction-scoped locks (pg_advisory_xact_lock / pg_try_advisory_xact_lock) where applicable.",
+      "severity": "P0"
+    },
+    "EVT-AP-IAM-REBUILD": {
+      "ban": true,
+      "rule": "Do not duplicate IAM authorization model inside EVT-2; depend on IAM-1 for enforcement",
+      "severity": "P0"
+    },
+    "EVT-AP-NO-UNAUDITED-MUTATION": {
+      "ban": true,
+      "rule": "No mutation of published content without immutable revision + audit entry",
+      "severity": "P0"
+    },
+    "EVT-AP-ORDERS-IN-EVT": {
+      "ban": true,
+      "rule": "No order/payment/checkout resources in EVT-2",
+      "severity": "P0"
+    },
+    "EVT-AP-PRICING-IN-EVT": {
+      "ban": true,
+      "rule": "No money fields in EVT-2 (no cents/currency/base_price/fee) — reference PRICE-1",
+      "severity": "P0"
+    },
+    "EVT-AP-SEATS-IN-EVT": {
+      "ban": true,
+      "rule": "No seatmaps/holds/inventory truth in EVT-2 — reference SEAT-1/SEAT-2",
+      "severity": "P0"
+    }
+  },
+  "change_log": [
+    {
+      "date": "2026-02-10",
+      "summary": "Hierarchy addendum: parent_occurrence_id + depth_level (max 1); state entailment to prevent zombie selling sessions; add law constants for parent sovereignty checks.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "Add Occurrence.parent_state_fingerprint and Occurrence.parent_sovereignty_verified_at_utc.",
+        "Add EVT-2-LAW-SOVEREIGNTY-VERIFICATION."
+      ],
+      "date_utc": "2026-02-10",
+      "summary": "Add stale-reality seal (parent_state_fingerprint) and mandate explicit sovereignty verification timestamp to prevent denormalized drift under cascade lag.",
+      "version": "2.5.3"
+    },
+    {
+      "version": "2.6.0",
+      "date_utc": "2026-10-09",
+      "summary": "Add governed Event publication and explicit occurrence sale-open/sale-close transitions."
+    },
+    {
+      "version": "2.6.1",
+      "date_utc": "2026-10-09",
+      "summary": "Correct T0 lifecycle, quote binding, inventory proof, or publication semantics; align release identity metadata."
+    },
+    {
+      "version": "2.6.2",
+      "date_utc": "2026-10-09",
+      "summary": "Advance corrected T0 successor identity under monotonic release policy."
+    }
+  ],
+  "data_model": {
+    "repeater_schema_v1": {
+      "section_types": {
+        "benefits": {
+          "fields": [
+            "icon",
+            "title",
+            "description"
+          ],
+          "max_items": 30
+        },
+        "faqs": {
+          "fields": [
+            "question",
+            "answer"
+          ],
+          "max_items": 15
+        },
+        "hero": {
+          "fields": [
+            "image_url",
+            "subtitle",
+            "cta_url",
+            "cta_text"
+          ],
+          "max_items": 1
+        },
+        "not_allowed": {
+          "fields": [
+            "icon",
+            "rule"
+          ],
+          "max_items": 30
+        },
+        "offer_teasers": {
+          "fields": [
+            "headline",
+            "subheadline",
+            "body_richtext",
+            "badge_text",
+            "cta_text",
+            "cta_url",
+            "price_item_ref_type",
+            "price_item_ref_id",
+            "purchase_eligibility"
+          ],
+          "max_items": 12,
+          "min_items": 1
+        },
+        "speakers": {
+          "fields": [
+            "name",
+            "title",
+            "bio",
+            "image_url",
+            "social_links"
+          ],
+          "max_items": 20
+        },
+        "whats_included": {
+          "fields": [
+            "icon",
+            "item"
+          ],
+          "max_items": 30
+        }
+      }
+    },
+    "resources": [
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": {
+              "max_len": 64,
+              "min_len": 24
+            },
+            "name": "public_event_key",
+            "nullable": false,
+            "type": "string",
+            "unique_with": [
+              "org_id"
+            ]
+          },
+          {
+            "constraints": {
+              "max_len": 128,
+              "min_len": 3,
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            },
+            "name": "slug",
+            "nullable": false,
+            "type": "string",
+            "unique_with": [
+              "org_id"
+            ]
+          },
+          {
+            "name": "visibility",
+            "nullable": false,
+            "one_of": [
+              "public",
+              "unlisted",
+              "private"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "nullable": false,
+            "one_of": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "default_locale",
+            "nullable": false,
+            "one_of": [
+              "en",
+              "af"
+            ],
+            "type": "string"
+          },
+          {
+            "constraints": {
+              "max_items": 10,
+              "min_items": 1
+            },
+            "name": "supported_locales",
+            "nullable": false,
+            "type": "array_string"
+          },
+          {
+            "name": "featured",
+            "nullable": false,
+            "type": "boolean"
+          },
+          {
+            "description": "References to TAXO-1 categories/tags (ids only).",
+            "name": "taxonomy_refs",
+            "nullable": false,
+            "type": "jsonb"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "updated_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "archived_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "published_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec",
+            "description": "Database publication instant. Null while draft; set atomically when published and preserved if later archived."
+          },
+          {
+            "name": "version",
+            "nullable": false,
+            "type": "int32",
+            "description": "Monotonic event state version included in registered lifecycle event payloads."
+          }
+        ],
+        "name": "Event",
+        "relationships": [
+          {
+            "name": "occurrences",
+            "target": "Occurrence",
+            "type": "has_many"
+          },
+          {
+            "name": "content_revisions",
+            "target": "EventContentRevision",
+            "type": "has_many"
+          },
+          {
+            "name": "redirects",
+            "target": "EventRedirect",
+            "type": "has_many"
+          },
+          {
+            "name": "experiments",
+            "target": "EventExperiment",
+            "type": "has_many"
+          },
+          {
+            "name": "access_grants",
+            "target": "EventAccessGrant",
+            "type": "has_many"
+          },
+          {
+            "name": "audit_entries",
+            "target": "EventAuditEntry",
+            "type": "has_many"
+          }
+        ]
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Optional parent occurrence for nested reality.",
+            "name": "parent_occurrence_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Hierarchy depth level. Root=0; Child=1. No deeper nesting in v2.5.1.",
+            "name": "depth_level",
+            "nullable": false,
+            "type": "int32"
+          },
+          {
+            "name": "occurrence_kind",
+            "nullable": false,
+            "one_of": [
+              "main",
+              "session",
+              "workshop",
+              "addon",
+              "vip_area",
+              "other"
+            ],
+            "type": "string"
+          },
+          {
+            "constraints": {
+              "pattern": "^[A-Za-z_]+\\/[A-Za-z_]+(?:\\/[A-Za-z_]+)?$"
+            },
+            "name": "timezone",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "starts_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "ends_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Admission window open time (UTC). Scans with intent check_in MUST be denied if before this time.",
+            "name": "check_in_open_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Admission window close time (UTC). Scans with intent check_in MUST be denied if after this time.",
+            "name": "check_in_close_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Optional scan-out window open time (UTC). Required when reentry_policy=scan_out_required.",
+            "name": "check_out_open_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Optional scan-out window close time (UTC). Required when reentry_policy=scan_out_required.",
+            "name": "check_out_close_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "constraints": {
+              "one_of": [
+                "none",
+                "allowed",
+                "scan_out_required"
+              ]
+            },
+            "description": "Re-entry policy for this occurrence.",
+            "name": "reentry_policy",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "constraints": {
+              "one_of": [
+                "edge",
+                "online"
+              ]
+            },
+            "description": "Preferred decision authority for scans when multiple are possible.",
+            "name": "scan_preferred_authority",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "constraints": {
+              "max": 604800,
+              "min": 0
+            },
+            "description": "Maximum allowed offline age (seconds) since last successful hydration/sync for edge-authoritative scanning.",
+            "name": "scan_max_offline_age_seconds",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "constraints": {
+              "max": 300,
+              "min": 0
+            },
+            "description": "Grace window (seconds) for soft duplicate scans under policy (e.g., same gate/device quick re-scan).",
+            "name": "scan_duplicate_grace_seconds",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "constraints": {
+              "one_of": [
+                "deny",
+                "warn",
+                "accept_provisional"
+              ]
+            },
+            "description": "Behavior when the scanning device exceeds scan_max_offline_age_seconds.",
+            "name": "scan_stale_behavior",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "sales_open_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "sales_close_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "constraints": {
+              "max": 200000,
+              "min": 1
+            },
+            "name": "capacity_max",
+            "nullable": false,
+            "type": "int"
+          },
+          {
+            "name": "inventory_mode",
+            "nullable": false,
+            "one_of": [
+              "ga_capacity",
+              "seated",
+              "table_seated",
+              "standing_zone",
+              "mixed"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "Default true; standalone allowed only if event explicitly enables.",
+            "name": "workshops_require_primary_access",
+            "nullable": false,
+            "type": "boolean"
+          },
+          {
+            "name": "standalone_allowed",
+            "nullable": false,
+            "type": "boolean"
+          },
+          {
+            "name": "status",
+            "nullable": false,
+            "one_of": [
+              "scheduled",
+              "sales_open",
+              "sales_closed",
+              "postponed",
+              "rescheduled",
+              "cancel_pending",
+              "cancelled",
+              "completed"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "Optional denormalized parent status cache for O(1) sovereignty checks. If present and inconsistent with actual parent status, consumers MUST fail-closed (treat child as failed).",
+            "name": "cached_parent_status",
+            "nullable": true,
+            "one_of": [
+              "scheduled",
+              "sales_open",
+              "sales_closed",
+              "postponed",
+              "rescheduled",
+              "cancel_pending",
+              "cancelled",
+              "completed"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "parent_state_fingerprint",
+            "nullable": true,
+            "purpose": "Stale-reality seal for parent status (sha256 over parent identity+state).",
+            "type": "sha256_hex_lowercase"
+          },
+          {
+            "name": "parent_sovereignty_verified_at_utc",
+            "nullable": true,
+            "purpose": "Timestamp when parent sovereignty was verified for this occurrence projection/read.",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "supersedes_occurrence_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "superseded_by_occurrence_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Structured address + geo + accessibility.",
+            "name": "venue",
+            "nullable": false,
+            "type": "jsonb"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "updated_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "name": "Occurrence",
+        "relationships": []
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "revision_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "locale",
+            "nullable": false,
+            "one_of": [
+              "en",
+              "af"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "nullable": false,
+            "one_of": [
+              "draft",
+              "published",
+              "superseded"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "published_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "supersedes_revision_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Pinned canonical URL for this published revision.",
+            "name": "canonical_url",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "description": "SEO fields subset; experiments may NOT touch SEO-critical fields by default.",
+            "name": "seo",
+            "nullable": false,
+            "type": "jsonb"
+          },
+          {
+            "description": "Ordered structured blocks; supports repeater/grids/container queries.",
+            "name": "content_blocks",
+            "nullable": false,
+            "type": "jsonb"
+          },
+          {
+            "description": "Images/videos referenced (urls/ids), for audit and cache invalidation.",
+            "name": "media_refs",
+            "nullable": false,
+            "type": "jsonb"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "created_by_actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "created_by_actor_kind",
+            "nullable": false,
+            "one_of": [
+              "super_admin",
+              "platform_tenant_manager",
+              "org_admin",
+              "org_worker"
+            ],
+            "type": "string"
+          }
+        ],
+        "name": "EventContentRevision",
+        "relationships": []
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "redirect_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "from_slug",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "to_slug",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "nullable": false,
+            "one_of": [
+              "active",
+              "inactive"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "expires_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "created_by_actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "created_by_actor_kind",
+            "nullable": false,
+            "one_of": [
+              "super_admin",
+              "platform_tenant_manager",
+              "org_admin"
+            ],
+            "type": "string"
+          }
+        ],
+        "name": "EventRedirect",
+        "relationships": []
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "experiment_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "surface",
+            "nullable": false,
+            "one_of": [
+              "event_page",
+              "checkout_copy",
+              "email_copy",
+              "other"
+            ],
+            "type": "string"
+          },
+          {
+            "description": "Deterministic audience selector descriptor; MUST be non-overlapping when multiple experiments active.",
+            "name": "audience",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "nullable": false,
+            "one_of": [
+              "planned",
+              "running",
+              "stop_proposed",
+              "stopped"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "starts_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "ends_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "constraints": {
+              "max": 720,
+              "min": 1
+            },
+            "name": "min_duration_hours",
+            "nullable": false,
+            "type": "int"
+          },
+          {
+            "constraints": {
+              "max": 10000000,
+              "min": 100
+            },
+            "name": "min_sample_size",
+            "nullable": false,
+            "type": "int"
+          },
+          {
+            "constraints": {
+              "max_items": 10,
+              "min_items": 1
+            },
+            "name": "success_metrics",
+            "nullable": false,
+            "type": "array_string"
+          },
+          {
+            "description": "Variant definitions: changeset pointers; MUST NOT touch SEO-critical fields unless explicitly enabled.",
+            "name": "variants",
+            "nullable": false,
+            "type": "jsonb"
+          },
+          {
+            "name": "allow_seo_field_variation",
+            "nullable": false,
+            "type": "boolean"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "created_by_actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "created_by_actor_kind",
+            "nullable": false,
+            "one_of": [
+              "super_admin",
+              "platform_tenant_manager"
+            ],
+            "type": "string"
+          }
+        ],
+        "name": "EventExperiment",
+        "relationships": []
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "grant_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "principal_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "invite_email",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "membership_ref",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "role",
+            "nullable": false,
+            "one_of": [
+              "viewer",
+              "editor",
+              "manager"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "nullable": false,
+            "one_of": [
+              "active",
+              "revoked",
+              "pending"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "expires_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "name": "EventAccessGrant",
+        "relationships": []
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "audit_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "actor_kind",
+            "nullable": false,
+            "one_of": [
+              "super_admin",
+              "platform_tenant_manager",
+              "org_admin",
+              "org_worker"
+            ],
+            "type": "string"
+          },
+          {
+            "name": "action",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "reason_code",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "reason_text",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "request_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "trace_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "metadata",
+            "nullable": false,
+            "type": "jsonb"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "name": "EventAuditEntry",
+        "relationships": []
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "CONSENT-1",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "consent gating for tracking + communications"
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.3.29",
+      "reason": "Shared error taxonomy + normalized error surfaces used by EVT-2 actions and audit."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "event registry: domain event names emitted by EVT-2"
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.0.1",
+      "reason": "principal identity + roles (super_admin / org_admin / org_worker). Includes support operator role platform_tenant_manager for cross-org assistance."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "purpose": "physics-layer alignment"
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.4",
+      "reason": "background processing capacity posture"
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.6",
+      "reason": "trace_id/request_id propagation + observability posture"
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.0.10",
+      "reason": "orders reference event_id/occurrence_id + checkout snapshots"
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.0.9",
+      "reason": "pricing phases + discounts + ledgery immutability"
+    },
+    {
+      "doc_id": "SEAT-1",
+      "edge_type": "requires",
+      "min_version": "3.0.5",
+      "reason": "occurrence_id referenced by holds + seat truth"
+    },
+    {
+      "doc_id": "SM-0",
+      "edge_type": "requires",
+      "min_version": "1.2.0",
+      "purpose": "physics-layer alignment"
+    },
+    {
+      "doc_id": "SUB-1",
+      "edge_type": "requires",
+      "min_version": "1.0.0",
+      "reason": "Entitlement programs (subscriber tiers) referenced by EVT-2 content blocks for public-visible but purchase-locked VIP offers."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.1",
+      "reason": "org_id tenancy + isolation"
+    },
+    {
+      "doc_id": "TRK-1",
+      "edge_type": "requires",
+      "min_version": "1.2.3",
+      "reason": "analytics attribution + consent-gated subject identity"
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.0",
+      "reason": "Constitutional invariants"
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4"
+  },
+  "doc_id": "EVT-2",
+  "domain_actions": {
+    "approve_cancel_occurrence": {
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_CANCEL_NOT_PENDING"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "occurrence_id",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "occurrence_id",
+        "status"
+      ],
+      "purpose": "Super admin approves cancellation request and finalizes cancellation."
+    },
+    "archive_event": {
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_EVENT_NOT_FOUND",
+        "ERR_EVENT_HAS_SALES"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "event_id",
+        "status",
+        "archived_at_utc"
+      ],
+      "purpose": "Archive event; redirects retained for default retention window; no delete when sales exist."
+    },
+    "confirm_stop_experiment": {
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_EXPERIMENT_NOT_STOP_PROPOSED"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "experiment_id",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "experiment_id",
+        "status"
+      ],
+      "purpose": "Super admin confirms stop proposal."
+    },
+    "create_content_revision": {
+      "errors": [
+        "ERR_LOCALE_NOT_SUPPORTED",
+        "ERR_CANONICAL_INVALID",
+        "ERR_BLOCKS_INVALID"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "locale",
+        "supersedes_revision_id",
+        "canonical_url",
+        "seo",
+        "content_blocks",
+        "media_refs",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "revision_id",
+        "status"
+      ],
+      "purpose": "Create a new draft content revision (immutable)."
+    },
+    "create_event": {
+      "errors": [
+        "ERR_TENANT_REQUIRED",
+        "ERR_SLUG_INVALID",
+        "ERR_SLUG_CONFLICT"
+      ],
+      "inputs_required": [
+        "org_id",
+        "slug",
+        "visibility",
+        "default_locale",
+        "supported_locales",
+        "featured",
+        "taxonomy_refs",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "event_id",
+        "public_event_key",
+        "status",
+        "version",
+        "published_at_utc"
+      ],
+      "purpose": "Create an event container (no pricing/money) and mint public_event_key.",
+      "validation_rules": [
+        "Create Event with status=draft, version=1, and published_at_utc=null.",
+        "Event identity and all organizer-owned values MUST belong to org_id."
+      ]
+    },
+    "create_occurrence": {
+      "errors": [
+        "ERR_TIMEZONE_REQUIRED",
+        "ERR_TIME_RANGE_INVALID",
+        "ERR_CAPACITY_INVALID"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "occurrence_kind",
+        "timezone",
+        "starts_at_utc",
+        "ends_at_utc",
+        "capacity_max",
+        "inventory_mode",
+        "venue",
+        "workshops_require_primary_access",
+        "standalone_allowed",
+        "sales_open_at_utc",
+        "sales_close_at_utc",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "occurrence_id",
+        "status"
+      ],
+      "purpose": "Create an occurrence (main/session/workshop/add-on) with timezone + UTC times + capacity."
+    },
+    "create_redirect": {
+      "errors": [
+        "ERR_REDIRECT_CONFLICT",
+        "ERR_SLUG_INVALID",
+        "ERR_AUTHZ_DENIED"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "from_slug",
+        "to_slug",
+        "expires_at_utc",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "redirect_id",
+        "status"
+      ],
+      "purpose": "Create a redirect from an old slug to a new slug; retained until archive + retention window."
+    },
+    "postpone_occurrence": {
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_OCCURRENCE_NOT_FOUND",
+        "ERR_INVALID_DEADLINE"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "occurrence_id",
+        "reason_code",
+        "reason_text",
+        "choice_deadline_at_utc",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "occurrence_id",
+        "status",
+        "choice_deadline_at_utc"
+      ],
+      "purpose": "Mark occurrence postponed; stop sales; open customer-choice workflow (deadline + events)."
+    },
+    "propose_stop_experiment": {
+      "errors": [
+        "ERR_EXPERIMENT_NOT_RUNNING"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "experiment_id",
+        "proposal_metrics",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "experiment_id",
+        "status"
+      ],
+      "purpose": "System proposes stopping based on thresholds; requires super_admin confirmation."
+    },
+    "publish_revision": {
+      "errors": [
+        "ERR_REVISION_NOT_FOUND",
+        "ERR_REVISION_NOT_DRAFT",
+        "ERR_AUTHZ_DENIED"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "revision_id",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "revision_id",
+        "published_at_utc"
+      ],
+      "purpose": "Publish a draft revision (becomes immutable). Supersedes prior published revision in locale."
+    },
+    "request_cancel_occurrence": {
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_OCCURRENCE_NOT_FOUND"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "occurrence_id",
+        "reason_code",
+        "reason_text",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "occurrence_id",
+        "status"
+      ],
+      "purpose": "Request cancellation with required reason; requires super_admin approval to finalize."
+    },
+    "reschedule_occurrence": {
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_OCCURRENCE_NOT_FOUND",
+        "ERR_TIME_RANGE_INVALID"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "occurrence_id",
+        "new_timezone",
+        "new_starts_at_utc",
+        "new_ends_at_utc",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "new_occurrence_id",
+        "old_occurrence_id"
+      ],
+      "purpose": "Create a new occurrence that supersedes the old one; old stops sales immediately."
+    },
+    "start_experiment": {
+      "errors": [
+        "ERR_EXPERIMENT_CONFLICT",
+        "ERR_AUTHZ_DENIED",
+        "ERR_EXPERIMENT_INVALID"
+      ],
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "surface",
+        "audience",
+        "variants",
+        "success_metrics",
+        "min_duration_hours",
+        "min_sample_size",
+        "allow_seo_field_variation",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "experiment_id",
+        "status"
+      ],
+      "purpose": "Start an A/B experiment (super_admin only)."
+    },
+    "publish_event": {
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "event_id",
+        "status",
+        "version",
+        "published_at_utc"
+      ],
+      "purpose": "Publish a draft Event through a governed organizer action.",
+      "validation_rules": [
+        "Event MUST exist within org_id, status MUST be draft, and published_at_utc MUST be null.",
+        "Actor MUST be authorized to publish this event in org_id.",
+        "Atomically set status=published, set published_at_utc=database_now, increment Event.version, and enqueue the registered EVT-1 ticketing.event.published.v1 outbox record using the committed version.",
+        "Event payload MUST contain exactly the registered required data keys event_id and version plus required envelope extensions org_id, trace_id, and request_id; published_at_utc remains durable Event state and is not an unregistered payload key.",
+        "The publication transition, timestamp, version, and outbox record MUST commit or roll back together."
+      ],
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_NOT_FOUND",
+        "ERR_PRECONDITION"
+      ],
+      "outbox_event": "ticketing.event.published.v1",
+      "side_effects_separation": "after_commit_only",
+      "state_transition": {
+        "from": "draft",
+        "to": "published",
+        "terminal": false,
+        "side_effects": "Atomically set status=published, published_at_utc=database_now, increment version, and enqueue ticketing.event.published.v1."
+      }
+    },
+    "open_occurrence_sales": {
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "occurrence_id",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "occurrence_id",
+        "status"
+      ],
+      "purpose": "Open occurrence sales through an explicit governed action.",
+      "validation_rules": [
+        "Occurrence MUST be scheduled and belong to event_id and org_id.",
+        "Parent Event MUST be published in org_id.",
+        "sales_open_at_utc and sales_close_at_utc MUST both be present and sales_open_at_utc < sales_close_at_utc.",
+        "Database now MUST be >= sales_open_at_utc and < sales_close_at_utc.",
+        "Actor MUST be authorized to manage sales for org_id.",
+        "Buyer eligibility MUST independently evaluate database UTC against both configured timestamps and fail closed even if stored status lags."
+      ],
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_NOT_FOUND",
+        "ERR_PRECONDITION"
+      ],
+      "side_effects_separation": "after_commit_only",
+      "state_transition": {
+        "from": "scheduled",
+        "to": "sales_open",
+        "terminal": false
+      }
+    },
+    "close_occurrence_sales": {
+      "inputs_required": [
+        "org_id",
+        "event_id",
+        "occurrence_id",
+        "actor_id",
+        "actor_kind",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "occurrence_id",
+        "status"
+      ],
+      "purpose": "Close occurrence sales through an explicit governed action.",
+      "validation_rules": [
+        "Occurrence MUST be sales_open and belong to event_id and org_id.",
+        "Actor MUST be authorized to manage sales for org_id; a system/service actor MAY close at or after sales_close_at_utc.",
+        "Sales close action MUST preserve event cancellation, postponement and rescheduling sovereignty.",
+        "Buyer eligibility MUST fail closed when database UTC is at or after sales_close_at_utc even if stored status remains sales_open."
+      ],
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_NOT_FOUND",
+        "ERR_PRECONDITION"
+      ],
+      "side_effects_separation": "after_commit_only",
+      "state_transition": {
+        "from": "sales_open",
+        "to": "sales_closed",
+        "terminal": true
+      }
+    }
+  },
+  "emits_events": true,
+  "generated_at_utc": "2026-10-09T15:51:00Z",
+  "invariants": {
+    "addons": {
+      "default_requires_primary_access": true,
+      "standalone_only_when_enabled": true
+    },
+    "commerce_blocks": {
+      "experiments": {
+        "default": "experiments must not mutate purchase_eligibility unless explicitly enabled per experiment",
+        "rationale": "Prevents experiment variants from weakening entitlement gates or creating inconsistent upsell promises."
+      },
+      "no_money_fields": true,
+      "offer_teasers": {
+        "eligibility_rule": "If purchase_eligibility.requires_entitlement=true, then purchase_eligibility must include entitlement_program_id and either allowed_sub_tier_ids (preferred) or allow_any_tier=true.",
+        "ref_rule": "price_item_ref_type + price_item_ref_id must reference PRICE-1 PriceLine item_ref_type/item_ref_id for the current pricing program revision",
+        "visibility_rule": "Public visibility is allowed even when purchase is locked; UI must mark as locked and ORD-1 must re-check at finalize."
+      }
+    },
+    "concurrency": {
+      "locks_session_affinity_required": {
+        "default": true,
+        "rationale": "All advisory locks that guard writes MUST be acquired and used within the same Repo.transaction / DB backend session as the protected mutation. This aligns EVT-2 actions with LOCKS-1@2.1.0 session-affinity hardening."
+      },
+      "require_sm0_fencing_for_stateful_mutations": {
+        "default": true,
+        "rationale": "All stateful mutations executed by workers or asynchronous flows MUST use SM-0 style fencing/optimistic-lock predicates (Compare-And-Swap on lock_version/state) so a stale worker cannot overwrite newer state."
+      }
+    },
+    "deletion": {
+      "no_delete_if_sales_exist": true
+    },
+    "experiments": {
+      "default_one_experiment_per_surface": true,
+      "multiple_only_non_overlapping_surface_and_audience": true,
+      "no_fully_automatic_stop": true,
+      "seo_field_variation_default_false": true,
+      "super_admin_only": true
+    },
+    "occurrences": {
+      "admission_scope": "Admission truth is occurrence-scoped. SCAN-1 and TKT-1 MUST key admission decisions to occurrence_id.",
+      "capacity_required": true,
+      "check_in_window_bounds": "check_in_open_at_utc MUST be <= check_in_close_at_utc. Both MUST (as policy-defined) be within [starts_at_utc - policy, ends_at_utc + policy] as defined by org policy.",
+      "check_in_window_required": "check_in_open_at_utc and check_in_close_at_utc MUST be present for every occurrence.",
+      "denormalized_reality_recommendation": "To avoid hot-path joins, child occurrences SHOULD persist cached_parent_status updated during parent->child cascade. If cached_parent_status is present and differs from the actual parent.status, the child MUST be treated as failed (fail-closed).",
+      "hierarchy_depth_law": "depth_level MUST be 0 for root. If parent_occurrence_id is present then depth_level MUST be 1. parent_occurrence_id MUST NOT reference an occurrence with depth_level=1.",
+      "hierarchy_depth_max_level": 1,
+      "reentry_policy_rules": "If reentry_policy=scan_out_required then check_out_open_at_utc and check_out_close_at_utc MUST be present and check_out_open_at_utc <= check_out_close_at_utc.",
+      "reschedule_creates_new_occurrence": true,
+      "scan_policy_required": "scan_preferred_authority, scan_max_offline_age_seconds, scan_duplicate_grace_seconds, scan_stale_behavior MUST be present for every occurrence.",
+      "sovereignty_verification_law": "Any projection or API response that includes a child occurrence with parent_occurrence_id MUST include parent_sovereignty_verified_at_utc, representing the time at which parent sovereignty was checked.",
+      "stale_reality_seal": "Child occurrences MAY persist parent_state_fingerprint to detect stale cached_parent_status. If parent_state_fingerprint is present and does not match the current parent state fingerprint, the child MUST be treated as failed (fail-closed) until reconciled.",
+      "state_entailment_law": "If depth_level=1 and status is sales_open then parent.status MUST NOT be in {cancel_pending,cancelled,completed}. Consumers MUST check parent status on read paths.",
+      "supersession_chain_acyclic": true,
+      "timezone_required": true,
+      "utc_canonical": true
+    },
+    "redirects": {
+      "retain_until_archive_plus_days_default": 180
+    },
+    "revisioning": {
+      "analytics_must_include_revision_id": true,
+      "canonical_pinned_per_published_revision": true,
+      "published_revision_immutable": true
+    },
+    "visibility": {
+      "private_requires_grant": true,
+      "public_unlisted_resolve_tenant_server_side": true
+    }
+  },
+  "last_updated_utc": "2026-10-09T15:51:00Z",
+  "law_constants": {
+    "occurrence_hierarchy": {
+      "max_depth_level": 1,
+      "selling_statuses": [
+        "sales_open"
+      ],
+      "terminal_non_active_parent_statuses": [
+        "cancel_pending",
+        "cancelled",
+        "completed"
+      ]
+    },
+    "parent_state_fingerprint": {
+      "algorithm": "sha256_hex_lowercase",
+      "input_format": "{parent_occurrence_id}|{parent_status}|{parent_status_changed_at_utc}",
+      "notes": "Parent status_changed timestamp is the canonical transition time used to invalidate stale caches."
+    }
+  },
+  "limits_and_budgets": {
+    "concurrency_limit": 20,
+    "max_blocks_per_revision": 250,
+    "max_experiments_active_per_event": 10,
+    "max_occurrences_per_event": 2000,
+    "max_redirects_per_event": 500,
+    "max_speakers_per_event": 500,
+    "p99_latency_ms": 350,
+    "rate_limit_per_tenant": 120
+  },
+  "lock_state": "locked",
+  "normative_source": {
+    "rounds": 4,
+    "type": "faq_lockdown"
+  },
+  "open_questions": {
+    "evt2_open_009": {
+      "impact": "P1",
+      "question": "Define exact SEO field allowlist vs denylist for experiments (field-level) and how it maps to search indexation controls.",
+      "status": "deferred"
+    },
+    "evt2_open_010": {
+      "impact": "P2",
+      "question": "Define canonical venue extraction boundary (VENUE-1) vs keeping venue json in EVT-2; decide timeline.",
+      "status": "deferred"
+    }
+  },
+  "outbox_events": [
+    {
+      "event_name": "ticketing.event.published.v1",
+      "required_keys": [
+        "event_id",
+        "version"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.event",
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "org_id,event_id,version"
+      },
+      "notes": "Emitted by publish_event after the Event status, published_at_utc, and version commit. Uses the existing EVT-1 registration and its required org_id, trace_id, request_id envelope extensions."
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "EVT-2-V251-STATE-SOVEREIGNTY",
+      "severity": "P0",
+      "text": "Zombie session prevention: a child occurrence is invalid-by-definition for selling/active read paths if its parent is terminal non-active. Orchestration may cascade statuses asynchronously, but correctness MUST be enforced synchronously on read and write paths."
+    },
+    {
+      "rule_id": "EVT-2-V251-DEPTH-LIMIT",
+      "severity": "P0",
+      "text": "Hierarchy depth is limited to one level (root + child). depth_level enables O(1) checks. No recursive lookup is required to enforce the limit."
+    },
+    {
+      "applies_to": [
+        "Occurrence"
+      ],
+      "rule_id": "EVT-2-V252-TENANCY-REINFORCEMENT",
+      "severity": "P0",
+      "text": "org_id is a partition constraint. Database-level RLS MUST prevent a child occurrence from linking to or reading a parent occurrence belonging to a different org_id."
+    },
+    {
+      "level": "P0",
+      "rule_id": "EVT-2-LAW-SOVEREIGNTY-VERIFICATION",
+      "text": "Read-time sovereignty: If a child occurrence has status in {:active,:selling,:sales_open} but its parent occurrence status is in {:cancel_pending,:cancelled,:archived,:failed,:completed}, the child MUST be treated as invalid (Ghost Reality) and MUST NOT be presented as sellable or scannable. If cached_parent_status and/or parent_state_fingerprint are stale, the system MUST fail-closed."
+    },
+    {
+      "id": "EVT-2-PRED-NO-PROVISIONAL",
+      "statement": "EVT-2.Occurrence completion (status -> :completed) is BLOCKED if any SCAN-1.Scan record for the same {org_id, occurrence_id} remains provisional=true and unresolved. The transition MUST fail closed with ERR_UNRESOLVED_PROVISIONAL_SCANS until a valid SCAN-1 ResolutionManifest attestation resolves all provisional scans to a terminal status.",
+      "strength": "MUST"
+    },
+    {
+      "rule_id": "EVT-2-T0-SALE-TRANSITIONS-001",
+      "level": "P0",
+      "text": "Event publication and occurrence sales opening/closing MUST occur only through publish_event, open_occurrence_sales and close_occurrence_sales. Opening requires a published parent Event and a valid configured UTC sale window. Buyer eligibility checks UTC time fail-closed even when stored status lags. These actions do not add a timer or worker and do not change cancellation, postponement or rescheduling sovereignty."
+    },
+    {
+      "rule_id": "EVT-2-T0-PUBLICATION-TEMPORAL-001",
+      "level": "P0",
+      "text": "Event.status=draft MUST imply published_at_utc=null. Event.status=published MUST imply published_at_utc is non-null and sourced from the database clock. publish_event MUST atomically persist status, published_at_utc, incremented version, and the registered event outbox record. Archival MUST preserve the historical published_at_utc."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "security_posture": {
+    "auth_boundary": "Ash.Policy; org_id context required; public_event_key resolution server-side for public/unlisted reads",
+    "data_retention_days": 1825,
+    "pii_fields": [
+      "venue.contact_email",
+      "venue.contact_phone",
+      "content.blocks.speaker.social_links",
+      "feedback.reviewer_display_name",
+      "feedback.review_text"
+    ]
+  },
+  "status": "draft",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Event publication domain: events (identity, visibility, SEO), occurrences (timezone-aware scheduling), revisioned page content, redirect history, experiments governance, and auditability. Delegates pricing to PRICE-1, ordering to ORD-1, seating/inventory truth to SEAT-1 (+ SEAT-2 maps), tracking attribution to TRK-1 (consent-gated), and notifications to COMM-1 (future).",
+  "tenancy": {
+    "leakage_policy": "hide_existence",
+    "strategy": "attribute",
+    "tenant_key": "org_id"
+  },
+  "tier": 2,
+  "title": "EVT-2 Events Domain Contract",
+  "updated_at": "2026-10-09T15:51:00Z",
+  "updated_at_utc": "2026-10-09T15:51:00Z",
+  "version": "2.6.2",
+  "state_lifecycle": {
+    "Event": {
+      "states": [
+        "draft",
+        "published",
+        "archived"
+      ],
+      "transitions": [
+        {
+          "from": "absent",
+          "to": "draft",
+          "action": "create_event",
+          "initiator": "authorized organizer",
+          "guards": [
+            "valid tenant and event input"
+          ],
+          "side_effects": "persist Event",
+          "invalid_behavior": "reject without write",
+          "terminal": false
+        },
+        {
+          "from": "draft",
+          "to": "published",
+          "action": "publish_event",
+          "initiator": "authorized organizer",
+          "guards": [
+            "same-tenant Event in draft"
+          ],
+          "side_effects": "Set status=published, published_at_utc=database_now, and increment version; enqueue ticketing.event.published.v1 atomically.",
+          "invalid_behavior": "ERR_PRECONDITION; no status/event partial write",
+          "terminal": false
+        },
+        {
+          "from": [
+            "draft",
+            "published"
+          ],
+          "to": "archived",
+          "action": "archive_event",
+          "initiator": "authorized organizer",
+          "guards": [
+            "existing archive_event rules including no delete when sales exist"
+          ],
+          "side_effects": "Archive the Event and preserve its historical published_at_utc and publication version.",
+          "invalid_behavior": "existing canonical archive errors; no partial write",
+          "terminal": true
+        }
+      ]
+    },
+    "Occurrence.sales": {
+      "states": [
+        "scheduled",
+        "sales_open",
+        "sales_closed",
+        "postponed",
+        "rescheduled",
+        "cancel_pending",
+        "cancelled",
+        "completed"
+      ],
+      "transitions": [
+        {
+          "from": "scheduled",
+          "to": "sales_open",
+          "action": "open_occurrence_sales",
+          "initiator": "authorized organizer",
+          "guards": [
+            "parent Event published",
+            "valid nonempty UTC sale window",
+            "database now within configured window"
+          ],
+          "side_effects": "persist state transition under existing concurrency fence",
+          "invalid_behavior": "ERR_PRECONDITION; no write",
+          "terminal": false
+        },
+        {
+          "from": "sales_open",
+          "to": "sales_closed",
+          "action": "close_occurrence_sales",
+          "initiator": "authorized organizer or system/service at configured close",
+          "guards": [
+            "status sales_open",
+            "tenant/event identity verified"
+          ],
+          "side_effects": "persist state transition under existing concurrency fence",
+          "invalid_behavior": "ERR_PRECONDITION; no write",
+          "terminal": true
+        }
+      ]
+    },
+    "buyer_eligibility": "Regardless of persisted sales status, buyer sale eligibility MUST fail closed unless database UTC satisfies sales_open_at_utc <= now < sales_close_at_utc, parent Event is published, and existing occurrence sovereignty/cancellation/postponement guards pass. No timer or worker is specified by this action law."
+  }
+}

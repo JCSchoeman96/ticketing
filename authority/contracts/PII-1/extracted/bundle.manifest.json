@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "PII-1",
+    "bundle_version": "2.0.0"
+  },
+  "doc_id": "PII-1",
+  "files": [
+    {
+      "bytes": 55026,
+      "path": "PII-1_Contract_v2.0.0.json",
+      "sha256": "e0ae459508cf8e0f67469495baf4b34c08bf82cd2ebaaeb18994180a49329912"
+    },
+    {
+      "bytes": 28805,
+      "path": "PII-1_Test_Gates_v2.0.0.json",
+      "sha256": "097bb50ebb1b841c2c66f74357d6dee8f8352d8fb6654a98ea2cd6f4d43d03d0"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.0.0"
+}

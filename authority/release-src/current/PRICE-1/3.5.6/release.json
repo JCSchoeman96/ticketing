@@ -1,0 +1,13 @@
+{
+  "doc_id": "PRICE-1",
+  "version": "3.5.6",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch successor preserving PRICE-1 semantics while repairing the recorded CS-0/gate/manifest identity defects.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "2d758dfe9163c728c82cd9369e105036b8ce79b9c6630ff098089b0d25f641dd"
+  }
+}

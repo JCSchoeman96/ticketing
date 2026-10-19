@@ -1,0 +1,13 @@
+{
+  "doc_id": "RP-0",
+  "version": "4.0.0",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "release_status": "candidate",
+  "release_intent": "Review-only successor package for the frozen T0 authority snapshot, RP-0@4.0.0.",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "9d4ab9a1ca101b0129f57caca4eeb81ceaa37fc19618329c1ba2a26c31562d47"
+  }
+}

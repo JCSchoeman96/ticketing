@@ -1,0 +1,1100 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "REFUND-1_Contract_v1.7.3.json",
+  "banned_anti_patterns": {
+    "AP-DESTRUCTIVE-UNDO": {
+      "ban": true,
+      "rule": "Refunds MUST NOT delete or mutate Order, Ledger, Seat, or TicketCredential truth records. They MUST create compensating, append-only records.",
+      "severity": "P0"
+    },
+    "AP-MONEY_WITHOUT_REVOCATION": {
+      "ban": true,
+      "rule": "Refund finalization for admission-linked items MUST NOT occur unless TKT-1 credential revocation has been recorded and is eligible for scanner hydration.",
+      "severity": "P0"
+    },
+    "AP-REFUND_DURING_DISPUTE": {
+      "ban": true,
+      "rule": "Refunds MUST NOT be executed while PAY-3 reports an active dispute for the relevant payment_reference/verified_payment_attempt_id unless policy explicitly allows it; the conflict MUST be deterministic.",
+      "severity": "P0"
+    },
+    "ATP-REFUND-010": {
+      "severity": "P0",
+      "text": "Lock-on-Conn-A / Write-on-Conn-B split: taking an advisory/idempotency lock in one DB session and performing the protected mutation in another session. This provides zero safety and enables zombie double-refunds."
+    },
+    "ATP-REFUND-011": {
+      "severity": "P0",
+      "text": "Unfenced refund mutation: implementing process_refund without SM-0 CAS fencing (status predicate + fencing token / lock_version) or without a serialization guard, allowing duplicate refunds under retries/concurrency."
+    }
+  },
+  "bundle_id": "REFUND-1_bundle_v1.6.5",
+  "bundle_manifest_filename": "bundle.manifest.json",
+  "change_log": [
+    {
+      "changes": [
+        "Semantics: enforce deterministic tax apportionment + rounding for partial refunds to prevent penny-leak vs ORD-1 snapshot totals.",
+        "Semantics: require refund credit-note generation to anchor to TAX-1 tax_profile_id (and its reporting profile) rather than recomputing from UI inputs.",
+        "Gates: add P0 checks for new apportionment/rounding invariants and required snapshot fields."
+      ],
+      "date_utc": "2026-02-08T20:08:34Z",
+      "version": "1.6.6"
+    },
+    {
+      "changes": [
+        "P0: Add RefundRequest.tax_context_digest_sha256 and invariant binding refunds to TAX-1 tax context digest (fail-closed on mismatch).",
+        "P0: Add override evidence quorum binding invariant requiring QUORUM-1 attestation transcript to bind refund-critical fields.",
+        "P0: Update suite_schema to CS-0@2.3.0 and add dependencies TAX-1, QUORUM-1; bump CS-0 min_version to 2.3.0."
+      ],
+      "date_utc": "2026-02-08T19:32:45Z",
+      "version": "1.6.5"
+    },
+    {
+      "changes": [
+        "LEGISLATIVE: Remove deprecated refund.finalized.v1 from outbox_events (no-legacy stance).",
+        "Phase-5: Add EVT-1 dependency floor pinned to 2.16.3 to prevent registry split-brain.",
+        "Phase-5: Normalize and harden Test Gates schema (id/level/must) and remove index-based brittle pointers.",
+        "Phase-5: Add gate forbidding refund.finalized.v1 literal anywhere in artifact."
+      ],
+      "date_utc": "2026-02-06T10:48:35.364839Z",
+      "version": "1.6.2"
+    },
+    {
+      "changes": [
+        "Add REFUND_ALREADY_PROCESSED and REFUND_LOCK_WINDOW_ACTIVE to err_subcodes_used to prevent registry drift."
+      ],
+      "date_utc": "2026-01-25T18:00:06Z",
+      "summary": "Patch: declare missing ERR-1 subcodes referenced by REFUND-1 actions/invariants (registry alignment).",
+      "version": "1.2.1"
+    },
+    {
+      "changes": [
+        "Bumped dependency floors: ORD-1 >= 3.1.1, ERR-1 >= 1.4.2.",
+        "No semantic changes to refund/chargeback workflow."
+      ],
+      "date_utc": "2026-01-25T08:06:48Z",
+      "summary": "Align REFUND-1 dependency floors to ORD-1 payment-proof hardening and ERR-1 registry additions.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "Bumped dependency floor: ORD-1 >= 3.1.2.",
+        "No semantic changes to REFUND-1 behavior."
+      ],
+      "date_utc": "2026-01-25T08:09:41Z",
+      "summary": "Raise ORD-1 dependency floor to include payment-proof verification semantics.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "P0: Fix bundle manifest + test-gates pointer drift (doc_id/version/bundle_id).",
+        "P0: Align refund error signaling to ERR-1 (top_level_code + reason_subcode) by replacing pseudo ERR_* domain codes with ERR-1 subcodes.",
+        "P0: Update dependency pins to reflect published suite versions (ERR-1 1.4.1, ORD-1 3.2.0, SEAT-1 3.1.2, TKT-1 1.1.1).",
+        "P1: Clarify TKT-1 revocation call uses credential_id (nullable to revoke all active credentials) + causal refund_id."
+      ],
+      "date_utc": "2026-01-25T08:32:33Z",
+      "version": "1.1.3"
+    },
+    {
+      "changes": [
+        "P0: Align request_refund action errors to ERR-1 top_level_codes (no pseudo domain ERR_* codes).",
+        "P1: Clarify credential terminology: uses TKT-1 credential_id values (field name credential_ids unchanged for backwards readability)."
+      ],
+      "date_utc": "2026-01-25T08:34:44Z",
+      "version": "1.1.4"
+    },
+    {
+      "changes": [
+        "P0: Fix TG-0 assertion detail keys (json_pointer/json_pointers/forbid_regex) + require_bundle_manifest_filename expected value.",
+        "P0: Ensure REFUND-1 gates are executable by ci_contract_gate_strict whitelist runner."
+      ],
+      "date_utc": "2026-01-25T08:38:32Z",
+      "version": "1.1.5"
+    },
+    {
+      "changes": [
+        "P0: Fix forbid_regex_in_artifact assertions: use details.forbid_regex (list) instead of details.pattern."
+      ],
+      "date_utc": "2026-01-25T08:39:18Z",
+      "version": "1.1.6"
+    },
+    {
+      "changes": [
+        "P0: Dispute-aware refund processing — active dispute blocks non-dispute_chargeback refunds (fail closed) with deterministic ERR-1 subcode; chargeback-driven refunds are the only exception.",
+        "P0: Dependency floors aligned with current suite wave (PAY-3 v2.8.0, ERR-1 v1.4.3, ORD-1 v3.3.0, TKT-1 v1.2.0, SEAT-1 v3.1.3).",
+        "P1: Explicit admin override posture for lock windows — automated authorities cannot bypass; admin overrides require auditable evidence and remain blocked when dispute is active."
+      ],
+      "date_utc": "2026-01-25",
+      "summary": "Dispute-risk hardening + dependency alignment"
+    },
+    {
+      "changes": [
+        "Locked refund-after-entry policy using SCAN-1 RedemptionStatus (occurrence-scoped).",
+        "Aligned dependency floors: EVT-2@2.3.1, SCAN-1@1.2.1, ERR-1@1.4.5.",
+        "Added deterministic derivation rule for affected occurrence_ids via TKT-1 TicketCredential.occurrence_ids.",
+        "Expanded gate set to validate updated dependency floors and removed malformed gate shape."
+      ],
+      "date_utc": "2026-01-25",
+      "version": "1.2.2"
+    },
+    {
+      "changes": [
+        "Patch: org-pays-fees on refunded tickets — fee refund exceptions require explicit organizer absorption policy with audit fields and deterministic ledger intent template selection (SD-011 alignment).",
+        "Hardening: added occurrence-level scoping requirement for refunds; order_total refunds only allowed when the order contains exactly one occurrence.",
+        "Hardening: split refund request API into customer-safe vs admin override paths; customer requests MUST NOT provide money totals or fee/tax amounts.",
+        "Repair: prior bundle metadata drifted (stale linkage pointers in test gates/change log). This release re-pins gates and contract metadata to declared version."
+      ],
+      "date_utc": "2026-01-28T18:20:50Z",
+      "version": "1.4.0"
+    },
+    {
+      "changes": [
+        "P0: Rename Test Gates artifact to REFUND-1-GATE_TestGates_v1.4.1.json to satisfy ci_contract_gate_strict artifact discovery.",
+        "P0: Add bundle_id + bundle_manifest_filename pointers to contract + gates to prevent pointer drift.",
+        "P0: Raise dependency floors to ORD-1 >= 3.5.0, PRICE-1 >= 3.1.1, PAY-3 >= 2.9.1, ERR-1 >= 1.4.16.",
+        "P0: Declare REFUND_* fee-refund-policy subcodes in err_subcodes_used for deterministic enforcement + registry alignment."
+      ],
+      "date_utc": "2026-01-28T19:44:27Z",
+      "summary": "CI strict compliance + fee-refund policy hardening.",
+      "type": "patch",
+      "version": "1.4.1"
+    },
+    "2026-01-29 — v1.4.2: Align LED intent template names + args contract (REFUND_PRIN_ONLY_*; currency arg uses 'currency' derived from currency_iso; fee_minor only when REFUND_FULL_ABSORBED_*). No semantics weakened.",
+    {
+      "change_id": "REFUND-1-CHG-167-SEM-HARDEN",
+      "date_utc": "2026-02-09",
+      "summary": "Tax time-travel hardening: carry PITIC digests + jurisdiction evidence hash + TAXCTX-V2 digest_version; mandate order-defined apportionment priority map; add LED-1 period/account interlock.",
+      "type": "semantics_hardening"
+    },
+    {
+      "change_id": "REFUND-1-CHG-1.6.9-PRIORITY-MAP-INTEGRITY",
+      "severity": "P0",
+      "summary": "Add verify_priority_map_integrity! action and deterministic legacy fallback for orders predating ORD-1 v3.7.10; tighten apportionment anchor semantics."
+    }
+  ],
+  "changelog": [
+    {
+      "changes": [
+        "Semantics: enforce deterministic tax apportionment + rounding for partial refunds to prevent penny-leak vs ORD-1 snapshot totals.",
+        "Semantics: require refund credit-note generation to anchor to TAX-1 tax_profile_id (and its reporting profile) rather than recomputing from UI inputs.",
+        "Gates: add P0 checks for new apportionment/rounding invariants and required snapshot fields."
+      ],
+      "date_utc": "2026-02-08T20:08:34Z",
+      "version": "1.6.6"
+    },
+    {
+      "changes": [
+        "P0: Add RefundRequest.tax_context_digest_sha256 and invariant binding refunds to TAX-1 tax context digest (fail-closed on mismatch).",
+        "P0: Add override evidence quorum binding invariant requiring QUORUM-1 attestation transcript to bind refund-critical fields.",
+        "P0: Update suite_schema to CS-0@2.3.0 and add dependencies TAX-1, QUORUM-1; bump CS-0 min_version to 2.3.0."
+      ],
+      "date_utc": "2026-02-08T19:32:45Z",
+      "version": "1.6.5"
+    },
+    {
+      "changes": [
+        "LEGISLATIVE: Remove deprecated refund.finalized.v1 from outbox_events (no-legacy stance).",
+        "Phase-5: Add EVT-1 dependency floor pinned to 2.16.3 to prevent registry split-brain.",
+        "Phase-5: Normalize and harden Test Gates schema (id/level/must) and remove index-based brittle pointers.",
+        "Phase-5: Add gate forbidding refund.finalized.v1 literal anywhere in artifact."
+      ],
+      "date_utc": "2026-02-06T10:48:35.364839Z",
+      "version": "1.6.2"
+    },
+    {
+      "changes": [
+        "Add REFUND_ALREADY_PROCESSED and REFUND_LOCK_WINDOW_ACTIVE to err_subcodes_used to prevent registry drift."
+      ],
+      "date_utc": "2026-01-25T18:00:06Z",
+      "summary": "Patch: declare missing ERR-1 subcodes referenced by REFUND-1 actions/invariants (registry alignment).",
+      "version": "1.2.1"
+    },
+    {
+      "changes": [
+        "Bumped dependency floors: ORD-1 >= 3.1.1, ERR-1 >= 1.4.2.",
+        "No semantic changes to refund/chargeback workflow."
+      ],
+      "date_utc": "2026-01-25T08:06:48Z",
+      "summary": "Align REFUND-1 dependency floors to ORD-1 payment-proof hardening and ERR-1 registry additions.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "Bumped dependency floor: ORD-1 >= 3.1.2.",
+        "No semantic changes to REFUND-1 behavior."
+      ],
+      "date_utc": "2026-01-25T08:09:41Z",
+      "summary": "Raise ORD-1 dependency floor to include payment-proof verification semantics.",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "P0: Fix bundle manifest + test-gates pointer drift (doc_id/version/bundle_id).",
+        "P0: Align refund error signaling to ERR-1 (top_level_code + reason_subcode) by replacing pseudo ERR_* domain codes with ERR-1 subcodes.",
+        "P0: Update dependency pins to reflect published suite versions (ERR-1 1.4.1, ORD-1 3.2.0, SEAT-1 3.1.2, TKT-1 1.1.1).",
+        "P1: Clarify TKT-1 revocation call uses credential_id (nullable to revoke all active credentials) + causal refund_id."
+      ],
+      "date_utc": "2026-01-25T08:32:33Z",
+      "version": "1.1.3"
+    },
+    {
+      "changes": [
+        "P0: Align request_refund action errors to ERR-1 top_level_codes (no pseudo domain ERR_* codes).",
+        "P1: Clarify credential terminology: uses TKT-1 credential_id values (field name credential_ids unchanged for backwards readability)."
+      ],
+      "date_utc": "2026-01-25T08:34:44Z",
+      "version": "1.1.4"
+    },
+    {
+      "changes": [
+        "P0: Fix TG-0 assertion detail keys (json_pointer/json_pointers/forbid_regex) + require_bundle_manifest_filename expected value.",
+        "P0: Ensure REFUND-1 gates are executable by ci_contract_gate_strict whitelist runner."
+      ],
+      "date_utc": "2026-01-25T08:38:32Z",
+      "version": "1.1.5"
+    },
+    {
+      "changes": [
+        "P0: Fix forbid_regex_in_artifact assertions: use details.forbid_regex (list) instead of details.pattern."
+      ],
+      "date_utc": "2026-01-25T08:39:18Z",
+      "version": "1.1.6"
+    },
+    {
+      "changes": [
+        "P0: Dispute-aware refund processing — active dispute blocks non-dispute_chargeback refunds (fail closed) with deterministic ERR-1 subcode; chargeback-driven refunds are the only exception.",
+        "P0: Dependency floors aligned with current suite wave (PAY-3 v2.8.0, ERR-1 v1.4.3, ORD-1 v3.3.0, TKT-1 v1.2.0, SEAT-1 v3.1.3).",
+        "P1: Explicit admin override posture for lock windows — automated authorities cannot bypass; admin overrides require auditable evidence and remain blocked when dispute is active."
+      ],
+      "date_utc": "2026-01-25",
+      "summary": "Dispute-risk hardening + dependency alignment"
+    },
+    {
+      "changes": [
+        "Locked refund-after-entry policy using SCAN-1 RedemptionStatus (occurrence-scoped).",
+        "Aligned dependency floors: EVT-2@2.3.1, SCAN-1@1.2.1, ERR-1@1.4.5.",
+        "Added deterministic derivation rule for affected occurrence_ids via TKT-1 TicketCredential.occurrence_ids.",
+        "Expanded gate set to validate updated dependency floors and removed malformed gate shape."
+      ],
+      "date_utc": "2026-01-25",
+      "version": "1.2.2"
+    },
+    {
+      "changes": [
+        "Patch: org-pays-fees on refunded tickets — fee refund exceptions require explicit organizer absorption policy with audit fields and deterministic ledger intent template selection (SD-011 alignment).",
+        "Hardening: added occurrence-level scoping requirement for refunds; order_total refunds only allowed when the order contains exactly one occurrence.",
+        "Hardening: split refund request API into customer-safe vs admin override paths; customer requests MUST NOT provide money totals or fee/tax amounts.",
+        "Repair: prior bundle metadata drifted (stale linkage pointers in test gates/change log). This release re-pins gates and contract metadata to declared version."
+      ],
+      "date_utc": "2026-01-28T18:20:50Z",
+      "version": "1.4.0"
+    },
+    {
+      "changes": [
+        "P0: Rename Test Gates artifact to REFUND-1-GATE_TestGates_v1.4.1.json to satisfy ci_contract_gate_strict artifact discovery.",
+        "P0: Add bundle_id + bundle_manifest_filename pointers to contract + gates to prevent pointer drift.",
+        "P0: Raise dependency floors to ORD-1 >= 3.5.0, PRICE-1 >= 3.1.1, PAY-3 >= 2.9.1, ERR-1 >= 1.4.16.",
+        "P0: Declare REFUND_* fee-refund-policy subcodes in err_subcodes_used for deterministic enforcement + registry alignment."
+      ],
+      "date_utc": "2026-01-28T19:44:27Z",
+      "summary": "CI strict compliance + fee-refund policy hardening.",
+      "type": "patch",
+      "version": "1.4.1"
+    },
+    "2026-01-29 — v1.4.2: Align LED intent template names + args contract (REFUND_PRIN_ONLY_*; currency arg uses 'currency' derived from currency_iso; fee_minor only when REFUND_FULL_ABSORBED_*). No semantics weakened."
+  ],
+  "data_model": {
+    "resources": [
+      {
+        "fields": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "refund_id",
+            "primary_key": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "order_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Occurrence scope for this refund. RefundRequests MUST be occurrence-scoped to preserve admission and scan semantics.",
+            "name": "occurrence_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "If present, groups multiple org-scoped orders created from a single multi-org checkout. Derived from ORD-1.",
+            "name": "checkout_group_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "refund_kind",
+            "nullable": false,
+            "type": "enum",
+            "values": [
+              "customer_request",
+              "organizer_initiated",
+              "system_cancel",
+              "goodwill",
+              "dispute_chargeback"
+            ]
+          },
+          {
+            "name": "status",
+            "nullable": false,
+            "type": "enum",
+            "values": [
+              "requested",
+              "validating",
+              "dispute_checking",
+              "refund_lock_checking",
+              "manual_review",
+              "executing_refund",
+              "ledger_posting",
+              "inventory_releasing",
+              "ticket_revoking",
+              "finalized",
+              "denied",
+              "failed"
+            ]
+          },
+          {
+            "description": "Snapshot of organizer payout bucket at time of refund posting selection. Determines ledger template eligibility.",
+            "name": "payout_bucket",
+            "nullable": true,
+            "type": "enum",
+            "values": [
+              "organizer_payable_pending",
+              "organizer_payable_available",
+              "organizer_paid_out"
+            ]
+          },
+          {
+            "description": "How the platform recovers refunded platform fees from the organizer when fee_refund_policy requires organizer absorption.",
+            "name": "fee_recovery_mode",
+            "nullable": true,
+            "type": "enum",
+            "values": [
+              "payout_deduction",
+              "invoice_receivable"
+            ]
+          },
+          {
+            "description": "Stable reason code for why platform fees are refunded (exception case). REQUIRED when refunded_fee_minor > 0. Uppercase snake_case.",
+            "name": "fee_refund_reason_code",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "reason_subcode",
+            "nullable": false,
+            "ref": "ERR-1",
+            "type": "string"
+          },
+          {
+            "name": "amount_minor",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "currency_iso",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "tax_portion_minor",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "description": "sha256 hex digest of TAX-1 tax context used for this refund; MUST match the digest for the order price snapshot tax context.",
+            "name": "tax_context_digest_sha256",
+            "nullable": false,
+            "type": "sha256_hex"
+          },
+          {
+            "description": "Authoritative TAX-1 TaxProfile identifier used at point-of-sale for the order being refunded. MUST be copied from the ORD-1 snapshot / TAX-1 OrderTaxRecord and MUST NOT be sourced from UI inputs.",
+            "name": "tax_profile_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Tax inclusion mode (inclusive/exclusive) from TAX-1 OrderTaxRecord for the order snapshot. Used for deterministic refund tax apportionment and credit-note generation.",
+            "name": "tax_inclusion_mode",
+            "nullable": false,
+            "type": "enum",
+            "values": [
+              "tax_inclusive",
+              "tax_exclusive"
+            ]
+          },
+          {
+            "description": "Rounding mode from TAX-1 OrderTaxRecord for the order snapshot. Refund math MUST reuse this to prevent penny leaks across partial refunds.",
+            "name": "tax_rounding_mode",
+            "nullable": false,
+            "type": "enum",
+            "values": [
+              "round_half_up",
+              "round_half_even",
+              "round_floor",
+              "round_ceil"
+            ]
+          },
+          {
+            "name": "refunded_fee_minor",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "description": "Total platform fee minor units that fall within the refund scope (from order price snapshot). MUST equal refunded_fee_minor + platform_fee_retained_minor.",
+            "name": "fee_total_in_scope_minor",
+            "nullable": true,
+            "type": "int64"
+          },
+          {
+            "name": "platform_fee_retained_minor",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "fee_refund_policy",
+            "nullable": false,
+            "type": "enum",
+            "values": [
+              "retain_platform_fee",
+              "customer_full_refund_organizer_absorbs_fee"
+            ]
+          },
+          {
+            "name": "payment_reference",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "verified_payment_attempt_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "idempotency_key",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "ledger_template_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "ledger_idempotency_key",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "ledger_idempotency_payload_hash_sha256",
+            "nullable": false,
+            "type": "sha256_hex"
+          },
+          {
+            "name": "ledger_intent_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_posting_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_entry_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "provider_refund_reference",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "description": "Amount the payment provider was instructed to refund (minor units). Mirrors PAY-3 execute_refund request for reconciliation.",
+            "name": "provider_refund_amount_minor",
+            "nullable": true,
+            "type": "int64"
+          },
+          {
+            "name": "seat_reversal_ids",
+            "nullable": true,
+            "type": "array<uuid_v7>"
+          },
+          {
+            "name": "ticket_revocation_batch_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "admin_case_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "override_evidence_digest_sha256",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "override_approved_by_actor_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "override_approved_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "paid_confirmed_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "finalized_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "refund_scope",
+            "nullable": false,
+            "type": "enum",
+            "values": [
+              "order_total",
+              "order_items",
+              "goodwill_non_admission"
+            ]
+          },
+          {
+            "name": "order_item_ids",
+            "nullable": true,
+            "type": "array<uuid_v7>"
+          },
+          {
+            "name": "credential_ids",
+            "nullable": true,
+            "type": "array<uuid_v7>"
+          },
+          {
+            "name": "reason_detail",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "failed_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "denied_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "denied_subcode",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "last_error_subcode",
+            "nullable": true,
+            "ref": "ERR-1",
+            "type": "string"
+          },
+          {
+            "default": 0,
+            "name": "attempt_count",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "updated_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Digest version for tax_context_digest_sha256. MUST match TAX-1 OrderTaxRecord.tax_context_digest_version. New refunds MUST use TAXCTX-V2.",
+            "enum_values": [
+              "TAXCTX-V1",
+              "TAXCTX-V2"
+            ],
+            "name": "tax_context_digest_version",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "description": "PITIC digest copied from authoritative OrderTaxRecord at point-of-sale. Prevents ID-only tax law drift.",
+            "name": "tax_law_config_digest_sha256",
+            "nullable": false,
+            "type": "sha256_hex_lower"
+          },
+          {
+            "description": "PITIC digest copied from OrderTaxRecord credit-note reporting profile at point-of-sale.",
+            "name": "credit_note_reporting_profile_digest_sha256",
+            "nullable": false,
+            "type": "sha256_hex_lower"
+          },
+          {
+            "description": "sha256 of normalized jurisdiction evidence used at point-of-sale, copied from OrderTaxRecord to survive PII rotation/purge.",
+            "name": "jurisdiction_evidence_sha256",
+            "nullable": false,
+            "type": "sha256_hex_lower"
+          },
+          {
+            "description": "sha256 of the authoritative apportionment priority map captured at order finalization. Refund remainder distribution MUST use this map; fail closed if absent.",
+            "name": "order_tax_apportionment_priority_map_sha256",
+            "nullable": false,
+            "type": "sha256_hex_lower"
+          },
+          {
+            "description": "Authoritative sale-time apportionment priority map (ordered list of taxable line_item_id values). Refund remainder distribution MUST follow this order. MUST match order_tax_apportionment_priority_map_sha256.",
+            "name": "order_tax_apportionment_priority_map",
+            "nullable": false,
+            "type": "array[uuid_v7]"
+          }
+        ],
+        "name": "RefundRequest",
+        "optional_attributes": [
+          {
+            "name": "override_evidence_digest_sha256",
+            "notes": "sha256 hex digest of evidence package; MUST NOT embed PII.",
+            "type": "string"
+          },
+          {
+            "name": "override_approved_by_actor_id",
+            "notes": "Actor that approved the override.",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "override_approved_at_utc",
+            "notes": "When the override was approved.",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "provider_refund_reference",
+            "notes": "Provider-side refund reference; may be null until PAY-3 confirms.",
+            "type": "string"
+          },
+          {
+            "name": "ledger_intent_id",
+            "notes": "LED-1 intent id returned by LED-1.post_intent/1; null until intent accepted.",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_posting_id",
+            "notes": "LED-1 posting id returned by LED-1 after materializing intent; null until posted.",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_entry_id",
+            "notes": "DEPRECATED. Legacy LED-1 entry id; MUST remain null for v1.3.0+ processing.",
+            "type": "uuid_v7"
+          }
+        ],
+        "purpose": "State machine for an idempotent refund orchestration attempt. Persists anchors needed for reconciliation and downstream revocation."
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "schema validation"
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.6.1",
+      "reason": "reason_subcode registry; explainable denials/failures"
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.7.4",
+      "reason": "order anchor invariants + payment_intent_id immutability"
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.5.4",
+      "reason": "order price snapshot semantics + platform_fee item type"
+    },
+    {
+      "doc_id": "TAX-1",
+      "edge_type": "requires",
+      "min_version": "2.2.3",
+      "reason": "tax context digest and inclusion_mode semantics binding"
+    },
+    {
+      "doc_id": "PAY-3",
+      "edge_type": "requires",
+      "min_version": "2.10.0",
+      "reason": "provider-truth fees/variances; dispute/refund reconciliation"
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "4.4.3",
+      "reason": "ledger contra-postings; immutability + fee absorption templates"
+    },
+    {
+      "doc_id": "SEAT-1",
+      "edge_type": "requires",
+      "min_version": "3.5.5",
+      "reason": "seat release semantics aligned to session-affine locks + fencing"
+    },
+    {
+      "doc_id": "TKT-1",
+      "edge_type": "requires",
+      "min_version": "1.5.2",
+      "reason": "ticket revocation batches; admission credential invalidation"
+    },
+    {
+      "doc_id": "SCAN-1",
+      "edge_type": "requires",
+      "min_version": "1.4.1",
+      "reason": "manifest invalidation / scan-side revocation propagation (if applicable)"
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.1",
+      "reason": "outbox event envelope; EVT-1 governed registry integration"
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.1",
+      "reason": "session-affine advisory locks; ban split-conn lock/write"
+    },
+    {
+      "doc_id": "SM-0",
+      "edge_type": "requires",
+      "min_version": "1.2.1",
+      "reason": "CAS fencing for refund state transitions; prevents zombie double-refunds"
+    },
+    {
+      "doc_id": "DP-1",
+      "edge_type": "requires",
+      "min_version": "2.1.1",
+      "reason": "pool bulkheads to isolate refund/reconciliation workloads"
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "requires",
+      "min_version": "2.16.4",
+      "reason": "context/type-safety alignment with suite-head registry; refund events must be validated under Phase 5 airlock physics"
+    },
+    {
+      "doc_id": "QUORUM-1",
+      "edge_type": "requires",
+      "min_version": "1.0.0",
+      "reason": "quorum-backed override evidence for break-glass/manual refund approvals"
+    }
+  ],
+  "dependency_floors": {
+    "DP-1": "2.1.1",
+    "ERR-1": "1.6.1",
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.1",
+    "LED-1": "4.4.3",
+    "LOCKS-1": "2.1.1",
+    "ORD-1": "3.7.4",
+    "PAY-3": "2.10.4",
+    "PRICE-1": "3.5.4",
+    "SCAN-1": "1.4.1",
+    "SEAT-1": "3.5.5",
+    "SM-0": "1.2.1",
+    "TAX-1": "2.2.1",
+    "TKT-1": "1.5.2"
+  },
+  "doc_id": "REFUND-1",
+  "domain_actions": {
+    "process_refund": {
+      "errors": [
+        "ERR_CONFLICT",
+        "ERR_PRECONDITION",
+        "ERR_FORBIDDEN",
+        "ERR_TIMEOUT",
+        "ERR_THIRD_PARTY",
+        "ERR_INTERNAL"
+      ],
+      "inputs_required": [
+        "org_id",
+        "refund_id",
+        "trace_id"
+      ],
+      "purpose": "Orchestrate the compensating reversal to completion (async-safe; may be resumed).",
+      "steps": [
+        "1) Acquire idempotency lock for (org_id, refund_id) using LOCKS-1; fail closed on lock reuse mismatch.",
+        "2) Load RefundRequest; validate status is requested or approved; validate org_id tenancy (TEN-1).",
+        "3) Load authoritative order snapshot from ORD-1 (price_snapshot + fee_snapshot + payment_reference + verified_payment_attempt_id + checkout_group_id) and bind occurrence_id. RefundRequest MUST be occurrence-scoped: all referenced order_item_ids/credential_ids MUST map to the same occurrence_id.",
+        "4) Derive refund totals from snapshots: principal_refund_minor, refunded_fee_minor, platform_fee_retained_minor, fee_total_in_scope_minor, and tax_portion_minor using TAX-1. Caller-supplied totals MUST NOT be trusted except for admin override requests (request_refund).",
+        "5) Enforce SD-011 fee constitution: if refunded_fee_minor > 0 then fee_refund_policy MUST be customer_full_refund_organizer_absorbs_fee, fee_refund_reason_code MUST be present, and fee_recovery_mode MUST be present. If payout_bucket is organizer_paid_out then fee_recovery_mode MUST be invoice_receivable and refund MUST be routed to manual_review (no automated provider refund).",
+        "6) Execute provider refund via PAY-3 execute_refund using computed provider_refund_amount_minor (= amount_minor) and currency_iso. PAY-3 is provider-truth; REFUND-1 MUST store verified_payment_attempt_id and provider_refund_reference.",
+        "7) Post ledger intent via LED-1 using template selection: REFUND_FULL_ABSORBED_PENDING/AVAILABLE when fee_refund_policy requires organizer absorption and payout_bucket permits payout deduction; otherwise REFUND_PRIN_ONLY_PENDING/AVAILABLE. Args MUST include refund_minor, tax_minor, currency (MUST equal currency_iso), counterparty_org_id, and refund_id. fee_minor MUST be included IFF template is REFUND_FULL_ABSORBED_* and MUST equal refunded_fee_minor.",
+        "8) Revoke admission credentials and seat holds: call TKT-1 to create ticket_revocation_batch, then call SEAT-1 to release any held/claimed seats in scope (if applicable).",
+        "9) Finalize RefundRequest: set refunded_at_utc, status=finalized, and emit outbox event ticketing.refund.finalized.v1."
+      ]
+    },
+    "request_refund": {
+      "errors": [
+        "ERR_BAD_REQUEST",
+        "ERR_VALIDATION",
+        "ERR_FORBIDDEN",
+        "ERR_CONFLICT",
+        "ERR_PRECONDITION"
+      ],
+      "inputs_optional": [
+        "order_item_ids",
+        "credential_ids",
+        "reason_detail",
+        "fee_refund_policy",
+        "fee_refund_reason_code",
+        "fee_recovery_mode"
+      ],
+      "inputs_required": [
+        "org_id",
+        "order_id",
+        "refund_kind",
+        "refund_scope",
+        "amount_minor",
+        "reason_subcode",
+        "idempotency_key",
+        "actor_id",
+        "actor_kind",
+        "trace_id",
+        "admin_case_id",
+        "override_evidence_digest_sha256"
+      ],
+      "intent": "Admin/system override refund request. Allows explicit amount_minor only with dual-control governance and evidence. Not callable by customers.",
+      "purpose": "Create (or return) an idempotent RefundRequest in status=requested. Does not execute side effects."
+    },
+    "request_refund_customer": {
+      "authorization": "MUST enforce org-scoped authorization (TEN-1/IAM-1). actor_kind determines caller privileges; customer calls cannot set admin_case_id or override evidence.",
+      "errors": [
+        "ERR_BAD_REQUEST",
+        "ERR_VALIDATION",
+        "ERR_PRECONDITION",
+        "ERR_CONFLICT"
+      ],
+      "idempotency": "Idempotent by (org_id, idempotency_key). If a request already exists for the same idempotency_key, it MUST return the existing refund_id.",
+      "inputs_optional": [
+        "order_item_ids",
+        "credential_ids",
+        "reason_detail"
+      ],
+      "inputs_required": [
+        "org_id",
+        "order_id",
+        "refund_kind",
+        "refund_scope",
+        "reason_subcode",
+        "idempotency_key",
+        "actor_id",
+        "actor_kind",
+        "trace_id"
+      ],
+      "intent": "Customer/organizer-initiated refund request. Caller MUST NOT provide money totals or fee/tax amounts; the system derives amounts from ORD-1/PRICE-1 snapshots and TAX-1."
+    },
+    "review_refund": {
+      "errors": [
+        "ERR_BAD_REQUEST",
+        "ERR_VALIDATION",
+        "ERR_FORBIDDEN",
+        "ERR_CONFLICT",
+        "ERR_PRECONDITION"
+      ],
+      "inputs_required": [
+        "org_id",
+        "refund_id",
+        "decision",
+        "admin_case_id",
+        "override_evidence_digest_sha256",
+        "approver_actor_id",
+        "decided_at_utc",
+        "trace_id"
+      ],
+      "notes": [
+        "decision MUST be one of: approve | deny.",
+        "On approve: REFUND-1 MUST set status=validating and persist override_* fields so process_refund may proceed deterministically.",
+        "On deny: REFUND-1 MUST set status=denied, set denied_at_utc and denied_subcode (ERR-1), and MUST NOT execute side effects."
+      ],
+      "purpose": "Record a manual review decision for a refund that is blocked by policy (lock window, post-entry, or other override-required conditions)."
+    },
+    "verify_priority_map_integrity!": {
+      "failure": {
+        "err_1_code": "refund.tax.apportionment_anchor_invalid",
+        "retryable": false
+      },
+      "inputs": [
+        "order_tax_apportionment_priority_map",
+        "order_tax_apportionment_priority_map_sha256",
+        "order_snapshot_contract_ref"
+      ],
+      "kind": "validation",
+      "notes": [
+        "Executed during refund finalization before any LED-1 writes.",
+        "Consumers MUST NOT trust presence of sha alone; sha MUST be recomputed and compared."
+      ],
+      "outputs": [
+        "ok"
+      ],
+      "summary": "Recalculate sha256(utf8(JCS(order_tax_apportionment_priority_map))) per SEC-1 and assert equality with order_tax_apportionment_priority_map_sha256. Fail closed on mismatch."
+    }
+  },
+  "domain_invariants": {
+    "active_dispute_blocks_refund": [
+      "Active dispute status from PAY-3 is treated as a risk flag.",
+      "REFUND-1 MUST NOT execute or finalize a standard refund while dispute_active is true.",
+      "Exception: refund_kind == dispute_chargeback MAY proceed (dispute reconciliation).",
+      "On block, REFUND-1 MUST fail deterministically with ERR-1 subcode REFUND_DISPUTE_ACTIVE and MUST NOT post LED-1 or SEAT-1 reversals.",
+      "Any admin override pathway MUST be explicit, auditable, and MUST NOT be available while dispute_active is true (ERR-1 GOV_ADMIN_OVERRIDE_BLOCKED_DISPUTE_ACTIVE)."
+    ],
+    "atomic_finalize": {
+      "rule": "A RefundRequest is FINALIZED only after: PAY-3 refund primitive succeeded, LED-1 contra-posting succeeded, SEAT-1 reversals (if applicable) succeeded, and TKT-1 credential revocation succeeded."
+    },
+    "authoritative_boundary": "REFUND-1 is the orchestration contract only. Money movement truth and provider-side refund/dispute state are authoritative in PAY-3. REFUND-1 MUST NOT create a second refund authority: it may request provider refunds via PAY-3 and must persist provider references, but may not assert completion if PAY-3 does not.",
+    "concurrency_and_fencing": [
+      "REFUND-1-INV-010 (ZOMBIE_HARDENING): process_refund MUST be implemented as a fenced state transition using SM-0 CAS semantics (compare-and-swap on status + fencing token / lock_version). Blind updates are forbidden.",
+      "REFUND-1-INV-011 (NO_PARALLEL_EXEC): process_refund MUST be serialized per refund_id (and per order_id where applicable). Parallel execution (multiple workers mutating the same refund) is forbidden; enforce via idempotency/advisory lock + Oban uniqueness.",
+      "REFUND-1-INV-012 (IDEMPOTENT_SIDE_EFFECTS): retries MUST be no-op or deterministically resume; ledger contra-postings and provider calls MUST be idempotent and keyed by refund_id + provider_refund_id (if present)."
+    ],
+    "credential_revocation_binding": {
+      "rule": "Refund finalization MUST create TicketRevocation records (via TKT-1) for every affected credential_id with revocation_authority=refund and reason_subcode referencing ERR-1. Old credentials MUST fail SCAN-1 validation, including offline, once devices hydrate."
+    },
+    "explainability": {
+      "rule": "All refund failures, denials, and policy conflicts MUST use ERR-1 reason_subcodes; free-form reason enums MUST NOT be used for decisions or UI."
+    },
+    "fee_arithmetic_truth": "fee_total_in_scope_minor MUST equal refunded_fee_minor + platform_fee_retained_minor. If fee_total_in_scope_minor is 0 then refunded_fee_minor MUST be 0.",
+    "idempotency": {
+      "rule": "Refund processing MUST be idempotent per (org_id, idempotency_key). Replays MUST return the existing RefundRequest and MUST NOT double-execute any side effect. When calling LED-1 and PAY-3, REFUND-1 MUST use deterministic idempotency keys and MUST bind the semantic intent using ledger_idempotency_payload_hash_sha256 to prevent replay-with-different-payload attacks."
+    },
+    "ledger_period_readability_interlock": {
+      "rule": "Before finalizing a refund, the refund engine MUST validate via LED-1 that the originating ledger period for the order is readable for reversal postings and that the tax contra account mapping referenced by the OrderTaxRecord remains valid. If ledger period is closed/non-readable or mapping invalid, refund MUST fail closed with an ERR-1 subcode.",
+      "severity": "P0"
+    },
+    "ledger_template_arg_contract": "LED-1 intent template selection MUST be consistent with fee refund arithmetic: if refunded_fee_minor == 0 then template MUST be REFUND_PRIN_ONLY_PENDING/AVAILABLE and LED args MUST NOT include fee_minor; if refunded_fee_minor > 0 then fee_refund_policy MUST be customer_full_refund_organizer_absorbs_fee and template MUST be REFUND_FULL_ABSORBED_PENDING/AVAILABLE with fee_minor==refunded_fee_minor. In all cases LED arg currency MUST be provided as 'currency' and MUST equal currency_iso.",
+    "money_confirmed_precondition": {
+      "rule": "A refund MUST reference an ORD-1 money-confirmed anchor (payment_reference + verified_payment_attempt_id) and MUST NOT finalize against non-final or partial money states unless refund_kind=goodwill and policy allows."
+    },
+    "occurrence_scope": "RefundRequests MUST be occurrence-scoped. order_total scope is only permitted when the underlying order contains exactly one occurrence_id. If a caller attempts an order_total refund on a multi-occurrence order, the request MUST be rejected (fail closed) and callers MUST submit per-occurrence refunds.",
+    "override_evidence_quorum_binding": {
+      "rule": "When a refund proceeds via manual approval (status=manual_review) or any override path (system_cancel, goodwill, or fee_refund exceptions), override_evidence_digest_sha256 MUST be present and MUST be the sha256 hex digest of an evidence package that includes a QUORUM-1 attestation for this refund override. The QUORUM-1 attestation transcript MUST bind at minimum: refund_id, order_id, occurrence_id, amount_minor, currency_iso, tax_portion_minor, tax_context_digest_sha256, fee_refund_policy, refunded_fee_minor, and reason_subcode. Signatures MUST be from distinct quorum identities per QUORUM-1 invariants; replay across different refund_id MUST be cryptographically invalid."
+    },
+    "payout_bucket_template_selection": "When fee_refund_policy is customer_full_refund_organizer_absorbs_fee and fee_recovery_mode is payout_deduction, payout_bucket MUST be organizer_payable_pending or organizer_payable_available, and the ledger template MUST be REFUND_FULL_ABSORBED_PENDING/AVAILABLE accordingly (LED-1). If payout_bucket is organizer_paid_out, automated ledger posting for fee recovery is forbidden.",
+    "platform_fee_refund_policy": "Platform fees are non-refundable by default (SD-011). If a refund includes any refunded_fee_minor > 0, it is an exception and MUST be explicitly opted-in: fee_refund_policy MUST be customer_full_refund_organizer_absorbs_fee. The organizer MUST absorb the refunded platform fees, recovered via payout_deduction (when payout_bucket is organizer_payable_pending or organizer_payable_available) or routed to invoice_receivable with manual review when organizer_paid_out. fee_refund_reason_code MUST be present for auditability.",
+    "refund_after_entry_policy": {
+      "rule": "REFUND-1 MUST enforce a deterministic refund-after-entry policy per (org_id, occurrence_id, ticket_id) using SCAN-1 RedemptionStatus. REFUND-1 MUST derive affected tuples from (a) credential_ids via TKT-1 TicketCredential.ticket_id + TicketCredential.occurrence_ids; and/or (b) order_item_ids via ORD-1 immutable order snapshot items. If any affected tuple has redemption_state==redeemed at time of processing, then refund_kind in {customer_request, organizer_initiated, goodwill} MUST be denied by setting status=denied, setting denied_at_utc, and setting denied_subcode=REFUND_AFTER_ENTRY_FORBIDDEN (ERR-1). Exceptions: (1) refund_kind==system_cancel MAY proceed only via manual_review (status=manual_review) and only after explicit approval is recorded via REFUND-1 review_refund (admin_case_id + override_evidence_digest_sha256 + override_approved_by_actor_id + override_approved_at_utc). (2) refund_kind==dispute_chargeback MAY proceed as dispute reconciliation (PAY-3 precedence). When proceeding under an exception and RedemptionStatus.winner_scan_id points to a Scan row where provisional==true, REFUND-1 MUST record operator notice SCAN_MANIFEST_TOO_OLD (ERR-1) into RefundRequest.reason_detail. All refunds (including automated) MUST have admin_case_id populated for cross-system correlation (SEAT reversals, LED intents, audit)."
+    },
+    "refund_lock_window": {
+      "rule": "For admission-linked refunds, REFUND-1 MUST compute a per-occurrence refund_lock_window anchored to EVT-2 check_in_open_at_utc..check_in_close_at_utc. During the window, auto-refunds MUST be forbidden; the RefundRequest MUST be routed to status=manual_review and MAY only proceed after an explicit manual approval is recorded using REFUND-1 review_refund (persisting admin_case_id + override_evidence_digest_sha256 + override_approved_by_actor_id + override_approved_at_utc). Affecting occurrence_ids MUST be derived from TKT-1 TicketCredential.occurrence_ids when credential_ids are supplied; otherwise derived from ORD-1 order snapshot items."
+    },
+    "tax_apportionment_determinism": {
+      "rule": "For any partial refund where amount_minor represents a strict subset of the original order principal, REFUND-1 MUST compute tax_portion_minor using the TAX-1 deterministic apportionment algorithm and the snapshot tax_rounding_mode and tax_inclusion_mode, anchored by tax_context_digest_sha256 and tax_profile_id. The computation MUST be integer-only (minor units) and MUST NOT use floating point. If TAX-1 defines multiple apportionment strategies, REFUND-1 MUST use the strategy designated for refunds/credit-notes. Tie-breakers for distributing remainder minor-units MUST be stable and deterministic: (1) highest fractional remainder, then (2) lowest order_item_id 16-byte lexicographic (raw UUID bytes; memcmp), then (3) lowest refund_id 16-byte lexicographic (raw UUID bytes; memcmp). The sum of tax_portion_minor across a set of disjoint partial refunds for the same original principal MUST equal the original tax total for that principal (subject to the TAX-1 rounding_mode), otherwise the refund MUST fail closed. Remainder distribution MUST be driven by the order-authoritative apportionment_priority_map (hash in order_tax_apportionment_priority_map_sha256). Concurrent refunds against the same order MUST serialize via an order-level lock and MUST record consumed remainder slots as part of the ledger idempotency key to prevent double-claiming the same minor-unit remainder."
+    },
+    "tax_apportionment_priority_map_required": {
+      "rule": "Refund tax apportionment MUST use the order-authoritative tax_apportionment_priority_map captured at order finalization (ORD-1>=3.7.10). REFUND-1 MUST persist both (a) order_tax_apportionment_priority_map (array[uuid_v7]) and (b) order_tax_apportionment_priority_map_sha256. The sha MUST equal sha256(utf8(JCS(order_tax_apportionment_priority_map))) using SEC-1 JCS byte-truth rules. If the authoritative map is absent because the originating order snapshot predates ORD-1 v3.7.10, REFUND-1 MUST derive a legacy priority map deterministically by stable-sorting the taxable line_item_ids (uuid_v7) ascending, MUST persist it, and MUST set legacy_derived=true. If map/sha is missing or mismatched for non-legacy orders, refund finalization MUST fail closed with ERR-1 code refund.tax.apportionment_anchor_invalid.",
+      "severity": "P0"
+    },
+    "tax_apportionment_strict_map": {
+      "errors": {
+        "mismatch": {
+          "subcode": "TAX_MAP_MISMATCH",
+          "top_level": "ERR_CONFLICT"
+        },
+        "missing_map": {
+          "subcode": "TAX_MAP_MISSING",
+          "top_level": "ERR_PRECONDITION"
+        }
+      },
+      "id": "REFUND-1-INV-STRICT-MAP",
+      "rule": "Refund tax apportionment MUST be reconstructed from the immutable ORD-1 OrderPriceSnapshot.tax_apportionment_priority_map that was used at purchase-time. Deriving or guessing the map from line items is FORBIDDEN. If the map is missing or cannot be verified, the refund MUST fail-closed.",
+      "severity": "P0",
+      "strict": true
+    },
+    "tax_context_digest_parity": {
+      "rule": "RefundRequests MUST persist tax_context_digest_sha256 (sha256 hex) equal to the authoritative TAX-1 tax_context_digest_sha256 for the occurrence/order tax context used by the ORD-1 price snapshot. RefundRequests MUST NOT recompute tax context from UI inputs. If the digest does not match the ORD-1 snapshot tax_context_digest_sha256 (if present) and the TAX-1 computed digest for the occurrence, the refund MUST fail closed. RefundRequests MUST also persist tax_profile_id, tax_inclusion_mode, and tax_rounding_mode copied from the authoritative TAX-1 OrderTaxRecord used by the ORD-1 snapshot."
+    },
+    "tax_digest_tenancy_salt_required": {
+      "rule": "RefundRequest.tax_context_digest_sha256 MUST be computed under TAXCTX-V2 rules that include org_id as an input component. Refund processing MUST reject any digest that does not declare tax_context_digest_version=TAXCTX-V2, unless explicitly grandfathered.",
+      "severity": "P0"
+    },
+    "tax_portion_required": {
+      "rule": "RefundRequests MUST persist tax_portion_minor representing the tax liability portion included in amount_minor. LED-1 postings MUST reverse Platform_Tax_Liability by exactly tax_portion_minor for the refunded principal. tax_portion_minor MUST be derived from the ORD-1 price snapshot (authoritative math) and MUST NOT be recomputed from UI inputs. For partial refunds, tax_portion_minor MUST be computed using REFUND-1 tax_apportionment_determinism and MUST remain reconcilable back to the original ORD-1 snapshot totals."
+    },
+    "tax_time_travel_pitic_pinning": {
+      "rule": "RefundRequest MUST carry PITIC digests copied from the authoritative OrderTaxRecord: tax_law_config_digest_sha256, credit_note_reporting_profile_digest_sha256, jurisdiction_evidence_sha256, and tax_context_digest_version. Refund computation MUST NOT dereference mutable TaxProfile/TaxRate records to re-derive these values.",
+      "severity": "P0"
+    }
+  },
+  "emits_events": true,
+  "err_subcodes_used": [
+    "ORD_REFUND_NOT_ALLOWED",
+    "ORD_REFUND_TOTAL_EXCEEDS_PAID",
+    "LOCKS_IDEMPOTENCY_IN_PROGRESS",
+    "LOCKS_OPTIMISTIC_CONFLICT",
+    "PAY_PROVIDER_DECLINED",
+    "PAY_PROVIDER_TIMEOUT",
+    "PAY_AMOUNT_MISMATCH",
+    "PAY_CURRENCY_MISMATCH",
+    "LED_DUPLICATE_ENTRY_KEY",
+    "LED_UNBALANCED_ENTRY",
+    "GOV_APPROVAL_REQUIRED",
+    "GOV_DUAL_CONTROL_REQUIRED",
+    "GOV_VERIFICATION_EVIDENCE_REQUIRED",
+    "REFUND_PLATFORM_FEE_REFUND_FORBIDDEN",
+    "REFUND_FEE_RECOVERY_MODE_REQUIRED",
+    "REFUND_FEE_REFUND_REASON_REQUIRED",
+    "REFUND_PROVIDER_AMOUNT_MISMATCH",
+    "refund.tax.apportionment_anchor_invalid"
+  ],
+  "generated_at_utc": "2026-02-09T05:38:26Z",
+  "last_updated_utc": "2026-02-09T05:38:26Z",
+  "lock_state": "locked",
+  "outbox_events": [
+    {
+      "deprecated": false,
+      "event_name": "ticketing.refund.finalized.v2",
+      "notes": "Emitted exactly once when a refund reaches status=finalized. occurrence_id is required to preserve admission/scan revocation semantics.",
+      "required_keys": [
+        "refund_id",
+        "order_id",
+        "occurrence_id",
+        "checkout_group_id",
+        "amount_minor",
+        "currency_iso",
+        "payment_reference",
+        "verified_payment_attempt_id",
+        "refunded_at_utc",
+        "reason_subcode",
+        "ticket_revocation_batch_id"
+      ],
+      "schema_ref": "EVT-2"
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines the authoritative, idempotent orchestration of refunds and other money reversals. Coordinates PAY-3 (refund primitives + dispute precedence), LED-1 (contra ledger posting), SEAT-1 (inventory/seat reversals), and TKT-1 (credential revocation) under strict multi-tenancy. Refund finalization MUST deterministically revoke admission credentials and MUST be explainable via ERR-1 reason_subcodes.",
+  "tier": 2,
+  "title": "REFUND-1 Refund Orchestration & Compensating Reversal",
+  "version": "1.7.3"
+}

@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "TKT-1",
+    "bundle_version": "1.5.12"
+  },
+  "doc_id": "TKT-1",
+  "files": [
+    {
+      "bytes": 74873,
+      "path": "TKT-1_Contract_v1.5.12.json",
+      "sha256": "110b3dd4dd53a1023c0ffc368b153d2359e4aa4a44a8ec7506f46daf71c91d98"
+    },
+    {
+      "bytes": 40756,
+      "path": "TKT-1_Test_Gates_v1.5.12.json",
+      "sha256": "6a55352e93b420e5845e4cf51e7169a5f03ba2c87bf82aed7f2eaf7d79c1ec5e"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.5.12"
+}

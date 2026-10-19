@@ -1,0 +1,13 @@
+{
+  "doc_id": "TAX-1",
+  "version": "3.0.1",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-18T10:43:12Z",
+  "release_status": "candidate",
+  "release_intent": "Review-only TAX-1 patch successor from the frozen installed v3.0.0 authority snapshot.",
+  "source_provenance": {
+    "kind": "installed-canonical-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "8ebaa619e4af2574fdfc72401fa7ff01e90a43bd32e75e59323487df22230749"
+  }
+}

@@ -1,0 +1,52 @@
+name: Authority checks
+
+on:
+  pull_request:
+    paths:
+      - "authority/**"
+      - "AGENTS.md"
+      - ".gitattributes"
+      - ".gitignore"
+      - ".github/workflows/authority.yml"
+  push:
+    branches: [main]
+    paths:
+      - "authority/**"
+      - "AGENTS.md"
+      - ".gitattributes"
+      - ".gitignore"
+      - ".github/workflows/authority.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install authority validation dependencies
+        run: python -m pip install -r authority/requirements-release.txt pytest==9.1.1
+      - name: Run authority tests
+        working-directory: authority
+        run: python -m pytest -q
+      - name: Verify active contract inventory and ZIP parity
+        working-directory: authority
+        run: python tools/contract_manifest.py verify --root .
+      - name: Verify CANON pins against active ZIPs
+        working-directory: authority
+        run: python tools/generate_canon.py verify --root .
+      - name: Run strict canonical audit
+        working-directory: authority
+        run: >-
+          python tools/reconcile_contracts.py audit --canonical --strict
+          --root .
+          --json-output /tmp/contract-reconciliation-strict.json
+          --markdown-output /tmp/contract-reconciliation-strict.md

@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "RUST-1",
+    "bundle_version": "1.4.0"
+  },
+  "doc_id": "RUST-1",
+  "files": [
+    {
+      "bytes": 51551,
+      "path": "RUST-1_Contract_v1.4.0.json",
+      "sha256": "55342780555e8a9bf7e1b4c2f3f9eac977017a1e72b399b298255b2d939aca57"
+    },
+    {
+      "bytes": 50270,
+      "path": "RUST-1_Test_Gates_v1.4.0.json",
+      "sha256": "4460f4be444e9d2e972842f44fc7ed739bc22dd9fb9c20595eb79482ee27c7e3"
+    }
+  ],
+  "generated_at_utc": "2026-04-24T06:01:53Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.0",
+  "version": "1.4.0"
+}

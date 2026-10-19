@@ -1,0 +1,14 @@
+{
+  "doc_id": "CG-0",
+  "version": "2.2.2",
+  "proposed_successor_version": "2.2.2",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Build candidate from owner-approved CG-0 semantics at successor version 2.2.2, validated against the owner-ratified CS-0@3.0.1 source profile. This is not a released or canonical bundle.",
+  "source_provenance": {
+    "kind": "successor-source-derived-from-staging-candidate",
+    "path": "provenance.json",
+    "source_zip_sha256": "7f9edf4ae9611570553e8e04cf167751605a553a6d11221d33c062c54ae4b804"
+  }
+}

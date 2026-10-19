@@ -1,0 +1,28 @@
+{
+  "bootstrap_commit": "70d9625dd5ff0f909b0c30c74a3f0be4162c11bc",
+  "candidate_preparation_base_commit": "70d9625dd5ff0f909b0c30c74a3f0be4162c11bc",
+  "provenance_statement": "ORD-1@4.0.1 is a successor to installed ORD-1@4.0.0. It makes the existing completed-identical replay rule executable and raises the SEAT-1 floor to the release that supplies replay proof-possession actions.",
+  "source_bundle_path": "contracts/ORD-1/ORD-1_bundle_v4.0.0.zip",
+  "source_zip_sha256": "01124134e3bc69de16762eaa83e8d407be8dba3ff3720aec8db4b10df690f428",
+  "source_zip_bytes": 169440,
+  "source_version": "4.0.0",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "release-src/current/ORD-1/4.0.1/contract.json",
+      "sha256": "7f8f256ebdae1eb6912d853fe867b36a0381dabfdc4e2c8d0890ec278cf2146d",
+      "bytes": 124095
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "release-src/current/ORD-1/4.0.1/test-gates.json",
+      "sha256": "d02d6730a9ab29bbcbce5045bcf0ef5bcb9298e54386189368320b53e4fc3472",
+      "bytes": 54826
+    }
+  ],
+  "mechanical_normalization": {
+    "suite_schema": "CS-0@3.0.1",
+    "target_version": "4.0.1",
+    "generated_at_utc": "2026-10-18T12:54:14Z"
+  }
+}

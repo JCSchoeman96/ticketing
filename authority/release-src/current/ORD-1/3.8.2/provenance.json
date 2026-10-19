@@ -1,0 +1,39 @@
+{
+  "bootstrap_commit": "51a8e5e77cfcfab9caac3ba1631230b0d6c6f6d7",
+  "provenance_statement": "Editable successor source bootstrapped from the exact active ORD-1 3.7.10 ZIP in contracts/ORD-1; the source bundle and every member are recorded by hash and byte length.",
+  "source_bundle_path": "contracts/ORD-1/ORD-1_bundle_v3.7.10.zip",
+  "source_zip_sha256": "07b3196e0afb4797d48cd0356ab36ce43248ad72e74575f182d21a52d99cbe08",
+  "source_zip_bytes": 25984,
+  "source_version": "3.7.10",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "ORD-1_bundle_v3.7.10/ORD-1_Contract_v3.7.10.json",
+      "sha256": "ac506e4fade55a7595b5905e22700cc30e3611290c788e9b991eadc32ddd5bb3",
+      "bytes": 98777
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "ORD-1_bundle_v3.7.10/ORD-1-GATE_TestGates_v3.7.10.json",
+      "sha256": "79ed8bd02b87fe4ed507f3d85e5aff03b33ecfac01f8edb336acf81d6f719e91",
+      "bytes": 30905
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "ORD-1_bundle_v3.7.10/ORD-1-GATE_TestGates_v3.7.10.json",
+      "sha256": "34c74a6e02ab003d753f9959ba2a80eabe1da768ccf7a5f4eeb1f23cd08e86e1",
+      "bytes": 24308
+    },
+    {
+      "source_member_path": "ORD-1_bundle_v3.7.10/ORD-1_Contract_v3.7.10.json",
+      "sha256": "d5de5a1f89589f44fd4848b215e2396d5c0f1c9bd877a818be24c6450ba32f5e",
+      "bytes": 87415
+    },
+    {
+      "source_member_path": "ORD-1_bundle_v3.7.10/bundle.manifest.json",
+      "sha256": "1cbe59e938c2d080912b7b920923426e93fdf4e8a5021daad2f714ee93075a95",
+      "bytes": 675
+    }
+  ]
+}

@@ -1,0 +1,593 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "TRK-1_Test_Gates_v1.3.3.json",
+  "contract_ref": {
+    "doc_id": "TRK-1",
+    "version": "1.3.3"
+  },
+  "doc_id": "TRK-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "Schema suite_schema MUST equal CS-0@2.2.0 across contract, gates, and manifest.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Schema suite_schema MUST equal CS-0@2.2.0 across contract, gates, and manifest.",
+      "id": "TRK-1-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-010"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle manifest filename and content MUST match the bundle contents.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Bundle manifest filename and content MUST match the bundle contents.",
+      "id": "TRK-1-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-020"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TRK-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.3.3",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "TRK-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.3.3",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "TRK-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "1.3.3",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "TRK-1",
+            "json_pointer": "/bundle/bundle_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "1.3.3",
+            "json_pointer": "/bundle/bundle_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Artifact linkage MUST be consistent: doc_id, version, contract_ref, manifest.bundle.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Artifact linkage MUST be consistent: doc_id, version, contract_ref, manifest.bundle.",
+      "id": "TRK-1-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-030"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": "\\b(TODO|TBD|WIP|FIXME|PLACEHOLDER)\\b",
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholder tokens (TODO, TBD, WIP, FIXME) in normative contract content.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "No placeholder tokens (TODO, TBD, WIP, FIXME) in normative contract content.",
+      "id": "TRK-1-GATE-050",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-050"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1-critical",
+            "json_pointer": "/tier"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract MUST declare tier field (tier: 1-critical for TRK-1).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Contract MUST declare tier field (tier: 1-critical for TRK-1).",
+      "id": "TRK-1-GATE-060",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-060"
+    },
+    {
+      "acceptance_criteria": [
+        "contract:/dependencies MUST exist (contains_entry={'doc_id': 'CONSENT-1', 'min_version': '1.1.0'}).",
+        "Verify dispatch_governance section references CONSENT-1 v1.1.0 evaluation with proof-hash requirement; no 'skip_consent' or 'unconditional_dispatch' flags."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/dispatch_governance/consent_gating/proof_requirement/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "consent_evaluation_hash_sha256",
+            "json_pointer": "/domain_sections/dispatch_governance/consent_gating/proof_requirement/proof_field"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "CONSENT-1 v1.1.0 MUST be in dependencies as sole authority; dispatch actions MUST reference consent evaluation with proof-hash (consent_evaluation_hash_sha256).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Add CONSENT-1 v1.1.0 to dependencies; add proof_requirement section under dispatch_governance.consent_gating with proof_field='consent_evaluation_hash_sha256'.",
+      "id": "TRK-1-GATE-CONSENT-AUTHORITY",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-CONSENT-AUTHORITY"
+    },
+    {
+      "acceptance_criteria": [
+        "contract:/domain_sections/event_taxonomy/registry MUST exist (min_cardinality=5).",
+        "cardinality_check: note=Verify event_taxonomy.registry contains event_types: ticketing.tracking.page_view, ticketing.tracking.view_item, ticketing.tracking.add_to_cart, ticketing.tracking.begin_checkout, ticketing.tracking.purchase"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "note": "contract:/domain_sections/event_taxonomy/registry MUST exist (min_cardinality=5)."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "note": "cardinality_check: note=Verify event_taxonomy.registry contains event_types: ticketing.tracking.page_view, ticketing.tracking.view_item, ticketing.tracking.add_to_cart, ticketing.tracking.begin_checkout, ticketing.tracking.purchase"
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Event taxonomy MUST be non-empty and contain all required event types (page_view, view_item, add_to_cart, begin_checkout, purchase).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Ensure event_taxonomy.registry array is populated with all required event types.",
+      "id": "TRK-1-GATE-TAXONOMY-COMPLETE",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-TAXONOMY-COMPLETE"
+    },
+    {
+      "acceptance_criteria": [
+        "cross_bundle_check: expected_subcodes=['ERR_TRK_CONSENT_DENIED', 'ERR_TRK_CONSENT_PROOF_MISSING', 'ERR_TRK_CONSENT_PROOF_INVALID', 'ERR_TRK_PAYLOAD_INVALID', 'ERR_TRK_PAYLOAD_TOO_LARGE', 'ERR_TRK_RATE_LIMITED', 'ERR_TRK_VENDOR_NOT_ALLOWED', 'ERR_TRK_DISPATCH_BLOCKED', 'ERR_TRK_PII_DETECTED', 'ERR_TRK_EVENT_NAME_INVALID']; note=Extract error subcodes from /domain_sections/error_envelope/subcodes; verify each exists in ERR-1 v1.3.26 registry."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "note": "cross_bundle_check: expected_subcodes=['ERR_TRK_CONSENT_DENIED', 'ERR_TRK_CONSENT_PROOF_MISSING', 'ERR_TRK_CONSENT_PROOF_INVALID', 'ERR_TRK_PAYLOAD_INVALID', 'ERR_TRK_PAYLOAD_TOO_LARGE', 'ERR_TRK_RATE_LIMITED', 'ERR_TRK_VENDOR_NOT_ALLOWED', 'ERR_TRK_DISPATCH_BLOCKED', 'ERR_TRK_PII_DETECTED', 'ERR_TRK_EVENT_NAME_INVALID']; note=Extract error subcodes from /domain_sections/error_envelope/subcodes; verify each exists in ERR-1 v1.3.26 registry."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "All ERR_TRK_* subcodes MUST exist in ERR-1 canonical registry (including new proof-related codes).",
+      "enforced_by": "ci_cross_bundle_validator",
+      "failure_message": "If subcode missing from ERR-1, register it in ERR-1 canonical registry before locking TRK-1.",
+      "id": "TRK-1-GATE-ERROR-CODES-VALID",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-ERROR-CODES-VALID"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/tenancy/tenant_key"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/tenant_immutable"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/tenancy/hide_existence"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "mandatory_via_postgres_policies",
+            "json_pointer": "/tenancy/rls_enforcement"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tenancy configuration MUST align with TEN-1 invariants (hide-existence, org_id immutable, RLS mandatory).",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "Tenancy section MUST declare org_id as immutable tenant key with hide-existence + RLS enforcement per TEN-1.",
+      "id": "TRK-1-GATE-TENANCY-SEALING",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-TENANCY-SEALING"
+    },
+    {
+      "acceptance_criteria": [
+        "structural_check: note=Verify /banned_anti_patterns array is non-empty; each entry has id, ban, severity (P0/P1/P2), rationale, enforcement_layer."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "note": "structural_check: note=Verify /banned_anti_patterns array is non-empty; each entry has id, ban, severity (P0/P1/P2), rationale, enforcement_layer."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Every anti-pattern MUST include rationale, severity, and enforcement_layer fields.",
+      "enforced_by": "ci_lint",
+      "failure_message": "Add rationale + enforcement_layer to each anti-pattern entry.",
+      "id": "TRK-1-GATE-ANTI-PATTERN-RIGOR",
+      "level": "P1",
+      "must": true,
+      "title": "TRK-1-GATE-ANTI-PATTERN-RIGOR"
+    },
+    {
+      "acceptance_criteria": [
+        "contract:/domain_sections/attribution_capture/sanitization_rules/pii_deny_patterns MUST exist.",
+        "Verify sanitization_rules.pii_deny_patterns includes regex for email, phone, SSN, password patterns."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "note": "contract:/domain_sections/attribution_capture/sanitization_rules/pii_deny_patterns MUST exist."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "note": "Verify sanitization_rules.pii_deny_patterns includes regex for email, phone, SSN, password patterns."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "'No PII in payload' rule MUST exist and be machine-checkable via sanitization patterns.",
+      "enforced_by": "ci_lint",
+      "failure_message": "Define explicit PII deny patterns (email, phone, SSN, password) in sanitization_rules section.",
+      "id": "TRK-1-GATE-PII-BAN-ENFORCEMENT",
+      "level": "P1",
+      "must": true,
+      "title": "TRK-1-GATE-PII-BAN-ENFORCEMENT"
+    },
+    {
+      "acceptance_criteria": [
+        "contract:/domain_sections/ingestion_guarantees/idempotency MUST exist.",
+        "structural_check: note=Verify idempotency section specifies dedupe_key (org_id + event_id) and dedupe_window_days."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "note": "contract:/domain_sections/ingestion_guarantees/idempotency MUST exist."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "note": "structural_check: note=Verify idempotency section specifies dedupe_key (org_id + event_id) and dedupe_window_days."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Idempotency keys and dedupe rules MUST be explicit (org_id + event_id, 7-day window).",
+      "enforced_by": "ci_lint",
+      "failure_message": "Define idempotency.dedupe_key and dedupe_window_days in ingestion_guarantees section.",
+      "id": "TRK-1-GATE-IDEMPOTENCY-RULE",
+      "level": "P1",
+      "must": true,
+      "title": "TRK-1-GATE-IDEMPOTENCY-RULE"
+    },
+    {
+      "acceptance_criteria": [
+        "Verify backpressure_and_failure section includes drop_behavior, buffer_max_events, buffer_max_age_seconds."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/domain_sections/ingestion_guarantees/backpressure_and_failure/checkout_blocking_forbidden"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Tracking ingestion MUST degrade without blocking checkout; drop/buffer rules explicit.",
+      "enforced_by": "ci_lint",
+      "failure_message": "Add explicit checkout_blocking_forbidden + drop/buffer rules to ingestion_guarantees section.",
+      "id": "TRK-1-GATE-BACKPRESSURE-RULE",
+      "level": "P1",
+      "must": true,
+      "title": "TRK-1-GATE-BACKPRESSURE-RULE"
+    },
+    {
+      "acceptance_criteria": [
+        "contract:/domain_sections/dispatch_governance/vendor_allowlist MUST exist.",
+        "contract:/domain_sections/dispatch_governance/audit_logs/schema MUST exist.",
+        "contract:/domain_sections/dispatch_governance/audit_logs/schema/required_fields MUST exist (contains_value=consent_evaluation_hash_sha256).",
+        "structural_check: note=Verify vendor_allowlist is non-empty; audit_logs.schema includes required_fields (timestamp_utc, org_id, subject_key, vendor_id, payload_hash, consent_evaluation_hash_sha256, success_bool, error_code_if_failed, actor_id)."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "note": "contract:/domain_sections/dispatch_governance/vendor_allowlist MUST exist."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "note": "contract:/domain_sections/dispatch_governance/audit_logs/schema MUST exist."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "note": "contract:/domain_sections/dispatch_governance/audit_logs/schema/required_fields MUST exist (contains_value=consent_evaluation_hash_sha256)."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "note": "structural_check: note=Verify vendor_allowlist is non-empty; audit_logs.schema includes required_fields (timestamp_utc, org_id, subject_key, vendor_id, payload_hash, consent_evaluation_hash_sha256, success_bool, error_code_if_failed, actor_id)."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Third-party dispatch MUST include vendor allowlist, payload allowlist, rate limits, audit logs with consent_evaluation_hash_sha256.",
+      "enforced_by": "ci_lint",
+      "failure_message": "Populate vendor_allowlist with vendor entries; define audit_logs.schema with required fields including consent_evaluation_hash_sha256.",
+      "id": "TRK-1-GATE-DISPATCH-GOVERNANCE",
+      "level": "P1",
+      "must": true,
+      "title": "TRK-1-GATE-DISPATCH-GOVERNANCE"
+    },
+    {
+      "acceptance_criteria": [
+        "contract:/domain_sections/retention_and_deletion/raw_event_retention MUST exist.",
+        "Verify retention_and_deletion section includes dsar_deletion_hooks with trigger, deletion_scope, timeline."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 90,
+            "json_pointer": "/domain_sections/retention_and_deletion/raw_event_retention/retention_days"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Data retention and deletion hooks MUST be declared and aligned to DATA-1/ARCH-1.",
+      "enforced_by": "ci_lint",
+      "failure_message": "Define raw_event_retention.retention_days (90d per DATA-1) + dsar_deletion_hooks.",
+      "id": "TRK-1-GATE-RETENTION-DECLARED",
+      "level": "P1",
+      "must": true,
+      "title": "TRK-1-GATE-RETENTION-DECLARED"
+    },
+    {
+      "acceptance_criteria": [
+        "cross_reference_lint: note=Scan contract for doc_id references (CONSENT-1, ERR-1, etc.); verify each exists in /dependencies array with non-empty reason field. CONSENT-1 MUST be v1.1.0 or higher."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "note": "cross_reference_lint: note=Scan contract for doc_id references (CONSENT-1, ERR-1, etc.); verify each exists in /dependencies array with non-empty reason field. CONSENT-1 MUST be v1.1.0 or higher."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "All normative references in contract MUST appear in /dependencies with correct min_version + reason.",
+      "enforced_by": "ci_lint",
+      "failure_message": "Add missing dependencies to /dependencies array with min_version + justification.",
+      "id": "TRK-1-GATE-DEPENDENCY-PARITY",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-DEPENDENCY-PARITY"
+    },
+    {
+      "acceptance_criteria": [
+        "naming_lint: forbid_patterns=['camelCase', 'PascalCase', 'kebab-case in event names']; note=Verify all event_type values in event_taxonomy.registry match pattern: ^ticketing\\.tracking\\.[a-z0-9_]+$"
+      ],
+      "assertions": [
+        {
+          "details": {
+            "note": "naming_lint: forbid_patterns=['camelCase', 'PascalCase', 'kebab-case in event names']; note=Verify all event_type values in event_taxonomy.registry match pattern: ^ticketing\\.tracking\\.[a-z0-9_]+$"
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Enforce snake_case for identifiers (event names, field names); namespace all events with ticketing.tracking.*",
+      "enforced_by": "ci_lint",
+      "failure_message": "Rename event types to snake_case with ticketing.tracking.* prefix (e.g., ticketing.tracking.page_view).",
+      "id": "TRK-1-GATE-NAMING-DISCIPLINE",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-NAMING-DISCIPLINE"
+    },
+    {
+      "acceptance_criteria": [
+        "contract:/rules MUST exist (contains_rule_id=TRK-1-RULE-006).",
+        "structural_check: note=Verify TRK-1-RULE-006 states: consent_evaluation_hash_sha256 MUST be 64-character hexadecimal lowercase string (SHA-256 output format)."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "note": "contract:/rules MUST exist (contains_rule_id=TRK-1-RULE-006)."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "note": "structural_check: note=Verify TRK-1-RULE-006 states: consent_evaluation_hash_sha256 MUST be 64-character hexadecimal lowercase string (SHA-256 output format)."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "NEW (v1.2.1): consent_evaluation_hash_sha256 format rule MUST be declared (64-char hex lowercase SHA-256).",
+      "enforced_by": "ci_lint",
+      "failure_message": "Add TRK-1-RULE-006 to /rules array specifying SHA-256 hex format requirement.",
+      "id": "TRK-1-GATE-CONSENT-PROOF-FORMAT",
+      "level": "P0",
+      "must": true,
+      "title": "TRK-1-GATE-CONSENT-PROOF-FORMAT"
+    },
+    {
+      "acceptance_criteria": [
+        "contract:/domain_sections/observability/metrics/counters MUST exist (contains_metric_name=ticketing.trk1.consent.proof_missing.total).",
+        "contract:/domain_sections/observability/metrics/counters MUST exist (contains_metric_name=ticketing.trk1.consent.proof_invalid.total).",
+        "Verify observability.slo_alignment includes alert rule for consent proof failures (> 10/min triggers P0 incident)."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "note": "contract:/domain_sections/observability/metrics/counters MUST exist (contains_metric_name=ticketing.trk1.consent.proof_missing.total)."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "note": "contract:/domain_sections/observability/metrics/counters MUST exist (contains_metric_name=ticketing.trk1.consent.proof_invalid.total)."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "note": "Verify observability.slo_alignment includes alert rule for consent proof failures (> 10/min triggers P0 incident)."
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "NEW (v1.2.1): Observability metrics MUST include proof verification failure counters (proof_missing, proof_invalid).",
+      "enforced_by": "ci_lint",
+      "failure_message": "Add proof failure metrics to observability.metrics.counters; add alert rule to slo_alignment.",
+      "id": "TRK-1-GATE-PROOF-OBSERVABILITY",
+      "level": "P1",
+      "must": true,
+      "title": "TRK-1-GATE-PROOF-OBSERVABILITY"
+    }
+  ],
+  "generated_at_utc": "2026-02-07T05:29:57Z",
+  "last_updated_utc": "2026-02-07T05:29:57Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "TRK-1 Test Gates",
+  "version": "1.3.3"
+}

@@ -1,0 +1,219 @@
+{
+  "anti_patterns": [
+    {
+      "id": "BP0-AP-001",
+      "rule": "Do not add retrieval hints, aliases, or semantic overlay prose into the canonical contract artifact."
+    },
+    {
+      "id": "BP0-AP-002",
+      "rule": "Do not add a fourth read-model artifact into the canonical bundle."
+    },
+    {
+      "id": "BP0-AP-003",
+      "rule": "Do not treat vector similarity as authoritative before exact identifiers and structural graph traversal."
+    },
+    {
+      "id": "BP0-AP-004",
+      "rule": "Do not duplicate repository-level overlay governance inside subsystem bundles."
+    },
+    {
+      "id": "BP0-AP-005",
+      "rule": "Do not use api_actions or domain_entrypoint in canonical examples; use domain_actions."
+    },
+    {
+      "id": "BP0-AP-006",
+      "rule": "Do not use tenant_id, organization_id, utc_datetime, UUIDv4, UUIDv5 for internal primary-key guidance, or V42-prefixed Elixir modules in canonical examples."
+    }
+  ],
+  "artifact_kind": "contract",
+  "authoring_standard": {
+    "ash_3x_rule": "Use Ash 3.x terminology such as Domain, Resource, Action, Policy, and Tenant-aware execution; do not regress to Ash 2.x API-centric semantics.",
+    "id_time_rule": "Canonical examples and guidance use UUIDv7, org_id, utc_datetime_usec, and domain_actions.",
+    "language": "Normative contract language uses MUST, MUST NOT, SHALL, and SHALL NOT.",
+    "namespace_rule": "Elixir examples and generated stubs use the Ticketing root namespace and :ticketing OTP app atom only.",
+    "pointer_stability_rule": "Do not introduce cosmetic nesting or key churn that breaks stable JSON-pointer references without a governed reason and versioned migration.",
+    "write_model_priority": "Optimize canonical artifacts for deterministic enforcement and stable machine verification, not for embedding convenience."
+  },
+  "authority_model": {
+    "bundle_role": "Canonical write model.",
+    "contract_role": "Law.",
+    "forbidden_in_bundle": [
+      "semantic overlays",
+      "read-model projections",
+      "embedding hints",
+      "vector payload definitions",
+      "free-form retrieval aliases"
+    ],
+    "manifest_role": "Integrity.",
+    "test_gates_role": "Proof."
+  },
+  "bundle_standard": {
+    "bundle_filename_format": "<DOC_ID>_bundle_v<SEMVER>.zip",
+    "bundle_semantics": {
+      "bundle_must_not_embed_overlay": true,
+      "bundle_must_not_embed_projection": true,
+      "bundle_must_remain_three_artifacts": true,
+      "law_proof_integrity_split": true,
+      "manifest_lists_only_json_artifacts": true
+    },
+    "required_artifacts": [
+      {
+        "artifact_kind": "contract",
+        "filename_format": "<DOC_ID>_Contract_v<SEMVER>.json",
+        "schema_version": "contract-suite/1.0"
+      },
+      {
+        "artifact_kind": "test_gates",
+        "filename_format": "<DOC_ID>_Test_Gates_v<SEMVER>.json",
+        "schema_version": "test-gates/1.0"
+      },
+      {
+        "artifact_kind": "bundle_manifest",
+        "filename": "bundle.manifest.json",
+        "schema_version": "bundle-manifest/1.0"
+      }
+    ],
+    "top_level_dir_format": "<DOC_ID>_bundle_v<SEMVER>"
+  },
+  "canonical": false,
+  "change_log": [
+    "Locks the final constitutional 3-artifact bundle standard: contract, test_gates, bundle_manifest.",
+    "Aligns BP-0 to CS-0@3.0.1 hardened dependency and lineage structures.",
+    "Explicitly keeps overlays and generated projections outside the canonical bundle boundary.",
+    "Replaces incidental JSON_ONLY naming with semver-only bundle naming.",
+    "Adds future-operational requirements as deferred implementation constraints rather than premature runtime commitments."
+  ],
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.1",
+      "reason": "CS-0 defines the schema families and required artifact contracts this blueprint must target."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "TG-0 defines gate authoring discipline and the minimum expectation for deterministic and runtime-declared checks."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.11",
+      "reason": "LINT-0 governs repository lint and anti-drift scanning; BP-0 must not duplicate repo-scanner responsibilities inside subsystem bundles."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.10",
+      "reason": "GOV-0 defines governance and waiver discipline that bundle authoring must remain compatible with."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "CG-0 defines contract-gate governance expectations that BP-0 must align to at the suite level."
+    }
+  ],
+  "doc_id": "BP-0",
+  "future_operational_requirements": {
+    "must_lock_later": [
+      "Ingestion must be idempotent and concurrency-safe.",
+      "Projection generation must use law-first left-join enrichment only.",
+      "Embeddings must use normalized semantic DTO text, not raw JSON AST as the primary vector payload.",
+      "Retired or superseded law must be excluded or tombstoned from active retrieval.",
+      "Runtime agents must keep immutable constitutional guardrails even when retrieval is stale."
+    ],
+    "status": "Deferred until implementation exists."
+  },
+  "gate_standard": {
+    "allowed_assertion_types": [
+      "suite_schema_matches",
+      "require_bundle_manifest_filename",
+      "require_bundle_files_match_manifest",
+      "json_pointer_equals",
+      "forbid_regex_in_artifact",
+      "telemetry_signal_emitted",
+      "trace_span_relationship",
+      "attribute_presence_assert",
+      "error_envelope_correlation",
+      "sampling_decision"
+    ],
+    "required_static_gate_categories": [
+      "schema validation",
+      "artifact linkage parity",
+      "manifest integrity",
+      "dependency and lineage discipline",
+      "placeholder and anti-pattern bans where mechanically checkable"
+    ],
+    "runtime_declaration_rule": "Runtime and dynamic checks may be declared in gates, but declaration does not convert them into static bundle truth."
+  },
+  "generated_at_utc": "2026-04-04T08:35:00Z",
+  "last_updated_utc": "2026-04-04T08:35:00Z",
+  "lineage": {
+    "foundation_refs": [
+      {
+        "doc_id": "V42-0",
+        "min_version": "1.8.1",
+        "reason": "V42 is the constitutional foundation; BP-0 defines how downstream contract bundles must be authored without weakening V42 invariants."
+      }
+    ],
+    "supersedes": [
+      {
+        "doc_id": "BP-0",
+        "reason": "Replaces the earlier JSON-only blueprint with the final canonical 3-artifact bundle doctrine.",
+        "version": "1.0.6"
+      },
+      {
+        "doc_id": "BP-0",
+        "reason": "Removes read-model and RAG sidecar concerns from the canonical bundle blueprint.",
+        "version": "2.0.0"
+      }
+    ]
+  },
+  "migration_order": [
+    "Lock doctrine.",
+    "Harden CS-0 for write-model precision only.",
+    "Rewrite BP-0 to match the hardened CS-0.",
+    "Create OVL-0 for external overlay governance.",
+    "Build strict bundle validation and separate repo-level overlay validation.",
+    "Build projector/generator and pilot on TEN-1, LED-1, ORD-1, and PRICE-1 before the full suite hardening pass."
+  ],
+  "overlay_boundary": {
+    "bundle_must_not_pin_overlay": true,
+    "overlay_location": "External to the canonical bundle, governed separately.",
+    "overlay_must_not_define_structural_edges": true,
+    "overlay_must_point_back_to_bundle": true,
+    "overlay_role": "Semantic companion for retrieval and context, never legal truth.",
+    "projection_must_be_generated": true,
+    "projection_role": "Generated read model built from canonical law plus validated semantic overlay."
+  },
+  "references": {
+    "constitutional_summary": "bundle = law/proof/integrity; overlay = semantic companion; projection = generated read model.",
+    "phase_1_doctrine": "Phase_1_Knowledge_Architecture_Doctrine_v1.0.0",
+    "retrieval_order": [
+      "exact",
+      "structural_graph",
+      "semantic_overlay",
+      "vector_similarity"
+    ]
+  },
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Blueprint standard for authoring canonical 3-artifact contract bundles under CS-0@3.0.1 with law/proof/integrity separation and strict write-model discipline.",
+  "tags": [
+    "blueprint",
+    "contracts",
+    "canonical-bundle",
+    "3-artifact",
+    "ci-strict",
+    "ash-3.x",
+    "write-model",
+    "machine-verifiable",
+    "doctrine"
+  ],
+  "title": "BP-0 Blueprint Contract (Canonical Bundle Authoring Standard)",
+  "updated_at": "2026-04-04T08:35:00Z",
+  "version": "3.0.1"
+}

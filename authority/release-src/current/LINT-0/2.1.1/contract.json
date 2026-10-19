@@ -1,0 +1,270 @@
+{
+  "artifact_kind": "contract",
+  "audience": [
+    "humans",
+    "coding_agents",
+    "ci"
+  ],
+  "banned_patterns": [
+    {
+      "fix": "Replace `use Ash.Api` with `use Ash.Domain` and move resources under the domain.",
+      "id": "LINT0-P0-ASH2-API-USE",
+      "message": "Ash 2.x API module usage detected. Ash 3 requires domains.",
+      "pattern": "\\buse\\s+Ash\\.Api\\b",
+      "severity": "P0"
+    },
+    {
+      "fix": "Replace `api:` with `domain:` and ensure the target module is an `Ash.Domain`.",
+      "id": "LINT0-P0-ASH2-API-OPT",
+      "message": "Ash 2.x `api:` option detected. Ash 3 uses `domain:`.",
+      "pattern": "[\\s,(]api:\\s*[A-Z][A-Za-z0-9_.]*",
+      "severity": "P0"
+    },
+    {
+      "fix": "Rename the config key to `ash_domains` and list domains, not APIs.",
+      "id": "LINT0-P0-ASH2-ASH_APIS-CONFIG",
+      "message": "Ash 2.x `ash_apis` config detected. Ash 3 uses `ash_domains`.",
+      "pattern": "\\bash_apis\\b",
+      "severity": "P0"
+    },
+    {
+      "fix": "Use `Ash.UUIDv7.generate/0` and remove custom or legacy UUIDv7 wrappers.",
+      "id": "LINT0-P0-UUIDV7-WRONG-MODULE",
+      "message": "Non-canonical UUIDv7 module naming detected. Use built-in `Ash.UUIDv7`.",
+      "pattern": "\\b(AshUUIDv7|ash_uuid_v7)\\b",
+      "severity": "P0"
+    },
+    {
+      "fix": "Replace `uuid_primary_key` with `uuid_v7_primary_key` for DB primary keys.",
+      "id": "LINT0-P0-UUIDV4-PRIMARY-KEY",
+      "message": "Non-canonical UUID primary key macro detected. Project law requires UUIDv7 primary keys.",
+      "pattern": "\\buuid_primary_key\\b",
+      "severity": "P0"
+    },
+    {
+      "fix": "Use `Ash.UUIDv7.generate/0` for governed UUID generation unless a downstream contract explicitly allows another form.",
+      "id": "LINT0-P0-NONCANONICAL-UUID-GENERATOR",
+      "message": "Non-canonical UUID generator detected for a governed code path.",
+      "pattern": "\\b(?:Ash\\.UUID|Ecto\\.UUID|UUID|Uniq\\.UUID)\\.(?:generate|uuid4)\\s*\\(",
+      "severity": "P0"
+    },
+    {
+      "fix": "Remove the focus tag before merge. Use local uncommitted focus only.",
+      "id": "LINT0-P0-TEST-FOCUS-TAG",
+      "message": "Committed focus tag detected. Focused tests are forbidden in the blocking proof surface.",
+      "pattern": "@(?:module|describe)?tag\\s+(?::focus\\b|focus:\\s*true\\b)",
+      "severity": "P0"
+    },
+    {
+      "fix": "Do not commit release-proof commands that use `--only`. Provide a documented local-only workflow outside protected-branch proof.",
+      "id": "LINT0-P0-MIX-TEST-ONLY",
+      "message": "Selective `mix test --only` command detected in repo-controlled files.",
+      "pattern": "\\bmix\\s+test\\b[^\\n#]*\\s--only\\b",
+      "severity": "P0"
+    },
+    {
+      "fix": "Do not commit release-proof commands that exclude required suites. Move non-blocking lanes outside the default proof surface.",
+      "id": "LINT0-P0-MIX-TEST-EXCLUDE",
+      "message": "Selective `mix test --exclude` command detected in repo-controlled files.",
+      "pattern": "\\bmix\\s+test\\b[^\\n#]*\\s--exclude\\b",
+      "severity": "P0"
+    },
+    {
+      "fix": "Remove the skip tag or pair it with the repo\u2019s quarantine registry and an explicit waiver reason.",
+      "id": "LINT0-P1-TEST-SKIP-TAG",
+      "message": "Committed skip tag detected. Temporary suppression must be explicitly governed.",
+      "pattern": "@(?:module|describe)?tag\\s+(?::skip\\b|skip:\\s*true\\b)",
+      "severity": "P1"
+    }
+  ],
+  "canonical": true,
+  "change_log": [
+    {
+      "changes": [
+        "Patch release: fix stale version references inside test-gate assertions (bundle_id/targets)."
+      ],
+      "date_utc": "2026-01-04T12:59:55Z",
+      "version": "2.0.11"
+    },
+    {
+      "changes": [
+        "Patch release: fix bundle integrity + gate assertions; no normative behavior changes."
+      ],
+      "date_utc": "2026-01-04T12:57:07Z",
+      "version": "2.0.10"
+    },
+    {
+      "changes": [
+        "Fix bundle manifest bundle_id/bundle_version drift and regenerate bundle deterministically."
+      ],
+      "date_utc": "2026-01-04T12:44:24Z",
+      "version": "2.0.9"
+    },
+    {
+      "changes": [
+        "Move to CS-0@2.3.0.",
+        "Remove unrelated EVT-1 dependency.",
+        "Expand banned patterns to cover UUIDv7 enforcement and QA anti-bypass shortcuts.",
+        "Tighten waiver cap from 5 to 3 per file.",
+        "Repair contract/gate/manifest version integrity."
+      ],
+      "date_utc": "2026-03-10T18:40:00Z",
+      "version": "2.1.0"
+    },
+    {
+      "changes": [
+        "Correct release identity and align the suite-schema gate with accepted CS-0@3.0.1; no domain or governance behavior changed."
+      ],
+      "date_utc": "2026-10-09T00:00:00Z",
+      "version": "2.1.1"
+    }
+  ],
+  "changelog": [
+    {
+      "changes": [
+        "P1: Declared explicit non-producer surface (emits_events=false, outbox_events=[]).",
+        "P1: Added registry floor parity dependency pin on EVT-1@2.16.4.",
+        "P1: Added ASSERT-NON-PRODUCER gate to prevent CI theatre."
+      ],
+      "date_utc": "2026-02-07T00:00:00.000000Z",
+      "type": "patch",
+      "version": "2.0.12"
+    },
+    {
+      "changes": [
+        "Operationalize GOV-0/QA-0 truthfulness rules with focused-test and selective mix-test bans.",
+        "Fix copy-paste drift in required_baselines and align dependencies to the current suite."
+      ],
+      "date_utc": "2026-03-10T18:40:00Z",
+      "type": "minor",
+      "version": "2.1.0"
+    }
+  ],
+  "created_at": "2026-01-03T05:17:56Z",
+  "dependencies": [
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.1.0",
+      "reason": "Lint rules operationalize current governance policy, including QA truthfulness controls."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Defines the canonical JSON schema for current suite artifacts."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Defines test-gate structures and severity taxonomy used suite-wide."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.2.0",
+      "reason": "Defines strict CI enforcement expectations for bundle validation and semantic gate execution."
+    }
+  ],
+  "doc_id": "LINT-0",
+  "emits_events": false,
+  "enforcement_model": {
+    "agent_contract": "All code-generation prompts MUST include GOV-0 and LINT-0.",
+    "levels": {
+      "P0": "Fail CI immediately (must be fixed).",
+      "P1": "Fail CI by default for protected-branch governance jobs unless a repo-law waiver flow explicitly lowers the threshold during bootstrap.",
+      "P2": "Warn only."
+    }
+  },
+  "last_updated_utc": "2026-10-09T00:00:00Z",
+  "lock_state": "locked",
+  "outbox_events": [],
+  "purpose": {
+    "one_liner": "Machine-enforceable static lints that block Ash 2.x drift, non-canonical UUID practices, and selective test-proof shortcuts that would violate QA-0/GOV-0.",
+    "scope": [
+      "Elixir source files: .ex, .exs under lib/, test/, apps/, config/.",
+      "Templates and config/docs that define CI and repo commands: .heex, .eex, .yml, .yaml, .json, .md.",
+      "Excludes: deps/, _build/, contracts/."
+    ],
+    "why": [
+      "Agents will drift unless CI rejects forbidden patterns.",
+      "Catches regressions early, before review fatigue sets in."
+    ]
+  },
+  "references": [
+    {
+      "name": "Ash 3 upgrade guide (domain-first architecture; deprecated API boundary renamed to domain).",
+      "type": "primary",
+      "url": "https://hexdocs.pm/ash/upgrading-to-3-0.html"
+    },
+    {
+      "name": "Ash domains guide",
+      "type": "primary",
+      "url": "https://hexdocs.pm/ash/domains.html"
+    },
+    {
+      "name": "Ash resource DSL (uuid_v7_primary_key)",
+      "type": "primary",
+      "url": "https://hexdocs.pm/ash/dsl-ash-resource.html"
+    },
+    {
+      "name": "Ash.UUIDv7 module",
+      "type": "primary",
+      "url": "https://hexdocs.pm/ash/Ash.UUIDv7.html"
+    },
+    {
+      "doc_id": "QA-0",
+      "min_version": "1.1.0",
+      "name": "QA execution standard whose anti-bypass rules are partially operationalized here.",
+      "type": "internal_contract"
+    }
+  ],
+  "required_baselines": [
+    {
+      "id": "LINT0-P1-DOMAIN-MODULES",
+      "message": "Domain modules should use `Ash.Domain` (domain-first architecture).",
+      "notes": "Baseline expectation for Ash 3.x repositories once bootstrap modules exist.",
+      "pattern": "\\buse\\s+Ash\\.Domain\\b",
+      "severity": "P1"
+    },
+    {
+      "id": "LINT0-P1-RESOURCE-DOMAIN-OPT",
+      "message": "Resources should declare `domain: <DomainModule>`.",
+      "notes": "Required for domain-first resource registration once the repo has concrete domains.",
+      "pattern": "\\buse\\s+Ash\\.Resource,\\s*domain:\\s*[A-Z][A-Za-z0-9_.]*\\b",
+      "severity": "P1"
+    },
+    {
+      "id": "LINT0-P1-UUIDV7-PK",
+      "message": "Governed primary keys should use `uuid_v7_primary_key`.",
+      "notes": "Operational baseline aligned to GOV-0 and the Ticketing constitution.",
+      "pattern": "\\buuid_v7_primary_key\\b",
+      "severity": "P1"
+    },
+    {
+      "id": "LINT0-P1-MIX-CHECK-NORMATIVE",
+      "message": "The repo should expose the normative `mix check` entrypoint defined by QA-0.",
+      "notes": "This is a documentary baseline until a dedicated mix.exs structure checker exists.",
+      "pattern": "mix check",
+      "severity": "P1"
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "stability": "stable",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "tier": 0,
+  "title": "Static Governance Lint Rules (Ash 3.x + QA truthfulness)",
+  "updated_at": "2026-03-10T18:40:00Z",
+  "updated_at_utc": "2026-10-09T00:00:00Z",
+  "version": "2.1.1",
+  "waivers": {
+    "format": "lint: waive <RULE_ID> <short_reason>",
+    "limits": {
+      "max_per_file": 3,
+      "requires_reason": true
+    },
+    "mechanism": "line_comment"
+  }
+}

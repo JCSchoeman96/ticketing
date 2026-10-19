@@ -1,0 +1,75 @@
+{
+  "bootstrap_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "candidate_preparation_base_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "provenance_statement": "Candidate RP-0@4.0.0 uses the exact active RP-0@3.2.2 ZIP as its installed baseline and replaces contract and test-gates content with the frozen authority-staging/t0-hardening/RP-0 pair. Only release identity, version-bound assertion, and generated timestamp fields were mechanically normalized.",
+  "source_bundle_path": "contracts/RP-0/RP-0_bundle_v3.2.2.zip",
+  "source_zip_sha256": "9d4ab9a1ca101b0129f57caca4eeb81ceaa37fc19618329c1ba2a26c31562d47",
+  "source_zip_bytes": 36837,
+  "source_version": "3.2.2",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "authority-staging/t0-hardening/RP-0/contract.json",
+      "sha256": "17449a9d05bb768e37452564bd08e947c89d7bd34df16a6bb9a481a3a3dcd649",
+      "bytes": 16475,
+      "frozen_input_sha256": "51b4498c0eb0be4aa2fe61c20ff8c8a53a98603d399dd26262bd2977183343df",
+      "frozen_input_bytes": 16482
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "authority-staging/t0-hardening/RP-0/test-gates.json",
+      "sha256": "120026bfe73de6a4f0dcd8ac509da7407f5504d5ff6eae0ea2b6b24db91c9559",
+      "bytes": 21107,
+      "frozen_input_sha256": "84bb6011f0c537ef35cb026aae30281460b53554352e4c114c09735307616fa5",
+      "frozen_input_bytes": 21114
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "RP-0_bundle_v3.2.2/RP-0_Contract_v3.2.2.json",
+      "sha256": "7ee726206befe1fa9d373a1bc85afc530affe6bd07185ebd7ac467e506e87dab",
+      "bytes": 16038
+    },
+    {
+      "source_member_path": "RP-0_bundle_v3.2.2/RP-0_Test_Gates_v3.2.2.json",
+      "sha256": "ab26c8471f0cc91327fe72a7ee4aa961b1672d964057302c3157ec7f88b88782",
+      "bytes": 19672
+    },
+    {
+      "source_member_path": "RP-0_bundle_v3.2.2/bundle.manifest.json",
+      "sha256": "6011786fd8a198d96ea1ab95e4e83571f26a194ec41fb2d6d98bf3f81b2513ae",
+      "bytes": 619
+    }
+  ],
+  "frozen_authority_sources": [
+    {
+      "path": "authority-staging/t0-hardening/RP-0/contract.json",
+      "sha256": "51b4498c0eb0be4aa2fe61c20ff8c8a53a98603d399dd26262bd2977183343df",
+      "bytes": 16482
+    },
+    {
+      "path": "authority-staging/t0-hardening/RP-0/test-gates.json",
+      "sha256": "84bb6011f0c537ef35cb026aae30281460b53554352e4c114c09735307616fa5",
+      "bytes": 21114
+    }
+  ],
+  "mechanical_normalization": {
+    "suite_schema": "CS-0@3.0.1",
+    "target_version": "4.0.0",
+    "generated_at_utc": "2026-10-18T09:26:57Z",
+    "contract_json_pointers": [
+      "/artifact_name",
+      "/generated_at_utc",
+      "/version"
+    ],
+    "test_gates_json_pointers": [
+      "/contract_ref/version",
+      "/gates/2/assertions/1/details/equals",
+      "/gates/2/assertions/3/details/equals",
+      "/gates/2/assertions/5/details/equals",
+      "/gates/2/assertions/7/details/equals",
+      "/generated_at_utc",
+      "/version"
+    ]
+  }
+}

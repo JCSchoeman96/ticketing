@@ -1,0 +1,13 @@
+{
+  "doc_id": "QA-0",
+  "version": "1.1.1",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch successor preserving QA-0 semantics while repairing the recorded CS-0/gate/manifest identity defects.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "1023ac042f16f17d819498d3a239b0fdf0bc159d82faca7d4658f3cca71ec39d"
+  }
+}

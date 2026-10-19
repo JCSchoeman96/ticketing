@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "API-0",
+    "bundle_version": "1.2.0"
+  },
+  "doc_id": "API-0",
+  "files": [
+    {
+      "bytes": 14966,
+      "path": "API-0_Contract_v1.2.0.json",
+      "sha256": "88259f036b9da4dc64354dedde1275a3cdd09f2a854a21a6576798f6688ad99e"
+    },
+    {
+      "bytes": 5807,
+      "path": "API-0_Test_Gates_v1.2.0.json",
+      "sha256": "d5fa3978b60079c16b95b58751eb0250cf565285c40b7dcd9f5ccd5fdc9bf83b"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.2.0"
+}

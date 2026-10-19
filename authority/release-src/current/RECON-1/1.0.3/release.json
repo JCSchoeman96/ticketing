@@ -1,0 +1,13 @@
+{
+  "doc_id": "RECON-1",
+  "version": "1.0.3",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_status": "candidate",
+  "release_intent": "Patch release aligns event-production identity and gate IDs with the ratified CS-0 profile.",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "955f9a63facd009af8caa0cb48157d9b35b77fadce35379ffb334e1722685840"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "QUORUM-1",
+    "bundle_version": "1.0.1"
+  },
+  "doc_id": "QUORUM-1",
+  "files": [
+    {
+      "bytes": 7070,
+      "path": "QUORUM-1_Contract_v1.0.1.json",
+      "sha256": "41adf271e02483e4cdbfae0e6cb969033f35c4f407fb6b8e128daf274326e489"
+    },
+    {
+      "bytes": 5426,
+      "path": "QUORUM-1_Test_Gates_v1.0.1.json",
+      "sha256": "ec972b43306a11b7bf909744170d1beb02702669ea0d07fd1435b02563167705"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.0.1"
+}

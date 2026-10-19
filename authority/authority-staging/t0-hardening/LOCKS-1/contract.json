@@ -1,0 +1,617 @@
+{
+  "advisory_locks": {
+    "deterministic_key_encoding": {
+      "canonical_string_template": "org_id|namespace|entity_key",
+      "delimiter": "|",
+      "encoding": "utf-8",
+      "hash_algorithm": "sha256_v1_first8_signed_int64_be",
+      "int64_interpretation": "signed_big_endian",
+      "notes": [
+        "Compute SHA-256 over canonical string, take first 8 bytes, interpret as signed big-endian int64."
+      ],
+      "required": true
+    },
+    "lock_and_write_same_transaction_required": true,
+    "notes_session_affinity": [
+      "Advisory locks are owned by a Postgres backend session. A lock MUST be acquired and the protected mutation MUST be executed within the same Repo.transaction/1 scope, using the same DB connection."
+    ],
+    "session_affinity_required": true,
+    "transaction_scoped_functions_required_for_mutations": true
+  },
+  "anti_patterns": {
+    "banned": [
+      "Using session-level advisory locks in production (pg_advisory_lock).",
+      "Relying on GenServer/ETS locks for correctness in a cluster.",
+      "Performing cross-tenant coordination locks without org_id in the key.",
+      "Implementing 'exactly once' semantics without idempotency keys and DB constraints.",
+      "Retrying non-idempotent operations without an Idempotency-Key.",
+      "Lock on connection/session A and write on connection/session B (split-phase lock/write).",
+      "Acquiring an advisory lock outside the transaction that performs the protected mutation."
+    ],
+    "discouraged": [
+      "Long-held transactions that hold row locks > 2 seconds.",
+      "Lock upgrades (shared to exclusive) in hot paths."
+    ]
+  },
+  "artifact_kind": "contract",
+  "canonical": true,
+  "canonical_meta": {
+    "audience": [
+      "coding_agents",
+      "backend_engineers",
+      "platform",
+      "sre",
+      "security"
+    ],
+    "doc_type": "contract",
+    "language": "en",
+    "scope": {
+      "in_scope": [
+        "Canonical locking primitives and when to use each",
+        "Lock key format and tenant partitioning requirements",
+        "Lock ordering to avoid deadlocks",
+        "Idempotency key semantics and replay rules",
+        "Dedupe controls for background jobs and workflows",
+        "Retry mapping for concurrency failures aligned to ERR-1"
+      ],
+      "out_of_scope": [
+        "Seat allocation details (SEAT-1)",
+        "Order lifecycle specifics (ORD-1)",
+        "Ledger posting rules (LED-1)",
+        "Observability SLO definitions (OBS-1)",
+        "Deployment/migration choreography (DMSC-1)"
+      ]
+    },
+    "stability": "constitutional_shared_standard"
+  },
+  "change_log": [
+    {
+      "changes": [
+        "P0 hardening: mandate advisory-lock session affinity (lock + write in same DB session/transaction) and ban split-phase lock/write patterns."
+      ],
+      "date_utc": "2026-02-03T08:58:05Z",
+      "version": "2.1.0"
+    },
+    {
+      "changes": [
+        "CI strict compliance patch: schema/gate/manifest drift fixes."
+      ],
+      "date_utc": "2026-01-06T08:30:45Z",
+      "version": "2.0.13"
+    },
+    {
+      "changes": [
+        "CI strict compliance patch: schema/gate/manifest drift fixes."
+      ],
+      "date_utc": "2026-01-06T08:24:59Z",
+      "version": "2.0.12"
+    },
+    {
+      "at_utc": "2026-01-06T07:54:29Z",
+      "summary": "Bundle hygiene patch: version bump + deterministic manifest; align gates with actual fields.",
+      "type": "patch"
+    },
+    {
+      "at_utc": "2026-01-04T13:46:47Z",
+      "changes": [
+        "Add explicit Ash 3.x implementation requirements for Postgres row locks and record locking builtins.",
+        "Remove non-binding optional language from forbidden primitive rationale to preserve MUST-only contract style."
+      ]
+    },
+    {
+      "changes": [
+        "Promoted LOCKS-0 to LOCKS-1 and upgraded to CS-0@2.2.0 envelopes + manifest format.",
+        "Pinned transaction-level advisory lock posture and banned session-level advisory locks to avoid pooling hazards.",
+        "Added tenant-partitioned canonical lock key format (org_id + namespace + entity key).",
+        "Added canonical lock ordering and explicit deadlock/serialization retry mapping aligned to ERR-1.",
+        "Specified enterprise idempotency record semantics (unique constraint, replay rules, mismatch handling).",
+        "Added Oban unique job guidance as dedupe helper while keeping DB constraints as authority.",
+        "Expanded anti-pattern bans to eliminate drift-prone concurrency shortcuts."
+      ],
+      "date": "2026-01-03",
+      "version": "2.0.0"
+    },
+    {
+      "changes": [
+        "Fix bundle manifest bundle_id/bundle_version drift and regenerate bundle deterministically."
+      ],
+      "date_utc": "2026-01-04T12:44:24Z",
+      "version": "2.0.8"
+    },
+    {
+      "changes": [
+        "Metadata + test gate normalization for CI strict enforceability."
+      ],
+      "date": "2026-01-05",
+      "date_utc": "2026-01-05T08:44:45Z",
+      "version": "2.0.10"
+    },
+    {
+      "changes": [
+        "ADD canonical lock namespace recon_window.",
+        "ADD recon_window to canonical_order immediately after ledger_posting and before payout_run to prevent deadlock across reconciliation and payout/close paths.",
+        "BUMP contract version and refresh gates/manifest."
+      ],
+      "date_utc": "2026-02-11T12:02:09.690118Z",
+      "version": "2.1.2"
+    },
+    {
+      "date_utc": "2026-02-11T12:14:04Z",
+      "summary": "Add ledger_period namespace and enforce invariant ledger_period < recon_window < payout_run; define recon_window entity_key encoding; define shared/exclusive semantics for recon_window.",
+      "type": "patch",
+      "version": "2.1.3"
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Contract suite schema and artifact envelopes."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Test-gate conventions and severity model."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.3.2",
+      "reason": "Canonical error envelope + retry taxonomy."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.4.3",
+      "reason": "Tenant isolation baseline; lock keys and dedupe MUST be tenant-partitioned."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.1",
+      "reason": "Static enforcement of banned anti-patterns (GenServer locks, ambient tenant, etc.)."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.1",
+      "reason": "Governance posture for privileged/break-glass flows and change control."
+    }
+  ],
+  "doc_id": "LOCKS-1",
+  "emits_events": false,
+  "error_mapping": {
+    "lock_conflict": {
+      "retryability": "conditional",
+      "top_level": "ERR_CONFLICT"
+    },
+    "notes": [
+      "Mapping MUST preserve hide-existence rules from TEN-1 for cross-tenant access."
+    ],
+    "timeout": {
+      "retryability": "always",
+      "top_level": "ERR_TIMEOUT"
+    },
+    "top_level_code_policy": "ERR-1",
+    "unique_violation": {
+      "retryability": "conditional",
+      "subcode": "LOCKS_UNIQUE_VIOLATION",
+      "top_level": "ERR_CONFLICT"
+    }
+  },
+  "generated_at_utc": "2026-02-11T12:14:04Z",
+  "idempotency": {
+    "key_requirements": {
+      "allowed_charset": "base64url_or_hex",
+      "header_name": "Idempotency-Key",
+      "max_length": 128,
+      "min_length": 16,
+      "must_include_tenant_in_storage_key": true
+    },
+    "replay_semantics": {
+      "different_request_hash": {
+        "retryability": "never",
+        "subcode": "LOCKS_IDEMPOTENCY_KEY_REUSE_MISMATCH",
+        "top_level": "ERR_CONFLICT"
+      },
+      "in_progress": {
+        "retryability": "conditional",
+        "subcode": "LOCKS_IDEMPOTENCY_IN_PROGRESS",
+        "top_level": "ERR_CONFLICT"
+      },
+      "notes": [
+        "Replays MUST NOT execute the side effect again."
+      ],
+      "same_request_hash": "return_original_response_when_available"
+    },
+    "required": true,
+    "storage": {
+      "notes": [
+        "Idempotency storage MUST be enforced via a unique constraint (not app-only).",
+        "If the same key is replayed with a different request_hash, return conflict."
+      ],
+      "record_kind": "idempotency_record",
+      "required_fields": [
+        "org_id",
+        "key",
+        "operation_id",
+        "request_hash",
+        "status",
+        "response_fingerprint",
+        "expires_at_utc"
+      ],
+      "ttl_seconds_default": 86400,
+      "uniqueness": [
+        "org_id",
+        "operation_id",
+        "key"
+      ]
+    },
+    "tenant_partitioned": true
+  },
+  "invariants": [
+    {
+      "assertion": "LOCKS-1 normative source is JSON only; bundle MUST not contain repack suffixes or secondary specs.",
+      "domain": "governance",
+      "enforcement": [
+        "TG: require_bundle_manifest_filename",
+        "TG: require_bundle_files_match_manifest"
+      ],
+      "id": "LOCKS-1-GOV-001",
+      "level": "P0"
+    },
+    {
+      "assertion": "All lock keys and dedupe keys MUST be tenant-partitioned using org_id.",
+      "domain": "lock_keying",
+      "enforcement": [
+        "TG: json_pointer_equals on lock_keying.tenant_partitioning_required and idempotency.tenant_partitioned"
+      ],
+      "id": "LOCKS-1-KEY-001",
+      "level": "P0"
+    },
+    {
+      "assertion": "Only transaction-level advisory locks are allowed; session-level advisory locks are forbidden.",
+      "domain": "advisory_locks",
+      "enforcement": [
+        "TG: json_pointer_equals on allowed/forbidden function lists"
+      ],
+      "id": "LOCKS-1-ADV-001",
+      "level": "P0"
+    },
+    {
+      "assertion": "Multi-lock transactions MUST acquire locks in canonical order; deadlocks/serialization failures must map to retryable conflict.",
+      "domain": "lock_ordering",
+      "enforcement": [
+        "TG: json_pointer_equals on lock_ordering.canonical_order and deadlock_policy.mapping"
+      ],
+      "id": "LOCKS-1-ORD-001",
+      "level": "P0"
+    },
+    {
+      "assertion": "Idempotency is required for side-effecting endpoints; reuse mismatch must be conflict with retryability=never.",
+      "domain": "idempotency",
+      "enforcement": [
+        "TG: json_pointer_equals on idempotency.required and replay_semantics.different_request_hash"
+      ],
+      "id": "LOCKS-1-IDEM-001",
+      "level": "P0"
+    },
+    {
+      "assertion": "All advisory locks that guard mutations MUST be acquired and used within the same database session and the same transaction scope as the protected write. Split-phase patterns (lock on one connection/session and write on another) are FORBIDDEN. Advisory locks for mutations MUST be transaction-scoped (pg_*_advisory_xact_lock*) to ensure automatic release on commit/rollback.",
+      "domain": "advisory_locks",
+      "enforcement": [
+        "TG: json_pointer_equals on /advisory_locks/session_affinity_required and /advisory_locks/lock_and_write_same_transaction_required",
+        "TG: json_pointer_equals on /advisory_locks/transaction_scoped_functions_required_for_mutations"
+      ],
+      "id": "LOCKS-1-ADV-002",
+      "level": "P0"
+    },
+    {
+      "id": "locks1.invariant.recon_window_namespace",
+      "must": true,
+      "statement": "LOCKS-1 MUST include recon_window in lock_keying.canonical_namespaces and lock_ordering.canonical_order, positioned immediately after ledger_period and before payout_run. This enforces: ledger_period < recon_window < payout_run."
+    },
+    {
+      "id": "locks1.invariant.ledger_period_namespace",
+      "must": true,
+      "statement": "LOCKS-1 MUST include ledger_period in lock_keying.canonical_namespaces and lock_ordering.canonical_order, positioned immediately after ledger_posting and before recon_window."
+    },
+    {
+      "id": "locks1.invariant.recon_window_entity_key_encoding",
+      "must": true,
+      "statement": "For namespace recon_window, entity_key MUST be encoded as: [window_start_iso8601]#[recon_profile_id]. window_start_iso8601 MUST be UTC and normalized to second precision (e.g., 2026-02-11T00:00:00Z). recon_profile_id MUST be a stable snake_case identifier."
+    },
+    {
+      "id": "locks1.invariant.recon_window_lock_modes",
+      "must": true,
+      "statement": "Namespace recon_window MUST support both shared and exclusive transaction-scoped advisory locks. Reconciliation runs MUST acquire exclusive recon_window locks for their (org_id, entity_key). Downstream consumers that must not run during reconciliation (e.g., payout_run) MUST acquire shared recon_window locks before acquiring payout_run locks."
+    }
+  ],
+  "job_dedupe": {
+    "oban_unique_jobs": {
+      "notes": [
+        "Oban unique jobs can prevent duplicate work, but DB constraints remain the correctness authority."
+      ],
+      "recommended_unique_dimensions": [
+        "worker",
+        "queue",
+        "args_subset_including_org_id"
+      ],
+      "required": true,
+      "tenant_partitioned": true
+    }
+  },
+  "last_updated_utc": "2026-02-11T12:14:04Z",
+  "lock_keying": {
+    "canonical_namespaces": [
+      "event",
+      "event_occurrence",
+      "order",
+      "payment_intent",
+      "seat",
+      "seat_hold",
+      "scan_device",
+      "scan_session",
+      "ledger_posting",
+      "ledger_period",
+      "recon_window",
+      "payout_run"
+    ],
+    "format": {
+      "algorithm": "sha256_v1_first8_signed_int64_be",
+      "canonical_string_template": "org_id|namespace|entity_key",
+      "delimiter": "|",
+      "encoding": "utf-8",
+      "forbids_components": [
+        "request_ip",
+        "random_nonce"
+      ],
+      "int64_interpretation": "signed_big_endian",
+      "kind": "stable_string_to_64bit_hash",
+      "notes": [
+        "UUIDs MUST be encoded deterministically into advisory lock keys (e.g., stable hash to int8 or pair of int4).",
+        "Collisions MUST be treated as a security/operational incident; metrics must expose collision rate."
+      ],
+      "requires_components": [
+        "org_id",
+        "namespace",
+        "entity_id_or_key"
+      ]
+    },
+    "tenant_key": "org_id",
+    "tenant_partitioning_required": true
+  },
+  "lock_ordering": {
+    "canonical_order": [
+      "tenant_root",
+      "event",
+      "event_occurrence",
+      "order",
+      "payment_intent",
+      "seat_hold",
+      "seat",
+      "scan_session",
+      "scan_device",
+      "ledger_posting",
+      "ledger_period",
+      "recon_window",
+      "payout_run"
+    ],
+    "deadlock_policy": {
+      "mapping": {
+        "retryability": "conditional",
+        "subcode": "LOCKS_DEADLOCK_OR_SERIALIZATION",
+        "top_level": "ERR_CONFLICT"
+      },
+      "notes": [
+        "Deadlocks (40P01) and serialization failures (40001) are concurrency outcomes; retry the full transaction when safe."
+      ],
+      "sqlstate_codes": [
+        "40P01",
+        "40001"
+      ],
+      "treat_deadlocks_as_retryable": true
+    },
+    "required": true,
+    "rule": "If multiple locks are needed in one transaction, acquire them in the canonical order below; within the same namespace, sort by ascending stable key bytes/lex order."
+  },
+  "lock_primitives": {
+    "explicitly_forbidden": [
+      {
+        "name": "GenServer/ETS/agent-based global mutex as truth",
+        "primitive_id": "genserver_mutex",
+        "reason": "Not distributed-safe; breaks failover; drift-prone."
+      },
+      {
+        "name": "Redis distributed lock as truth for correctness",
+        "primitive_id": "redis_lock_as_truth",
+        "reason": "MUST ONLY be used as best-effort throttle; correctness MUST be DB-backed."
+      },
+      {
+        "name": "PubSub/event bus as state/lock truth",
+        "primitive_id": "pubsub_as_truth",
+        "reason": "Eventually consistent; cannot prevent double-writes."
+      }
+    ],
+    "preferred": [
+      {
+        "name": "Unique constraints (Postgres)",
+        "notes": [
+          "Treat SQLSTATE 23505 as a concurrency outcome; map to ERR_CONFLICT with conditional retry only when safe."
+        ],
+        "primitive_id": "db_unique_constraint",
+        "use_for": [
+          "idempotency de-duplication",
+          "single-winner inserts",
+          "natural-key enforcement"
+        ]
+      },
+      {
+        "name": "Exclusion constraints (Postgres)",
+        "notes": [
+          "Treat SQLSTATE 23P01 similarly to unique violations for safe-retry contexts."
+        ],
+        "primitive_id": "db_exclusion_constraint",
+        "use_for": [
+          "time-range overlaps",
+          "mutual exclusion without app locks"
+        ]
+      },
+      {
+        "name": "Row locks (SELECT ... FOR UPDATE/SHARE)",
+        "notes": [
+          "AshPostgres implementations MUST express row locks via Ash.Query.lock/2 (e.g., lock(:for_update), lock(:for_share)) rather than raw Ecto SQL, except within adapter internals.",
+          "Actions that must lock a record by primary key MUST prefer Ash.Resource.Change.Builtins.get_and_lock_for_update/1 (or equivalent built-in) to keep lock behavior consistent and testable."
+        ],
+        "primitive_id": "row_lock_for_update",
+        "rules": {
+          "max_hold_time_ms": 2000,
+          "must_be_in_transaction": true,
+          "no_lock_upgrade": true
+        },
+        "use_for": [
+          "seat holds, inventory updates, scan counters, ledger posting coordination"
+        ]
+      },
+      {
+        "name": "Optimistic concurrency (version/cas)",
+        "primitive_id": "optimistic_concurrency",
+        "rules": {
+          "conflict_is": {
+            "retryability": "conditional",
+            "subcode": "LOCKS_OPTIMISTIC_CONFLICT",
+            "top_level": "ERR_CONFLICT"
+          },
+          "requires_version_field": true
+        },
+        "use_for": [
+          "high contention entities where row locks are too heavy"
+        ]
+      },
+      {
+        "name": "Transaction-level advisory locks (pg_advisory_xact_lock)",
+        "primitive_id": "advisory_lock_transaction",
+        "rules": {
+          "allowed_functions": [
+            "pg_advisory_xact_lock",
+            "pg_try_advisory_xact_lock",
+            "pg_advisory_xact_lock_shared",
+            "pg_try_advisory_xact_lock_shared"
+          ],
+          "forbidden_functions": [
+            "pg_advisory_lock",
+            "pg_try_advisory_lock",
+            "pg_advisory_lock_shared",
+            "pg_try_advisory_lock_shared",
+            "pg_advisory_unlock",
+            "pg_advisory_unlock_shared",
+            "pg_advisory_unlock_all"
+          ],
+          "max_wait_ms": 1500,
+          "on_busy": {
+            "retryability": "conditional",
+            "subcode": "LOCKS_ADVISORY_LOCK_BUSY",
+            "top_level": "ERR_CONFLICT"
+          },
+          "only_transaction_level": true
+        },
+        "use_for": [
+          "cross-row coordination",
+          "singleton workflows",
+          "multi-row ordering guards"
+        ]
+      }
+    ]
+  },
+  "normative_source": "json",
+  "outbox_events": [],
+  "principles": [
+    {
+      "id": "LOCKS-1-P-001",
+      "text": "Prefer database-enforced invariants (unique constraints, exclusion constraints, RLS) over application locks."
+    },
+    {
+      "id": "LOCKS-1-P-002",
+      "text": "Transaction-level advisory locks are permitted; session-level advisory locks are forbidden in production due to pooling hazards."
+    },
+    {
+      "id": "LOCKS-1-P-003",
+      "text": "All concurrency primitives MUST be tenant-scoped unless the resource is explicitly global under TEN-1."
+    },
+    {
+      "id": "LOCKS-1-P-004",
+      "text": "Retries MUST be idempotent; if not inherently idempotent, require idempotency keys."
+    },
+    {
+      "id": "LOCKS-1-PR-ASH-001",
+      "statement": "Where stale-write protection is required without long-held locks (e.g., config-style resources), implementations MUST use Ash's optimistic locking mechanisms (version column / optimistic_lock change) and map stale updates to ERR_CONFLICT."
+    }
+  ],
+  "references": [
+    {
+      "kind": "postgres_docs",
+      "ref": "https://www.postgresql.org/docs/current/explicit-locking.html"
+    },
+    {
+      "kind": "postgres_docs",
+      "ref": "https://www.postgresql.org/docs/current/mvcc-serialization-failure-handling.html"
+    },
+    {
+      "kind": "postgres_docs",
+      "ref": "https://www.postgresql.org/docs/current/functions-admin.html"
+    },
+    {
+      "kind": "oban_docs",
+      "ref": "https://hexdocs.pm/oban/Oban.html"
+    },
+    {
+      "kind": "ash_docs",
+      "ref": "https://hexdocs.pm/ash/multitenancy.html"
+    },
+    {
+      "kind": "ash_docs",
+      "ref": "https://hexdocs.pm/ash/prevent-concurrent-writes.html"
+    },
+    {
+      "kind": "ash_docs",
+      "ref": "https://hexdocs.pm/ash/Ash.Query.html"
+    },
+    {
+      "kind": "ash_docs",
+      "ref": "https://hexdocs.pm/ash/Ash.Resource.Change.Builtins.html"
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines the platform’s canonical concurrency primitives and ordering rules to prevent deadlocks, duplicate execution, and cross-tenant leakage in a multi-tenant Ash 3.x ticketing platform. Establishes tenant-scoped lock key formats, Postgres advisory lock posture (transaction-level only), idempotency key semantics, and retry mappings aligned to ERR-1.\n\nPATCH 2.1.2: Added recon_window canonical namespace and lock ordering position for reconciliation exclusivity.",
+  "tags": [
+    "enterprise",
+    "concurrency",
+    "locks",
+    "idempotency",
+    "postgres",
+    "ash3",
+    "multitenancy"
+  ],
+  "title": "LOCKS-1 — Concurrency Control, Lock Ordering, Idempotency, and Dedupe",
+  "updated_at": "2026-02-11T12:02:09.690118Z",
+  "updated_at_utc": "2026-02-11T12:14:04Z",
+  "version": "2.1.3",
+  "approved_authority_corrections": {
+    "idempotency": {
+      "wire_header": "Idempotency-Key",
+      "persisted_identity": [
+        "org_id",
+        "operation_id",
+        "key"
+      ],
+      "request_hash": "separate field; hash canonical normalized effect-determining inputs",
+      "same_hash": "replay stored outcome",
+      "changed_input": "conflict",
+      "concurrent_duplicate": "one effect and the same outcome"
+    }
+  }
+}

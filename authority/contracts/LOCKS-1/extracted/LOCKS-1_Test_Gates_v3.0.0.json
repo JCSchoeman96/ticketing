@@ -1,0 +1,306 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "LOCKS-1",
+    "version": "3.0.0"
+  },
+  "doc_id": "LOCKS-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "Suite schema pin",
+      "id": "LOCKS-1.GATE.0001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {
+            "bundle_id": "LOCKS-1_bundle_v3.0.0"
+          },
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Manifest presence and file list integrity",
+      "id": "LOCKS-1.GATE.0002",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LOCKS-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.0.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/canonical"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract identity pins",
+      "id": "LOCKS-1.GATE.0003",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)\\bTBD\\b",
+              "(?i)\\bTODO\\b",
+              "(?i)\\bFIXME\\b",
+              "(?i)\\bshould\\b",
+              "(?i)\\bmay\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "(?i)\\bTBD\\b",
+              "(?i)\\bTODO\\b",
+              "(?i)\\bFIXME\\b",
+              "(?i)\\bshould\\b",
+              "(?i)\\bmay\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders",
+      "id": "LOCKS-1.GATE.0004",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/advisory_locks/session_affinity_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/advisory_locks/lock_and_write_same_transaction_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/advisory_locks/transaction_scoped_functions_required_for_mutations"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/lock_primitives/preferred/4/rules/only_transaction_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LOCKS-1-ADV-002",
+            "json_pointer": "/invariants/5/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "P0",
+            "json_pointer": "/invariants/5/level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Advisory lock session affinity hardening pins",
+      "id": "LOCKS-1.GATE.0005",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              ".+"
+            ],
+            "json_pointers": [
+              "/events/outbox_events"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "LOCKS-1 is a non-producer: emits_events MUST be false and outbox_events MUST be empty (no CI theatre).",
+      "id": "LOCKS1-NONPROD-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "event",
+              "event_occurrence",
+              "order",
+              "payment_intent",
+              "seat",
+              "seat_hold",
+              "scan_device",
+              "scan_session",
+              "ledger_posting",
+              "ledger_period",
+              "recon_window",
+              "payout_run"
+            ],
+            "json_pointer": "/lock_keying/canonical_namespaces"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "tenant_root",
+              "event",
+              "event_occurrence",
+              "order",
+              "payment_intent",
+              "seat_hold",
+              "seat",
+              "scan_session",
+              "scan_device",
+              "ledger_posting",
+              "ledger_period",
+              "recon_window",
+              "payout_run"
+            ],
+            "json_pointer": "/lock_ordering/canonical_order"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "locks1.invariant.recon_window_lock_modes",
+            "json_pointer": "/invariants/9/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Canonical namespaces and lock acquisition order pins (includes ledger_period and recon_window ordering)",
+      "id": "LOCKS-1.GATE.0006",
+      "level": "P0",
+      "must": true
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "last_updated_utc": "2026-02-11T12:14:18Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "Lock Ordering Contract Self-Validation Gates",
+  "updated_at": "2026-02-11T12:02:09.690118Z",
+  "updated_at_utc": "2026-02-11T12:14:18Z",
+  "version": "3.0.0",
+  "authority_review_gates": [
+    {
+      "id": "LOCKS-1-FPP-CORRECTION-REVIEW",
+      "level": "P0",
+      "must": true,
+      "mode": "manual",
+      "description": "Review the approved authority corrections in the paired versionless contract.json draft. Confirm the contract text contains no contradictory legacy lock for the corrected behavior.",
+      "failure_message": "Approved authority correction or legacy contradiction remains unresolved."
+    }
+  ]
+}

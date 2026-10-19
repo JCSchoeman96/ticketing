@@ -1,0 +1,1044 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "PAY-3_Test_Gates_v2.10.8.json",
+  "change_log": [
+    {
+      "date_utc": "2026-02-06T14:52:59Z",
+      "summary": "Phase 5: add stable dependency_floors pins + schema_ref drift ban; remove malformed EVT floor gates; bump suite floors to EVT-1@2.16.4 and REFUND-1@1.6.2.",
+      "type": "semantics_hardening"
+    },
+    {
+      "by": "contract_regen",
+      "change": "GAP-2.1 hard-pins + PAY-3 fee-ledger handover invariant (runtime trio pinned by sha256; outbox+tombstone crash safety).",
+      "when_utc": "2026-02-08T13:39:34Z"
+    }
+  ],
+  "ci_tasks": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "manifest_path": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle integrity: manifest + sha256 + bytes MUST match artifacts exactly.",
+      "id": "verify_pay3_bundle_integrity",
+      "inputs": [
+        "bundle.manifest.json",
+        "PAY-3_Contract_v2.9.1.json",
+        "PAY-3_Test_Gates_v2.9.1.json"
+      ],
+      "runner": "v42.librarian"
+    }
+  ],
+  "contract_ref": {
+    "doc_id": "PAY-3",
+    "version": "2.10.8"
+  },
+  "doc_id": "PAY-3-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        },
+        {
+          "details": {
+            "criteria": [
+              "PAY-3 contract JSON validates against CS-0 contract schema (contract-suite/1.0).",
+              "PAY-3 test gates JSON validates against CS-0 test_gates schema (test-gates/1.0)."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Schema validity and suite schema alignment (CS-0@2.2.0).",
+      "id": "PAY-3-P0-BASE-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.4.1",
+            "json_pointer": "/dependency_floors/EVT-2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "4.4.3",
+            "json_pointer": "/dependency_floors/LED-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.7.9",
+            "json_pointer": "/dependency_floors/ORD-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.6.4",
+            "json_pointer": "/dependency_floors/REFUND-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.1",
+            "json_pointer": "/dependency_floors/API-0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.8.2",
+            "json_pointer": "/dependency_floors/PSC-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.1",
+            "json_pointer": "/dependency_floors/PROD-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Phase 5: PAY-3 dependency_floors MUST pin suite heads for EVT-1/EVT-2/LED-1/ORD-1/REFUND-1 (no split-brain).",
+      "id": "PAY-3-P0-PHASE5-FLOORS-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "EVT-2:"
+            ],
+            "json_pointers": [
+              "/outbox_events"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Phase 5: all outbox_events MUST use schema_ref literal 'EVT-2' (no qualified-string drift).",
+      "id": "PAY-3-P0-PHASE5-SCHEMAREF-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json",
+            "expected_filename": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        },
+        {
+          "details": {
+            "criteria": [
+              "Manifest includes bytes + sha256 for each artifact file.",
+              "bundle_sha256 is present."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Bundle manifest integrity and file hash verification.",
+      "id": "PAY-3-P0-BASE-002",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)(?:to\\s*do|t\\s*bd|place\\s*holder)"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "forbid_regex": [
+              "(?i)(?:to\\s*do|t\\s*bd|place\\s*holder)"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholder tokens allowed in contract or gates.",
+      "id": "PAY-3-P0-BASE-003",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/gc_001/late_capture_reversal/refund_reason_codes",
+            "equals": [
+              "LATE_CAPTURE_AFTER_HOLD_EXPIRED",
+              "LATE_CAPTURE_AFTER_GRACE_EXPIRED"
+            ]
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "criteria": [
+              "PAY-3 declares the required RefundReasonCode values used by GC-001 remediation.",
+              "Any attempt to remove/rename these codes must bump PAY-3 and update suite plan explicitly."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "GC-001 late-capture reversal reason codes are pinned (drift prevention).",
+      "id": "PAY-3-GC-001-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "Refund create requires idempotency_key and returns identical outcome for repeated calls with same parameters.",
+              "Same idempotency_key reused with different amount/currency MUST be rejected as ERR_CONFLICT with subcode EXT_IDEMPOTENCY_REPLAY (ERR-1), deterministically.",
+              "Refund totals never exceed captured/settled totals under concurrency."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "tests": [
+              "Attempt refund amount > captured fails.",
+              "Attempt same idempotency_key with different amount fails.",
+              "Concurrent refund requests do not create duplicate refunds."
+            ]
+          },
+          "mode": "automated",
+          "type": "negative_tests"
+        },
+        {
+          "details": {
+            "tests": [
+              "Fuzz: random retry timing does not change refund outcome."
+            ]
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ],
+      "description": "Idempotent, parameter-consistent refunds with concurrency safety.",
+      "id": "PAY-3-P0-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "All refund/dispute reads and writes require tenant context.",
+              "Cross-tenant reads return ERR_NOT_FOUND.",
+              "Missing tenant context returns ERR_FORBIDDEN (TEN_TENANT_CONTEXT_MISSING mapping)."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "tests": [
+              "Cross-tenant read using valid IDs returns ERR_NOT_FOUND.",
+              "Missing tenant on refund creation returns ERR_FORBIDDEN."
+            ]
+          },
+          "mode": "automated",
+          "type": "negative_tests"
+        }
+      ],
+      "description": "Tenant-scoped actions and hidden cross-tenant semantics.",
+      "id": "PAY-3-P0-002",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "Invalid signature webhooks are rejected.",
+              "Verified provider events are persisted before 2xx and processed async.",
+              "Duplicate provider_event_id deliveries are no-ops after first processing.",
+              "If tenant binding fails after signature verification, event is persisted in UnboundProviderEvent and retried until bound or TTL expiry.",
+              "TTL-expired unbound events are moved to PermanentlyUnboundProviderEvent and emit an investigation signal."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "tests": [
+              "Replay same webhook twice: second attempt no-ops.",
+              "Tamper signature: rejected."
+            ]
+          },
+          "mode": "automated",
+          "type": "negative_tests"
+        }
+      ],
+      "description": "Webhook verification, replay protection, durable dedupe; orphaned verified events are retained.",
+      "id": "PAY-3-P0-003",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "Evidence artifacts are append-only prior to seal request.",
+              "Seal request transitions EvidencePackStatus to SEALING and enqueues background job.",
+              "Worker computes hash manifest and transitions SEALING -> SEALED; re-sealing is idempotent.",
+              "Evidence pack is immutable after SEALED."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "tests": [
+              "Attempt to modify evidence after SEALED is rejected.",
+              "Synchronous hashing in HTTP request path is forbidden."
+            ]
+          },
+          "mode": "automated",
+          "type": "negative_tests"
+        }
+      ],
+      "description": "Immutable evidence packs with async sealing and hash manifest.",
+      "id": "PAY-3-P0-004",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "Dispute state transitions are driven by provider events; local state cannot contradict provider truth.",
+              "Ambiguous provider state triggers reconciliation workflow and blocks irreversible downstream actions."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "tests": [
+              "Attempt to mark dispute 'won' without provider evidence is rejected.",
+              "Out-of-order provider events do not regress final states."
+            ]
+          },
+          "mode": "automated",
+          "type": "negative_tests"
+        }
+      ],
+      "description": "Provider dispute state is authoritative; out-of-order events do not regress terminal states.",
+      "id": "PAY-3-P0-005",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "SettlementReport ingestion is idempotent by (provider, provider_report_id).",
+              "ReconciliationBatch is idempotent by (provider, period_start_utc, period_end_utc, run_mode).",
+              "Matching supports 1:1, 1:N, and N:1 shapes; tolerance is bounded to ±1 minor unit."
+            ],
+            "forbid_regex": [
+              "ERR(?!_)"
+            ],
+            "require_regex": [
+              "ERR_[A-Z0-9_]+"
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "forbid_regex": [
+              "ERR(?!_)"
+            ],
+            "require_regex": [
+              "ERR_[A-Z0-9_]+"
+            ],
+            "tests": [
+              "Fuzz: replaying the same settlement report does not create duplicate mismatches."
+            ]
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "forbid_regex": [
+              "ERR(?!_)"
+            ],
+            "json_pointer": "/invariants/err1_primary_code_canonical",
+            "require_regex": [
+              "ERR_[A-Z0-9_]+"
+            ]
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "ERR(?!_)"
+            ],
+            "pattern": "\\bERR_[A-Z0-9_]+\\b",
+            "require_regex": [
+              "ERR_[A-Z0-9_]+"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "ERR(?!_)"
+            ],
+            "pattern": "\\bERR_[A-Z0-9_]+\\b",
+            "require_regex": [
+              "ERR_[A-Z0-9_]+"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Reconciliation matching supports complex shapes with bounded tolerance and replay safety.",
+      "id": "PAY-3-P0-006",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "SettlementLine enforces UNIQUE(provider, provider_settlement_id) globally across all reports and batches.",
+              "Duplicate settlement line ingestion is routed to IgnoredDuplicateSettlementLine (or rejected) and MUST NOT trigger any new LED-1 posting."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "tests": [
+              "Ingest same provider_settlement_id from a second report: produces ignored duplicate and does not change reconciled totals."
+            ]
+          },
+          "mode": "automated",
+          "type": "negative_tests"
+        }
+      ],
+      "description": "Global settlement line uniqueness prevents reconciliation replay double-counting and LED-1 double-posting.",
+      "id": "PAY-3-P0-007",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "Refund total enforcement uses atomic update with a DB predicate preventing total_refunded > total_captured.",
+              "Concurrent partial refunds cannot exceed captured/settled totals."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        },
+        {
+          "details": {
+            "tests": [
+              "Two concurrent partial refunds that together exceed captured total: at least one fails with conflict/validation per ERR-1 + LOCKS-1."
+            ]
+          },
+          "mode": "automated",
+          "type": "negative_tests"
+        }
+      ],
+      "description": "Partial refunds are safe under concurrency via atomic arithmetic predicates (no read-modify-write).",
+      "id": "PAY-3-P0-008",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "Storm modes process via queues without data corruption.",
+              "Backfills can be replayed idempotently for a date range."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Storm processing, replay/backfill safety, and queue-based degradation.",
+      "id": "PAY-3-P1-001",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "Ash.Tracer spans listed in contract.telemetry.tracer.spans are emitted for core actions.",
+              "Metrics use bounded labels and forbid secrets/PII."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Telemetry: spans + bounded metrics; no PII/secrets in labels.",
+      "id": "PAY-3-P1-002",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "Gauge pay3.recon_unmatched_amount_minor{provider,currency} is emitted.",
+              "SEV2 alert payment.reconciliation_value_at_risk.v1 fires when unmatched amount exceeds configured threshold for 4 hours."
+            ]
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Anomaly detection includes reconciliation value-at-risk as well as age-based backlog.",
+      "id": "PAY-3-P1-003",
+      "level": "P1",
+      "must": true
+    },
+    {
+      "acceptance_criteria": [
+        "On successful refund, metric pay3.refund_processed_total is emitted.",
+        "Metric tags include org_id and provider_id."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "criteria": [
+              "Refund processing MUST emit a counter metric pay3.refund_processed_total with tags: provider, status, reason_code.",
+              "Telemetry MUST include dedupe rejections and signature verification failures as counters.",
+              "When OBS-1 PAYOUT_FREEZE or HOT_SALE_MODE blocks actions, ERR_UNAVAILABLE/OBS_DEGRADED_MODE_BLOCKED MUST be emitted as a counter with org_id redacted."
+            ],
+            "telemetry_spec": {
+              "metric_name": "pay3.refund_processed_total",
+              "required_tags": [
+                "provider",
+                "status",
+                "reason_code"
+              ],
+              "signal_type": "counter",
+              "trigger": {
+                "action": "process",
+                "domain": "Ticketing.Payments",
+                "resource": "Refund",
+                "type": "ash_action"
+              }
+            }
+          },
+          "mode": "automated",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Runtime: Refund/dispute actions MUST emit a bounded metric with org_id for tenant-isolated auditability.",
+      "id": "PAY-3-P1-090",
+      "level": "P1",
+      "must": true,
+      "negative_tests": [
+        "If org_id is absent from emitted tags, gate MUST fail (tenant telemetry drift)."
+      ]
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "OPENED",
+              "NEEDS_RESPONSE",
+              "SUBMITTED",
+              "UNDER_REVIEW"
+            ],
+            "json_pointer": "/disputes/active_statuses"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PAY-3 MUST define disputes.active_statuses deterministically for cross-domain risk behavior.",
+      "id": "PAY3_ACTIVE_STATUS_LIST_PIN",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.4.15",
+            "json_pointer": "/dependency_pins/ERR-1/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PAY-3 MUST pin ERR-1 >= 1.4.3 for dispute-risk subcodes.",
+      "id": "PAY3_ERR1_MIN_VERSION_PIN",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact": "contract",
+            "equals": [
+              "provider",
+              "provider_account_ref",
+              "provider_event_id"
+            ],
+            "json_pointer": "/webhooks/dedupe/unique_by"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Webhook dedupe unique_by is account-scoped",
+      "id": "PAY-3-P0-020",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact": "contract",
+            "equals": [
+              "provider",
+              "provider_event_id"
+            ],
+            "json_pointer": "/entities/ProviderEventReceipt/uniqueness_constraints/0/fields"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ProviderEventReceipt uniqueness constraint includes provider_account_ref",
+      "id": "PAY-3-P0-021",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact": "contract",
+            "equals": [
+              "org_id",
+              "provider",
+              "provider_case_id"
+            ],
+            "json_pointer": "/entities/Dispute/uniqueness_constraints/1/fields"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Dispute uniqueness constraint includes provider_account_ref",
+      "id": "PAY-3-P0-022",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact": "contract",
+            "equals": [
+              {
+                "identity": [
+                  "org_id",
+                  "idempotency_key"
+                ],
+                "resource": "Refund",
+                "why": "Parameter-consistent idempotency."
+              },
+              {
+                "identity": [
+                  "org_id",
+                  "provider",
+                  "provider_case_id"
+                ],
+                "resource": "Dispute",
+                "why": "One dispute per provider case per org."
+              },
+              {
+                "identity": [
+                  "provider",
+                  "provider_event_id"
+                ],
+                "resource": "ProviderRefundEvent",
+                "why": "Webhook replay dedupe."
+              },
+              {
+                "identity": [
+                  "provider",
+                  "provider_event_id"
+                ],
+                "resource": "ProviderDisputeEvent",
+                "why": "Webhook replay dedupe."
+              },
+              {
+                "identity": [
+                  "provider",
+                  "provider_report_id"
+                ],
+                "resource": "SettlementReport",
+                "why": "Idempotent report ingestion."
+              },
+              {
+                "identity": [
+                  "provider",
+                  "provider_settlement_id"
+                ],
+                "resource": "SettlementLine",
+                "why": "Global settlement line uniqueness across pending/finalized reports."
+              },
+              {
+                "identity": [
+                  "provider",
+                  "provider_line_id"
+                ],
+                "resource": "SettlementLine",
+                "why": "Deduplicate repeated imports of the same report line item when line id is stable."
+              },
+              {
+                "identity": [
+                  "provider",
+                  "provider_settlement_id"
+                ],
+                "resource": "IgnoredDuplicateSettlementLine",
+                "why": "One audit record per globally duplicated settlement id."
+              },
+              {
+                "identity": [
+                  "provider",
+                  "provider_event_id"
+                ],
+                "resource": "UnboundProviderEvent",
+                "why": "Deduplicate unbound holding pen items."
+              },
+              {
+                "identity": [
+                  "provider",
+                  "provider_event_id"
+                ],
+                "resource": "PermanentlyUnboundProviderEvent",
+                "why": "Deduplicate permanent audit sink items."
+              },
+              {
+                "identity": [
+                  "provider",
+                  "period_start_utc",
+                  "period_end_utc",
+                  "run_mode"
+                ],
+                "resource": "ReconciliationBatch",
+                "why": "Idempotent batch identity for safe replays."
+              }
+            ],
+            "json_pointer": "/core_domain_contract/required_identities"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Core domain identities are account-scoped wherever provider is present",
+      "id": "PAY-3-P0-023",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/0/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/outbox_events/2/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "All PAY-3 outbox events MUST use schema_ref \"EVT-2\" (canonical list form).",
+      "id": "PAY-3-GATE-SCHEMA-REF-NORMALIZED",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "4.4.3",
+            "json_pointer": "/dependencies/3/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.1",
+            "json_pointer": "/dependencies/18/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PAY-3 MUST depend on suite-head EVT-1 floor and reference EVT-2 for envelope context.",
+      "id": "PAY-3-GATE-EVT-FLOOR-HARDENED",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991",
+            "json_pointer": "/dependency_pins/API-0/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "d29f4e93d95677713d2b16d6e2e60a5916f5f3a99da1ff24e70b50303f10c9a1",
+            "json_pointer": "/dependency_pins/PSC-1/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1b53890c44a5387244d6d2eac803180e77b716629bfc00d294d500e79a70194f",
+            "json_pointer": "/dependency_pins/PROD-1/sha256"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.1",
+            "json_pointer": "/dependency_pins/API-0/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.8.2",
+            "json_pointer": "/dependency_pins/PSC-1/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.3",
+            "json_pointer": "/dependency_pins/PROD-1/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Hard-pins: PAY-3 MUST hard-pin API-0/PSC-1/PROD-1 by contract artifact sha256 (0-drift runtime law).",
+      "id": "PAY-3-P0-HARDPIN-RUNTIME-TRIO-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/fee_ledger_handover/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "postgres_outbox_plus_redis_tombstone",
+            "json_pointer": "/invariants/fee_ledger_handover/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/fee_ledger_handover/crash_safe"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/fee_ledger_handover/idempotent"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Crash-safe fee ledger handover: PAY-3 MUST require Postgres outbox + Redis tombstone pattern (prevents double-entry and ghost in-flight states on retry/crash).",
+      "id": "PAY-3-P0-FEE-LEDGER-HANDOVER-001",
+      "level": "P0",
+      "must": true
+    }
+  ],
+  "generated_at_utc": "2026-02-08T13:39:34Z",
+  "last_updated_utc": "2026-02-08T13:39:34Z",
+  "negative_tests": [
+    "Denial: Missing org_id context MUST fail with ERR_FORBIDDEN (no ambient tenancy).",
+    "Denial: Cross-org_id access MUST be hidden with ERR_NOT_FOUND (TEN-1 hide-existence).",
+    "Denial: Refund idempotency replay with differing parameters MUST fail with ERR_CONFLICT and subcode EXT_IDEMPOTENCY_REPLAY."
+  ],
+  "normative_source": "json",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "PAY-3 — Enterprise Test Gates (Refunds, Disputes, Reconciliation)",
+  "version": "2.10.8"
+}

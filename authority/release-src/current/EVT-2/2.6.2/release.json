@@ -1,0 +1,13 @@
+{
+  "doc_id": "EVT-2",
+  "version": "2.6.2",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-09T15:51:00Z",
+  "release_status": "candidate",
+  "release_intent": "Backward-compatible EVT-2 successor adding canonical T0 enablement authority.",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "cae22964f1ff81ccb1089dbef472902846be67e35f5db7db75a56f3e125552a9"
+  }
+}

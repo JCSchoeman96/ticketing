@@ -1,0 +1,3831 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "EVT-1_Test_Gates_v3.0.0.json",
+  "contract_ref": {
+    "doc_id": "EVT-1",
+    "version": "3.0.0"
+  },
+  "doc_id": "EVT-1-GATE",
+  "doc_version": "3.0.0",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "Suite schema pinned MUST hold.",
+      "failure_message": "Gate evt_suite_schema_matches failed.",
+      "id": "EVT_SUITE_SCHEMA_MATCHES",
+      "level": "P0",
+      "must": true,
+      "title": "Suite schema pinned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected_doc_id": "EVT-1",
+            "expected_schema_family": "contract-suite/1.0",
+            "legacy_assertion_type": "contract_json_schema"
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Contract JSON schema valid MUST hold.",
+      "failure_message": "Gate evt_contract_json_schema failed.",
+      "id": "EVT_CONTRACT_JSON_SCHEMA",
+      "level": "P0",
+      "must": true,
+      "title": "Contract JSON schema valid"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected_doc_id": "EVT-1-GATE",
+            "expected_schema_family": "test-gates/1.0",
+            "legacy_assertion_type": "test_gates_json_schema"
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Test gates JSON schema valid MUST hold.",
+      "failure_message": "Gate evt_test_gates_json_schema failed.",
+      "id": "EVT_TEST_GATES_JSON_SCHEMA",
+      "level": "P0",
+      "must": true,
+      "title": "Test gates JSON schema valid"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Manifest structure + naming MUST hold.",
+      "failure_message": "Gate evt_manifest_basics failed.",
+      "id": "EVT_MANIFEST_BASICS",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest structure + naming"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\b(TBD|TODO|WIP)\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "\\b(TBD|TODO|WIP)\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders in artifacts MUST hold.",
+      "failure_message": "Gate evt_no_placeholders failed.",
+      "id": "EVT_NO_PLACEHOLDERS",
+      "level": "P0",
+      "must": true,
+      "title": "No placeholders in artifacts"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\\"producer\\\"\\s*:"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\\"required_fields\\\"\\s*:"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\\"optional_fields\\\"\\s*:"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No legacy event registry fields MUST hold.",
+      "failure_message": "Gate evt_no_legacy_event_registry_shape failed.",
+      "id": "EVT_NO_LEGACY_EVENT_REGISTRY_SHAPE",
+      "level": "P0",
+      "must": true,
+      "title": "No legacy event registry fields"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "ticketing\\.tracking\\."
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Tracking events are not EVT events MUST hold.",
+      "failure_message": "Gate evt_forbid_tracking_namespace failed.",
+      "id": "EVT_FORBID_TRACKING_NAMESPACE",
+      "level": "P0",
+      "must": true,
+      "title": "Tracking events are not EVT events"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEAT-1",
+            "json_pointer": "/event_types/ticketing.seat.hold.created.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.seat.hold.created.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEAT-1",
+            "json_pointer": "/event_types/ticketing.seat.hold.released.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.seat.hold.released.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEAT-1",
+            "json_pointer": "/event_types/ticketing.seat.hold.expired.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.seat.hold.expired.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEAT-1",
+            "json_pointer": "/event_types/ticketing.seat.allocated.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.seat.allocated.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CONSENT-1",
+            "json_pointer": "/event_types/ticketing.consent.changed.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.consent.changed.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CONSENT-1",
+            "json_pointer": "/event_types/ticketing.consent.withdrawn.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.consent.withdrawn.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Each event registration in the retained registry is present with its owner and pinned envelope schema MUST hold.",
+      "failure_message": "A retained registered event is missing from the EVT-1 registry.",
+      "id": "EVT_REGISTRY_REQUIRED_EVENT_TYPES",
+      "level": "P0",
+      "must": true,
+      "title": "Registry contains required event types"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuidv7",
+            "json_pointer": "/event_envelope/cloudevents/attribute_rules/id/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "rfc3339",
+            "json_pointer": "/event_envelope/cloudevents/attribute_rules/time/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "org_id",
+            "json_pointer": "/event_envelope/extensions/required/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Event envelope pinned invariants (cloudevents + extensions) MUST hold.",
+      "failure_message": "Gate evt_event_envelope_pinned failed.",
+      "id": "EVT_EVENT_ENVELOPE_PINNED",
+      "level": "P0",
+      "must": true,
+      "title": "Event envelope pinned invariants (cloudevents + extensions)"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.event.published.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.event.published.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.event",
+            "json_pointer": "/event_types/ticketing.event.published.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.event.archived.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.event.archived.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.event",
+            "json_pointer": "/event_types/ticketing.event.archived.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.occurrence.created.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.occurrence.created.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.occurrence",
+            "json_pointer": "/event_types/ticketing.occurrence.created.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.occurrence.rescheduled.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.occurrence.rescheduled.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.occurrence",
+            "json_pointer": "/event_types/ticketing.occurrence.rescheduled.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.occurrence.cancelled.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.occurrence.cancelled.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.occurrence",
+            "json_pointer": "/event_types/ticketing.occurrence.cancelled.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.experiment.started.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.experiment.started.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.experiment",
+            "json_pointer": "/event_types/ticketing.experiment.started.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Core EVT-2 lifecycle events MUST be present with producer_contract EVT-2 and pinned envelope schema.",
+      "failure_message": "Gate evt_registry_evt2_core_events_registered_001 failed.",
+      "id": "EVT_REGISTRY_EVT2_CORE_EVENTS_REGISTERED_001",
+      "level": "P0",
+      "must": true,
+      "title": "EVT-2 core lifecycle events registered"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PRICE-1",
+            "json_pointer": "/event_types/ticketing.pricing.snapshot.generated.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.pricing",
+            "json_pointer": "/event_types/ticketing.pricing.snapshot.generated.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.pricing.snapshot.generated.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.pricing.snapshot.generated.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "event_id",
+              "pricing_snapshot_id",
+              "version",
+              "currency",
+              "quote_issued_at_utc",
+              "quote_expires_at_utc",
+              "pricing_program_revision_id",
+              "tax_context_digest_sha256",
+              "subtotal_minor",
+              "discount_total_minor",
+              "fee_total_minor",
+              "tax_total_minor",
+              "rounding_adjustment_minor",
+              "total_minor",
+              "signature_hash",
+              "signature_version"
+            ],
+            "json_pointer": "/event_types/ticketing.pricing.snapshot.generated.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.pricing.snapshot.generated.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:0e7a26795b2cdc66ca4bf84df1b69e0b1ec6fe68f90a078234ade8102c436d02",
+            "json_pointer": "/event_types/ticketing.pricing.snapshot.generated.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEAT-1",
+            "json_pointer": "/event_types/ticketing.seat.allocated.v2/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.seat",
+            "json_pointer": "/event_types/ticketing.seat.allocated.v2/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.seat.allocated.v2/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.seat.allocated.v2/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "allocation_id",
+              "hold_id",
+              "occurrence_id",
+              "seat_id",
+              "order_id",
+              "checkout_group_id",
+              "pricing_snapshot_id",
+              "price_line_id",
+              "allocated_at_utc"
+            ],
+            "json_pointer": "/event_types/ticketing.seat.allocated.v2/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.seat.allocated.v2/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:28ce05c2aae91edcf9bf6ee9d0b86184dd8fc1cff731913f2664ff50dfb74bbf",
+            "json_pointer": "/event_types/ticketing.seat.allocated.v2/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEAT-1",
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.seat",
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "reversal_id",
+              "allocation_id",
+              "occurrence_id",
+              "seat_id",
+              "order_id",
+              "reversal_authority",
+              "reason_subcode",
+              "reversed_at_utc"
+            ],
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:b4fd04522ab1e67e507e585f1aac5ce97abcec3013372e266a2bc26833aed531",
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEAT-1",
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v2/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.seat",
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v2/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v2/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v2/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "reversal_id",
+              "allocation_id",
+              "occurrence_id",
+              "seat_id",
+              "order_id",
+              "checkout_group_id",
+              "pricing_snapshot_id",
+              "price_line_id",
+              "reversal_authority",
+              "reason_subcode",
+              "reversed_at_utc"
+            ],
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v2/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v2/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:409c5bb85090bc7a5285be90f601263acb00d3aec16e447265c76f3fe87b8070",
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v2/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TKT-1",
+            "json_pointer": "/event_types/ticketing.ticket.issued.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ticket",
+            "json_pointer": "/event_types/ticketing.ticket.issued.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.ticket.issued.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.issued.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "ticket_id",
+              "order_id",
+              "checkout_group_id",
+              "purchaser_actor_id",
+              "occurrence_id",
+              "issued_at_utc",
+              "pricing_snapshot_id",
+              "pricing_line_id",
+              "credential_id",
+              "mode",
+              "kid",
+              "valid_from_utc",
+              "valid_until_utc",
+              "payload_fingerprint_sha256"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.issued.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.ticket.issued.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:4270c1fb4faff9239a262feee2cd9e779da7b7d343f157c085096a9218761b64",
+            "json_pointer": "/event_types/ticketing.ticket.issued.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TKT-1",
+            "json_pointer": "/event_types/ticketing.ticket.credential.superseded.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ticket",
+            "json_pointer": "/event_types/ticketing.ticket.credential.superseded.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.ticket.credential.superseded.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.credential.superseded.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "ticket_id",
+              "occurrence_id",
+              "old_credential_id",
+              "new_credential_id",
+              "kid",
+              "effective_at_utc",
+              "revocation_authority",
+              "reason_subcode"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.credential.superseded.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.ticket.credential.superseded.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:8eab412d2435c5b8dfa5a4196e141120715d064bc4b59b46b7e7b7f1abccb5c0",
+            "json_pointer": "/event_types/ticketing.ticket.credential.superseded.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TKT-1",
+            "json_pointer": "/event_types/ticketing.ticket.credential.revoked.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ticket",
+            "json_pointer": "/event_types/ticketing.ticket.credential.revoked.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.ticket.credential.revoked.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.credential.revoked.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "ticket_id",
+              "occurrence_id",
+              "credential_id",
+              "revoked_at_utc",
+              "revocation_authority",
+              "reason_subcode"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.credential.revoked.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.ticket.credential.revoked.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:b19e379c607b5200d46378185e80c06d113967ef7fabf07b562db25be8fad8b2",
+            "json_pointer": "/event_types/ticketing.ticket.credential.revoked.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TKT-1",
+            "json_pointer": "/event_types/ticketing.ticket.render.generated.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ticket",
+            "json_pointer": "/event_types/ticketing.ticket.render.generated.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.ticket.render.generated.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.render.generated.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "render_id",
+              "ticket_id",
+              "credential_id",
+              "format",
+              "bytes",
+              "sha256",
+              "created_at_utc"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.render.generated.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.ticket.render.generated.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:79ba104f5e3c8cfca5cba8d62f783042fd1fdb15e0b3ddafe33e68991ec1f2c6",
+            "json_pointer": "/event_types/ticketing.ticket.render.generated.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TKT-1",
+            "json_pointer": "/event_types/ticketing.ticket.render.stale.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ticket",
+            "json_pointer": "/event_types/ticketing.ticket.render.stale.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.ticket.render.stale.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.render.stale.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "render_id",
+              "ticket_id",
+              "credential_id",
+              "marked_stale_at_utc",
+              "reason_subcode"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.render.stale.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.ticket.render.stale.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:f4d3b4e904a2160f6551ea32e3c309977927355e36076536badb47c974833f34",
+            "json_pointer": "/event_types/ticketing.ticket.render.stale.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TKT-1",
+            "json_pointer": "/event_types/ticketing.ticket.wallet.update_requested.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ticket",
+            "json_pointer": "/event_types/ticketing.ticket.wallet.update_requested.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.ticket.wallet.update_requested.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.wallet.update_requested.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "binding_id",
+              "credential_id",
+              "provider",
+              "external_pass_id",
+              "status",
+              "last_attempt_at_utc",
+              "attempt_count",
+              "last_error_subcode"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.wallet.update_requested.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.ticket.wallet.update_requested.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:c9578c63b9c0665a434bc3e41c46b5400d27b95c21bb196775cf2ae4be18695b",
+            "json_pointer": "/event_types/ticketing.ticket.wallet.update_requested.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TKT-1",
+            "json_pointer": "/event_types/ticketing.ticket.wallet.revoked.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ticket",
+            "json_pointer": "/event_types/ticketing.ticket.wallet.revoked.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.ticket.wallet.revoked.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.wallet.revoked.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "binding_id",
+              "credential_id",
+              "provider",
+              "external_pass_id",
+              "revoked_at_utc",
+              "reason_subcode"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.wallet.revoked.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.ticket.wallet.revoked.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:3d8ca1f56da74d81bf71c0cf96b903d17f3c6b01c0b12f3e759a79da53b48e32",
+            "json_pointer": "/event_types/ticketing.ticket.wallet.revoked.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TKT-1",
+            "json_pointer": "/event_types/ticketing.ticket.abuse_signal.recorded.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ticket",
+            "json_pointer": "/event_types/ticketing.ticket.abuse_signal.recorded.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.ticket.abuse_signal.recorded.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.abuse_signal.recorded.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "signal_id",
+              "ticket_id",
+              "occurrence_id",
+              "signal_kind",
+              "severity",
+              "decision",
+              "created_at_utc"
+            ],
+            "json_pointer": "/event_types/ticketing.ticket.abuse_signal.recorded.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.ticket.abuse_signal.recorded.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:efbfc988af2ecb14d5484434d25470fb9e2ea9d02100f139ff0617e5e673e892",
+            "json_pointer": "/event_types/ticketing.ticket.abuse_signal.recorded.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SEAT-1",
+            "json_pointer": "/event_types/ticketing.seat.allocated.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.seat",
+            "json_pointer": "/event_types/ticketing.seat.allocated.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.seat.allocated.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "allocation_id",
+              "hold_id",
+              "order_id",
+              "occurrence_id",
+              "seat_id",
+              "allocated_at_utc"
+            ],
+            "json_pointer": "/event_types/ticketing.seat.allocated.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:e80a540e891df9d5be8a1d5b503d65685b0ba5bd385b41e50303bdbefaa33cdc",
+            "json_pointer": "/event_types/ticketing.seat.allocated.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ORD-1",
+            "json_pointer": "/event_types/ticketing.order.finalized.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.order",
+            "json_pointer": "/event_types/ticketing.order.finalized.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.order.finalized.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "actor_id",
+              "checkout_group_id",
+              "currency",
+              "event_ids",
+              "occurrence_ids",
+              "order_id",
+              "paid_confirmed_at_utc",
+              "payment_reference",
+              "price_signature_hash",
+              "price_signature_version",
+              "price_snapshot_id",
+              "signature_hash",
+              "total_amount_minor",
+              "verified_payment_attempt_id",
+              "tax_apportionment_priority_map",
+              "tax_apportionment_priority_map_sha256",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.order.finalized.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:42b6d1014eab02d9bb6916e942e1535c5a5fa8c1037d675ee559a257060cd452",
+            "json_pointer": "/event_types/ticketing.order.finalized.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ORD-1",
+            "json_pointer": "/event_types/ticketing.order.expired.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.order",
+            "json_pointer": "/event_types/ticketing.order.expired.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.order.expired.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "actor_id",
+              "checkout_group_id",
+              "expired_at_utc",
+              "order_id",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.order.expired.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:5c8bbdf0b2b953cb010531c4974cbe5aecc39d7df6bb6afaf8b649f6aaec3e17",
+            "json_pointer": "/event_types/ticketing.order.expired.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LED-1",
+            "json_pointer": "/event_types/ticketing.ledger.entry.posted.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ledger",
+            "json_pointer": "/event_types/ticketing.ledger.entry.posted.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.ledger.entry.posted.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "event_id",
+              "occurred_at_utc",
+              "posting_id",
+              "ledger_id",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.ledger.entry.posted.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:d8d410fa6e7bf72db08994b4813355ba69ba65a4ccb5d52d530b084140b4b085",
+            "json_pointer": "/event_types/ticketing.ledger.entry.posted.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LED-1",
+            "json_pointer": "/event_types/ticketing.ledger.period.closed.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ledger",
+            "json_pointer": "/event_types/ticketing.ledger.period.closed.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.ledger.period.closed.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "event_id",
+              "occurred_at_utc",
+              "period_id",
+              "ledger_id",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.ledger.period.closed.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:b2f421981339ed5b16cbc8c3d663a6c1bcd12edb1884f0440408983a56d0d8ae",
+            "json_pointer": "/event_types/ticketing.ledger.period.closed.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LED-1",
+            "json_pointer": "/event_types/ticketing.ledger.snapshot.created.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.ledger",
+            "json_pointer": "/event_types/ticketing.ledger.snapshot.created.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.ledger.snapshot.created.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "event_id",
+              "occurred_at_utc",
+              "snapshot_id",
+              "period_id",
+              "ledger_id",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.ledger.snapshot.created.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:f2ddd473c808ef0c369bd18b8212cbf571706037fb527b2e1591cd6c46fa22b2",
+            "json_pointer": "/event_types/ticketing.ledger.snapshot.created.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.5.0",
+            "json_pointer": "/dependencies/21/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TKT-1",
+            "json_pointer": "/dependencies/21/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.5.0",
+            "json_pointer": "/dependencies/14/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PRICE-1",
+            "json_pointer": "/dependencies/14/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.6.0",
+            "json_pointer": "/dependencies/16/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "REFUND-1",
+            "json_pointer": "/dependencies/16/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.0.5",
+            "json_pointer": "/dependencies/15/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PROD-1",
+            "json_pointer": "/dependencies/15/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.6.0",
+            "json_pointer": "/dependencies/4/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR-1",
+            "json_pointer": "/dependencies/4/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.0.13",
+            "json_pointer": "/dependencies/6/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "GOV-0",
+            "json_pointer": "/dependencies/6/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.7.16",
+            "json_pointer": "/dependencies/11/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OBS-1",
+            "json_pointer": "/dependencies/11/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.7.11",
+            "json_pointer": "/dependencies/19/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN-1",
+            "json_pointer": "/dependencies/19/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCAN-1",
+            "json_pointer": "/event_types/ticketing.scan.recorded.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.scan",
+            "json_pointer": "/event_types/ticketing.scan.recorded.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.scan.recorded.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.scan.recorded.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "scan_id",
+              "occurrence_id",
+              "ticket_id",
+              "device_id",
+              "gate_id",
+              "device_scan_sequence_number",
+              "scan_intent",
+              "scan_outcome",
+              "decision_authority",
+              "provisional",
+              "reason_subcode",
+              "scanned_at_corrected_utc",
+              "manifest_version",
+              "manifest_age_seconds_at_scan",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.scan.recorded.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.scan.recorded.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:70afa8b3b827de376f87dd86a3575301034e6afeb315cf39855b248917bb7251",
+            "json_pointer": "/event_types/ticketing.scan.recorded.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCAN-1",
+            "json_pointer": "/event_types/ticketing.scan.hydration.recorded.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.scan",
+            "json_pointer": "/event_types/ticketing.scan.hydration.recorded.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.scan.hydration.recorded.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.scan.hydration.recorded.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "hydration_id",
+              "occurrence_id",
+              "device_id",
+              "manifest_version",
+              "manifest_key_id",
+              "server_time_utc",
+              "device_time_utc",
+              "client_clock_offset_seconds",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.scan.hydration.recorded.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.scan.hydration.recorded.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:13c26234b332a015cb939d78d1ea24ba7d87ac3f6e04a3e4c647fb90604dbe1f",
+            "json_pointer": "/event_types/ticketing.scan.hydration.recorded.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCAN-1",
+            "json_pointer": "/event_types/ticketing.redemption.status.materialized.v1/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.redemption",
+            "json_pointer": "/event_types/ticketing.redemption.status.materialized.v1/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.redemption.status.materialized.v1/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.redemption.status.materialized.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "redemption_id",
+              "occurrence_id",
+              "ticket_id",
+              "scan_intent",
+              "redemption_state",
+              "winner_scan_id",
+              "winner_scanned_at_utc",
+              "conflict_count",
+              "last_reconciled_at_utc",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.redemption.status.materialized.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "derived_from_ash_resource",
+            "json_pointer": "/event_types/ticketing.redemption.status.materialized.v1/schema_governance/source"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:70641695cf9d0c612d916156436f87638642328975561610b9d2d7f0f1f83ad3",
+            "json_pointer": "/event_types/ticketing.redemption.status.materialized.v1/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "SCAN-1",
+            "json_pointer": "/dependencies/23/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.4.0",
+            "json_pointer": "/dependencies/23/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "REFUND-1",
+            "json_pointer": "/event_types/ticketing.refund.finalized.v2/producer_contract"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.refund",
+            "json_pointer": "/event_types/ticketing.refund.finalized.v2/topic"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2",
+            "json_pointer": "/event_types/ticketing.refund.finalized.v2/schema_ref"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id"
+            ],
+            "json_pointer": "/event_types/ticketing.refund.finalized.v2/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "refund_id",
+              "order_id",
+              "occurrence_id",
+              "checkout_group_id",
+              "amount_minor",
+              "currency_iso",
+              "payment_reference",
+              "verified_payment_attempt_id",
+              "refunded_at_utc",
+              "reason_subcode",
+              "ticket_revocation_batch_id"
+            ],
+            "json_pointer": "/event_types/ticketing.refund.finalized.v2/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+            "json_pointer": "/event_types/ticketing.refund.finalized.v2/schema_governance/hash_basis"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sha256:b1818cdba8b05d70157c4fd1b667bfc68b9d752642166c549dd9b7771a103252",
+            "json_pointer": "/event_types/ticketing.refund.finalized.v2/schema_governance/drift_check_hash"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.program_created.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "program_id",
+              "actor_id",
+              "actor_role",
+              "created_at_utc",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.program_created.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.entitlement_granted.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "program_id",
+              "tier_id",
+              "entitlement_grant_id",
+              "subject_customer_id",
+              "status",
+              "granted_at_utc",
+              "activated_at_utc",
+              "expires_at_utc",
+              "grace_until_utc",
+              "source_system",
+              "actor_id",
+              "actor_role",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.entitlement_granted.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.entitlement_revoked.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "program_id",
+              "entitlement_grant_id",
+              "subject_customer_id",
+              "revoked_at_utc",
+              "revocation_reason",
+              "actor_id",
+              "actor_role",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.entitlement_revoked.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.entitlement_expired.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "program_id",
+              "entitlement_grant_id",
+              "subject_customer_id",
+              "expired_at_utc",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.entitlement_expired.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.entitlement_checked.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "program_id",
+              "subject_customer_id",
+              "eligible",
+              "entitlement_grant_id",
+              "evaluated_at_utc",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.entitlement_checked.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.offer_blocked.v1/required_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "program_id",
+              "subject_customer_id",
+              "offer_ref",
+              "blocked_reason",
+              "evaluated_at_utc",
+              "version"
+            ],
+            "json_pointer": "/event_types/ticketing.sub.offer_blocked.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Mechanical parity: domain outbox events are registered and key-law is pinned MUST hold.",
+      "failure_message": "Gate evt_mechanical_parity_domain_outbox_001 failed.",
+      "id": "EVT_MECHANICAL_PARITY_DOMAIN_OUTBOX_001",
+      "level": "P0",
+      "must": true,
+      "title": "Mechanical parity: domain outbox events are registered and key-law is pinned"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Any consumer of the ticketing.ledger.* family MUST implement the T_vis=500ms visibility buffer as defined in LED-1-INV-SEQ-001 (buffer out-of-order versions before declaring a gap).",
+            "json_pointer": "/event_types/ticketing.ledger.entry.posted.v1/consumer_capability_requirement"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Any consumer of the ticketing.ledger.* family MUST implement the T_vis=500ms visibility buffer as defined in LED-1-INV-SEQ-001 (buffer out-of-order versions before declaring a gap).",
+            "json_pointer": "/event_types/ticketing.ledger.period.closed.v1/consumer_capability_requirement"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Any consumer of the ticketing.ledger.* family MUST implement the T_vis=500ms visibility buffer as defined in LED-1-INV-SEQ-001 (buffer out-of-order versions before declaring a gap).",
+            "json_pointer": "/event_types/ticketing.ledger.snapshot.created.v1/consumer_capability_requirement"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Deployment interlock: when tightening required_data_keys (e.g., adding version), operators MUST perform Drain-and-Deploy to prevent legacy (version-less) events from being validated against the stricter registry.",
+            "json_pointer": "/event_types/ticketing.ledger.entry.posted.v1/deployment_interlock_requirement"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Deployment interlock: when tightening required_data_keys (e.g., adding version), operators MUST perform Drain-and-Deploy to prevent legacy (version-less) events from being validated against the stricter registry.",
+            "json_pointer": "/event_types/ticketing.ledger.period.closed.v1/deployment_interlock_requirement"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Deployment interlock: when tightening required_data_keys (e.g., adding version), operators MUST perform Drain-and-Deploy to prevent legacy (version-less) events from being validated against the stricter registry.",
+            "json_pointer": "/event_types/ticketing.ledger.snapshot.created.v1/deployment_interlock_requirement"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Ledger consumers must implement visibility buffer and drain interlock is declared MUST hold.",
+      "failure_message": "Gate evt_ledger_consumer_visibility_buffer_mandated failed.",
+      "id": "EVT_LEDGER_CONSUMER_VISIBILITY_BUFFER_MANDATED",
+      "level": "P0",
+      "must": true,
+      "title": "Ledger consumers must implement visibility buffer and drain interlock is declared"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "registry_version_sha",
+            "json_pointer": "/event_envelope/extensions/required/3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^[0-9a-f]{64}$",
+            "json_pointer": "/event_envelope/extensions/field_rules/registry_version_sha/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Envelope requires registry_version_sha MUST hold.",
+      "failure_message": "Gate EVT-1-P0-ENVELOPE-REGISTRY-SHA-001 failed.",
+      "id": "EVT-1-P0-ENVELOPE-REGISTRY-SHA-001",
+      "level": "P0",
+      "must": true,
+      "title": "Envelope requires registry_version_sha"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-1-INV-ENVELOPE-LEGACY-SENTINEL-001",
+            "json_pointer": "/invariants/7/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "P0",
+            "json_pointer": "/invariants/7/severity"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Envelope legacy SHA sentinel is defined MUST hold.",
+      "failure_message": "Gate EVT-1-P0-ENVELOPE-LEGACY-SENTINEL-001 failed.",
+      "id": "EVT-1-P0-ENVELOPE-LEGACY-SENTINEL-001",
+      "level": "P0",
+      "must": true,
+      "title": "Envelope legacy SHA sentinel is defined"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "event_id",
+              "pricing_snapshot_id",
+              "version",
+              "currency",
+              "quote_issued_at_utc",
+              "quote_expires_at_utc",
+              "pricing_program_revision_id",
+              "tax_context_digest_sha256",
+              "subtotal_minor",
+              "discount_total_minor",
+              "fee_total_minor",
+              "tax_total_minor",
+              "rounding_adjustment_minor",
+              "total_minor",
+              "signature_hash",
+              "signature_version"
+            ],
+            "json_pointer": "/event_types/ticketing.pricing.snapshot.generated.v1/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PRICE-1",
+            "json_pointer": "/dependencies/14/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.5.0",
+            "json_pointer": "/dependencies/14/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Registry MUST require monotonic pricing snapshot version and enforce PRICE-1>=3.5.0 dependency floor.",
+      "failure_message": "Gate EVT-1-P0-PRICING-VERSION-MANDATE-001 failed.",
+      "id": "EVT-1-P0-PRICING-VERSION-MANDATE-001",
+      "level": "P0",
+      "must": true,
+      "title": "EVT-1-P0-PRICING-VERSION-MANDATE-001"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "event_id",
+              "bucket_id",
+              "version",
+              "seat_id",
+              "occurrence_id",
+              "hold_id",
+              "allocation_id",
+              "allocated_at_utc",
+              "pricing_snapshot_id",
+              "total_minor",
+              "currency"
+            ],
+            "json_pointer": "/event_types/ticketing.seat.allocation.created.v3/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "event_id",
+              "bucket_id",
+              "version",
+              "seat_id",
+              "occurrence_id",
+              "hold_id",
+              "allocation_id",
+              "allocated_at_utc",
+              "pricing_snapshot_id",
+              "total_minor",
+              "currency"
+            ],
+            "json_pointer": "/event_types/ticketing.seat.allocation.reversed.v3/required_data_keys"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.5.0",
+            "json_pointer": "/dependencies/17/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Seating v3 allocation events must include bucket_id + version and maintain ordered keys MUST hold.",
+      "failure_message": "Gate EVT-1-P0-SEATING-BUCKET-MANDATE-001 failed.",
+      "id": "EVT-1-P0-SEATING-BUCKET-MANDATE-001",
+      "level": "P0",
+      "must": true,
+      "title": "Seating v3 allocation events must include bucket_id + version and maintain ordered keys"
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_evt_ordering_keys_exist_in_payload_or_permitted_required_extensions"
+          }
+        }
+      ],
+      "description": "Checks every ordering.key and ordering.ordering_key entry against required_data_keys or permitted required envelope extensions.",
+      "failure_message": "Gate EVT-1-P0-ORDERING-KEY-VALIDITY-001 failed.",
+      "id": "EVT-1-P0-ORDERING-KEY-VALIDITY-001",
+      "level": "P0",
+      "must": true,
+      "title": "Ordering keys must reference existing fields"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "allow_missing": true,
+            "equals": "EVT-2",
+            "legacy_assertion_type": "for_each_object_property_equals",
+            "property_name": "schema_ref",
+            "target_pointer": "/event_types"
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "All event_types.schema_ref MUST be 'EVT-2' to avoid schema_ref literal drift.",
+      "failure_message": "Gate EVT-1-P0-SCHEMA-REF-NORMALIZATION-001 failed.",
+      "id": "EVT-1-P0-SCHEMA-REF-NORMALIZATION-001",
+      "level": "P0",
+      "must": true,
+      "title": "EVT-1-P0-SCHEMA-REF-NORMALIZATION-001"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expectation": {
+              "contains": "EVT-1-INVARIANT-ORDER-FINALIZED-PAYLOAD-TYPES-001",
+              "path": "$.invariants[*].rule_id",
+              "type": "json_path_exists_and_contains"
+            },
+            "legacy_assertion_type": "legacy_expectation"
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "EVT-1 MUST define strict typing for ticketing.order.finalized.v1 apportionment keys.",
+      "failure_message": "Missing EVT-1-INVARIANT-ORDER-FINALIZED-PAYLOAD-TYPES-001.",
+      "id": "EVT-1-P0-ORDER-FINALIZED-TYPES-001",
+      "level": "P0",
+      "must": true,
+      "title": "EVT-1-P0-ORDER-FINALIZED-TYPES-001"
+    },
+    {
+      "id": "EVT-1-T0-PRODUCER-PARITY",
+      "title": "T0 producer parity",
+      "level": "P0",
+      "must": true,
+      "description": "Complete producer parity is required only for T0-reachable registrations, registrations added or modified by this authority wave, registrations whose producer semantics change here in a way that affects event emission, payload, version source, or atomic outbox boundary, and registrations classified T0_BLOCKER or SAME_WAVE_COHERENCE. Other unresolved registrations may remain as DEFERRED_EVENT_REGISTRY_DEBT with event-specific Q1-Q5 proof.",
+      "failure_message": "The targeted producer-parity scope is incomplete or a same-wave evidence question remains unanswered.",
+      "assertions": [
+        {
+          "mode": "manual",
+          "type": "acceptance_criteria",
+          "details": {
+            "artifact_kind": "contract",
+            "expected": "Require complete producer parity only for every T0-reachable registration; every registration added or modified by this authority wave; every registration whose producer semantics change here in a way that affects event emission, payload, version source, or atomic outbox boundary; and every T0_BLOCKER or SAME_WAVE_COHERENCE registration. Every other unresolved registration must remain explicit DEFERRED_EVENT_REGISTRY_DEBT with its own Q1-Q5 proof. Editing a producer contract alone does not promote unrelated event registrations."
+          }
+        }
+      ]
+    },
+    {
+      "id": "EVT-1-T0-REGISTRY-DISPOSITION",
+      "title": "T0 event registry disposition and quarantine",
+      "level": "P0",
+      "must": true,
+      "description": "The 53 unresolved non-TAX registrations have disposition 0 T0_BLOCKER, 0 SAME_WAVE_COHERENCE, and 53 DEFERRED_EVENT_REGISTRY_DEBT, with event-specific Q1-Q5 proof for every registration.",
+      "failure_message": "The T0 disposition counts or per-registration deferred-debt proof is incomplete.",
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "T0_BLOCKER": 0,
+              "SAME_WAVE_COHERENCE": 0,
+              "DEFERRED_EVENT_REGISTRY_DEBT": 53
+            },
+            "json_pointer": "/t0_event_registry_dispositions/totals"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "These dispositions apply to existing event_types registrations and do not change their producer semantics, payloads, version sources, or outbox claims.",
+            "json_pointer": "/t0_event_registry_dispositions/scope_note"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "ARCH-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.archival.export.finalized.v1.",
+                "Q2": "T0 does not consume ticketing.archival.export.finalized.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.archival.export.finalized.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.archival.export.finalized.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.archival.export.finalized.v1 remains recorded for a later ARCH-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.archival.export.finalized.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "ARCH-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.archival.legalhold.changed.v1.",
+                "Q2": "T0 does not consume ticketing.archival.legalhold.changed.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.archival.legalhold.changed.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.archival.legalhold.changed.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.archival.legalhold.changed.v1 remains recorded for a later ARCH-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.archival.legalhold.changed.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "ARCH-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.archival.retention.purge.executed.v1.",
+                "Q2": "T0 does not consume ticketing.archival.retention.purge.executed.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.archival.retention.purge.executed.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.archival.retention.purge.executed.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.archival.retention.purge.executed.v1 remains recorded for a later ARCH-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.archival.retention.purge.executed.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "CONSENT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.consent.changed.v1.",
+                "Q2": "T0 does not consume ticketing.consent.changed.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.consent.changed.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.consent.changed.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.consent.changed.v1 remains recorded for a later CONSENT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.consent.changed.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "CONSENT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.consent.withdrawn.v1.",
+                "Q2": "T0 does not consume ticketing.consent.withdrawn.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.consent.withdrawn.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.consent.withdrawn.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.consent.withdrawn.v1 remains recorded for a later CONSENT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.consent.withdrawn.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.event.archived.v1.",
+                "Q2": "T0 does not consume ticketing.event.archived.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.event.archived.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.event.archived.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.event.archived.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.event.archived.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.event.content.revision.published.v1.",
+                "Q2": "T0 does not consume ticketing.event.content.revision.published.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.event.content.revision.published.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.event.content.revision.published.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.event.content.revision.published.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.event.content.revision.published.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.event.slug.redirect.created.v1.",
+                "Q2": "T0 does not consume ticketing.event.slug.redirect.created.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.event.slug.redirect.created.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.event.slug.redirect.created.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.event.slug.redirect.created.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.event.slug.redirect.created.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.event.visibility.changed.v1.",
+                "Q2": "T0 does not consume ticketing.event.visibility.changed.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.event.visibility.changed.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.event.visibility.changed.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.event.visibility.changed.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.event.visibility.changed.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.experiment.ended.v1.",
+                "Q2": "T0 does not consume ticketing.experiment.ended.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.experiment.ended.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.experiment.ended.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.experiment.ended.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.experiment.ended.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.experiment.started.v1.",
+                "Q2": "T0 does not consume ticketing.experiment.started.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.experiment.started.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.experiment.started.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.experiment.started.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.experiment.started.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.experiment.stop_proposed.v1.",
+                "Q2": "T0 does not consume ticketing.experiment.stop_proposed.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.experiment.stop_proposed.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.experiment.stop_proposed.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.experiment.stop_proposed.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.experiment.stop_proposed.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.experiment.stopped.v1.",
+                "Q2": "T0 does not consume ticketing.experiment.stopped.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.experiment.stopped.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.experiment.stopped.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.experiment.stopped.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.experiment.stopped.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "IAM-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.iam.session.created.v1.",
+                "Q2": "T0 does not consume ticketing.iam.session.created.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.iam.session.created.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.iam.session.created.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.iam.session.created.v1 remains recorded for a later IAM-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.iam.session.created.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "IAM-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.iam.session.revoked.v1.",
+                "Q2": "T0 does not consume ticketing.iam.session.revoked.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.iam.session.revoked.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.iam.session.revoked.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.iam.session.revoked.v1 remains recorded for a later IAM-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.iam.session.revoked.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "LED-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.ledger.entry.posted.v1.",
+                "Q2": "T0 does not consume ticketing.ledger.entry.posted.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.ledger.entry.posted.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ledger.entry.posted.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.ledger.entry.posted.v1 remains recorded for a later LED-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.ledger.entry.posted.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "LED-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.ledger.period.closed.v1.",
+                "Q2": "T0 does not consume ticketing.ledger.period.closed.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.ledger.period.closed.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ledger.period.closed.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.ledger.period.closed.v1 remains recorded for a later LED-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.ledger.period.closed.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "LED-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.ledger.snapshot.created.v1.",
+                "Q2": "T0 does not consume ticketing.ledger.snapshot.created.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.ledger.snapshot.created.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ledger.snapshot.created.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.ledger.snapshot.created.v1 remains recorded for a later LED-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.ledger.snapshot.created.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.occurrence.access_policy.updated.v1.",
+                "Q2": "T0 does not consume ticketing.occurrence.access_policy.updated.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.occurrence.access_policy.updated.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.access_policy.updated.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.access_policy.updated.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.occurrence.access_policy.updated.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.occurrence.cancelled.v1.",
+                "Q2": "T0 does not consume ticketing.occurrence.cancelled.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.occurrence.cancelled.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.cancelled.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.cancelled.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.occurrence.cancelled.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.occurrence.capacity.updated.v1.",
+                "Q2": "T0 does not consume ticketing.occurrence.capacity.updated.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.occurrence.capacity.updated.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.capacity.updated.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.capacity.updated.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.occurrence.capacity.updated.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.occurrence.customer_action_required.v1.",
+                "Q2": "T0 does not consume ticketing.occurrence.customer_action_required.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.occurrence.customer_action_required.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.customer_action_required.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.customer_action_required.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.occurrence.customer_action_required.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.occurrence.rescheduled.v1.",
+                "Q2": "T0 does not consume ticketing.occurrence.rescheduled.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.occurrence.rescheduled.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.rescheduled.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.rescheduled.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.occurrence.rescheduled.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.occurrence.sales.paused.v1.",
+                "Q2": "T0 does not consume ticketing.occurrence.sales.paused.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.occurrence.sales.paused.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.sales.paused.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.sales.paused.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.occurrence.sales.paused.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.occurrence.sales.resumed.v1.",
+                "Q2": "T0 does not consume ticketing.occurrence.sales.resumed.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.occurrence.sales.resumed.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.sales.resumed.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.sales.resumed.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.occurrence.sales.resumed.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "EVT-2",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.occurrence.sales.window.updated.v1.",
+                "Q2": "T0 does not consume ticketing.occurrence.sales.window.updated.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.occurrence.sales.window.updated.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.sales.window.updated.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.sales.window.updated.v1 remains recorded for a later EVT-2 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.occurrence.sales.window.updated.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "ORD-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.order.expired.v1.",
+                "Q2": "T0 does not consume ticketing.order.expired.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.order.expired.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.order.expired.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.order.expired.v1 remains recorded for a later ORD-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.order.expired.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "ORD-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.order.finalized.v1.",
+                "Q2": "T0 does not consume ticketing.order.finalized.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.order.finalized.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.order.finalized.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.order.finalized.v1 remains recorded for a later ORD finalization hardening wave."
+              },
+              "event_specific_statements": {
+                "t0_boundary": "T0 does not finalize an Order.",
+                "wave_scope": "This authority wave does not claim to harden finalization event production."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.order.finalized.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "PAY-3",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.payment.chargeback_rate_exceeded.v1.",
+                "Q2": "T0 does not consume ticketing.payment.chargeback_rate_exceeded.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.payment.chargeback_rate_exceeded.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.payment.chargeback_rate_exceeded.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.payment.chargeback_rate_exceeded.v1 remains recorded for a later PAY-3 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.payment.chargeback_rate_exceeded.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "PAY-3",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.payment.dispute_open_spike.v1.",
+                "Q2": "T0 does not consume ticketing.payment.dispute_open_spike.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.payment.dispute_open_spike.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.payment.dispute_open_spike.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.payment.dispute_open_spike.v1 remains recorded for a later PAY-3 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.payment.dispute_open_spike.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "PAY-3",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.payment.evidence_submission_failed.v1.",
+                "Q2": "T0 does not consume ticketing.payment.evidence_submission_failed.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.payment.evidence_submission_failed.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.payment.evidence_submission_failed.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.payment.evidence_submission_failed.v1 remains recorded for a later PAY-3 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.payment.evidence_submission_failed.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SCAN-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.redemption.status.materialized.v1.",
+                "Q2": "T0 does not consume ticketing.redemption.status.materialized.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.redemption.status.materialized.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.redemption.status.materialized.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.redemption.status.materialized.v1 remains recorded for a later SCAN-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.redemption.status.materialized.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "REFUND-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.refund.finalized.v2.",
+                "Q2": "T0 does not consume ticketing.refund.finalized.v2.",
+                "Q3": "None of the T0-required actions depend on ticketing.refund.finalized.v2.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.refund.finalized.v2.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.refund.finalized.v2 remains recorded for a later REFUND-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.refund.finalized.v2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SCAN-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.scan.hydration.recorded.v1.",
+                "Q2": "T0 does not consume ticketing.scan.hydration.recorded.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.scan.hydration.recorded.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.scan.hydration.recorded.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.scan.hydration.recorded.v1 remains recorded for a later SCAN-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.scan.hydration.recorded.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SCAN-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.scan.recorded.v1.",
+                "Q2": "T0 does not consume ticketing.scan.recorded.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.scan.recorded.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.scan.recorded.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.scan.recorded.v1 remains recorded for a later SCAN-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.scan.recorded.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SEAT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.seat.allocated.v2.",
+                "Q2": "T0 does not consume ticketing.seat.allocated.v2.",
+                "Q3": "None of the T0-required actions depend on ticketing.seat.allocated.v2.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.seat.allocated.v2.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.seat.allocated.v2 remains recorded for a later SEAT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.seat.allocated.v2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SEAT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.seat.allocation.created.v3.",
+                "Q2": "T0 does not consume ticketing.seat.allocation.created.v3.",
+                "Q3": "None of the T0-required actions depend on ticketing.seat.allocation.created.v3.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.seat.allocation.created.v3.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.seat.allocation.created.v3 remains recorded for a later SEAT allocation/finalization hardening wave."
+              },
+              "event_specific_statements": {
+                "bucket_cursor": "The T0 authority repair changes bucket cursor semantics but does not define, reinterpret, or claim producer parity for historical allocation v3 events.",
+                "event_version": "Event-version semantics belong to a later SEAT allocation/finalization hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.seat.allocation.created.v3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SEAT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.seat.allocation.reversed.v2.",
+                "Q2": "T0 does not consume ticketing.seat.allocation.reversed.v2.",
+                "Q3": "None of the T0-required actions depend on ticketing.seat.allocation.reversed.v2.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.seat.allocation.reversed.v2.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.seat.allocation.reversed.v2 remains recorded for a later SEAT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.seat.allocation.reversed.v2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SEAT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.seat.allocation.reversed.v3.",
+                "Q2": "T0 does not consume ticketing.seat.allocation.reversed.v3.",
+                "Q3": "None of the T0-required actions depend on ticketing.seat.allocation.reversed.v3.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.seat.allocation.reversed.v3.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.seat.allocation.reversed.v3 remains recorded for a later SEAT allocation/finalization hardening wave."
+              },
+              "event_specific_statements": {
+                "bucket_cursor": "The T0 authority repair changes bucket cursor semantics but does not define, reinterpret, or claim producer parity for historical allocation v3 events.",
+                "event_version": "Event-version semantics belong to a later SEAT allocation/finalization hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.seat.allocation.reversed.v3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SUB-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.sub.entitlement_checked.v1.",
+                "Q2": "T0 does not consume ticketing.sub.entitlement_checked.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.sub.entitlement_checked.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.entitlement_checked.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.sub.entitlement_checked.v1 remains recorded for a later SUB-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.sub.entitlement_checked.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SUB-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.sub.entitlement_expired.v1.",
+                "Q2": "T0 does not consume ticketing.sub.entitlement_expired.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.sub.entitlement_expired.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.entitlement_expired.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.sub.entitlement_expired.v1 remains recorded for a later SUB-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.sub.entitlement_expired.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SUB-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.sub.entitlement_granted.v1.",
+                "Q2": "T0 does not consume ticketing.sub.entitlement_granted.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.sub.entitlement_granted.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.entitlement_granted.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.sub.entitlement_granted.v1 remains recorded for a later SUB-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.sub.entitlement_granted.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SUB-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.sub.entitlement_revoked.v1.",
+                "Q2": "T0 does not consume ticketing.sub.entitlement_revoked.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.sub.entitlement_revoked.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.entitlement_revoked.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.sub.entitlement_revoked.v1 remains recorded for a later SUB-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.sub.entitlement_revoked.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SUB-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.sub.offer_blocked.v1.",
+                "Q2": "T0 does not consume ticketing.sub.offer_blocked.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.sub.offer_blocked.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.offer_blocked.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.sub.offer_blocked.v1 remains recorded for a later SUB-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.sub.offer_blocked.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "SUB-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.sub.program_created.v1.",
+                "Q2": "T0 does not consume ticketing.sub.program_created.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.sub.program_created.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.program_created.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.sub.program_created.v1 remains recorded for a later SUB-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.sub.program_created.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "TKT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.ticket.abuse_signal.recorded.v1.",
+                "Q2": "T0 does not consume ticketing.ticket.abuse_signal.recorded.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.ticket.abuse_signal.recorded.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.abuse_signal.recorded.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.ticket.abuse_signal.recorded.v1 remains recorded for a later TKT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.ticket.abuse_signal.recorded.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "TKT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.ticket.credential.revoked.v1.",
+                "Q2": "T0 does not consume ticketing.ticket.credential.revoked.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.ticket.credential.revoked.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.credential.revoked.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.ticket.credential.revoked.v1 remains recorded for a later TKT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.ticket.credential.revoked.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "TKT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.ticket.credential.superseded.v1.",
+                "Q2": "T0 does not consume ticketing.ticket.credential.superseded.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.ticket.credential.superseded.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.credential.superseded.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.ticket.credential.superseded.v1 remains recorded for a later TKT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.ticket.credential.superseded.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "TKT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.ticket.issued.v1.",
+                "Q2": "T0 does not consume ticketing.ticket.issued.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.ticket.issued.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.issued.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.ticket.issued.v1 remains recorded for a later TKT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.ticket.issued.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "TKT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.ticket.render.generated.v1.",
+                "Q2": "T0 does not consume ticketing.ticket.render.generated.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.ticket.render.generated.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.render.generated.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.ticket.render.generated.v1 remains recorded for a later TKT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.ticket.render.generated.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "TKT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.ticket.render.stale.v1.",
+                "Q2": "T0 does not consume ticketing.ticket.render.stale.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.ticket.render.stale.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.render.stale.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.ticket.render.stale.v1 remains recorded for a later TKT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.ticket.render.stale.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "TKT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.ticket.wallet.revoked.v1.",
+                "Q2": "T0 does not consume ticketing.ticket.wallet.revoked.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.ticket.wallet.revoked.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.wallet.revoked.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.ticket.wallet.revoked.v1 remains recorded for a later TKT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.ticket.wallet.revoked.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": {
+              "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+              "producer_contract": "TKT-1",
+              "quarantine_proof": {
+                "Q1": "T0 does not emit ticketing.ticket.wallet.update_requested.v1.",
+                "Q2": "T0 does not consume ticketing.ticket.wallet.update_requested.v1.",
+                "Q3": "None of the T0-required actions depend on ticketing.ticket.wallet.update_requested.v1.",
+                "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.wallet.update_requested.v1.",
+                "Q5": "The unresolved producer-provenance debt for ticketing.ticket.wallet.update_requested.v1 remains recorded for a later TKT-1 domain hardening wave."
+              }
+            },
+            "json_pointer": "/t0_event_registry_dispositions/registrations/ticketing.ticket.wallet.update_requested.v1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "last_updated_utc": "2026-02-10T13:55:16Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "EVT-1 Test Gates",
+  "updated_at": "2026-02-10T13:55:16Z",
+  "updated_at_utc": "2026-02-10T13:55:16Z",
+  "version": "3.0.0"
+}

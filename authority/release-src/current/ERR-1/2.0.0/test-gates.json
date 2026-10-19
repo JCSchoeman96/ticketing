@@ -1,0 +1,744 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "ERR-1",
+    "version": "2.0.0"
+  },
+  "doc_id": "ERR-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST match CS-0@3.0.1 across contract, gates, and manifest.",
+      "failure_message": "Bundle suite_schema drift detected; ERR-1 artifacts are not aligned to CS-0@3.0.1.",
+      "id": "ERR_1_GATE_010",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle suite schema parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle MUST contain canonical bundle.manifest.json filename and files MUST match manifest.",
+      "failure_message": "Manifest filename or manifest file inventory does not match the actual bundle contents.",
+      "id": "ERR_1_GATE_020",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest filename and contents"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.0.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "ERR-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "2.0.0",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract identity metadata MUST be pinned.",
+      "failure_message": "ERR-1-GATE-030 failed.",
+      "id": "ERR_1_GATE_030",
+      "level": "P0",
+      "must": true,
+      "title": "ERR-1-GATE-030"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "ERR_UNAUTHORIZED"
+            ],
+            "json_pointers": [
+              "/registry/subcodes"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "ERR-1 MUST NOT reference nonexistent ERR_UNAUTHORIZED top-level code.",
+      "failure_message": "ERR-1-GATE-040 failed.",
+      "id": "ERR_1_GATE_040",
+      "level": "P1",
+      "must": true,
+      "title": "ERR-1-GATE-040"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_UNAVAILABLE",
+            "json_pointer": "/mappings/incident_response_boundary/default_public_top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 429,
+            "json_pointer": "/mappings/incident_response_boundary/public_http_status_allowlist/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 503,
+            "json_pointer": "/mappings/incident_response_boundary/public_http_status_allowlist/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Incident-response boundary mapping MUST exist and pin public default behavior.",
+      "failure_message": "ERR-1-GATE-050 failed.",
+      "id": "ERR_1_GATE_050",
+      "level": "P1",
+      "must": true,
+      "title": "ERR-1-GATE-050"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IR_INCIDENT_ACTIVE",
+            "json_pointer": "/registry/subcodes/178/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IR_LEASED_JOB_BLOCKED",
+            "json_pointer": "/registry/subcodes/190/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IR subcodes MUST be reserved in the registry before suite contracts use them.",
+      "failure_message": "ERR-1-GATE-060 failed.",
+      "id": "ERR_1_GATE_060",
+      "level": "P1",
+      "must": true,
+      "title": "ERR-1-GATE-060"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "TODO",
+              "TBD",
+              "FIXME",
+              "banned-token"
+            ],
+            "json_pointers": [
+              "/rules",
+              "/mappings",
+              "/registry"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No banned-token markers allowed in normative ERR-1 artifacts.",
+      "failure_message": "ERR-1-GATE-070 failed.",
+      "id": "ERR_1_GATE_070",
+      "level": "P1",
+      "must": true,
+      "title": "ERR-1-GATE-070"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "COMM_TEMPLATE_NOT_FOUND",
+            "json_pointer": "/registry/subcodes/210/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "COMM_PROVIDER_WEBHOOK_UNAUTHENTICATED",
+            "json_pointer": "/registry/subcodes/201/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ERR-1 registry MUST include COMM-1 subcodes required by COMM-1 v1.1.5.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "COMM-1 subcodes MUST be present in ERR-1 registry.",
+      "id": "ERR_1_GATE_080_COMM_SUBCODES_REGISTERED",
+      "level": "P0",
+      "must": true,
+      "title": "Err 1 Gate 080 Comm Subcodes Registered"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "INT_PROVIDER_ROUTE_NOT_FOUND",
+            "json_pointer": "/registry/subcodes/224/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "INT_WEBHOOK_SIGNATURE_INVALID",
+            "json_pointer": "/registry/subcodes/228/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ERR-1 registry MUST include INT-1 subcodes required by INT-1 v1.0.4.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "INT-1 subcodes MUST be present in ERR-1 registry.",
+      "id": "ERR_1_GATE_090_INT_SUBCODES_REGISTERED",
+      "level": "P0",
+      "must": true,
+      "title": "Err 1 Gate 090 Int Subcodes Registered"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "NOTIF_TRIGGER_NOT_REGISTERED",
+            "json_pointer": "/registry/subcodes/236/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "NOTIF_SAFE_MODE_DEFERRED",
+            "json_pointer": "/registry/subcodes/235/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ERR-1 registry MUST include NOTIF-1 subcodes required by NOTIF-1 v1.0.4.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "NOTIF-1 subcodes MUST be present in ERR-1 registry.",
+      "id": "ERR_1_GATE_100_NOTIF_SUBCODES_REGISTERED",
+      "level": "P0",
+      "must": true,
+      "title": "Err 1 Gate 100 Notif Subcodes Registered"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.5",
+            "json_pointer": "/registry/domain_subcode_floors/COMM-1/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.0.4",
+            "json_pointer": "/registry/domain_subcode_floors/INT-1/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.0.4",
+            "json_pointer": "/registry/domain_subcode_floors/NOTIF-1/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ERR-1 registry MUST declare domain subcode floors for COMM-1, INT-1, and NOTIF-1.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "ERR-1 domain subcode floors MUST be declared.",
+      "id": "ERR_1_GATE_110_DOMAIN_SUBCODE_FLOORS_DECLARED",
+      "level": "P0",
+      "must": true,
+      "title": "Err 1 Gate 110 Domain Subcode Floors Declared"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "missing_tenant_context",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/applies_to/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "tenant_mismatch",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/applies_to/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "rls_denied",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/applies_to/2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "cross_tenant_hidden",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/applies_to/3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_NOT_FOUND",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/external_response/top_level_code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 404,
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/external_response/http_status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": null,
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/external_response/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/external_response/uniform_by_hidden_reason"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "subcode"
+            ],
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/external_response/omit_extensions"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "detail"
+            ],
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/external_response/omit_fields"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "www-authenticate",
+              "x-tenant-id",
+              "x-org-id",
+              "x-policy",
+              "x-error-class"
+            ],
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/external_response/must_not_include_headers"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "missing_tenant_context",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/0/case"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN_TENANT_CONTEXT_MISSING",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/0/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "audit_and_telemetry_only",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/0/retention"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "tenant_mismatch",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/1/case"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN_TENANT_MISMATCH",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/1/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "audit_and_telemetry_only",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/1/retention"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "rls_denied",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/2/case"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN_RLS_DENIED",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/2/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "audit_and_telemetry_only",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/2/retention"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "cross_tenant_hidden",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/3/case"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN_CROSS_TENANT_HIDDEN",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/3/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "audit_and_telemetry_only",
+            "json_pointer": "/mappings/tenant_hidden_http_boundary/internal_causes/3/retention"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN_TENANT_CONTEXT_MISSING",
+            "json_pointer": "/registry/subcodes/166/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_FORBIDDEN",
+            "json_pointer": "/registry/subcodes/166/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN_TENANT_MISMATCH",
+            "json_pointer": "/registry/subcodes/167/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_FORBIDDEN",
+            "json_pointer": "/registry/subcodes/167/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN_RLS_DENIED",
+            "json_pointer": "/registry/subcodes/164/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_FORBIDDEN",
+            "json_pointer": "/registry/subcodes/164/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN_CROSS_TENANT_HIDDEN",
+            "json_pointer": "/registry/subcodes/163/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_NOT_FOUND",
+            "json_pointer": "/registry/subcodes/163/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN_SUPPORT_MODE_UNAUTHORIZED",
+            "json_pointer": "/registry/subcodes/165/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_FORBIDDEN",
+            "json_pointer": "/registry/subcodes/165/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_FORBIDDEN",
+            "json_pointer": "/mappings/ash_3/leaf_error_overrides/2/top_level_code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "TEN_TENANT_CONTEXT_MISSING",
+            "json_pointer": "/mappings/ash_3/leaf_error_overrides/2/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_err1_tenant_redaction_gate_points_to_named_registry_rows"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_missing_tenant_internal_code_matches_err_registry_and_seat_authority"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ],
+      "description": "Contract-shape assertions pin the TEN-1 tenant-hidden HTTP boundary for missing tenant, tenant mismatch, RLS denial, and cross-tenant hidden outcomes. Each maps externally to uniform HTTP 404 ERR_NOT_FOUND with no detail, subcode, or tenant-distinguishing headers. Internal subcode identities and registry classifications remain available for audit and telemetry. TEN_SUPPORT_MODE_UNAUTHORIZED remains ERR_FORBIDDEN. These assertions do not establish runtime implementation test coverage.",
+      "enforced_by": "ci_contract_gate_strict",
+      "failure_message": "ERR-1 contract or registry identity does not pin the TEN-1 hidden-reason boundary, preserve internal cause identities, or retain the separate support-mode unauthorized classification.",
+      "id": "ERR_1_GATE_120_TENANT_HTTP_REDACTION_PRECEDENCE",
+      "level": "P0",
+      "must": true,
+      "title": "Tenant HTTP redaction precedence"
+    },
+    {
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_ash_class_mappings_target_registered_top_level_errors"
+          }
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_new_tax_subcodes_are_registered_once_with_declared_top_level"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ],
+      "description": "Every ERR-1 Ash class mapping target must exist in the registered top-level error codes.",
+      "failure_message": "An Ash class mapping targets an unregistered top-level error code.",
+      "id": "ERR_1_GATE_130_ASH_TARGETS_REGISTERED",
+      "level": "P0",
+      "must": true,
+      "title": "Ash class mappings target registered errors"
+    },
+    {
+      "id": "ERR_1_GATE_140_TAX_SUBCODES_REGISTERED",
+      "title": "TAX subcodes match the error registry",
+      "description": "Every TAX-1 declared subcode used by the T0 quote path appears exactly once in ERR-1 with the declared top-level code.",
+      "failure_message": "A TAX-1 subcode is missing, duplicated, or has a conflicting top-level mapping in ERR-1.",
+      "level": "P0",
+      "must": true,
+      "assertions": [
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_new_tax_subcodes_are_registered_once_with_declared_top_level"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "last_updated_utc": "2026-06-03T14:50:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "ERR-1 Test Gates",
+  "version": "2.0.0",
+  "authority_review_gates": [
+    {
+      "id": "ERR-1-FPP-CORRECTION-REVIEW",
+      "level": "P0",
+      "must": true,
+      "mode": "manual",
+      "description": "Review the approved authority corrections in the paired versionless contract.json draft. Confirm the contract text contains no contradictory legacy lock for the corrected behavior.",
+      "failure_message": "Approved authority correction or legacy contradiction remains unresolved."
+    }
+  ]
+}

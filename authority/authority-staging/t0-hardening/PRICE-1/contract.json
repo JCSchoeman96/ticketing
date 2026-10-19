@@ -1,0 +1,1942 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "PRICE-1_Contract_v3.5.6.json",
+  "ash_3x_surface": {
+    "calculations_vs_stored": {
+      "notes": "Downstream systems MUST NOT recompute pricing other than the verification calculations defined here.",
+      "stored": [
+        "subtotal_minor",
+        "tax_total_minor",
+        "fee_total_minor",
+        "discount_total_minor",
+        "grand_total_minor",
+        "signature_hash"
+      ],
+      "validated_calculations": [
+        "computed_totals_match_stored (for verification)"
+      ]
+    },
+    "domain": "Ticketing.Pricing",
+    "resources": [
+      {
+        "actions": [
+          {
+            "accepts": [
+              "org_id",
+              "idempotency_key",
+              "currency",
+              "expires_at_utc",
+              "price_lines",
+              "event_id",
+              "occurrence_ids",
+              "pricing_program_revision_id",
+              "pricing_phase_id",
+              "pricing_experiment_id",
+              "pricing_variant_key",
+              "signature_version",
+              "product_revision_ids",
+              "tax_pricing_mode",
+              "originating_actor_id",
+              "request_id",
+              "trace_id",
+              "tax_profile_id",
+              "applicable_tax_rate_revision_refs",
+              "evaluated_at_utc",
+              "opaque_pii_jurisdiction_evidence_ref",
+              "jurisdiction_evidence_sha256",
+              "digest_version",
+              "digest_sha256"
+            ],
+            "name": "create_snapshot",
+            "notes": "Computes totals and signature_hash atomically; status begins as 'created'. In v3.0.9+, snapshot MUST record event/occurrence scope and pricing program revision traceability. The action is subordinate to OFFER-1.build_cart_quote and uses scoped authenticated delegation. It preserves the originating actor attribution, org_id, request_id, trace_id, and boundary Idempotency-Key. Durable idempotency identity is (org_id, operation_id, key), with operation_id PRICE-1.create_snapshot. LOCKS-1 storage records a separate canonical normalized request_hash; concurrent retries replay the original outcome. The exact TAXCTX-V2 input fields digest_version and digest_sha256 map unchanged to tax_context_digest_version and tax_context_digest_sha256. The same digest values are signed and emitted; no second digest is computed. For T0 org_location quotes, create_snapshot accepts explicit null opaque_pii_jurisdiction_evidence_ref and jurisdiction_evidence_sha256 values, stores them unchanged, and includes both fields as JSON null in the PRICE-SIG-V4 payload.",
+            "type": "create",
+            "writes": [
+              "snapshot_id",
+              "org_id",
+              "idempotency_key",
+              "currency",
+              "expires_at_utc",
+              "created_at_utc",
+              "subtotal_minor",
+              "tax_total_minor",
+              "fee_total_minor",
+              "discount_total_minor",
+              "grand_total_minor",
+              "signature_hash",
+              "status",
+              "signature_version",
+              "event_id",
+              "occurrence_ids",
+              "pricing_program_revision_id",
+              "pricing_phase_id",
+              "pricing_experiment_id",
+              "pricing_variant_key",
+              "product_revision_ids",
+              "tax_pricing_mode",
+              "originating_actor_id",
+              "request_id",
+              "trace_id",
+              "tax_profile_id",
+              "applicable_tax_rate_revision_refs",
+              "evaluated_at_utc",
+              "opaque_pii_jurisdiction_evidence_ref",
+              "jurisdiction_evidence_sha256",
+              "tax_context_digest_version",
+              "tax_context_digest_sha256"
+            ],
+            "delegated_context": {
+              "authorized_by": "offer.quote.create via OFFER-1.build_cart_quote",
+              "originating_actor_attribution": "preserved",
+              "org_id": "preserved",
+              "request_id": "preserved",
+              "trace_id": "preserved",
+              "boundary_Idempotency-Key": "preserved unchanged",
+              "generic_bypass_allowed": false
+            },
+            "tax_context_mapping": {
+              "value_object": "TAXCTX-V2",
+              "fields": [
+                "tax_profile_id",
+                "applicable_tax_rate_revision_refs",
+                "tax_pricing_mode",
+                "evaluated_at_utc",
+                "digest_version",
+                "digest_sha256",
+                "opaque_pii_jurisdiction_evidence_ref",
+                "jurisdiction_evidence_sha256"
+              ],
+              "stored_digest_fields": {
+                "digest_version": "tax_context_digest_version",
+                "digest_sha256": "tax_context_digest_sha256"
+              },
+              "signed_value_object": "PricingSnapshot.tax_context; each value field is covered by the canonical snapshot signature, with digest fields mapped to existing PRICE wrappers."
+            }
+          },
+          {
+            "accepts": [],
+            "name": "activate_snapshot",
+            "notes": "Transition created->active only; idempotent when already active. Invoked only as a subordinate governed action from OFFER-1.build_cart_quote under the same scoped authenticated delegation context.",
+            "type": "update",
+            "writes": [
+              "status",
+              "activated_at_utc"
+            ],
+            "delegated_context": {
+              "authorized_by": "offer.quote.create via OFFER-1.build_cart_quote",
+              "originating_actor_attribution": "preserved",
+              "org_id": "preserved",
+              "request_id": "preserved",
+              "trace_id": "preserved",
+              "boundary_Idempotency-Key": "preserved unchanged",
+              "generic_bypass_allowed": false
+            }
+          },
+          {
+            "accepts": [
+              "consumed_by_order_id"
+            ],
+            "name": "consume_snapshot",
+            "notes": "Transition active->consumed only; MUST fail if consumed_by_order_id already set to different order.",
+            "type": "update",
+            "writes": [
+              "status",
+              "consumed_at_utc",
+              "consumed_by_order_id"
+            ]
+          },
+          {
+            "accepts": [],
+            "name": "expire_snapshot",
+            "notes": "Transition created|active -> expired only.",
+            "type": "update",
+            "writes": [
+              "status",
+              "expired_at_utc"
+            ]
+          }
+        ],
+        "immutability_posture": "Pricing fields + signature_hash immutable after create_snapshot; only lifecycle fields change per state_machine rules.",
+        "primary_key": "snapshot_id",
+        "resource": "Ticketing.Pricing.PricingSnapshot"
+      },
+      {
+        "actions": [
+          {
+            "accepts": [
+              "snapshot_id",
+              "seq",
+              "item_ref_type",
+              "item_ref_id",
+              "quantity",
+              "unit_price_minor",
+              "tax_total_minor",
+              "fee_total_minor",
+              "discount_total_minor",
+              "line_total_minor",
+              "currency"
+            ],
+            "name": "create_line",
+            "notes": "Lines are created only within create_snapshot; no standalone API exposure.",
+            "type": "create",
+            "writes": "all"
+          }
+        ],
+        "immutability_posture": "No updates or deletes; write-once.",
+        "primary_key": "line_id",
+        "resource": "Ticketing.Pricing.PriceLine"
+      },
+      {
+        "actions": [
+          {
+            "accepts": [
+              "org_id",
+              "event_id",
+              "display_name"
+            ],
+            "name": "create_program",
+            "notes": "Creates program with status=active.",
+            "type": "create",
+            "writes": [
+              "program_id",
+              "org_id",
+              "event_id",
+              "display_name",
+              "status",
+              "created_at_utc"
+            ]
+          },
+          {
+            "accepts": [],
+            "name": "archive_program",
+            "notes": "Archives program. MUST NOT archive if active orders depend on future quotes; policy enforced upstream.",
+            "type": "update",
+            "writes": [
+              "status",
+              "archived_at_utc"
+            ]
+          }
+        ],
+        "primary_key": "program_id",
+        "resource": "Ticketing.Pricing.PricingProgram"
+      },
+      {
+        "actions": [
+          {
+            "accepts": [
+              "org_id",
+              "program_id",
+              "revision_notes"
+            ],
+            "name": "create_revision",
+            "notes": "Creates a draft revision.",
+            "type": "create",
+            "writes": [
+              "revision_id",
+              "org_id",
+              "program_id",
+              "status",
+              "created_at_utc",
+              "revision_notes"
+            ]
+          },
+          {
+            "accepts": [
+              "supersedes_revision_id"
+            ],
+            "name": "activate_revision",
+            "notes": "Activates draft. MUST retire prior active revision atomically.",
+            "type": "update",
+            "writes": [
+              "status",
+              "activated_at_utc",
+              "supersedes_revision_id"
+            ]
+          },
+          {
+            "accepts": [],
+            "name": "retire_revision",
+            "notes": "Retires an active revision (rare; usually superseded).",
+            "type": "update",
+            "writes": [
+              "status",
+              "retired_at_utc"
+            ]
+          }
+        ],
+        "primary_key": "revision_id",
+        "resource": "Ticketing.Pricing.PricingProgramRevision"
+      },
+      {
+        "actions": [
+          {
+            "accepts": [
+              "org_id",
+              "revision_id",
+              "phase_key",
+              "display_name",
+              "starts_at_utc",
+              "ends_at_utc",
+              "priority"
+            ],
+            "name": "create_phase",
+            "notes": "Creates phase under a draft revision.",
+            "type": "create",
+            "writes": [
+              "phase_id",
+              "org_id",
+              "revision_id",
+              "phase_key",
+              "display_name",
+              "starts_at_utc",
+              "ends_at_utc",
+              "priority"
+            ]
+          }
+        ],
+        "primary_key": "phase_id",
+        "resource": "Ticketing.Pricing.PricingPhase"
+      },
+      {
+        "actions": [
+          {
+            "accepts": [
+              "org_id",
+              "revision_id",
+              "rule_type",
+              "priority",
+              "enabled",
+              "applies_to_ref_type",
+              "applies_to_ref_id",
+              "phase_id",
+              "params_json"
+            ],
+            "name": "create_rule",
+            "notes": "Creates rule under a draft revision.",
+            "type": "create",
+            "writes": [
+              "rule_id",
+              "org_id",
+              "revision_id",
+              "rule_type",
+              "priority",
+              "enabled",
+              "applies_to_ref_type",
+              "applies_to_ref_id",
+              "phase_id",
+              "params_json"
+            ]
+          }
+        ],
+        "primary_key": "rule_id",
+        "resource": "Ticketing.Pricing.PricingRule"
+      }
+    ],
+    "tenancy": {
+      "notes": "All pricing snapshots and lines are tenant-scoped; no platform-scoped pricing.",
+      "scope": "tenant_only",
+      "tenant_attribute": "org_id"
+    }
+  },
+  "change_log": [
+    "3.0.8: Lockability + determinism fixes (totals, signature canon, ERR registry discipline, dependency graph)",
+    "3.0.9: Add versioned pricing programs (revisions, phases, rules) + occurrence-aware snapshot scope + PRICE-SIG-V2 with backward verification support.",
+    {
+      "changes": [
+        "Introduce PRICE-SIG-V3 (incl. entitlement context) for tamper-resistant pricing across phases and subscriber offers.",
+        "Add SUB-1 as a hard dependency for entitlement-aware pricing policies."
+      ],
+      "date": "2026-01-21",
+      "version": "3.0.10"
+    },
+    {
+      "changes": [
+        "Fix PRICE-SIG-V3 canonical_encoding record prefix (remove stale PRICE-SIG-V2 prefix).",
+        "Update documentation text to make PRICE-SIG-V3 the active canonicalization version while retaining verification support for V1+V2.",
+        "Bump ERR-1 dependency to >=1.3.30.",
+        "Update test-gate artifact references and add explicit assertions for PRICE-SIG-V3 invariants.",
+        "Bump OBS-1 dependency to >=2.7.7 (SUB-1 integration finalized in OBS)."
+      ],
+      "date": "2026-01-21",
+      "version": "3.0.11"
+    },
+    {
+      "changes": [
+        "Align PRICE-SIG-V3 signature test-gate expectation with the actual V3 entitlement-binding line fields (beneficiary_customer_id, entitlement_grant_id, entitlement_tier_id).",
+        "No change to the PRICE-SIG-V3 canonical record layout; this patch corrects CI enforcement."
+      ],
+      "date": "2026-01-21",
+      "version": "3.0.12"
+    },
+    {
+      "changes": [
+        "Add tax_context_digest_sha256 as required snapshot field and include it in signature payload (PRICE-SIG-V4).",
+        "Add invariant PRICE-INV-SIG-BIND-002 to prevent tax audit drift and replay/substitution across contexts.",
+        "Align dependency floors with patched suite (TEN-1 1.7.4, ERR-1 1.4.9, OBS-1 2.7.6)."
+      ],
+      "date_utc": "2026-01-26T07:51:52Z",
+      "summary": "Introduce PRICE-SIG-V4 to bind tax context into signed pricing snapshots."
+    },
+    {
+      "date_utc": "2026-01-26T15:04:51Z",
+      "summary": "Unify canonical signature to PRICE-SIG-V4; add explicit tax_pricing_mode bound by signature; clarify tax-context requirements for add-on tax markets.",
+      "version": "3.0.15"
+    },
+    {
+      "changes": [
+        "Introduce quote_id, quote_issued_at_utc, quote_expires_at_utc and total_minor/internal_rounding_adjustment_minor outputs on PricingSnapshot.",
+        "Define FeeLine resource with is_taxable, tax_category, customer_visible, revenue_owner and include it in signature payload.",
+        "Switch signature_spec canonical_encoding to RFC8785_JCS and normalize PRICE-SIG-V4 record layout/version tags.",
+        "Align arithmetic invariants to include internal_rounding_adjustment_minor and total_minor; define net subtotal (after discounts) and keep gross_subtotal for audit."
+      ],
+      "date_utc": "2026-02-01T17:47:23Z",
+      "summary": "Adopt RFC 8785 (JCS) canonical signature physics; add quote TTL fields, fee line declarations (taxable/visibility/revenue_owner), and rounding adjustment outputs required by ND-180..ND-188.",
+      "version": "3.2.0"
+    },
+    {
+      "date_utc": "2026-02-04T19:56:49.218476Z",
+      "kind": "minor",
+      "notes": [
+        "Producer MUST resolve registry_version_sha from V42_RUNTIME_REGISTRY_SHA at runtime (not hardcoded).",
+        "No business payload schema changes; envelope header carries registry_version_sha."
+      ],
+      "summary": "Wiring-only: add runtime Registry SHA binding invariant and raise EVT-1 dependency floor to 2.14.0 (cryptographic fence).",
+      "version": "3.4.0"
+    },
+    {
+      "changes": [
+        "PricingSnapshot.signature_hash notes/type aligned to PRICE-SIG-V4 sha256 over RFC8785 JCS byte stream.",
+        "FeeLine.revenue_owner expanded to include payment_processor/government/third_party; ownership must be explicit.",
+        "FeeLine.tax_total_minor defined as single-truth for fee tax attribution; forbid silent folding.",
+        "Added P0 invariants and gates to prevent regression and legacy algorithm references."
+      ],
+      "date_utc": "2026-02-08T19:16:53Z",
+      "summary": "Semantic hardening: align signature_hash to PRICE-SIG-V4 sha256/JCS; lock tax mode mapping to TAX-1; expand fee revenue ownership; require fee tax single-truth.",
+      "version": "3.5.5"
+    }
+  ],
+  "checkout_verification_contract": {
+    "contract_between": [
+      "PRICE-1 (PricingSnapshot authority)",
+      "ORD-1 (Order/Checkout consumer)"
+    ],
+    "error_mappings": [
+      {
+        "case": "snapshot_expired_or_inactive",
+        "retryable": false,
+        "subcode": "PRICE_SNAPSHOT_EXPIRED",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "case": "signature_mismatch",
+        "retryable": false,
+        "subcode": "EXT_SIGNATURE_INVALID",
+        "top_level": "ERR_FORBIDDEN"
+      },
+      {
+        "case": "total_mismatch",
+        "retryable": false,
+        "subcode": "PRICE_TOTAL_MISMATCH",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "case": "mixed_currency_detected",
+        "retryable": false,
+        "subcode": "PRICE_MIXED_CURRENCY",
+        "top_level": "ERR_VALIDATION"
+      }
+    ],
+    "ord_validates": [
+      "pricing_snapshot.status MUST be 'active' at verification time",
+      "pricing_snapshot.currency MUST equal order.currency",
+      "pricing_snapshot.expires_at_utc MUST be >= order.created_at_utc (no use-after-expiry)",
+      "pricing_snapshot totals MUST match recomputed totals from signed line fields (see invariants.arithmetic_truth)",
+      "pricing_snapshot MUST NOT be consumed by a different order (consumed_by_order_id MUST be null OR equal this order_id)",
+      "all lines MUST be same currency as snapshot (mixed currency forbidden)",
+      "all line arithmetic invariants MUST hold (line_total_minor truth)",
+      "pricing_snapshot.signature_version MUST be supported by the verifier (PRICE-SIG-V4 only)..",
+      "pricing_snapshot.signature_hash MUST match recomputed signature over stored snapshot+lines using pricing_snapshot.signature_version's input model."
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.7.12",
+      "reason": "Tenant isolation"
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.1",
+      "reason": "Error registry"
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.7.17",
+      "reason": "Observability"
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "foundation_floor",
+      "min_version": "3.2.1",
+      "reason": "Ash 3.x patterns"
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "Schema compliance"
+    },
+    {
+      "doc_id": "SUB-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.2.1",
+      "reason": "Subscriber entitlements used for subscriber/VIP pricing context."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "integration_floor",
+      "min_version": "2.16.4",
+      "reason": "Event registry head pin (Phase-5 Airlock floor parity)."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "integration_floor",
+      "min_version": "2.4.1",
+      "reason": "Event envelope schema_ref for outbox_events emitted by PRICE-1."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.1.1",
+      "reason": "Atomic monotonic pricing version increment requires session-affine advisory locks (Namespace 102)."
+    }
+  ],
+  "dependency_floors": {
+    "CS-0": "2.2.0",
+    "ERR-1": "1.6.1",
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.1",
+    "LOCKS-1": "2.1.1",
+    "OBS-1": "2.7.17",
+    "RP-0": "3.2.1",
+    "SUB-1": "1.2.1",
+    "TEN-1": "1.7.12"
+  },
+  "doc_id": "PRICE-1",
+  "downstream_consumers": [
+    {
+      "doc_id": "ORD-1",
+      "notes": "Non-normative: ORD consumes PricingSnapshot for checkout verification and MUST NOT cause PRICE contract dependency edges."
+    }
+  ],
+  "generated_at_utc": "2026-02-07T07:33:21Z",
+  "invariants": {
+    "PRICE-1-INV-LOCK-NAMESPACE-102-001": {
+      "severity": "P0",
+      "text": "Any producer that emits ticketing.pricing.snapshot.generated.v1 MUST take a LOCKS-1 advisory lock with Namespace 102 on (org_id,event_id) before advancing PricingEventCursor.",
+      "why": "Prevents concurrent version assignment under high concurrency."
+    },
+    "PRICE-1-INV-MONOTONIC-VERSION-001": {
+      "severity": "P0",
+      "text": "Producer MUST implement atomic increment semantics for PricingSnapshot.version using PricingEventCursor and LOCKS-1 Namespace 102. Version MUST be > 0 and unique per (org_id,event_id).",
+      "why": "Enables deterministic ordering and gap detection for pricing evolution; prevents replay/race corruption during hot sales."
+    },
+    "PRICE-1-INV-REGISTRY-BINDING-001": "Producer MUST NOT hardcode the registry_version_sha. Producer MUST resolve registry_version_sha at runtime from the V42_RUNTIME_REGISTRY_SHA environment configuration. If missing or malformed (NOT matching ^[0-9a-f]{64}$), producer MUST refuse to emit events (fail fast). LEGACY_SHA_SENTINEL (64 zeros) MAY ONLY be used in explicit backfill/migration mode.",
+    "PRICE-INV-FEE-TAX-SINGLE-TRUTH-001": {
+      "severity": "P0",
+      "text": "FeeLine.tax_total_minor is the single source of truth for tax attributable to each fee line. Services MUST NOT omit fee tax attribution or represent it only in PriceLine.tax_total_minor without a matching FeeLine.tax_total_minor."
+    },
+    "PRICE-INV-NONSTACK-001": "If entitlement_grant_id or entitlement_tier_id is present on a PriceLine (subscriber-priced line), then discount_stack_kind MUST equal \"none\" and discount_total_minor MUST equal 0. Violations MUST raise subcode PRICE_DISCOUNT_STACK_FORBIDDEN.",
+    "PRICE-INV-QUOTE-ALIAS-001": "quote_id MUST equal snapshot_id (alias) for this contract version family to preserve backward compatibility while enabling ND-182 field names.",
+    "PRICE-INV-QUOTE-ALIAS-002": "quote_issued_at_utc MUST equal created_at_utc (DB-monotonic issuance time).",
+    "PRICE-INV-QUOTE-TTL-001": "quote_expires_at_utc - quote_issued_at_utc MUST be bounded by environment profile: HOT_SALE <= 15 minutes, NORMAL <= 60 minutes (ND-183).",
+    "PRICE-INV-QUOTE-TTL-002": "For backward compatibility, expires_at_utc MUST equal quote_expires_at_utc.",
+    "PRICE-INV-SIG-BIND-001": "PRICE-SIG-V4 canonical signature payload MUST include discount_stack_kind when present (see signature_spec.input_model.line_fields_in_order). This prevents discount context from being introduced after signing.",
+    "PRICE-INV-SIG-BIND-002": "PRICE-SIG-V4 canonical signature payload MUST include tax_context_digest_sha256 AND quote_expires_at_utc. This prevents replay/substitution of a signed snapshot across tax contexts or after TTL expiry.",
+    "PRICE-INV-SIG-BIND-003": "PRICE-SIG-V4 canonical signature payload MUST include FeeLine.{is_taxable,tax_category,customer_visible,revenue_owner} for every fee line. Missing declarations are forbidden and MUST fail-closed.",
+    "PRICE-INV-SIG-HASH-ALGO-LOCK-001": {
+      "severity": "P0",
+      "text": "PricingSnapshot.signature_hash MUST be computed as sha256 hex lowercase digest per PRICE-SIG-V4, consistent with /signature_spec.algorithm=sha256 and /signature_spec.canonical_encoding.standard=RFC8785_JCS. Any reference to legacy algorithms (e.g., BLAKE3) for signature_hash is forbidden."
+    },
+    "PRICE-INV-SIG-VERIFY-001": {
+      "id": "PRICE-INV-SIG-VERIFY-001",
+      "rationale": "Prevents client-side or mid-stream mutation of fee/tax/rounding fields and blocks replay of altered quotes.",
+      "severity": "P0",
+      "text": "Any component that persists or consumes a PricingSnapshot MUST recompute the canonical JSON representation per signature_spec (RFC8785) and verify that (signature_version, signature_hash) matches the computed value. If verification fails, the snapshot MUST be rejected and treated as tampered or drifted. Canonicalization follows RFC 8785 (JCS).",
+      "title": "PricingSnapshot signatures MUST be verifiable from canonical JSON"
+    },
+    "PRICE-INV-TAX-MODE-001": {
+      "must": [
+        "PricingSnapshot.tax_pricing_mode MUST be present and MUST be one of {inclusive, exclusive_add_on}.",
+        "PricingSnapshot.tax_pricing_mode MUST be included in the PRICE-SIG-V4 canonical record and MUST be signature-bound.",
+        "If tax_pricing_mode = exclusive_add_on, the pricing engine MUST have sufficient jurisdiction context to compute tax_total_minor; otherwise PricingSnapshot creation MUST fail with ERR-1 subcode TAX_JURISDICTION_REQUIRED (or TAX_PROFILE_REQUIRED where applicable).",
+        "tax_context_digest_sha256 MUST be computed from a canonical tax context that includes tax_pricing_mode and the jurisdiction inputs used to compute tax_total_minor."
+      ],
+      "notes": [
+        "Default posture is inclusive pricing to avoid surprise checkout totals, but explicit add-on markets are supported via tax_pricing_mode."
+      ]
+    },
+    "PRICE-INV-TAX-MODE-MAPPING-001": {
+      "severity": "P0",
+      "text": "PRICE-1 tax_pricing_mode MUST map to TAX-1 inclusion_mode deterministically: tax_pricing_mode=inclusive ↔ inclusion_mode=inclusive; tax_pricing_mode=exclusive_add_on ↔ inclusion_mode=exclusive. This mapping MUST be treated as part of the signed pricing snapshot semantics (PRICE-SIG-V4) and MUST NOT be inferred ad hoc."
+    },
+    "arithmetic_truth": {
+      "line_total_formula": "line_total_minor MUST equal (quantity*unit_price_minor) - discount_total_minor + fee_total_minor + tax_total_minor",
+      "numeric_posture": {
+        "all_amounts_must_be_int64": true,
+        "minor_units_only": true,
+        "no_floats": true,
+        "non_negative_amount_fields": [
+          "gross_subtotal_minor",
+          "discount_total_minor",
+          "subtotal_minor",
+          "fee_total_minor",
+          "tax_total_minor",
+          "total_minor",
+          "unit_price_minor",
+          "line_total_minor",
+          "FeeLine.amount_minor",
+          "FeeLine.tax_total_minor"
+        ],
+        "signed_amount_fields": [
+          "internal_rounding_adjustment_minor",
+          "FeeLine.rounding_adjustment_minor"
+        ]
+      },
+      "snapshot_totals_formula": {
+        "discount_total_minor": "SUM(discount_total_minor) over PriceLine",
+        "fee_total_minor": "SUM(FeeLine.amount_minor) over FeeLine",
+        "gross_subtotal_minor": "SUM(quantity*unit_price_minor) over PriceLine",
+        "subtotal_minor": "gross_subtotal_minor - discount_total_minor",
+        "tax_total_minor": "SUM(PriceLine.tax_total_minor) over PriceLine + SUM(FeeLine.tax_total_minor) over FeeLine (if fee tax is modeled separately, it MUST be included in tax_total_minor)",
+        "total_minor": "subtotal_minor + fee_total_minor + tax_total_minor + internal_rounding_adjustment_minor"
+      }
+    },
+    "auditability": {
+      "consumption_linkage": "When consumed, consumed_by_order_id MUST be set exactly once and MUST NOT change thereafter.",
+      "one_to_one_consumption": "At most one order MAY consume a given snapshot (enforce by immutable consumed_by_order_id)."
+    },
+    "currency_rules": {
+      "mixed_currency_forbidden": "Each PriceLine.currency MUST equal PricingSnapshot.currency",
+      "snapshot_currency_format": "currency MUST match regex ^[A-Z]{3}$ (ISO-4217 uppercase form)"
+    },
+    "idempotency": {
+      "identity": "Durable identity is (org_id, operation_id, key), enforced through the LOCKS-1 idempotency record. LOCKS-1 storage field operation_id carries the stable operation_id value.",
+      "operation_id": "PRICE-1.create_snapshot",
+      "key": "Required boundary Idempotency-Key; store unchanged on the snapshot for provenance.",
+      "request_hash": "Separate SHA-256 over canonical normalized effect-determining create_snapshot input, excluding the key.",
+      "replay": "Same identity and request_hash return the original snapshot outcome. Concurrent retries wait for and replay the original outcome.",
+      "mismatch_behavior": {
+        "top_level": "ERR_CONFLICT",
+        "subcode": "EXT_IDEMPOTENCY_REPLAY",
+        "when": "Same identity is reused with a different request_hash. No repeated side effect."
+      },
+      "uniqueness": "Enforce (org_id, operation_id, key) in the durable LOCKS-1 idempotency record. Do not enforce uniqueness on (org_id, idempotency_key) in PricingSnapshot.",
+      "durable_storage_field_mapping": "LOCKS-1 field operation_id stores the stable operation_id value; LOCKS-1 uniqueness is (org_id, operation_id, key)."
+    },
+    "immutability": {
+      "consumed_terminal": "status='consumed' is terminal; no further transitions or modifications allowed.",
+      "price_lines_immutable": "PriceLine records MUST NOT be updated or deleted after creation.",
+      "pricing_fields_immutable_after_create": "All monetary fields and line fields MUST NOT change after snapshot creation (including totals and line components).",
+      "signature_stable": "signature_hash MUST be computed at creation and MUST NOT change for the lifetime of the snapshot."
+    },
+    "state_machine": {
+      "allowed_transitions": [
+        {
+          "action": "activate_snapshot",
+          "from": "created",
+          "must_not_set": [
+            "consumed_at_utc",
+            "expired_at_utc",
+            "consumed_by_order_id"
+          ],
+          "must_set": [
+            "activated_at_utc"
+          ],
+          "to": "active"
+        },
+        {
+          "action": "expire_snapshot",
+          "from": "created",
+          "must_not_set": [
+            "activated_at_utc",
+            "consumed_at_utc",
+            "consumed_by_order_id"
+          ],
+          "must_set": [
+            "expired_at_utc"
+          ],
+          "to": "expired"
+        },
+        {
+          "action": "consume_snapshot",
+          "from": "active",
+          "must_not_set": [
+            "expired_at_utc"
+          ],
+          "must_set": [
+            "consumed_at_utc",
+            "consumed_by_order_id"
+          ],
+          "to": "consumed"
+        },
+        {
+          "action": "expire_snapshot",
+          "from": "active",
+          "must_not_set": [
+            "consumed_at_utc",
+            "consumed_by_order_id"
+          ],
+          "must_set": [
+            "expired_at_utc"
+          ],
+          "to": "expired"
+        }
+      ],
+      "forbidden_transitions": [
+        {
+          "error": {
+            "top_level": "ERR_PRECONDITION"
+          },
+          "from": "consumed",
+          "to": "*"
+        },
+        {
+          "error": {
+            "top_level": "ERR_PRECONDITION"
+          },
+          "from": "expired",
+          "to": "*"
+        },
+        {
+          "error": {
+            "top_level": "ERR_PRECONDITION"
+          },
+          "from": "active",
+          "to": "created"
+        }
+      ],
+      "max_ttl_policy": {
+        "max_ttl_seconds": 1800,
+        "rule": "expires_at_utc - created_at_utc MUST be <= max_ttl_seconds"
+      },
+      "time_rules": {
+        "activation_before_expiry": "activated_at_utc MUST be <= expires_at_utc when status becomes active",
+        "consumption_before_expiry": "consumed_at_utc MUST be <= expires_at_utc when status becomes consumed",
+        "expires_after_create": "expires_at_utc MUST be > created_at_utc"
+      }
+    },
+    "PRICE-T0-ACTIVE-HEAD-001": {
+      "severity": "P0",
+      "text": "For each {org_id,event_id}, exactly one PricingProgramRevision is active. Replacement is atomic under concurrency fencing; implementation mechanism is not contract-locked."
+    },
+    "PRICE-T0-SNAPSHOT-SIGNATURE-PAYLOAD-001": {
+      "severity": "P0",
+      "text": "The signature covers the canonical immutable snapshot payload, including tenant, event, product, and pricing revision references; quote lines, totals, and currency; tax_pricing_mode; and all TAXCTX-V2 value fields. The value-object fields digest_version and digest_sha256 map one-to-one to the existing signed PRICE fields tax_context_digest_version and tax_context_digest_sha256. Both wrappers carry the same canonical digest value; no second digest or alternate algorithm is permitted."
+    },
+    "PRICE-T0-IDEMPOTENCY-001": {
+      "severity": "P0",
+      "text": "Use platform-wide idempotency identity (org_id, operation_id, key) and a separate SHA-256 over normalized effect-determining input. Same-input retries return the original outcome, changed-input reuse conflicts, and concurrent retries return the original outcome."
+    }
+  },
+  "last_updated_utc": "2026-02-08T19:16:53Z",
+  "normative_source": {
+    "format": "json"
+  },
+  "observability_requirements": {
+    "dependency": {
+      "doc_id": "OBS-1",
+      "min_version": "2.7.4"
+    },
+    "label_posture": {
+      "no_high_cardinality_ids_as_labels": true,
+      "no_org_id_labels": true,
+      "ok_low_cardinality": [
+        "currency",
+        "outcome"
+      ]
+    },
+    "signals": {
+      "events": [
+        {
+          "name": "ticketing.pricing.snapshot.created",
+          "required": true,
+          "when": "after create_snapshot success"
+        },
+        {
+          "name": "ticketing.pricing.snapshot.activated",
+          "required": true,
+          "when": "after activate_snapshot success"
+        },
+        {
+          "name": "ticketing.pricing.snapshot.consumed",
+          "required": true,
+          "when": "after consume_snapshot success"
+        },
+        {
+          "name": "ticketing.pricing.snapshot.expired",
+          "required": true,
+          "when": "after expire_snapshot success"
+        },
+        {
+          "name": "ticketing.pricing.snapshot.verification_failed",
+          "required": true,
+          "when": "when ORD verification fails (signature/total/expiry)"
+        }
+      ],
+      "logs": [
+        {
+          "fields": [
+            "snapshot_id",
+            "order_id",
+            "currency"
+          ],
+          "label_posture": "MUST NOT include org_id in labels; may appear in structured log body with access controls",
+          "name": "ticketing.pricing.signature_mismatch",
+          "required": true
+        },
+        {
+          "fields": [
+            "snapshot_id",
+            "order_id",
+            "currency"
+          ],
+          "name": "ticketing.pricing.total_mismatch",
+          "required": true
+        }
+      ],
+      "metrics": [
+        {
+          "labels": [
+            "outcome",
+            "currency"
+          ],
+          "name": "ticketing.pricing.create_snapshot.count",
+          "type": "counter"
+        },
+        {
+          "labels": [
+            "currency"
+          ],
+          "name": "ticketing.pricing.verify_signature.mismatch.count",
+          "type": "counter"
+        },
+        {
+          "labels": [
+            "currency"
+          ],
+          "name": "ticketing.pricing.verify_totals.mismatch.count",
+          "type": "counter"
+        },
+        {
+          "labels": [],
+          "name": "ticketing.pricing.idempotency.replay_mismatch.count",
+          "type": "counter"
+        },
+        {
+          "labels": [
+            "outcome"
+          ],
+          "name": "ticketing.pricing.create_snapshot.duration_ms",
+          "type": "histogram"
+        }
+      ]
+    }
+  },
+  "outbox_events": [
+    {
+      "emission_semantics": {
+        "atomic_outbox_required": true,
+        "delivery": "at_least_once",
+        "idempotency_key": "pricing_snapshot_id"
+      },
+      "event_name": "ticketing.pricing.snapshot.generated.v1",
+      "optional_keys": [
+        "occurrence_ids",
+        "pricing_line_ids",
+        "notes"
+      ],
+      "required_keys": [
+        "event_id",
+        "pricing_snapshot_id",
+        "version",
+        "currency",
+        "quote_issued_at_utc",
+        "quote_expires_at_utc",
+        "pricing_program_revision_id",
+        "tax_context_digest_sha256",
+        "subtotal_minor",
+        "discount_total_minor",
+        "fee_total_minor",
+        "tax_total_minor",
+        "rounding_adjustment_minor",
+        "total_minor",
+        "signature_hash",
+        "signature_version"
+      ],
+      "schema_ref": "EVT-2",
+      "governance": {
+        "registry_ref": "EVT-1",
+        "producer_action": "Ticketing.Pricing.PricingSnapshot.create_snapshot",
+        "resource_version_source": "PricingSnapshot.version allocated by PricingEventCursor",
+        "outbox_transaction": "PricingSnapshot and outbox event commit atomically in the create_snapshot transaction",
+        "source": "derived_from_ash_resource"
+      },
+      "event_payload_mapping": {
+        "event_id": "PricingSnapshot.event_id",
+        "pricing_snapshot_id": "PricingSnapshot.snapshot_id",
+        "version": "PricingSnapshot.version allocated atomically through PricingEventCursor under the existing LOCKS-1 Namespace 102 requirement",
+        "currency": "PricingSnapshot.currency",
+        "quote_issued_at_utc": "PricingSnapshot.quote_issued_at_utc",
+        "quote_expires_at_utc": "PricingSnapshot.quote_expires_at_utc",
+        "pricing_program_revision_id": "PricingSnapshot.pricing_program_revision_id",
+        "tax_context_digest_sha256": "PricingSnapshot.tax_context_digest_sha256, mapped unchanged from TAXCTX-V2.digest_sha256",
+        "subtotal_minor": "PricingSnapshot.subtotal_minor",
+        "discount_total_minor": "PricingSnapshot.discount_total_minor",
+        "fee_total_minor": "PricingSnapshot.fee_total_minor",
+        "tax_total_minor": "PricingSnapshot.tax_total_minor",
+        "rounding_adjustment_minor": "PricingSnapshot.internal_rounding_adjustment_minor",
+        "total_minor": "PricingSnapshot.total_minor",
+        "signature_hash": "PricingSnapshot.signature_hash",
+        "signature_version": "PricingSnapshot.signature_version"
+      }
+    }
+  ],
+  "pricing_engine": {
+    "experiment_constraints": {
+      "non_overlapping_default": "Default: at most one pricing experiment per surface per event. Multiple experiments allowed only when strictly non-overlapping (surface + audience) and super_admin-managed.",
+      "snapshot_traceability": "If an experiment influenced pricing outputs, PricingSnapshot.pricing_experiment_id and pricing_variant_key MUST be set and immutable.",
+      "who_can_run": "Only super_admin MAY start/stop pricing experiments; tenants MUST NOT have this capability."
+    },
+    "notes": "\n\nNon-stacking rule: when subscriber pricing (entitlement context) is applied, the engine MUST set discount_stack_kind=\"none\" and discount_total_minor=0 for that line.",
+    "phase_selection": {
+      "determinism": "If multiple phases match, select the phase with highest priority; ties break by phase_id lexical ascending.",
+      "matching": "A phase matches when (starts_at_utc is null OR starts_at_utc <= quote_time_utc) AND (ends_at_utc is null OR quote_time_utc < ends_at_utc).",
+      "non_overlap_recommendation": "To avoid ambiguity, implementations SHOULD prevent overlapping phases per revision unless priorities make outcomes deterministic."
+    },
+    "program_selection": {
+      "one_active_program_per_event": "For a given {org_id,event_id}, there MUST be exactly one active PricingProgram and exactly one active PricingProgramRevision at any point in time.",
+      "revision_selection": "Quote creation MUST resolve the active PricingProgramRevision for {org_id,event_id} at quote_time_utc. The resolved revision_id MUST be stored in PricingSnapshot.pricing_program_revision_id."
+    },
+    "rule_evaluation": {
+      "base_price_requirement": "For each purchasable line (ticket_type/addon/seat), a base_unit_price MUST be resolvable for the selected phase (either base_unit_price default or phase_override_unit_price for the chosen phase).",
+      "ordering": "Enabled rules MUST be applied in descending priority, then rule_id lexical ascending.",
+      "orphan_discount": "orphan_seat_discount rules MAY apply only when orphan_proof is provided and verified by the seating subsystem; absence MUST result in non-application (not error).",
+      "seat_proximity": "seat_proximity_multiplier rules MAY apply only when seat_context.seat_proximity_rank is provided by SEAT subsystem; otherwise they MUST be treated as non-applicable.",
+      "tax_and_fee": "Tax computation is governed by TAX-1 (future). tax_total_minor MUST be computed from a canonical tax context and MUST be included in signature inputs. For PRICE-SIG-V4, implementations MUST compute tax_context_digest_sha256 from the canonical tax context and include it in the signed snapshot."
+    }
+  },
+  "resource_model": {
+    "resources": [
+      {
+        "attributes": [
+          {
+            "name": "snapshot_id",
+            "notes": "Primary identifier",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "quote_id",
+            "notes": "Quote identifier (UUIDv7). MUST equal snapshot_id for this version family (alias), and MUST be embedded in the signed payload (ND-182).",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "quote_issued_at_utc",
+            "notes": "DB-monotonic issuance timestamp for the quote (ND-182). MUST be embedded in the signed payload.",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "quote_expires_at_utc",
+            "notes": "DB-monotonic expiry timestamp for the quote (ND-182/ND-186). MUST be embedded in the signed payload; ORD-1 MUST reject if db_now > quote_expires_at_utc.",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "org_id",
+            "notes": "Tenant key",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "idempotency_key",
+            "notes": "Boundary Idempotency-Key captured unchanged for provenance. Durable uniqueness and request hash are enforced through LOCKS-1 idempotency storage.",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "notes": "Lifecycle state",
+            "nullable": false,
+            "type": "enum(created|active|consumed|expired)"
+          },
+          {
+            "name": "currency",
+            "notes": "ISO-4217 uppercase currency code",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "tax_pricing_mode",
+            "notes": "Tax pricing intent. inclusive = prices shown as tax-included; exclusive_add_on = taxes calculated and added as a separate line at cart/checkout time, but MUST still be computed for any consumable snapshot.",
+            "nullable": false,
+            "type": "enum(inclusive|exclusive_add_on)"
+          },
+          {
+            "name": "expires_at_utc",
+            "notes": "DEPRECATED alias for quote_expires_at_utc. MUST equal quote_expires_at_utc for backward compatibility.",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "created_at_utc",
+            "notes": "Creation instant",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "activated_at_utc",
+            "notes": "Set on transition to active",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "consumed_at_utc",
+            "notes": "Set on transition to consumed",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "expired_at_utc",
+            "notes": "Set on transition to expired",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "gross_subtotal_minor",
+            "notes": "Gross subtotal (pre-discount): SUM(quantity*unit_price_minor) over PriceLine.",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "subtotal_minor",
+            "notes": "Net subtotal (post-discount): gross_subtotal_minor - discount_total_minor (ND-184).",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "tax_total_minor",
+            "notes": "Sum over lines: tax_total_minor",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "internal_rounding_adjustment_minor",
+            "notes": "Semicent/rounding adjustment computed by PRICE-1 to satisfy exact arithmetic identity (ND-180/ND-184). May be negative, zero, or positive; platform-owned variance per ND-181.",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "fee_total_minor",
+            "notes": "Sum over lines: fee_total_minor",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "discount_total_minor",
+            "notes": "Total discounts applied (>= 0). Net subtotal is computed as gross_subtotal_minor - discount_total_minor.",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "grand_total_minor",
+            "notes": "DEPRECATED name for total_minor. MUST equal total_minor.",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "total_minor",
+            "notes": "Canonical total payable in minor units: subtotal_minor + fee_total_minor + tax_total_minor + internal_rounding_adjustment_minor (ND-184).",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "signature_hash",
+            "notes": "SHA-256 hex lowercase digest over the exact UTF-8 byte stream that is signed for PRICE-SIG-V4 (RFC8785 JCS canonical JSON of pricing_signature_payload, including record_layout prefix rules). This MUST match recomputation per /signature_spec.",
+            "nullable": false,
+            "type": "sha256_hex_lowercase"
+          },
+          {
+            "name": "consumed_by_order_id",
+            "notes": "Set exactly once when consumed; immutable thereafter",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "signature_version",
+            "notes": "Signature scheme version tag. MUST equal PRICE-SIG-V4 for this contract version family.",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "event_id",
+            "notes": "Event scope for this quote/snapshot. MUST be authoritative for analytics and audit.",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "version",
+            "notes": "Monotonically increasing version for this snapshot within (org_id,event_id). MUST be > 0. Derived atomically from PricingEventCursor.",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "occurrence_ids",
+            "notes": "Occurrence scope for this quote/snapshot. MUST be non-empty; sorted unique; allows multi-occurrence orders.",
+            "nullable": false,
+            "type": "array_uuid_v7"
+          },
+          {
+            "name": "pricing_program_revision_id",
+            "notes": "Immutable reference to the PricingProgramRevision that produced this snapshot.",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "pricing_phase_id",
+            "notes": "Nullable. The phase selected at quote time (e.g., early_bird, phase_1).",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "pricing_experiment_id",
+            "notes": "Nullable. Pricing experiment id when a pricing experiment influenced outputs.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "pricing_variant_key",
+            "notes": "Nullable. Stable variant label (e.g., A, B, control) used for analytics.",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "product_revision_ids",
+            "notes": "Immutable quote signature payload field.",
+            "nullable": false,
+            "type": "uuid_v7_list_nonempty"
+          },
+          {
+            "name": "tax_profile_id",
+            "notes": "Immutable TAXCTX-V2 value field included in the signed quote snapshot.",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "applicable_tax_rate_revision_refs",
+            "notes": "Immutable TAXCTX-V2 value field included in the signed quote snapshot.",
+            "nullable": false,
+            "type": "uuid_v7_list_nonempty"
+          },
+          {
+            "name": "evaluated_at_utc",
+            "notes": "Immutable TAXCTX-V2 value field included in the signed quote snapshot.",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "opaque_pii_jurisdiction_evidence_ref",
+            "notes": "Nullable immutable PRICE-SIG-V4 tax provenance field. For a T0 org_location quote it is explicit null; the null field remains present and is signed.",
+            "nullable": true,
+            "type": "opaque_reference"
+          },
+          {
+            "name": "jurisdiction_evidence_sha256",
+            "notes": "Nullable immutable PRICE-SIG-V4 tax provenance field. For a T0 org_location quote it is explicit null; the null field remains present and is signed.",
+            "nullable": true,
+            "type": "sha256_hex_lowercase"
+          },
+          {
+            "name": "tax_context_digest_version",
+            "notes": "Legacy PRICE snapshot wrapper for TAXCTX-V2 digest_version/digest_sha256. Stores the same canonical digest value, with no second digest or algorithm.",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "tax_context_digest_sha256",
+            "notes": "Legacy PRICE snapshot wrapper for TAXCTX-V2 digest_version/digest_sha256. Stores the same canonical digest value, with no second digest or algorithm.",
+            "nullable": false,
+            "type": "sha256_hex_lowercase"
+          }
+        ],
+        "identities": [
+          {
+            "keys": [
+              "org_id",
+              "event_id",
+              "version"
+            ],
+            "name": "pricing_event_version",
+            "notes": "Temporal fence: enforces unique, gap-detectable stream per event."
+          }
+        ],
+        "name": "PricingSnapshot",
+        "tenant_scoped": true,
+        "tax_context": {
+          "fields": [
+            "tax_profile_id",
+            "applicable_tax_rate_revision_refs",
+            "tax_pricing_mode",
+            "evaluated_at_utc",
+            "digest_version",
+            "digest_sha256",
+            "opaque_pii_jurisdiction_evidence_ref",
+            "jurisdiction_evidence_sha256"
+          ],
+          "stored_fields": {
+            "tax_profile_id": "tax_profile_id",
+            "applicable_tax_rate_revision_refs": "applicable_tax_rate_revision_refs",
+            "tax_pricing_mode": "tax_pricing_mode",
+            "evaluated_at_utc": "evaluated_at_utc",
+            "digest_version": "tax_context_digest_version",
+            "digest_sha256": "tax_context_digest_sha256",
+            "opaque_pii_jurisdiction_evidence_ref": "opaque_pii_jurisdiction_evidence_ref",
+            "jurisdiction_evidence_sha256": "jurisdiction_evidence_sha256"
+          },
+          "digest_mapping": "The two PRICE wrapper fields carry the corresponding TAXCTX-V2 values unchanged; they do not compute a second digest.",
+          "description": "Immutable TAXCTX-V2 quote-value projection reconstructed from the signed PricingSnapshot fields using the exact approved value-object names.",
+          "t0_null_evidence_fields": [
+            "opaque_pii_jurisdiction_evidence_ref",
+            "jurisdiction_evidence_sha256"
+          ],
+          "null_evidence_rule": "For T0 org_location quotes, both listed evidence values are explicit nulls and remain present in the immutable signed PricingSnapshot.tax_context."
+        }
+      },
+      {
+        "attributes": [
+          {
+            "name": "line_id",
+            "notes": "Primary identifier",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "snapshot_id",
+            "notes": "Foreign key to PricingSnapshot",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "seq",
+            "notes": "Deterministic ordering; unique per snapshot; ascending",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "item_ref_type",
+            "notes": "Domain reference type (e.g., ticket_type, fee, discount)",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "item_ref_id",
+            "notes": "Domain reference identifier",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "quantity",
+            "notes": "Integer quantity (>= 1)",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "unit_price_minor",
+            "notes": "Unit price in minor currency units (>= 0)",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "tax_total_minor",
+            "notes": "Tax amount for this line in minor units (>= 0). MUST include taxes for the base line item; fee taxes MAY be included here OR in FeeLine.tax_total_minor, but tax_total aggregation MUST be unambiguous.",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "fee_total_minor",
+            "notes": "Fee amount for this line in minor units (>= 0). MUST equal SUM(FeeLine.amount_minor) where FeeLine.line_id == PriceLine.line_id.",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "discount_total_minor",
+            "notes": "Discount amount for this line in minor units (>= 0)",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "line_total_minor",
+            "notes": "Must equal (quantity*unit_price_minor) - discount_total_minor + fee_total_minor + tax_total_minor.",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "currency",
+            "notes": "MUST equal PricingSnapshot.currency (no mixed-currency)",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "beneficiary_customer_id",
+            "notes": "If subscriber pricing is applied for a beneficiary (buyer or a friend), this is the customer_id who owns the entitlement. Null when no entitlement-based pricing is used.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "entitlement_grant_id",
+            "notes": "Entitlement grant that justified subscriber/VIP pricing for this line. Null when no entitlement-based pricing is used.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "entitlement_tier_id",
+            "notes": "Entitlement tier associated with entitlement_grant_id at finalize time. Null when no entitlement-based pricing is used.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "discount_stack_kind",
+            "notes": "Deterministic indicator of discount stacking applied to this line. MUST be \"none\" for subscriber-priced (entitled) lines. For non-entitled lines, MAY be \"none\" or an implementation-defined token such as \"promo_code\" or \"coupon\".",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "name": "PriceLine",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "fee_line_id",
+            "notes": "Primary identifier",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "snapshot_id",
+            "notes": "Foreign key to PricingSnapshot",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "line_id",
+            "notes": "Foreign key to PriceLine (fee applies to this price line)",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "seq",
+            "notes": "Deterministic ordering; unique per line_id; ascending",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "fee_code",
+            "notes": "Stable fee identifier (e.g., service_fee, facility_fee, provider_gateway_fee).",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "amount_minor",
+            "notes": "Fee amount in minor units (>= 0).",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "is_taxable",
+            "notes": "Whether this fee is taxable (ND-185).",
+            "nullable": false,
+            "type": "boolean"
+          },
+          {
+            "name": "tax_category",
+            "notes": "Tax category (string/enum) used by TAX-1 (ND-185).",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "customer_visible",
+            "notes": "Whether this fee is visible to customer (ND-187). Any customer-collected fee MUST be visible.",
+            "nullable": false,
+            "type": "boolean"
+          },
+          {
+            "name": "revenue_owner",
+            "notes": "Who earns this fee (revenue attribution). Ownership MUST be explicit; no implied ownership by fee_code.",
+            "nullable": false,
+            "type": "enum(platform|organizer|payment_processor|government|third_party)"
+          },
+          {
+            "name": "tax_total_minor",
+            "notes": "Tax amount attributable to this fee (>= 0). Fee tax attribution MUST be represented here (single-truth). It MUST NOT be silently folded only into PriceLine.tax_total_minor.",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "rounding_adjustment_minor",
+            "notes": "Per-fee rounding adjustment (may be negative/positive) used only to satisfy arithmetic identity. MUST be posted to platform rounding_variance (ND-181).",
+            "nullable": false,
+            "type": "int64"
+          }
+        ],
+        "name": "FeeLine",
+        "notes": "Atomic fee line items that make up PriceLine.fee_total_minor. These carry fee taxability + visibility + revenue ownership declarations required by ND-185/ND-187/ND-188.",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "program_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "notes": "Tenant key",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "active",
+              "archived"
+            ],
+            "name": "status",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "archived_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "display_name",
+            "nullable": false,
+            "type": "string"
+          }
+        ],
+        "name": "PricingProgram",
+        "notes": "Versioned pricing program root. Mutations create new revisions; program itself is stable for an event."
+      },
+      {
+        "attributes": [
+          {
+            "name": "revision_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "notes": "Tenant key",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "program_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "draft",
+              "active",
+              "retired"
+            ],
+            "name": "status",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "activated_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "retired_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "supersedes_revision_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "revision_notes",
+            "notes": "Human-readable changelog entry for audit.",
+            "nullable": true,
+            "type": "string"
+          }
+        ],
+        "name": "PricingProgramRevision",
+        "notes": "Immutable revision of a program. Draft may be edited; once activated it is immutable and superseded only by a newer activated revision."
+      },
+      {
+        "attributes": [
+          {
+            "name": "phase_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "notes": "Tenant key",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "revision_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "phase_key",
+            "notes": "Stable slug-like key. Unique per revision.",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "display_name",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "starts_at_utc",
+            "notes": "Null means open start.",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "ends_at_utc",
+            "notes": "Null means open end.",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "priority",
+            "notes": "Higher wins when multiple phases match.",
+            "nullable": false,
+            "type": "int64"
+          }
+        ],
+        "name": "PricingPhase",
+        "notes": "Named time-window phase under a revision (e.g., early_bird, phase_1). Selection is deterministic."
+      },
+      {
+        "attributes": [
+          {
+            "name": "rule_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "notes": "Tenant key",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "revision_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "base_unit_price",
+              "phase_override_unit_price",
+              "seat_proximity_multiplier",
+              "orphan_seat_discount",
+              "fixed_fee",
+              "percent_discount"
+            ],
+            "name": "rule_type",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "priority",
+            "notes": "Higher applies earlier.",
+            "nullable": false,
+            "type": "int64"
+          },
+          {
+            "name": "enabled",
+            "nullable": false,
+            "type": "boolean"
+          },
+          {
+            "enum": [
+              "ticket_type",
+              "addon",
+              "seat"
+            ],
+            "name": "applies_to_ref_type",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "applies_to_ref_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "phase_id",
+            "notes": "When set, only applies in that phase.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "params_json",
+            "notes": "Rule parameters. MUST conform to rule_type param schemas in this contract.",
+            "nullable": false,
+            "type": "json"
+          }
+        ],
+        "name": "PricingRule",
+        "notes": "Atomic pricing rule attached to a revision. Evaluated in deterministic order."
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "notes": "Tenant discriminator. MUST be derived from authenticated context; never trusted from payload.",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_id",
+            "notes": "Commercial scope for pricing evolution. Version sequence is monotonic per (org_id,event_id).",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "current_version",
+            "notes": "Monotonically increasing counter. MUST be >= 0; next version = current_version + 1.",
+            "nullable": false,
+            "type": "integer"
+          }
+        ],
+        "identities": [
+          {
+            "keys": [
+              "org_id",
+              "event_id"
+            ],
+            "name": "pricing_head",
+            "notes": "Uniqueness fence for cursor row per event."
+          }
+        ],
+        "name": "PricingEventCursor",
+        "purpose": "Atomic version cursor for event-scoped pricing stream (org_id,event_id).",
+        "tenant_scoped": true
+      }
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "PRICE-P0-GRAPH",
+      "severity": "P0",
+      "text": "PRICE-1 MUST NOT depend on ORD-1 (avoid circular coupling)."
+    },
+    {
+      "rule_id": "PRICE-P0-TAX-MODE",
+      "severity": "P0",
+      "text": "PricingSnapshot MUST declare tax_pricing_mode and MUST bind tax_context_digest_sha256; exclusive_add_on mode requires sufficient tax jurisdiction context at quote time."
+    },
+    {
+      "must": [],
+      "notes": [
+        "PRICE-SIG-V4 binds entitlement context and tax context digest.",
+        "PRICE-SIG-V4 binds tax_pricing_mode to prevent display/checkout interpretation drift."
+      ],
+      "rule_id": "PRICE-P0-SIGNATURE-CANON",
+      "severity": "P0",
+      "text": "Signature canonicalization MUST be fully specified and deterministic (PRICE-SIG-V4), while retaining verification support for PRICE-SIG-V1 and PRICE-SIG-V2 for historical snapshots."
+    },
+    {
+      "rule_id": "PRICE-P0-TOTALS",
+      "severity": "P0",
+      "text": "Snapshot-level totals MUST be stored and MUST match line aggregates; totals are part of signature inputs."
+    },
+    {
+      "rule_id": "PRICE-P0-AUDIT",
+      "severity": "P0",
+      "text": "Consumption is auditable: consumed_by_order_id is required on consume transition and is immutable."
+    },
+    {
+      "rule_id": "PRICE-P0-ERR",
+      "severity": "P0",
+      "text": "All referenced subcodes MUST exist in ERR-1 registry; no contract-local subcodes without registration."
+    },
+    {
+      "rule_id": "PRICE-P1-ASH",
+      "severity": "P1",
+      "text": "Ash 3.x operational surface MUST be explicit (domain, resources, actions, writable fields)."
+    },
+    {
+      "rule_id": "PRICE-P1-OBS",
+      "severity": "P1",
+      "text": "OBS-1 dependency MUST be satisfied by explicit required signals (pricing drift incidents must be observable)."
+    },
+    {
+      "rule_id": "PRICE-P0-FEE-DECLARATIONS",
+      "severity": "P0",
+      "text": "PRICE-1 MUST represent fees as first-class FeeLine items carrying is_taxable, tax_category, customer_visible, and revenue_owner declarations (ND-185/ND-187/ND-188). No implicit fee defaults are permitted."
+    },
+    {
+      "rule_id": "PRICE-P0-MONOTONIC-VERSION-001",
+      "severity": "P0",
+      "text": "PricingSnapshot.version MUST be monotonic per (org_id,event_id) and MUST be assigned atomically using PricingEventCursor.current_version + 1 within the same DB transaction as snapshot + outbox insert. Version MUST be > 0. Gaps are corruption and MUST open a circuit breaker."
+    },
+    {
+      "rule_id": "PRICE-P0-LOCKS-NS-102-001",
+      "severity": "P0",
+      "text": "Producers MUST acquire a LOCKS-1 session/transaction-affine advisory lock using Namespace 102 on (org_id,event_id) before reading/updating PricingEventCursor. Lock key MUST be deterministic 64-bit (CRC64(org_id||event_id) or equivalent) to avoid collisions."
+    },
+    {
+      "rule_id": "PRICE-P0-DEPLOY-AIRLOCK-001",
+      "severity": "P0",
+      "text": "Deployments that tighten required_keys (e.g., adding version) MUST be executed under DMSC-1 drain+proof and MUST provide an automated backfill path for legacy snapshots."
+    },
+    {
+      "rule_id": "PRICE-T0-PRICING-PROGRAM-ACTIVE-HEAD",
+      "severity": "P0",
+      "text": "Exactly one PricingProgramRevision MUST be active for each {org_id,event_id}. Replacement MUST be atomic under concurrency fencing. The existing LOCKS-1 Namespace 102 mandate remains in force for PricingEventCursor advancement and event emission; it does not prescribe the active-revision replacement mechanism."
+    },
+    {
+      "rule_id": "PRICE-T0-DELEGATED-QUOTE-ACTIONS",
+      "severity": "P0",
+      "text": "create_snapshot and activate_snapshot are subordinate governed actions invoked by OFFER-1.build_cart_quote under scoped authenticated delegation. They are not buyer-authorized endpoints. The delegation preserves originating actor attribution, org_id, request_id, trace_id, and boundary Idempotency-Key. Generic bypass and authorize?: false are forbidden."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "signature_spec": {
+    "algorithm": "sha256",
+    "canonical_encoding": {
+      "description": "Canonical JSON per RFC 8785 (JCS). Object keys are sorted lexicographically by Unicode code point; numbers are normalized per RFC 8785. UTF-8 encoding.",
+      "standard": "RFC8785_JCS",
+      "utf8": true
+    },
+    "digest_encoding": "hex_lowercase",
+    "input_model": {
+      "fee_line_fields_in_order": [
+        "fee_line_id",
+        "line_id",
+        "seq",
+        "fee_code",
+        "amount_minor",
+        "is_taxable",
+        "tax_category",
+        "customer_visible",
+        "revenue_owner",
+        "tax_total_minor",
+        "rounding_adjustment_minor"
+      ],
+      "line_fields_in_order": [
+        "line_id",
+        "seq",
+        "item_ref_type",
+        "item_ref_id",
+        "quantity",
+        "unit_price_minor",
+        "tax_total_minor",
+        "fee_total_minor",
+        "discount_stack_kind",
+        "discount_total_minor",
+        "line_total_minor",
+        "currency"
+      ],
+      "ordering_rules": {
+        "fee_lines": "line_id_asc_then_seq_asc_then_fee_line_id_asc",
+        "price_lines": "seq_asc_then_line_id_asc"
+      },
+      "payload_object": "canonical_immutable_snapshot_payload",
+      "price_line_fields_in_order": [
+        "line_id",
+        "seq",
+        "item_ref_type",
+        "item_ref_id",
+        "quantity",
+        "unit_price_minor",
+        "discount_total_minor",
+        "fee_total_minor",
+        "tax_total_minor",
+        "line_total_minor",
+        "currency",
+        "beneficiary_customer_id",
+        "entitlement_grant_id",
+        "entitlement_tier_id",
+        "discount_stack_kind"
+      ],
+      "snapshot_fields_in_order": [
+        "signature_version",
+        "quote_id",
+        "quote_issued_at_utc",
+        "quote_expires_at_utc",
+        "org_id",
+        "currency",
+        "tax_pricing_mode",
+        "tax_context_digest_sha256",
+        "gross_subtotal_minor",
+        "discount_total_minor",
+        "subtotal_minor",
+        "fee_total_minor",
+        "tax_total_minor",
+        "internal_rounding_adjustment_minor",
+        "total_minor",
+        "tax_context_digest_version",
+        "event_id",
+        "product_revision_ids",
+        "pricing_program_revision_id",
+        "tax_profile_id",
+        "applicable_tax_rate_revision_refs",
+        "evaluated_at_utc",
+        "opaque_pii_jurisdiction_evidence_ref",
+        "jurisdiction_evidence_sha256"
+      ],
+      "quote_value_mapping": {
+        "value_object": "PricingSnapshot.tax_context",
+        "fields": [
+          "tax_profile_id",
+          "applicable_tax_rate_revision_refs",
+          "tax_pricing_mode",
+          "evaluated_at_utc",
+          "digest_version",
+          "digest_sha256",
+          "opaque_pii_jurisdiction_evidence_ref",
+          "jurisdiction_evidence_sha256"
+        ],
+        "digest_wrapper_fields": {
+          "digest_version": "tax_context_digest_version",
+          "digest_sha256": "tax_context_digest_sha256"
+        },
+        "digest_values_are_identical": true
+      },
+      "null_value_policy": {
+        "t0_org_location_fields": [
+          "opaque_pii_jurisdiction_evidence_ref",
+          "jurisdiction_evidence_sha256"
+        ],
+        "rule": "When null, each listed field remains present with JSON null in canonical_immutable_snapshot_payload and is covered by PRICE-SIG-V4. Null does not mean omitted."
+      }
+    },
+    "line_fields_in_order": [
+      "line_id",
+      "seq",
+      "item_ref_type",
+      "item_ref_id",
+      "quantity",
+      "unit_price_minor",
+      "discount_total_minor",
+      "fee_total_minor",
+      "tax_total_minor",
+      "line_total_minor",
+      "currency",
+      "beneficiary_customer_id",
+      "entitlement_grant_id",
+      "entitlement_tier_id",
+      "discount_stack_kind"
+    ],
+    "notes": "PRICE-SIG-V4 signs a canonical JSON payload (RFC 8785) that binds quote TTL, tax context digest, fee ownership/taxability/visibility, and entitlement + discount stack context. This prevents substitution/replay across time, tax contexts, and discount entitlements. The canonical immutable payload also binds event, product, pricing revision references, tax_pricing_mode, and tax_context_digest_version. Canonical payload includes org_id, event_id, product_revision_ids, pricing_program_revision_id, currency, all quote lines and totals, tax_pricing_mode, tax_context_digest_version, and tax_context_digest_sha256. The immutable signed snapshot contains the eight PRICE tax-context provenance fields listed in input_model.quote_value_mapping.fields. This provenance object is separate from the 11-field TAXCTX-V2 canonical digest transcript defined by TAX-1. Its digest_version and digest_sha256 map unchanged to PRICE tax_context_digest_version and tax_context_digest_sha256, which remain the signed snapshot and registered event wrapper fields. For T0 org_location quotes, opaque_pii_jurisdiction_evidence_ref and jurisdiction_evidence_sha256 are explicit values represented as JSON null fields; both remain present in the canonical payload and are signed.",
+    "record_layout": {
+      "prefix": "PRICE-SIG-V4\n",
+      "version_tag_line": "signature_version=PRICE-SIG-V4"
+    },
+    "signature_version": "PRICE-SIG-V4",
+    "verification_rules": {
+      "must_recompute_from_stored_values": true,
+      "must_reject_extra_lines": true,
+      "must_reject_line_reordering": true,
+      "must_reject_missing_fields": true,
+      "must_reject_stale_quotes_using_db_now": true
+    }
+  },
+  "status": "active",
+  "subcodes_declared": {
+    "EXT_IDEMPOTENCY_REPLAY": {
+      "notes": "Idempotency key replay with mismatched inputs",
+      "subcode": "EXT_IDEMPOTENCY_REPLAY",
+      "top_level": "ERR_CONFLICT"
+    },
+    "EXT_SIGNATURE_INVALID": {
+      "notes": "Signature mismatch / invalid signature",
+      "subcode": "EXT_SIGNATURE_INVALID",
+      "top_level": "ERR_FORBIDDEN"
+    },
+    "PRICE_DISCOUNT_STACK_FORBIDDEN": {
+      "notes": "Subscriber-priced lines MUST NOT stack additional discounts. Raised when entitlement context is present and discount_stack_kind != \"none\" or discount_total_minor != 0.",
+      "subcode": "PRICE_DISCOUNT_STACK_FORBIDDEN",
+      "top_level": "ERR_FORBIDDEN"
+    },
+    "PRICE_MIXED_CURRENCY": {
+      "notes": "Mixed currency detected between snapshot and lines",
+      "subcode": "PRICE_MIXED_CURRENCY",
+      "top_level": "ERR_VALIDATION"
+    },
+    "PRICE_SNAPSHOT_EXPIRED": {
+      "notes": "Snapshot expired or not active at verification time",
+      "subcode": "PRICE_SNAPSHOT_EXPIRED",
+      "top_level": "ERR_PRECONDITION"
+    },
+    "PRICE_TOTAL_MISMATCH": {
+      "notes": "Snapshot totals mismatch against computed totals",
+      "subcode": "PRICE_TOTAL_MISMATCH",
+      "top_level": "ERR_VALIDATION"
+    },
+    "TAX_JURISDICTION_REQUIRED": {
+      "notes": "Tax jurisdiction context required to compute taxes for exclusive_add_on mode.",
+      "subcode": "TAX_JURISDICTION_REQUIRED",
+      "top_level": "ERR_PRECONDITION"
+    }
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines versioned pricing programs (phases, adjustments, experiments) and authoritative signed PricingSnapshots consumed by ORD-1; supports occurrence-aware quoting without breaking auditability.\n\nAdded explicit tax_pricing_mode (inclusive vs exclusive_add_on) and bound it in PRICE-SIG-V4 to prevent tax interpretation drift.",
+  "tenancy": {
+    "context_required": [
+      "org_id",
+      "actor_id",
+      "request_id",
+      "trace_id"
+    ],
+    "forbid_ambient_tenancy": true,
+    "leakage_policy": {
+      "hide_existence": true
+    },
+    "strategy": "attribute",
+    "tenant_key": "org_id",
+    "fee_line_scope": "tenant_scoped"
+  },
+  "tier": 1,
+  "title": "PRICE-1 — Pricing Programs, Versioned Rules & Snapshot Authority (Ticketing / Ash 3.x)",
+  "version": "3.5.6"
+}

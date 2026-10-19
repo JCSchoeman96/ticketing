@@ -1,0 +1,13 @@
+{
+  "doc_id": "ORD-1",
+  "version": "4.0.0",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "release_status": "candidate",
+  "release_intent": "Review-only successor package for the frozen T0 authority snapshot, ORD-1@4.0.0.",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "d5b32da612158e47c83a8001df065e7edaf0037139f2c6ae9f2ba056c4bacebd"
+  }
+}

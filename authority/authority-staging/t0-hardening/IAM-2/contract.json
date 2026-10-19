@@ -1,0 +1,872 @@
+{
+  "artifact_kind": "contract",
+  "ash_3x_mapping": {
+    "domains": [
+      {
+        "domain": "Ticketing.IAM",
+        "notes": [
+          "IAM-2 workflows live in the Ticketing.IAM domain as resources + actions; do not model as ad-hoc controllers."
+        ]
+      }
+    ],
+    "resources_and_actions": [
+      {
+        "actions": [
+          "create_invite_intent",
+          "revoke_invite_intent",
+          "accept_invite_intent"
+        ],
+        "notes": [
+          "Use Ash policies to authorize only org-scoped admin actors to create/revoke invites.",
+          "accept_invite_intent MUST be callable by an anonymous actor given a valid proof token (policy based on token scope)."
+        ],
+        "resource": "Ticketing.IAM.InviteIntent"
+      },
+      {
+        "actions": [
+          "issue_token",
+          "consume_token",
+          "revoke_tokens_for_subject"
+        ],
+        "notes": [
+          "Persist only token_hash; raw token exists only in memory and outbound email composition.",
+          "Use changes to set expires_at and validations for purpose scope."
+        ],
+        "resource": "Ticketing.IAM.ProofToken"
+      },
+      {
+        "actions": [
+          "create_claim",
+          "consume_claim",
+          "revoke_claim"
+        ],
+        "notes": [
+          "Consume action MUST be idempotent and MUST use DB uniqueness + transactions to prevent duplicate membership grants."
+        ],
+        "resource": "Ticketing.IAM.InviteClaim"
+      }
+    ],
+    "side_effects_and_jobs": {
+      "execution_time_auth_check": {
+        "notes": [
+          "Workers MUST re-check invite/token status and actor liveness/permission at execution time (GC-032 pattern).",
+          "If revoked/expired, worker MUST abort without delivering secrets and MUST emit an audit event."
+        ],
+        "required": true
+      },
+      "jobs": [
+        {
+          "job": "ticketing.iam.invite_email.send",
+          "payload": {
+            "invite_id": "uuidv7"
+          },
+          "queue": "STANDARD"
+        },
+        {
+          "job": "ticketing.iam.magic_link.send",
+          "payload": {
+            "token_id": "uuidv7"
+          },
+          "queue": "STANDARD"
+        },
+        {
+          "job": "ticketing.iam.password_reset.send",
+          "payload": {
+            "token_id": "uuidv7"
+          },
+          "queue": "STANDARD"
+        }
+      ],
+      "rule": "No direct email or external calls inside core actions; enqueue OBQC-controlled jobs with deterministic payloads."
+    }
+  },
+  "change_log": [
+    {
+      "changes": [
+        "Pinned dependencies: IAM-1@>=3.2.0, TEN-1@>=1.7.11, SEC-1@>=3.0.11, OBQC-1@>=2.1.7.",
+        "Invalid/expired proof tokens now map to ERR_NOT_FOUND to prevent existence leaks at the boundary.",
+        "Standardized required error codes to ERR-1 top-level registry (removed non-registry codes).",
+        "Strengthened uniform response rules: hide-existence + stable envelope + timing hardening mandated for all IAM-2 boundary flows."
+      ],
+      "date_utc": "2026-01-30T18:28:52Z",
+      "id": "CHG-IAM-2-012",
+      "summary": "Align IAM-2 enumeration hardening with TEN-1@1.7.11 + SEC-1@3.0.11 uniform tenant-safe boundary responses (GC-030/GC-032 posture)."
+    },
+    {
+      "changes": [
+        "Initial IAM-2 contract introducing tenant-safe silent-link invite workflows (GC-030) and proof token semantics.",
+        "Defines proof token hashing, TTL bounds, and idempotent consumption rules.",
+        "Requires async workers to re-check authorization and status at execution time (GC-032 pattern)."
+      ],
+      "date_utc": "2026-01-28T10:55:14Z",
+      "type": "major",
+      "version": "1.0.0"
+    }
+  ],
+  "changelog": [
+    {
+      "chg_id": "CHG-IAM-2-013",
+      "date_utc": "2026-02-02",
+      "summary": "Expand IAM-2 into the Gate: add Consumer OTP lane + Consumer Proof Grants; update boundaries; add OTP resources/workflows/security controls; align with tiered security model (consumer vs admin).",
+      "type": "patch"
+    }
+  ],
+  "data_model": {
+    "constraints": [
+      "All resources that include org_id MUST enforce org_id presence at the DB level and via Ash validations.",
+      "No workflow MUST store raw email/phone identifiers inside invite/token resources; only hashes (raw identifier MAY exist only in outbound email content generation inputs).",
+      "Consumer OTP challenges MUST store only destination_hash + code_hash (no plaintext phone/email or code). Plaintext destinations belong in PII-1 only.",
+      "consumer_otp_challenge MUST be single-use: on successful verification it MUST transition to status=consumed and set consumed_at_utc; further verifies MUST return uniform responses.",
+      "OTP verification MUST enforce max_attempts (recommended 5). Exceeding max_attempts MUST set locked_until_utc (recommended 5m) and status=locked.",
+      "consumer_proof_grant MUST be bound to (actor_id, session_id) and MUST NOT be interpreted as strong assurance (aal2_strong) or as IAM-3 StepUpGrant."
+    ],
+    "identifiers": {
+      "id_type": "uuidv7",
+      "timestamp_type": "utc_datetime_usec"
+    },
+    "resources": [
+      {
+        "name": "invite_intent",
+        "notes": [
+          "target_identifier_hash MUST be a one-way normalized hash of the identifier (e.g., lowercased email) using a platform pepper.",
+          "Creating a new pending invite for the same (org_id,target_identifier_hash) MUST revoke any prior pending invite (deterministic latest-wins)."
+        ],
+        "primary_key": "invite_id",
+        "required_fields": [
+          "invite_id",
+          "org_id",
+          "created_by_actor_id",
+          "target_identifier_hash",
+          "target_identifier_type",
+          "status",
+          "expires_at_utc",
+          "created_at_utc"
+        ],
+        "status_enum": [
+          "pending",
+          "revoked",
+          "accepted",
+          "expired"
+        ],
+        "uniqueness": [
+          {
+            "constraint": "unique_active_invite_per_target_per_org",
+            "keys": [
+              "org_id",
+              "target_identifier_hash"
+            ],
+            "where": "status='pending'"
+          }
+        ]
+      },
+      {
+        "link_fields": [
+          "org_id",
+          "invite_id",
+          "subject_user_id",
+          "request_ip_hash",
+          "request_identifier_hash"
+        ],
+        "name": "proof_token",
+        "notes": [
+          "token_hash MUST be computed over the raw token plus a server-side pepper and MUST be compared in constant time.",
+          "A consumed token MUST NOT be reusable; replays MUST return a uniform invalid/expired response."
+        ],
+        "primary_key": "token_id",
+        "purpose_enum": [
+          "invite_accept",
+          "email_verify",
+          "password_reset",
+          "magic_link_sign_in"
+        ],
+        "required_fields": [
+          "token_id",
+          "purpose",
+          "token_hash",
+          "issued_at_utc",
+          "expires_at_utc",
+          "status"
+        ],
+        "status_enum": [
+          "active",
+          "consumed",
+          "revoked",
+          "expired"
+        ],
+        "uniqueness": [
+          {
+            "constraint": "unique_active_token_hash",
+            "keys": [
+              "token_hash"
+            ],
+            "where": "status='active'"
+          }
+        ]
+      },
+      {
+        "name": "invite_claim",
+        "notes": [
+          "invite_claim enables a subject to accept an invite without revealing whether a user account already exists.",
+          "Consuming a claim MUST be idempotent: repeated consumption yields the same result without duplicating memberships."
+        ],
+        "primary_key": "claim_id",
+        "required_fields": [
+          "claim_id",
+          "org_id",
+          "invite_id",
+          "target_identifier_hash",
+          "created_at_utc",
+          "status"
+        ],
+        "status_enum": [
+          "active",
+          "consumed",
+          "revoked",
+          "expired"
+        ],
+        "uniqueness": [
+          {
+            "constraint": "unique_active_claim_per_invite",
+            "keys": [
+              "invite_id"
+            ],
+            "where": "status='active'"
+          }
+        ]
+      },
+      {
+        "name": "registration_intent",
+        "notes": [
+          "registration_intent stores no secrets; new_secret MUST only be processed at sign_up_complete.",
+          "Creating a new pending registration for the same (org_id,target_identifier_hash) MUST revoke prior pending registration intents (latest-wins)."
+        ],
+        "primary_key": "registration_intent_id",
+        "required_fields": [
+          "registration_intent_id",
+          "org_id",
+          "target_identifier_hash",
+          "target_identifier_type",
+          "status",
+          "expires_at_utc",
+          "created_at_utc"
+        ],
+        "status_enum": [
+          "pending",
+          "completed",
+          "expired",
+          "revoked"
+        ],
+        "uniqueness": [
+          {
+            "constraint": "unique_active_registration_per_target_per_org",
+            "keys": [
+              "org_id",
+              "target_identifier_hash"
+            ],
+            "where": "status='pending'"
+          }
+        ]
+      },
+      {
+        "description": "Abuse-safe OTP challenge for consumer proof (SMS/email). Stores only destination_hash + code_hash; enforces max_attempts, lockout, expiry, and single-use consumption (status: active|consumed|locked|expired|revoked).",
+        "link_fields": [
+          "actor_id",
+          "subject_user_id",
+          "session_id",
+          "org_id",
+          "request_ip_hash",
+          "request_identifier_hash",
+          "locked_until_utc",
+          "consumed_at_utc",
+          "updated_at_utc"
+        ],
+        "name": "consumer_otp_challenge",
+        "primary_key": "otp_challenge_id",
+        "required_fields": [
+          "otp_challenge_id",
+          "purpose",
+          "channel",
+          "destination_hash",
+          "code_hash",
+          "status",
+          "attempt_count",
+          "max_attempts",
+          "expires_at_utc",
+          "created_at_utc"
+        ],
+        "scope": "global",
+        "status_enum": [
+          "active",
+          "consumed",
+          "locked",
+          "expired",
+          "revoked"
+        ]
+      },
+      {
+        "description": "Session-bound proof record produced by consumer OTP/passkey flows. Distinct from IAM-3 StepUpGrant; MUST NOT satisfy any aal2_strong requirement (status: active|expired|revoked).",
+        "link_fields": [
+          "org_id",
+          "purpose",
+          "otp_challenge_id",
+          "revoked_at_utc",
+          "created_at_utc",
+          "updated_at_utc"
+        ],
+        "name": "consumer_proof_grant",
+        "primary_key": "consumer_proof_grant_id",
+        "required_fields": [
+          "consumer_proof_grant_id",
+          "actor_id",
+          "session_id",
+          "method",
+          "verified_at_utc",
+          "expires_at_utc",
+          "status"
+        ],
+        "scope": "global",
+        "status_enum": [
+          "active",
+          "expired",
+          "revoked"
+        ]
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.0",
+      "reason": "Policy engine contract for auth context + tiered assurance naming; required to prevent consumer OTP from being treated as strong step-up."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.11",
+      "reason": "Tenant key semantics (org_id), membership linking, cross-tenant isolation invariants + boundary hide-existence profile."
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "requires",
+      "min_version": "3.0.11",
+      "reason": "Boundary security posture: uniform tenant-safe responses, timing hardening, and anti-enumeration requirements."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.10",
+      "reason": "Canonical error envelope + top-level code registry for uniform responses."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "requires",
+      "min_version": "2.1.7",
+      "reason": "Outbox/Oban queue quality controls for invite/email/token dispatch jobs."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "requires",
+      "min_version": "1.0.6",
+      "reason": "OTP destinations (email/phone) MUST be stored via PII-1 or as irreversible hashes; IAM-2 stores destination_hash only."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "requires",
+      "min_version": "2.16.4",
+      "reason": "Registry head parity (Phase 5). IAM-2 does not emit events but aligns to registry law for suite consistency."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.0",
+      "reason": "Schema-ref token authority parity (Phase 5)."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0"
+  },
+  "doc_id": "IAM-2",
+  "emits_events": false,
+  "errors": {
+    "envelope_ref": {
+      "doc_id": "ERR-1",
+      "min_version": "1.4.10"
+    },
+    "required_error_codes": [
+      "ERR_NOT_FOUND",
+      "ERR_UNAUTHENTICATED",
+      "ERR_FORBIDDEN",
+      "ERR_RATE_LIMITED",
+      "ERR_VALIDATION"
+    ],
+    "uniform_response_rules": [
+      "All cross-tenant and unauthorized access outcomes MUST use ERR_NOT_FOUND (hide existence) and MUST NOT expose whether a resource exists in another tenant.",
+      "All hide-existence outcomes MUST use a uniform error envelope with stable shape and MUST NOT vary subcode/detail fields based on existence, tenancy, or authorization outcomes.",
+      "All boundary endpoints participating in IAM-2 workflows (invites, magic links, token redemption, membership linking) MUST apply TEN-1/SEC-1 uniform-response and timing-hardening profiles; per-path exceptions are forbidden."
+    ]
+  },
+  "generated_at_utc": "2026-02-06T00:00:00Z",
+  "internal_dispatch_outbox_spec": {
+    "delivery": "outbox_only",
+    "events": [
+      {
+        "entity": "invite_intent",
+        "name": "ticketing.iam.invite.requested",
+        "required_payload_keys": [
+          "invite_id",
+          "org_id",
+          "request_id",
+          "occurred_at_utc"
+        ]
+      },
+      {
+        "entity": "invite_intent",
+        "name": "ticketing.iam.invite.dispatched",
+        "required_payload_keys": [
+          "invite_id",
+          "org_id",
+          "channel",
+          "occurred_at_utc"
+        ]
+      },
+      {
+        "entity": "invite_intent",
+        "name": "ticketing.iam.invite.revoked",
+        "required_payload_keys": [
+          "invite_id",
+          "org_id",
+          "occurred_at_utc"
+        ]
+      },
+      {
+        "entity": "invite_intent",
+        "name": "ticketing.iam.invite.accepted",
+        "required_payload_keys": [
+          "invite_id",
+          "org_id",
+          "subject_user_id",
+          "occurred_at_utc"
+        ]
+      },
+      {
+        "entity": "proof_token",
+        "name": "ticketing.iam.token.issued",
+        "required_payload_keys": [
+          "token_id",
+          "purpose",
+          "occurred_at_utc"
+        ]
+      },
+      {
+        "entity": "proof_token",
+        "name": "ticketing.iam.token.consumed",
+        "required_payload_keys": [
+          "token_id",
+          "purpose",
+          "occurred_at_utc"
+        ]
+      },
+      {
+        "entity": "consumer_otp_challenge",
+        "name": "ticketing.iam.consumer_otp.requested",
+        "required_payload_keys": [
+          "otp_challenge_id",
+          "purpose",
+          "channel",
+          "destination_hash",
+          "occurred_at_utc"
+        ]
+      },
+      {
+        "entity": "consumer_otp_challenge",
+        "name": "ticketing.iam.consumer_otp.verified",
+        "required_payload_keys": [
+          "otp_challenge_id",
+          "session_id",
+          "consumer_proof_grant_id",
+          "occurred_at_utc"
+        ]
+      },
+      {
+        "entity": "consumer_proof_grant",
+        "name": "ticketing.iam.consumer_proof.granted",
+        "required_payload_keys": [
+          "consumer_proof_grant_id",
+          "actor_id",
+          "session_id",
+          "method",
+          "expires_at_utc",
+          "occurred_at_utc"
+        ]
+      }
+    ],
+    "ordering": "per_aggregate_id"
+  },
+  "last_updated_utc": "2026-04-15T13:47:07Z",
+  "lineage": {
+    "supersedes": [
+      {
+        "doc_id": "IAM-2",
+        "reason": "CS-0@3.0.0 and BP-0@3.0.0 alignment refactor with no intended business-semantic expansion.",
+        "version": "1.3.1"
+      }
+    ]
+  },
+  "normative_source": {
+    "constitution_ref": {
+      "doc_id": "V42-0",
+      "min_version": "1.6.0"
+    },
+    "gotcha_refs": [
+      "GC-030",
+      "GC-032"
+    ],
+    "notes": [
+      "IAM-1 defines identity primitives, authz surfaces, and enumeration hardening policy. IAM-2 defines the workflows that MUST use those primitives safely.",
+      "Where this contract specifies 'uniform responses', the response body, status code, and timing envelope MUST NOT reveal identifier existence or cross-tenant membership."
+    ]
+  },
+  "observability": {
+    "alerts": [
+      {
+        "condition": "sustained increase in enumeration_suspected events per minute",
+        "name": "iam_enumeration_suspected_spike",
+        "severity": "P1"
+      },
+      {
+        "condition": "token consume failure rate exceeds baseline per purpose",
+        "name": "iam_token_consume_failure_spike",
+        "severity": "P2"
+      }
+    ],
+    "metrics": [
+      {
+        "labels": [
+          "org_id_hash"
+        ],
+        "name": "ticketing.iam.invite.request.rate",
+        "type": "counter"
+      },
+      {
+        "labels": [
+          "purpose"
+        ],
+        "name": "ticketing.iam.token.consume.fail.rate",
+        "type": "counter"
+      },
+      {
+        "labels": [
+          "flow"
+        ],
+        "name": "ticketing.iam.enumeration.suspected.rate",
+        "type": "counter"
+      }
+    ],
+    "release_blocks": [
+      "If enumeration_suspected alert triggers continuously for 15 minutes, deployments that touch IAM flows MUST be paused pending investigation."
+    ]
+  },
+  "outbox_events": [],
+  "project_namespace": "Ticketing",
+  "purpose_and_boundaries": {
+    "never_owns": [
+      "Authorization decisions (roles/capabilities, risk tagging, strong assurance policy) — IAM-1.",
+      "Strong step-up and admin MFA factors (TOTP/WebAuthn), StepUpGrant issuance, delegated admin resets — IAM-3.",
+      "Payout release, exports, DSAR privileged operations (governed via IAM-1 + BI/DSAR/LED contracts).",
+      "Storing plaintext destinations (email/phone); destinations MUST be handled via PII-1 or stored only as irreversible hashes."
+    ],
+    "out_of_scope": [
+      "SAML / enterprise IdP integrations (future).",
+      "Device attestation / advanced risk scoring (future).",
+      "Admin break-glass processes (IAM-3 / platform ops)."
+    ],
+    "owns": [
+      "Registration & account bootstrap (consumers and org staff).",
+      "AAL1 authentication strategies and credential lifecycle: password, magic link, OAuth (Google/Apple).",
+      "Invite lifecycle for org onboarding (invites, acceptance, expiry).",
+      "Password reset and email verification flows.",
+      "Consumer OTP challenges (SMS/email) for low-risk consumer proof (e.g., ticket transfer, consumer account recovery steps).",
+      "Issuance of session-bound ConsumerProofGrant records (NOT StepUpGrant) used only for low-risk policy checks in IAM-1."
+    ]
+  },
+  "references": [
+    {
+      "doc_id": "DATA-1",
+      "min_version": "1.1.6",
+      "reason": "Export/auth re-check pattern (GC-032) that IAM-2 workflows must enable for identity-related exports or audit artifacts."
+    },
+    {
+      "doc_id": "OBS-1",
+      "min_version": "2.7.6",
+      "reason": "Observability baseline for security signals and abuse detection."
+    }
+  ],
+  "required_error_codes": [
+    "IAM_CONSUMER_OTP_INVALID",
+    "IAM_CONSUMER_OTP_LOCKED",
+    "IAM_CONSUMER_OTP_EXPIRED"
+  ],
+  "schema_version": "contract-suite/1.0",
+  "security": {
+    "abuse_controls": {
+      "anti_replay_policy": {
+        "proof_tokens_must_be_bound_to_purpose": true,
+        "proof_tokens_must_be_bound_to_scope": true,
+        "redirect_targets_must_be_allowlisted": true
+      },
+      "auditable_signal_events": [
+        "ticketing.iam.enumeration.suspected",
+        "ticketing.iam.invite.requested",
+        "ticketing.iam.invite.accepted",
+        "ticketing.iam.token.consumed"
+      ],
+      "rate_limit_policy": {
+        "lockout_on_abuse": true,
+        "per_identifier_per_hour": 10,
+        "per_ip_per_minute": 30
+      }
+    },
+    "consumer_otp_controls": {
+      "code_length_digits": 6,
+      "code_storage": "code_hash only (argon2id recommended) + server-side pepper; no plaintext",
+      "destination_storage": "destination_hash only; plaintext destination in PII-1 only",
+      "lockout_seconds": 300,
+      "max_attempts": 5,
+      "resend_cooldown_seconds": 30,
+      "ttl_seconds": 600,
+      "uniform_responses": true
+    },
+    "enumeration_hardening": {
+      "enabled": true,
+      "inherits_from": {
+        "doc_id": "IAM-1",
+        "min_version": "3.4.0"
+      },
+      "response_policy": {
+        "hide_existence": true,
+        "invalid_token_code": "ERR_NOT_FOUND",
+        "request_flows_success_code": "OK_ACCEPTED",
+        "uniform_error_envelope": true
+      },
+      "timing_policy": {
+        "constant_time_compare_required": true,
+        "jitter_ms": 120,
+        "min_response_time_ms": 350
+      }
+    },
+    "enumeration_protection": {
+      "must_be_generic": [
+        "request_consumer_otp",
+        "verify_consumer_otp",
+        "password_reset_request",
+        "magic_link_request"
+      ],
+      "recommended_behavior": "Always return a success-looking response with correlation_id; mask destinations; never confirm account existence."
+    },
+    "proof_token_requirements": {
+      "consumption_policy": {
+        "consumption_is_idempotent": true,
+        "revoked_tokens_must_not_apply_side_effects": true,
+        "single_use": true
+      },
+      "hash_algorithm": "sha256",
+      "pepper_required": true,
+      "raw_token_never_persisted": true,
+      "store_hashed_only": true,
+      "token_format": {
+        "bytes_min": 32,
+        "encoding": "base64url"
+      },
+      "ttl_policy": {
+        "email_verify_max_seconds": 86400,
+        "invite_accept_max_seconds": 604800,
+        "magic_link_max_seconds": 1800,
+        "min_seconds": 300,
+        "password_reset_max_seconds": 7200
+      }
+    }
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines tenant-safe identity lifecycle workflows (invites, proofs, and linking) to prevent cross-tenant user existence leaks (GC-030) and to ensure async workflow steps re-check authorization at execution time.\n\n Phase-5 note: IAM-2 is a non-producer contract; its internal dispatch/outbox spec is NOT the EVT bus outbox. EVT bus emission is disabled (emits_events=false, outbox_events=[]).",
+  "tenancy": {
+    "cross_tenant_behavior": "hard_fail",
+    "leakage_policy": "hide_existence",
+    "notes": [
+      "All invite and membership-granting workflows MUST be scoped to org_id and MUST NOT disclose information about identities or memberships in other orgs.",
+      "Proof tokens MUST encode scope (purpose + org_id when applicable) and workers MUST validate that scope before applying side effects."
+    ],
+    "rls_expected": true,
+    "tenant_injection": "transaction_local",
+    "tenant_key": "org_id"
+  },
+  "tier": 1,
+  "title": "IAM-2 Identity Lifecycle Workflows and Proof Tokens",
+  "updated_at": "2026-04-15T13:47:07Z",
+  "updated_at_utc": "2026-04-15T13:47:07Z",
+  "version": "1.3.1",
+  "workflows": {
+    "consumer_otp_request_flow": {
+      "entrypoints": [
+        "request_consumer_otp(purpose, channel, destination)"
+      ],
+      "invariants": [
+        "Rate limit requests per destination_hash and per request_ip_hash.",
+        "Enforce resend cooldown (recommended 30s).",
+        "Create consumer_otp_challenge with status=active and expires_at_utc (recommended 10m)."
+      ],
+      "uniform_response_rules": [
+        "Requests MUST return a success-looking response even if the destination is unknown or unlinked (anti-enumeration).",
+        "Response MAY include masked destination and a correlation_id; MUST NOT reveal whether a user exists."
+      ]
+    },
+    "consumer_otp_verify_flow": {
+      "entrypoints": [
+        "verify_consumer_otp(otp_challenge_id, code, session_id, actor_id | nil)"
+      ],
+      "invariants": [
+        "Increment attempt_count on every verification attempt (even invalid).",
+        "If attempt_count exceeds max_attempts, set locked_until_utc and status=locked.",
+        "On success, set consumer_otp_challenge status=consumed and create consumer_proof_grant with TTL (recommended 15m)."
+      ],
+      "uniform_response_rules": [
+        "Verification MUST return uniform error messages for invalid/expired/unknown challenges to prevent enumeration.",
+        "On success, return consumer_proof_grant_id; grant MUST be bound to session_id."
+      ]
+    },
+    "credential_linking_flow": {
+      "entrypoints": [
+        "add_credential(credential_kind, proof_context)"
+      ],
+      "invariants": [
+        "Linking a new credential to an existing account MUST require a fresh AAL1 login.",
+        "Sensitive credential changes (email/phone rotation) SHOULD require consumer proof via consumer_proof_grant.",
+        "Credential linking MUST preserve the principal identity hub (User) and attach the new credential as a spoke."
+      ],
+      "uniform_response_rules": [
+        "Linking flows MUST avoid leaking whether a given email/phone is already linked to another account; return generic conflict codes."
+      ]
+    },
+    "email_verification_flow": {
+      "entrypoints": [
+        {
+          "mode": "sync",
+          "name": "email_verify_request",
+          "response": "uniform_202"
+        },
+        {
+          "mode": "sync",
+          "name": "email_verify_consume",
+          "response": "uniform_success_or_invalid_token"
+        }
+      ],
+      "invariants": [
+        "Verification MUST bind the email identifier to a subject_user_id and MUST be idempotent.",
+        "Verification MUST NOT leak whether the email is used by another org."
+      ]
+    },
+    "magic_link_sign_in_flow": {
+      "entrypoints": [
+        {
+          "mode": "sync",
+          "name": "magic_link_request",
+          "response": "uniform_202"
+        },
+        {
+          "mode": "sync",
+          "name": "magic_link_consume",
+          "response": "uniform_success_or_invalid_token"
+        }
+      ],
+      "invariants": [
+        "Request MUST not disclose whether the identifier exists.",
+        "Consume MUST be single-use and MUST issue a session only after proof verification (session issuance itself is owned by IAM-1)."
+      ]
+    },
+    "password_reset_flow": {
+      "entrypoints": [
+        {
+          "mode": "sync",
+          "name": "password_reset_request",
+          "response": "uniform_202"
+        },
+        {
+          "mode": "sync",
+          "name": "password_reset_consume",
+          "response": "uniform_success_or_invalid_token"
+        }
+      ],
+      "invariants": [
+        "Request MUST not disclose whether the identifier exists.",
+        "Consume MUST be single-use and MUST invalidate all prior active password_reset tokens for the same subject identifier."
+      ]
+    },
+    "sign_up_flow": {
+      "entrypoints": {
+        "sign_up": {
+          "kind": "sync_http",
+          "request_body_requires": [
+            "identifier_type",
+            "identifier_value",
+            "client_proof"
+          ],
+          "response_policy": "uniform_accepted_202"
+        },
+        "sign_up_complete": {
+          "kind": "sync_http",
+          "request_body_requires": [
+            "email_verify_token",
+            "new_secret"
+          ],
+          "response_policy": "uniform_success_or_invalid_token"
+        }
+      },
+      "invariants": [
+        "sign_up MUST NOT reveal whether an account exists for the identifier (uniform timing, status, and error envelope).",
+        "sign_up MUST create or refresh a RegistrationIntent bound to normalized identifier_hash and issue an email_verify ProofToken.",
+        "sign_up_complete MUST consume a valid email_verify ProofToken and finalize account activation + session creation; replay is idempotent.",
+        "If the identifier already maps to an active user, sign_up_complete MUST NOT change existing credentials and MUST return a uniform success response."
+      ],
+      "purpose": "Create a new user identity without leaking whether an account already exists for a target identifier (GC-030)."
+    },
+    "silent_link_invite_flow": {
+      "entrypoints": [
+        {
+          "mode": "sync",
+          "name": "invite_request",
+          "response": "uniform_202"
+        },
+        {
+          "mode": "sync",
+          "name": "invite_accept",
+          "response": "uniform_success_or_invalid_token"
+        },
+        {
+          "mode": "sync",
+          "name": "invite_revoke",
+          "response": "explicit_admin"
+        },
+        {
+          "mode": "async",
+          "name": "invite_resend",
+          "response": "uniform_202"
+        }
+      ],
+      "goal": "Allow an authorized actor to invite an identifier to join org_id without learning whether the identifier already exists on the platform or is a member of another org (GC-030).",
+      "idempotency": {
+        "accept_is_idempotent": true,
+        "idempotency_key": "token_hash"
+      },
+      "invariants": [
+        "invite_request MUST return a uniform response regardless of whether the identifier exists.",
+        "invite_accept MUST only grant membership for the invite's org_id and MUST verify the token purpose and scope.",
+        "If the subject already has an account, the flow MUST link silently (no disclosure to inviter). If not, the flow MUST allow sign-up and then link."
+      ]
+    }
+  },
+  "approved_authority_corrections": {
+    "identity_resolution": "All password, magic-link, OAuth, and service-token authentication resolves through a trusted provider to global AuthIdentity keyed by exact (issuer, provider_subject), before organization selection. Email equality MUST NOT merge principals. IAM-2 MUST NOT access PII-1 subject_lookup_key_hash."
+  }
+}

@@ -1,0 +1,532 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "DMSC-1-GATE_TestGates_v2.2.2.json",
+  "ci_tasks": [
+    "ticketing_ops_safety_tests"
+  ],
+  "contract_ref": {
+    "doc_id": "DMSC-1",
+    "version": "2.2.2"
+  },
+  "doc_id": "DMSC-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0@3.0.0",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "CS-0@3.0.0",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "manifest",
+            "equals": "CS-0@3.0.0",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "suite_schema MUST match CS-0@2.2.0 across contract, test_gates, and bundle_manifest.",
+      "failure_message": "Bundle suite_schema drift detected; DMSC-1 artifacts are not aligned to CS-0@3.0.0.",
+      "id": "DMSC-1-P0-001",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle suite schema parity"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "bundle.manifest.json filename MUST be exact.",
+      "failure_message": "Manifest filename is not exactly bundle.manifest.json.",
+      "id": "DMSC-1-P0-002",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest filename"
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle_manifest MUST match listed artifact sha256 and bytes.",
+      "failure_message": "Manifest file inventory does not match the actual bundle contents.",
+      "id": "DMSC-1-P0-003",
+      "level": "P0",
+      "must": true,
+      "title": "Manifest file inventory"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "DMSC-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": "2.2.2",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "DMSC-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.2.2",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Naming & linkage: doc_id/version and contract_ref MUST match.",
+      "failure_message": "Contract doc_id/version or gates contract_ref linkage does not match DMSC-1 v2.2.2.",
+      "id": "DMSC-1-P0-004",
+      "level": "P0",
+      "must": true,
+      "title": "Contract and gates linkage"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)\\\\b\\\\x54\\\\x4f\\\\x44\\\\x4f\\\\b",
+              "(?i)\\\\b\\\\x54\\\\x42\\\\x44\\\\b",
+              "(?i)\\\\b\\\\x46\\\\x49\\\\x58\\\\x4d\\\\x45\\\\b",
+              "(?i)\\\\b\\\\x52\\\\x45\\\\x50\\\\x4c\\\\x41\\\\x43\\\\x45\\\\x5f\\\\x4d\\\\x45\\\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "forbid_regex": [
+              "(?i)\\\\b\\\\x54\\\\x4f\\\\x44\\\\x4f\\\\b",
+              "(?i)\\\\b\\\\x54\\\\x42\\\\x44\\\\b",
+              "(?i)\\\\b\\\\x46\\\\x49\\\\x58\\\\x4d\\\\x45\\\\b",
+              "(?i)\\\\b\\\\x52\\\\x45\\\\x50\\\\x4c\\\\x41\\\\x43\\\\x45\\\\x5f\\\\x4d\\\\x45\\\\b"
+            ],
+            "json_pointers": [
+              "/"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Placeholder hygiene: forbid unresolved placeholder markers in lockable artifacts.",
+      "failure_message": "Unresolved placeholder markers are present in lockable DMSC-1 artifacts.",
+      "id": "DMSC-1-P0-005",
+      "level": "P0",
+      "must": true,
+      "title": "Placeholder hygiene"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "global_ops",
+            "json_pointer": "/domain_actions/deploy_expand/tenant_scope"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "global_ops",
+            "json_pointer": "/domain_actions/deploy_contract/tenant_scope"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "release_version",
+              "migration_batch_id",
+              "precondition_proof",
+              "actor",
+              "trace_id",
+              "request_id",
+              "tenant_scope"
+            ],
+            "json_pointer": "/domain_actions/deploy_contract/inputs_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "org_id",
+              "backfill_id",
+              "actor",
+              "trace_id",
+              "request_id"
+            ],
+            "json_pointer": "/domain_actions/run_backfill/inputs_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "gates",
+            "equals": [
+              "ticketing_ops_safety_tests"
+            ],
+            "json_pointer": "/ci_tasks"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\borg_id\\b",
+              "\\brequest_id\\b",
+              "\\btrace_id\\b"
+            ],
+            "json_pointers": [
+              "/observability_and_ops_gates/metrics"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^\\{\\}$"
+            ],
+            "json_pointers": [
+              "/banned_anti_patterns"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "^\\[\\]$"
+            ],
+            "json_pointers": [
+              "/events_and_ordering/event_names"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "AUTH_ACTOR_CONTEXT_MISSING",
+              "TEN_TENANT_CONTEXT_MISSING",
+              "EXT_RATE_LIMITED",
+              "LOCKS_ADVISORY_LOCK_BUSY",
+              "LOCKS_DEADLOCK_OR_SERIALIZATION",
+              "DMSC_DEPLOY_PRECONDITION_FAILED",
+              "DMSC_GLOBAL_OPS_SCOPE_VIOLATION",
+              "DMSC_BACKFILL_IDEMPOTENCY_VIOLATION",
+              "DMSC_MIGRATION_UNSAFE_OPERATION"
+            ],
+            "json_pointer": "/errors/subcodes"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Ops safety enforcement (automated): scope clarity, actor/correlation typing, metrics cardinality, and non-empty safety controls.",
+      "failure_message": "DMSC-1 operational safety invariants are missing or drifted.",
+      "id": "DMSC-1-P0-006",
+      "level": "P0",
+      "must": true,
+      "title": "Operational safety invariants"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(\\\\^|~|>=|<=|>|<|=)"
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "Dependency pin hygiene: dependencies.min_version MUST be strict semver (no range operators).",
+      "failure_message": "Dependency minimum versions contain non-semver range operators.",
+      "id": "DMSC-1-P0-007",
+      "level": "P0",
+      "must": true,
+      "title": "Dependency pin hygiene"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "release_version",
+              "registry_version_sha_expected",
+              "migration_batch_id",
+              "precondition_proof",
+              "actor",
+              "trace_id",
+              "request_id",
+              "tenant_scope"
+            ],
+            "json_pointer": "/domain_actions/deploy_contract/inputs_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^[0-9a-f]{64}$",
+            "json_pointer": "/domain_actions/deploy_contract/inputs_schema/registry_version_sha_expected/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "deploy_contract MUST require registry_version_sha_expected as a 64-hex sha256 fence for schema-tightening deployments.",
+      "failure_message": "deploy_contract does not require a 64-hex registry_version_sha_expected fence.",
+      "id": "DMSC-1-P0-SHA-FENCE",
+      "level": "P0",
+      "must": true,
+      "title": "Registry SHA fence"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "observed_at_utc",
+              "led_payout_window_state",
+              "obs_release_blockers",
+              "event_drain_proof"
+            ],
+            "json_pointer": "/domain_actions/deploy_contract/inputs_schema/precondition_proof/required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "empty"
+            ],
+            "json_pointer": "/domain_actions/deploy_contract/inputs_schema/precondition_proof/properties/event_drain_proof/properties/drain_assertion/enum"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "deploy_contract MUST require precondition_proof.event_drain_proof evidence that the relevant event family backlog is empty before tightening required_data_keys.",
+      "failure_message": "deploy_contract precondition_proof does not require event drain evidence.",
+      "id": "DMSC-1-P0-DRAIN-PROOF",
+      "level": "P0",
+      "must": true,
+      "title": "Drain proof precondition"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "Expand migrations MUST be compatible with N and N-1 running concurrently.",
+              "If required_data_keys are tightened for any event family, legacy events MUST be routed to an automated backfill (run_backfill). Manual quarantine is FORBIDDEN."
+            ],
+            "json_pointer": "/migration_backward_compatibility/rolling_deploy_safety"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "Backfills MUST be resumable, idempotent, and queue-bounded (OBQC-1).",
+              "LED-1-REC-001: Synthetic versioning of legacy ledger events via LedgerCursor ground truth. Backfill worker MUST (a) read LedgerCursor.current_version and LedgerEntry order, (b) assign monotonic version per (org_id, ledger_id), (c) re-emit corrected events under the target registry_version_sha_expected. Human/manual reconciliation loops are forbidden."
+            ],
+            "json_pointer": "/migration_backward_compatibility/data_backfills"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "FORBIDDEN",
+            "json_pointer": "/banned_anti_patterns/DMSC_AP_006/must"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Schema-tightening deployments MUST mandate automated backfill for legacy events and MUST forbid manual quarantine loops for financial event families.",
+      "failure_message": "DMSC-1 does not require automated backfill and forbid manual quarantine loops where mandated.",
+      "id": "DMSC-1-P0-AUTO-BACKFILL",
+      "level": "P0",
+      "must": true,
+      "title": "Automated backfill mandate"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Non-producer declaration.",
+      "failure_message": "DMSC-1 must remain a non-producer contract with emits_events=false and empty outbox_events.",
+      "id": "DMSC-1-GATE-ASSERT-NON-PRODUCER",
+      "level": "P0",
+      "must": true,
+      "title": "Non-producer declaration"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "EVT-1 registry floor pin.",
+      "failure_message": "dependency_floors.EVT-1 does not match the declared registry floor pin.",
+      "id": "DMSC-1-GATE-EVT-1-FLOOR-PIN",
+      "level": "P1",
+      "must": true,
+      "title": "EVT-1 registry floor pin"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/observability_and_ops_gates/obs_active_incidents_preflight/strict"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "OBS preflight strictness.",
+      "failure_message": "OBS active incidents preflight strictness is not enabled.",
+      "id": "DMSC-1-GATE-OBS-HEALTH-REQUIREMENT",
+      "level": "P0",
+      "must": true,
+      "title": "OBS preflight strictness"
+    }
+  ],
+  "gates[3]": {
+    "assertions[1]": {
+      "details": {
+        "equals": "2.0.6"
+      }
+    },
+    "assertions[3]": {
+      "details": {
+        "equals": "2.0.6"
+      }
+    }
+  },
+  "generated_at_utc": "2026-02-04T18:46:33Z",
+  "last_updated_utc": "2026-02-04T18:46:33Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "DMSC-1 Test Gates",
+  "version": "2.2.2"
+}

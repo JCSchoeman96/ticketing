@@ -1,0 +1,13 @@
+{
+  "doc_id": "QUORUM-1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_intent": "Patch release preserving quorum controls while aligning the artifact and supported gates to CS-0@3.0.1.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "tracked-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "90a117a3eaaaee510dbb09fea70b35b65cefea3d742c839d8c006033cb1b85fe"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.0.1"
+}

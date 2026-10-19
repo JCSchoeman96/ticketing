@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/PSC-1_bundle_v1.8.2_JSON_ONLY_refactored.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/PSC-1_bundle_v1.8.2_JSON_ONLY_refactored.zip",
+  "source_zip_sha256": "9436a77f5f86599e60f606fc8b92ff535ba59f0819cd734f3c914acea0e75e03",
+  "source_zip_bytes": 13848,
+  "source_version": "1.8.2",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "PSC-1_bundle_v1.8.2/PSC-1_Contract_v1.8.2.json",
+      "sha256": "bf5a91a4781b47002dffef0374b1445992b6cbd5efd599ae2b2d2cb003d96240",
+      "bytes": 33420
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "PSC-1_bundle_v1.8.2/PSC-1-GATE_TestGates_v1.8.2.json",
+      "sha256": "8ae63953347e04392aea6bf0d4e6c1dba8d8f0b136361feeada729ab9c81b802",
+      "bytes": 21168
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "PSC-1_bundle_v1.8.2/PSC-1_Contract_v1.8.2.json",
+      "sha256": "54089dae1f94d4cad1253f00eda773848dba5171c8025cc086b4c782e7be2f3b",
+      "bytes": 33423
+    },
+    {
+      "source_member_path": "PSC-1_bundle_v1.8.2/PSC-1-GATE_TestGates_v1.8.2.json",
+      "sha256": "71c264dea0c491e1f7239b205f133bb1dcaa6a3cae5fc27c23c86c553c4318dc",
+      "bytes": 21171
+    }
+  ]
+}

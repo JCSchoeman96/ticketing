@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "PRICE-1",
+    "bundle_version": "4.0.0"
+  },
+  "doc_id": "PRICE-1",
+  "files": [
+    {
+      "bytes": 78708,
+      "path": "PRICE-1_Contract_v4.0.0.json",
+      "sha256": "587e6c6fbee726446354921d5a9db354ab6bf0ab1ded9b54d23ad185014714c4"
+    },
+    {
+      "bytes": 29243,
+      "path": "PRICE-1_Test_Gates_v4.0.0.json",
+      "sha256": "397bc49e04bea98f171bb55b34ee8aeb0def81ad89d92d91ac830ee7e910d92c"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "4.0.0"
+}

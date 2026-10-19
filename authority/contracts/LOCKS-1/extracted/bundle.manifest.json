@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "LOCKS-1",
+    "bundle_version": "3.0.0"
+  },
+  "doc_id": "LOCKS-1",
+  "files": [
+    {
+      "bytes": 22388,
+      "path": "LOCKS-1_Contract_v3.0.0.json",
+      "sha256": "a3d4274f20931d2f11b7bea80937e7c2fd4ff96fb413344a7db1a4235e31ecb2"
+    },
+    {
+      "bytes": 8425,
+      "path": "LOCKS-1_Test_Gates_v3.0.0.json",
+      "sha256": "483dedd29db7870e0bd96e5e1298a33865b6fffef1a2606ac739b7cc33378061"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "3.0.0"
+}

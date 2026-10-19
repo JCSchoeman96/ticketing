@@ -1,0 +1,201 @@
+{
+  "actions_and_workflows": {
+    "configure_quorum_set": {
+      "must": "To enable a quorum for enforcement, operators MUST set quorum_set.configuration_state='configured' and provide signer entries with key pins and security boundaries."
+    },
+    "recovery_rotation": {
+      "must": "If an outgoing quorum cannot be formed (bootstrap deadlock), the recovery quorum MAY authorize a quorum update, but MUST emit an incident_id and produce a recovery authorization transcript."
+    },
+    "rotate_signer_key": {
+      "must": "Signer key rotation MUST follow the handover workflow: outgoing quorum signs a handover authorization that introduces the incoming key(s) and effective_at."
+    }
+  },
+  "artifact_kind": "contract",
+  "artifact_name": "QUORUM-1_Contract_v1.0.1.json",
+  "change_log": [
+    {
+      "changes": [
+        "Initial QUORUM-1 legislative quorum identities contract."
+      ],
+      "date_utc": "2026-02-08",
+      "version": "1.0.0"
+    }
+  ],
+  "data_model": {
+    "handover_schema": "quorum-1/handover/1.0",
+    "notes": "All hashes are sha256 hex lowercase.",
+    "quorum_set_schema": "quorum-1/quorum-set/1.0",
+    "recovery_schema": "quorum-1/recovery/1.0",
+    "signer_schema": "quorum-1/signer/1.0"
+  },
+  "dependencies": [
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.0.0",
+      "reason": "Canonical error envelope for evidence verification failures."
+    }
+  ],
+  "dependency_floors": {
+    "ERR-1": "1.0.0"
+  },
+  "doc_id": "QUORUM-1",
+  "emits_events": false,
+  "errors": {
+    "codes": [
+      {
+        "code": "QUORUM_1_INVALID_SIGNATURE",
+        "retryable": false
+      },
+      {
+        "code": "QUORUM_1_INSUFFICIENT_QUORUM",
+        "retryable": false
+      },
+      {
+        "code": "QUORUM_1_ISOLATION_VIOLATION",
+        "retryable": false
+      },
+      {
+        "code": "QUORUM_1_CI_SIGNER_FORBIDDEN",
+        "retryable": false
+      },
+      {
+        "code": "QUORUM_1_HANDOVER_REQUIRED",
+        "retryable": false
+      }
+    ],
+    "envelope": "ERR-1"
+  },
+  "events_and_ordering": {
+    "notes": "No domain events. Governance evidence is handled via artifacts."
+  },
+  "generated_at_utc": "2026-02-08T17:09:44Z",
+  "handover_policy": {
+    "allowed_authorizers": [
+      "outgoing_quorum",
+      "recovery_quorum"
+    ],
+    "handover_signed_payload_fields": [
+      "doc_id",
+      "from_quorum_id",
+      "to_quorum_id",
+      "incident_id",
+      "effective_at_utc",
+      "transcript_sha256",
+      "new_signer_key_ids"
+    ],
+    "requires_outgoing_quorum_signoff": true
+  },
+  "invariants": {
+    "QUORUM-1-INVARIANT-ATTESTATION-BINDS-TRANSCRIPT": {
+      "severity": "P0",
+      "text": "Every quorum signature MUST bind to the bypass transcript sha256 and the incident_id. Signatures that do not cover the transcript are invalid."
+    },
+    "QUORUM-1-INVARIANT-HANDOVER": {
+      "severity": "P0",
+      "text": "Any modification to QUORUM-1 MUST be authorized by the outgoing quorum set (handover) OR by the recovery quorum as defined herein. This prevents bootstrap deadlock and ensures controlled quorum rotation."
+    },
+    "QUORUM-1-INVARIANT-ISOLATION": {
+      "severity": "P0",
+      "text": "Signer keys used for a quorum MUST reside in distinct identity-provider partitions (security boundaries). A single credential leak or account admin in one partition MUST NOT be sufficient to satisfy quorum."
+    },
+    "QUORUM-1-INVARIANT-NO-CI-SIGNERS": {
+      "severity": "P0",
+      "text": "CI/build identities MUST NOT be valid quorum signers. Quorum signer keys MUST be inaccessible to CI roles and MUST be callable only from distinct human-controlled security boundaries."
+    }
+  },
+  "last_updated_utc": "2026-02-08T17:09:44Z",
+  "migration": {
+    "notes": "Initial introduction."
+  },
+  "normative_source": "V42",
+  "observability": {
+    "audit": {
+      "fields": [
+        "incident_id",
+        "quorum_id",
+        "signer_principal_id",
+        "signer_key_id",
+        "transcript_sha256",
+        "signed_at_utc"
+      ],
+      "must": "All use of quorum signatures for legislative bypass MUST be auditable with immutable logs linked by incident_id."
+    }
+  },
+  "outbox_events": [],
+  "purpose_and_boundaries": {
+    "does_not_own": [
+      "Service runtime IAM policies (cloud provider specific).",
+      "Key material storage; keys MUST be held outside CI per PROD-1."
+    ],
+    "integration_points": [
+      "Referenced by PROD-1 legislative_bypass_protocol as the authorizer of emergency bypass windows."
+    ],
+    "owns": [
+      "Quorum sets and signer identity pinning rules.",
+      "Isolation invariants across signer security boundaries.",
+      "Quorum handover / rotation authorization rules.",
+      "Recovery quorum for bootstrap deadlock prevention."
+    ]
+  },
+  "quorum_sets": [
+    {
+      "configuration_state": "unconfigured",
+      "min_signers": 2,
+      "policy_isolation": {
+        "notes": "Non-negotiable: keys MUST be in distinct security boundaries (e.g., separate cloud accounts).",
+        "requires_distinct_cloud_account": true,
+        "requires_distinct_security_boundary_id": true
+      },
+      "purpose": "Authorize PROD-1 legislative bypass windows.",
+      "quorum_id": "ticketing.legislative.bypass.q1",
+      "required_roles": [
+        "security_lead",
+        "lead_architect"
+      ],
+      "signers": []
+    },
+    {
+      "configuration_state": "unconfigured",
+      "min_signers": 2,
+      "policy_isolation": {
+        "notes": "Recovery quorum MUST be isolated from primary quorum boundaries.",
+        "requires_distinct_cloud_account": true,
+        "requires_distinct_security_boundary_id": true
+      },
+      "purpose": "Bootstrap deadlock recovery quorum for quorum handover.",
+      "quorum_id": "ticketing.legislative.recovery.q0",
+      "required_roles": [
+        "security_recovery_1",
+        "security_recovery_2",
+        "security_recovery_3"
+      ],
+      "signers": []
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "security": {
+    "isolation_model": {
+      "security_boundary_id": {
+        "must": "Each signer MUST declare a security_boundary_id. Primary quorum signers MUST have distinct security_boundary_id values."
+      }
+    },
+    "signing": {
+      "algorithms": [
+        "Ed25519"
+      ],
+      "canonicalization": "RFC8785 JCS for signed payload objects",
+      "notes": "Signatures are over UTF-8 bytes of JCS(signed_payload)."
+    }
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Objective: Define cryptographic quorum identities for legislative bypass and other emergency governance actions. Scope: Quorum identities and verification rules only. No business-domain logic. Non-goals: Define payment, seat, order, or ledger rules.; Define CI workflow YAML; enforcement is via suite tooling and gates.",
+  "tenancy": {
+    "model": "global",
+    "notes": "Quorum identities are suite-global governance objects, not per-tenant."
+  },
+  "tier": 2,
+  "title": "Legislative Quorum Identities",
+  "version": "1.0.1"
+}

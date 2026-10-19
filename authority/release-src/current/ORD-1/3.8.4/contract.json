@@ -1,0 +1,2136 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "ORD-1_Contract_v3.8.4.json",
+  "banned_anti_patterns": {
+    "AP-ASH2-DRIFT": {
+      "ban": true,
+      "rule": "Ash 2.x API terminology MUST NOT be used; use Ash 3.x Domains/Resources/Actions.",
+      "severity": "P0"
+    },
+    "AP-IMPLICIT": {
+      "ban": true,
+      "rule": "No implicit defaults for tenancy, pricing, or ordering; org_id and pricing snapshot MUST be explicit.",
+      "severity": "P0"
+    },
+    "AP-KEY-NAMING": {
+      "ban": true,
+      "rule": "Do not use api_actions key naming in contracts; use domain_actions.",
+      "severity": "P0"
+    },
+    "AP-PLACEHOLDERS": {
+      "ban": true,
+      "rule": "No TODO/TBD/FIXME/REPLACE_ME tokens in lockable artifacts.",
+      "severity": "P0"
+    },
+    "AP-REGEX-THEATER": {
+      "ban": true,
+      "rule": "Subsystem contracts MUST NOT introduce repo-wide scanning gates; only bundle-scoped regex bans are permitted.",
+      "severity": "P0"
+    }
+  },
+  "change_log": [
+    {
+      "date_utc": "2026-02-09",
+      "version": "3.7.10",
+      "changes": [
+        "SEM: Added sale-time tax apportionment priority map to Order snapshot to prevent refund-time lexicographical drift (penny leak).",
+        "SEM: Added line_item_id (uuid_v7) to line_items schema as authoritative stable identifier for apportionment ordering.",
+        "EVT: Extended ticketing.order.finalized.v1 payload to include tax_apportionment_priority_map + sha256 (requires EVT-1 registry parity patch)."
+      ]
+    },
+    {
+      "changes": [
+        "P0: Added 'version' to required_data_keys for ticketing.order.finalized.v1 and ticketing.order.expired.v1 to match EVT-1 registry ordering."
+      ],
+      "date_utc": "2026-02-07",
+      "version": "3.7.4"
+    },
+    {
+      "date_utc": "2026-01-28",
+      "id": "CHG-ORD-3.5.0-GC001",
+      "summary": "GC-001 / SD-043: add payment-grace hold extension requirements at checkout creation and deterministic late-capture handling (no issuance; void/refund via PAY-3). Normalize dependencies: replace deprecated `purpose` with schema-compliant `reason`.",
+      "version": "3.5.0"
+    },
+    {
+      "date_utc": "2026-01-28",
+      "id": "CHG-ORD-3.4.2",
+      "summary": "Add P0 gate to prevent client-side fee injection; enforce finalize_checkout accept whitelist (fee_lines and fee_total_minor system-computed only).",
+      "type": "patch"
+    },
+    {
+      "changes": [
+        "Align ORD with PRICE-SIG-V3 by requiring implementations to persist and expose price_signature_version (from PRICE-1) for checkouts and finalized orders.",
+        "Add subscriber entitlement enforcement hooks: create_checkout may accept entitlement_allocations; finalize_checkout MUST enforce SUB-1 eligibility at purchase-finalize time for any subscriber-priced lines.",
+        "Support mixed beneficiary scenarios (e.g., 2 subscriber tickets + 2 normal tickets) by allowing per-hold entitlement allocations and requiring entitlement subject binding in the PRICE-SIG-V3 context."
+      ],
+      "date_utc": "2026-01-20T13:26:41Z",
+      "version": "3.0.11"
+    },
+    {
+      "changes": [
+        "Require SEAT-1.verify_hold_proofs usage: create_checkout and finalize_checkout MUST validate + resolve holds via verify_hold_proofs; ID-only hold fetch is forbidden.",
+        "Bump SEAT-1 dependency min_version to 3.0.5 to guarantee verify_hold_proofs exists.",
+        "Add ORD_CHECKOUT_SNAPSHOT_MISMATCH subcode for commit-time snapshot divergence when resolved hold tuples differ from stored event/occurrence snapshot."
+      ],
+      "date_utc": "2026-01-19T11:44:02Z",
+      "version": "3.0.10"
+    },
+    {
+      "changes": [
+        "Fix addon dependency terminology to match EVT-2 (Occurrence.occurrence_kind=main; policy fields workshops_require_primary_access and standalone_allowed).",
+        "Normalize wording: seat_hold_tokens -> seat_hold_proofs in Order.seat_hold_ids notes and invariants.",
+        "No behavioral changes beyond naming alignment; semantic intent remains: holds must be proof-bound; addons require primary access by default."
+      ],
+      "date_utc": "2026-01-19T10:22:16Z",
+      "version": "3.0.9"
+    },
+    {
+      "changes": [
+        "Occurrence-aware order snapshot: persist event_id + occurrence_ids derived from SEAT-1 holds and EVT-2 occurrences.",
+        "Addon dependency enforcement: workshops/sessions/addons require primary access by default (EVT-2 policy-driven).",
+        "Rename checkout input seat_hold_tokens -> seat_hold_proofs with hold_signature semantics aligned to SEAT-1."
+      ],
+      "date_utc": "2026-01-10T12:12:02.816522Z",
+      "version": "3.0.8"
+    },
+    {
+      "changes": [
+        "Align dependency floors with SUB-1 integration: ERR-1 >= 1.3.30, PRICE-1 >= 3.0.12 (PRICE-SIG-V3 gate fix).",
+        "Fix bundle manifest version to match contract version (previously 3.0.10 mismatch in manifest for this build)."
+      ],
+      "date": "2026-01-21",
+      "version": "3.0.12"
+    },
+    {
+      "changes": [
+        "Bump OBS-1 dependency floor to 2.7.7 to require SUB-1 observation event shapes introduced in the SUB integration patch-set.",
+        "No protocol change; dependency tightening only."
+      ],
+      "date": "2026-01-21",
+      "version": "3.0.13"
+    },
+    {
+      "changes": [
+        "Define money-confirmed finalization boundary: order.finalized outbox event SHALL represent paid_confirmed only (no 'paid-ish' states).",
+        "Extend ticketing.order.finalized.v1 required payload keys: verified_payment_attempt_id, paid_confirmed_at_utc (plus existing payment_reference) to support TKT issuance correctness.",
+        "Persist payment verification linkage on Order: verified_payment_attempt_id, paid_confirmed_at_utc; enforce null/non-null invariants by status.",
+        "Tighten PAY verification wording: finalize_checkout MUST verify payment_reference and derive verified_payment_attempt_id + paid_confirmed_at_utc from PAY-1, rejecting non-final money states via ERR-1 subcodes ORD_PAYMENT_REQUIRED / ORD_PAYMENT_STATE_INVALID.",
+        "Bump dependency floors: ERR-1 -> 1.4.0; EVT-2 -> 2.2.0 for scan-policy/occurrence alignment compatibility."
+      ],
+      "date": "2026-01-24",
+      "version": "3.1.0"
+    },
+    {
+      "breaking": false,
+      "date_utc": "2026-01-25",
+      "notes": [
+        "Removed multi-event prohibition; Orders may bind holds across multiple events within the same org.",
+        "Order now snapshots event_ids (array) instead of single event_id; occurrence_ids remains union.",
+        "Added checkout_group_id (uuid_v7) as a first-class grouping identifier; at most one Order per (checkout_group_id, org_id).",
+        "Added create_checkout_group / finalize_checkout_group / expire_checkout_group actions (platform-capability gated) to support one-checkout multi-org carts, producing per-org Orders that emit ticketing.order.finalized.v1 per org.",
+        "Normalized payment linkage: verified_payment_attempt_id is UUIDv7, and Order persists currency + total_amount_minor derived from PRICE snapshot."
+      ],
+      "summary": "Enable multi-event Orders within a single org, add checkout_group_id for multi-org grouping, and introduce checkout-group actions for cross-org carts while preserving per-org finalization boundary.",
+      "version": "3.2.0"
+    },
+    {
+      "changes": [
+        "P0: Dependency floors aligned to current payment/dispute hardening wave (PAY-1 v2.7.3, PAY-2 v2.8.1, ERR-1 v1.4.3, SEAT-1 v3.1.3).",
+        "P1: Risk-flag integration note — active dispute (PAY-3) treated as an enterprise risk flag for downstream admin overrides and fulfillment mutations (fail closed).",
+        "P2: Non-functional: change log + explicit ERR-1 subcode references (for future admin override actions)."
+      ],
+      "date_utc": "2026-01-25",
+      "summary": "Dependency alignment + dispute risk integration notes"
+    },
+    {
+      "changes": [
+        "Replaced deprecated SUB_* error names with ERR-1 registered subcodes (SUB_INVALID_STATE, SUB_GRACE_PERIOD_ELAPSED).",
+        "Declared dependencies on PAY-3 and PAY-4 (referenced in ORD-1 integration notes).",
+        "Bumped dependency floors to match patched suite: ERR-1@1.4.9, TEN-1@1.7.4, SEC-1@3.0.8, EVT-2@2.3.1, REFUND-1@1.2.2."
+      ],
+      "date_utc": "2026-01-26T07:04:23Z",
+      "summary": "Semantics hardening: align dependency floors and entitlement/checkout-expiry error semantics to ERR-1 authority."
+    },
+    {
+      "changes": [
+        "Update create_checkout to request signature_version = \"PRICE-SIG-V4\".",
+        "Require ORD to persist and verify the declared price_signature_version, supporting legacy PRICE-SIG-V3 and new PRICE-SIG-V4.",
+        "Align dependency floors with patched PRICE-1 and ERR-1."
+      ],
+      "date_utc": "2026-01-26T07:51:52Z",
+      "summary": "Adopt PRICE-SIG-V4 for new checkouts to bind tax context into signed pricing snapshots."
+    },
+    {
+      "changes": [
+        "Added TAX-1 dependency and raised LED-1 dependency floor to intent-based posting (LED-1@4.1.1).",
+        "Added Order audit pointers for ledger intent/posting IDs and idempotency hash fields.",
+        "Clarified finalize_checkout MUST call LED-1.post_intent with canonical intent payload derived from PRICE snapshot + TAX policy."
+      ],
+      "date_utc": "2026-01-26",
+      "summary": "Align finalization to LED-1 intent-based posting templates and TAX-1 policy binding (no raw ledger legs)."
+    },
+    {
+      "changes": [
+        "Added P0 invariant: all Orders in checkout_group_id MUST share currency; mismatches fail with ERR_VALIDATION/ORD_CHECKOUT_GROUP_CURRENCY_MISMATCH.",
+        "Hardened create_checkout_group + finalize_checkout_group validation rules and error lists to require explicit currency uniformity and payment currency match.",
+        "Aligned dependency floors with declared-active suite versions (ERR/PRICE/SEAT/TAX/REFUND/TEN/IAM)."
+      ],
+      "date_utc": "2026-01-27T11:04:35Z",
+      "summary": "Close OQ-099 by enforcing single-currency checkout groups (fail-closed, no FX inference)."
+    },
+    {
+      "changes": [
+        "Add Order.fee_total_minor",
+        "Add OrderFeeLine resource",
+        "Add finalize_checkout pre/postconditions for fee evaluation and reconciliation",
+        "Add invariants enforcing fee integrity + forbid ad-hoc insertion",
+        "Bump dependency floors: PAY-3>=2.9.0, PRICE-1>=3.1.0, ERR-1>=1.4.15"
+      ],
+      "date_utc": "2026-01-27",
+      "summary": "Integrate PAY-3 Fee Engine (SD-011) and PRICE-1 PLATFORM_FEE lines into checkout finalization.",
+      "version": "3.4.0"
+    },
+    {
+      "chg_id": "CHG-ORD-1.3.4.1",
+      "date_utc": "2026-01-28T05:25:48Z",
+      "summary": "P0 security hardening: finalize_checkout accept whitelist forbids client-side fee injection; dependency_floors PAY-3>=2.9.0 PRICE-1>=3.1.0; add ORD-1-SEC-NO-CLIENT-FEES invariant."
+    },
+    {
+      "date_utc": "2026-01-29T04:58:52Z",
+      "summary": "GC-001 drift-prevention fix: align dependency floors and add dependency_pins.gc_001_chain to match patched bundles; correct TEN/PRICE floors.",
+      "version": "3.5.1"
+    },
+    {
+      "date_utc": "2026-01-29T05:04:37Z",
+      "summary": "GC-001 pin correction: align TEN-1 pin/floor to suite active (TEN-1@1.7.5 per master).",
+      "version": "3.5.2"
+    },
+    {
+      "date_utc": "2026-01-29T11:19:33Z",
+      "summary": "GC-001 drift-prevention repin: TEN-1@1.7.6, OBS-1@2.7.15, PAY-1@2.7.6.",
+      "version": "3.5.3"
+    },
+    {
+      "date_utc": "2026-01-29T14:58:31Z",
+      "summary": "GC-001 chain alignment: repin PAY-1@2.7.7 and PAY-2@2.8.4; raise dependency floors to match pinned chain.",
+      "version": "3.5.4"
+    },
+    {
+      "changes": [
+        "Fix TG assertion schema: forbid_regex_in_artifact now uses details.json_pointers + details.forbid_regex (no legacy 'pattern' field).",
+        "Add P0 gate to hard-lock finalize_checkout accept whitelist (forbid fee_lines / fee_total_minor injection; SD-011 posture).",
+        "Update version pin gates to current contract version.",
+        "Regenerate bundle.manifest.json to comply with bundle-manifest/1.0 schema (no extra keys) and correct hashes/bytes."
+      ],
+      "when_utc": "2026-01-29T18:00:21Z",
+      "who": "assistant"
+    },
+    {
+      "changes": [
+        "Add ORD-1 P0 hardening: lock tax_context_digest + locked_tax_inclusivity_mode + jurisdiction_evidence_ref at create_checkout and fail-closed on mismatch at finalize_checkout (ND-171).",
+        "Add internal rounding drift capture: subtotal_amount_minor + tax_total_minor + fee_total_minor + internal_rounding_adjustment_minor == total_amount_minor (ND-172).",
+        "Mandate DB clock for finalized_at_utc and document enforcement (ND-170).",
+        "Fix schema defect: Order.required_attributes fee_total_minor was a dangling string; converted to full attribute definition.",
+        "Bump version to 3.5.6."
+      ],
+      "when_utc": "2026-02-01T00:00:00Z",
+      "who": "assistant"
+    },
+    {
+      "change_id": "ORD-1-CHG-3.6.0-001",
+      "date_utc": "2026-02-01T16:08:52.636690Z",
+      "summary": "Enforcement patch: consume PAY-1 ND-195 order anchor, store payment_intent_id and enforce order-bound payment verification in finalize_checkout; harden ND-196 orphan posture; add bundle.manifest.json."
+    },
+    {
+      "change_id": "ORD-1-CHG-3.7.0-001",
+      "date_utc": "2026-02-03T10:48:22Z",
+      "summary": "War-time hardening: declare DP-1 bulkhead routing for checkout vs expiry workloads; add EVT-1 drift governance metadata for ORD outbox events (derived_from_ash_resource + drift_check_hash); pin Physics Layer deps (DP-1/EVT-1/SM-0/LOCKS-1)."
+    },
+    {
+      "change_id": "ORD-1-CHG-3.7.2-001",
+      "date_utc": "2026-02-06T14:58:58Z",
+      "summary": "Phase-5 hardening: align EVT-1 floor/pin to 2.16.4 (registry head); align REFUND-1 floor to 1.6.2 (v2-only); align EVT-2 to 2.4.0; align LED-1 to 4.4.3; align PAY-3 to 2.10.3; add dependency_floors entries for EVT-1/EVT-2 and enforce via new gates."
+    },
+    {
+      "at_utc": "2026-02-06T15:45:33Z",
+      "change_id": "CHG-ORD-1-3.7.3-METADATA-FIX",
+      "summary": "Fix artifact_name/version parity in contract and gates; pin gate self-identity to 3.7.3.",
+      "type": "patch"
+    },
+    {
+      "change_id": "ORD-1-CHG-3.7.5-001",
+      "date_utc": "2026-02-08T10:59:12Z",
+      "summary": "GAP-2.1 enforcement surface: declare runtime law floors for ORD public surface by pinning dependency_floors(API-0@1.1.1, PSC-1@1.8.2) and adding matching dependencies entries. Drift prevention only."
+    },
+    {
+      "version": "3.8.0",
+      "date_utc": "2026-10-09",
+      "summary": "Add bucket hold proofs to single-order checkout and finalization while preserving seat proof behavior."
+    },
+    {
+      "version": "3.8.1",
+      "date_utc": "2026-10-09",
+      "summary": "Correct T0 lifecycle, quote binding, inventory proof, or publication semantics; align release identity metadata."
+    },
+    {
+      "version": "3.8.2",
+      "date_utc": "2026-10-09",
+      "summary": "Align PRICE and SEAT action floors and reconcile quote-bound mixed inventory laws."
+    },
+    {
+      "version": "3.8.3",
+      "changes": [
+        "Make PRICE quote binding producer-agnostic, require authenticated actor_type for bucket SEAT actions, and remove the OFFER dependency cycle risk."
+      ]
+    },
+    {
+      "version": "3.8.4",
+      "date_utc": "2026-10-09",
+      "changes": [
+        "Correct the P0 gate contract-version identity assertion to match this release."
+      ]
+    }
+  ],
+  "checkout_verification_contract": {
+    "error_subcodes": [
+      "TEN_TENANT_CONTEXT_MISSING",
+      "SEAT_HOLD_TOKEN_INVALID",
+      "ORD_SEAT_HOLD_EXPIRED",
+      "EXT_SIGNATURE_INVALID",
+      "PRICE_TOTAL_MISMATCH",
+      "ORD_PRICE_SNAPSHOT_EXPIRED",
+      "ORD_ALREADY_FINALIZED",
+      "LOCKS_OPTIMISTIC_CONFLICT",
+      "ORD_PAYMENT_REQUIRED",
+      "ORD_PAYMENT_STATE_INVALID"
+    ],
+    "must_verify": [
+      "snapshot exists",
+      "org_id matches the Order",
+      "at create_checkout, status is active and the quote has not expired",
+      "at finalization, status is consumed and consumed_by_order_id equals this Order",
+      "currency matches",
+      "signature_hash matches the declared signature version",
+      "totals are derived from PRICE-1",
+      "PAY-1 verification MUST be bound to the same order_id being finalized and MUST return payment_intent_id for storage (ND-195)."
+    ]
+  },
+  "data_model": {
+    "resources": [
+      {
+        "constraints": [
+          {
+            "kind": "check",
+            "rule": "org_id != 'NONE'"
+          },
+          {
+            "kind": "check",
+            "rule": "expires_at_utc > created_at_utc"
+          },
+          {
+            "kind": "check",
+            "rule": "total_amount_minor >= 0"
+          },
+          {
+            "kind": "check",
+            "rule": "currency != ''"
+          },
+          {
+            "kind": "check",
+            "rule": "(status != 'finalized') OR (ledger_posting_id IS NOT NULL AND ledger_intent_id IS NOT NULL AND ledger_template_id IS NOT NULL)"
+          },
+          {
+            "constraint_id": "ORD-1-P0-CHECK-PAYMENT-INTENT-ND195",
+            "expression": "(status != 'finalized') OR (payment_intent_id IS NOT NULL)",
+            "kind": "check",
+            "notes": "ND-195: finalized orders MUST carry the payment_intent_id returned by PAY-1 verification.",
+            "scope": "postgres"
+          }
+        ],
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "order_id"
+            ],
+            "kind": "primary",
+            "name": "order_pk"
+          },
+          {
+            "fields": [
+              "checkout_group_id",
+              "org_id"
+            ],
+            "kind": "unique",
+            "name": "checkout_group_per_org_unique"
+          },
+          {
+            "fields": [
+              "actor_id",
+              "idempotency_hash"
+            ],
+            "kind": "unique",
+            "name": "idempotency_per_actor_unique"
+          }
+        ],
+        "immutability": {
+          "rule": "Order records MUST be immutable with respect to seat_hold_ids, bucket_hold_ids, line_items including every line_items[].inventory_claims entry, price_snapshot_id, price_signature_hash, currency, and total_amount_minor. A checkout retry MUST NOT replace a bound seat or bucket hold. Any change requires a new Order or a separately governed compensating path; these snapshots MUST NOT be mutated in place."
+        },
+        "name": "Order",
+        "optimistic_lock": {
+          "field": "version",
+          "stale_subcode": "LOCKS_OPTIMISTIC_CONFLICT"
+        },
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "order_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "checkout_group_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "seat_hold_ids",
+            "nullable": false,
+            "type": "array_uuid_v7"
+          },
+          {
+            "items": {
+              "properties": {
+                "entitlement_context": {
+                  "notes": "Present only when PRICE snapshot includes entitlement context.",
+                  "nullable": true,
+                  "properties": {
+                    "beneficiary_customer_id": {
+                      "type": "uuid_v7"
+                    },
+                    "entitlement_grant_id": {
+                      "nullable": true,
+                      "type": "uuid_v7"
+                    },
+                    "entitlement_kind": {
+                      "enum": [
+                        "subscriber",
+                        "none"
+                      ],
+                      "type": "string"
+                    },
+                    "entitlement_tier_id": {
+                      "nullable": true,
+                      "type": "uuid_v7"
+                    }
+                  },
+                  "required": [
+                    "entitlement_kind",
+                    "beneficiary_customer_id"
+                  ],
+                  "type": "object"
+                },
+                "event_id": {
+                  "type": "uuid_v7"
+                },
+                "line_key": {
+                  "notes": "Unique within order; stable.",
+                  "type": "string"
+                },
+                "occurrence_id": {
+                  "type": "uuid_v7"
+                },
+                "pricing_line_key": {
+                  "notes": "From PRICE-1 signed snapshot; binds unit pricing + eligibility context.",
+                  "type": "string"
+                },
+                "product_ref": {
+                  "notes": "Product/ticket type reference; stable within org.",
+                  "type": "string"
+                },
+                "qty": {
+                  "min": 1,
+                  "type": "integer"
+                },
+                "seat_ids": {
+                  "notes": "Assigned seating only; omit for GA lines.",
+                  "nullable": true,
+                  "type": "array_uuid_v7"
+                },
+                "line_item_id": {
+                  "type": "uuid_v7",
+                  "notes": "Authoritative stable identifier for this line item within the order. MUST be generated server-side and persisted in the order snapshot; MUST NOT be UI-derived."
+                },
+                "inventory_claims": {
+                  "type": "array",
+                  "notes": "Each claim is derived from a verified SEAT-1 proof; GA claims carry bucket_id and quantity and never contain a fabricated seat_id.",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "claim_type",
+                      "hold_id",
+                      "occurrence_id",
+                      "quantity"
+                    ],
+                    "properties": {
+                      "claim_type": {
+                        "enum": [
+                          "seat",
+                          "bucket"
+                        ],
+                        "type": "string"
+                      },
+                      "hold_id": {
+                        "type": "uuid_v7"
+                      },
+                      "occurrence_id": {
+                        "type": "uuid_v7"
+                      },
+                      "quantity": {
+                        "type": "integer",
+                        "minimum": 1
+                      },
+                      "bucket_id": {
+                        "nullable": true,
+                        "type": "uuid_v7"
+                      },
+                      "seat_ids": {
+                        "nullable": true,
+                        "type": "array_uuid_v7"
+                      }
+                    }
+                  }
+                }
+              },
+              "required": [
+                "line_item_id",
+                "line_key",
+                "event_id",
+                "occurrence_id",
+                "product_ref",
+                "qty",
+                "pricing_line_key",
+                "inventory_claims"
+              ],
+              "type": "object"
+            },
+            "name": "line_items",
+            "notes": " Elements MUST conform to this items schema.",
+            "nullable": false,
+            "type": "array"
+          },
+          {
+            "name": "status",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "name": "version",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "created_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "expires_at_utc",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "finalized_at_utc",
+            "notes": "MUST be set using database clock (ND-170), not application clock.",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "expired_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "cancelled_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "price_snapshot_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "price_signature_version",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "price_signature_hash",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "signature_hash",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "currency",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "total_amount_minor",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "payment_reference",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "verified_payment_attempt_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "paid_confirmed_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "idempotency_hash",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "request_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "trace_id",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "actor_id",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "event_ids",
+            "nullable": false,
+            "type": "array_uuid_v7"
+          },
+          {
+            "name": "occurrence_ids",
+            "nullable": false,
+            "type": "array_uuid_v7"
+          },
+          {
+            "name": "event_page_revision_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "experiment_assignment_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_intent_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_posting_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ledger_template_id",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "ledger_idempotency_key",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "ledger_idempotency_payload_hash_sha256",
+            "nullable": true,
+            "type": "string"
+          },
+          {
+            "name": "fee_total_minor",
+            "notes": "Total fees in M_u scaled integer (see SUITE ND-120..ND-122). Defaults to 0.",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "subtotal_amount_minor",
+            "notes": "Subtotal (pre-tax, pre-fee) in M_u scaled integer. MUST be derived from immutable pricing snapshot used at checkout creation.",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "tax_total_minor",
+            "notes": "Total tax amount in M_u scaled integer. MUST be locked at checkout creation (ND-171).",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "tax_apportionment_priority_map",
+            "type": "array_uuid_v7",
+            "nullable": false,
+            "notes": "Immutable sale-time remainder distribution priority order for taxable line items. This array MUST list line_item_id values in the exact order in which remainder minor units are allocated under TAX-1 apportionment policy. MUST be persisted at order finalization and MUST NOT be re-derived at refund time."
+          },
+          {
+            "name": "tax_apportionment_priority_map_sha256",
+            "type": "sha256_hex",
+            "nullable": false,
+            "notes": "sha256 hex of canonical apportionment priority map transcript. MUST be computed as sha256(UTF8('ORD-TAX-APP-V1|' + org_id + '|' + join(line_item_id,'|'))). Used as REFUND-1 handshake anchor."
+          },
+          {
+            "name": "internal_rounding_adjustment_minor",
+            "notes": "Signed M_u scaled integer capturing rounding drift so that subtotal + tax + fees + adjustment == total (ND-172). Defaults to 0.",
+            "nullable": false,
+            "type": "integer"
+          },
+          {
+            "name": "tax_context_digest",
+            "notes": "SHA-256 hex digest representing locked tax jurisdiction/rates/inclusivity context at checkout creation (ND-171).",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "locked_tax_inclusivity_mode",
+            "notes": "Locked tax inclusivity mode at checkout creation. Allowed: 'inclusive' | 'exclusive' (ND-171).",
+            "nullable": false,
+            "type": "string"
+          },
+          {
+            "name": "locked_at_utc",
+            "notes": "DB-monotonic timestamp captured at checkout creation when tax/pricing context is locked (ND-170, ND-171).",
+            "nullable": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "jurisdiction_evidence_ref",
+            "notes": "Reference to evidence stored in PII-1 vault used to determine jurisdiction at lock time. Required for audit traceability.",
+            "nullable": false,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "payment_intent_id",
+            "notes": "Set only during finalize_checkout when PAY-1 confirms PAID; MUST be immutable after set.",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "bucket_hold_ids",
+            "nullable": false,
+            "type": "array_uuid_v7",
+            "notes": "Authoritative GA InventoryBucketHold ids returned by SEAT-1.verify_bucket_hold_proofs; empty when no bucket claims exist."
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "description": "Order-scoped platform fee line details derived from PAY-3 FeeAssessment (SD-011).",
+        "name": "OrderFeeLine",
+        "optional_attributes": [
+          {
+            "name": "tax_rate",
+            "type": "decimal"
+          },
+          {
+            "name": "metadata",
+            "type": "object"
+          }
+        ],
+        "required_attributes": [
+          "order_fee_line_id",
+          "order_id",
+          "description",
+          "amount_minor",
+          "tax_amount_minor",
+          "fee_type",
+          "created_at_utc"
+        ]
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "BP-0",
+      "min_version": "1.0.6",
+      "reason": "Blueprint baseline patterns and anti-pattern bans (no enforcement theater).",
+      "edge_type": "governance_floor"
+    },
+    {
+      "doc_id": "CG-0",
+      "min_version": "2.2.0",
+      "reason": "CI contract gate strict expectations and bundle integrity rules.",
+      "edge_type": "governance_floor"
+    },
+    {
+      "doc_id": "CS-0",
+      "min_version": "2.2.0",
+      "reason": "Schema compliance for contract/test-gates/manifest artifacts.",
+      "edge_type": "requires"
+    },
+    {
+      "doc_id": "ERR-1",
+      "min_version": "1.4.15",
+      "reason": "Canonical error registry including ORD/payment/checkout and suite-wide subcodes.",
+      "edge_type": "registry_floor"
+    },
+    {
+      "doc_id": "EVT-1",
+      "min_version": "2.16.4",
+      "reason": "Registry head alignment (context/type-safety; ordering & envelope rules).",
+      "edge_type": "registry_floor"
+    },
+    {
+      "doc_id": "EVT-2",
+      "min_version": "2.4.0",
+      "reason": "Occurrence windows + scan policy fields used by eligibility checks and downstream ticketing alignment.",
+      "edge_type": "paired_contract"
+    },
+    {
+      "doc_id": "IAM-1",
+      "min_version": "3.0.5",
+      "reason": "Actor identity context and audit trail requirements.",
+      "edge_type": "foundation_floor"
+    },
+    {
+      "doc_id": "LED-1",
+      "min_version": "4.4.3",
+      "reason": "Ledger is the financial constitution. ORD MUST submit posting intents (templates) to LED-1, never raw legs.",
+      "edge_type": "foundation_floor"
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "min_version": "2.0.13",
+      "reason": "Idempotency + lock ordering for high-risk finalization.",
+      "edge_type": "foundation_floor"
+    },
+    {
+      "doc_id": "OBQC-1",
+      "min_version": "2.0.0",
+      "reason": "Queue taxonomy and concurrency posture for async workflows.",
+      "edge_type": "foundation_floor"
+    },
+    {
+      "doc_id": "OBS-1",
+      "min_version": "2.7.15",
+      "reason": "Observability: trace_id propagation, bounded labels, and release blocks.",
+      "edge_type": "foundation_floor"
+    },
+    {
+      "doc_id": "PAY-1",
+      "min_version": "2.7.7",
+      "reason": "Payment authorization verification boundary; payment_reference validation before finalization.",
+      "edge_type": "paired_contract"
+    },
+    {
+      "doc_id": "PAY-2",
+      "min_version": "2.8.4",
+      "reason": "Required dependency for payment authorization/confirmation semantics used by checkout finalization.",
+      "edge_type": "paired_contract"
+    },
+    {
+      "doc_id": "PAY-3",
+      "min_version": "2.10.3",
+      "reason": "Required for FeeSchedule/FeeAssessment fee engine (SD-011).",
+      "edge_type": "paired_contract"
+    },
+    {
+      "doc_id": "PAY-4",
+      "min_version": "2.4.1",
+      "reason": "Payout reconciliation scope referenced by ORD-1 boundaries and integration notes.",
+      "edge_type": "paired_contract"
+    },
+    {
+      "doc_id": "PRICE-1",
+      "min_version": "3.5.6",
+      "reason": "PRICE-SIG-V4 snapshot verification and PRICE-owned activate/consume lifecycle used by quote-bound checkout.",
+      "edge_type": "paired_contract"
+    },
+    {
+      "doc_id": "REFUND-1",
+      "min_version": "1.6.2",
+      "reason": "Required dependency for deterministic compensation flows when payments must be voided/refunded.",
+      "edge_type": "paired_contract"
+    },
+    {
+      "doc_id": "SEAT-1",
+      "min_version": "3.7.0",
+      "reason": "Seat and bucket proof verification, grace extension, and allocation actions required by ORD-1 3.8.1.",
+      "edge_type": "paired_contract"
+    },
+    {
+      "doc_id": "SEC-1",
+      "min_version": "3.0.8",
+      "reason": "Security posture: least privilege, auditability, and auth boundary semantics.",
+      "edge_type": "foundation_floor"
+    },
+    {
+      "doc_id": "SUB-1",
+      "min_version": "1.0.0",
+      "reason": "Subscriber entitlements (org-scoped) used to gate subscriber-only pricing and purchase eligibility.",
+      "edge_type": "paired_contract"
+    },
+    {
+      "doc_id": "TEN-1",
+      "min_version": "1.7.6",
+      "reason": "Tenant isolation using org_id key and hide-existence semantics.",
+      "edge_type": "foundation_floor"
+    },
+    {
+      "doc_id": "TG-0",
+      "min_version": "2.3.0",
+      "reason": "Gate taxonomy and deterministic assertion types.",
+      "edge_type": "governance_floor"
+    },
+    {
+      "doc_id": "TAX-1",
+      "min_version": "2.0.3",
+      "reason": "Tax policy and tax context binding for price snapshots, checkout math, and ledger templates.",
+      "edge_type": "paired_contract"
+    },
+    {
+      "doc_id": "API-0",
+      "min_version": "1.1.1",
+      "reason": "GAP-2 runtime law binding: ORD public ingress and wire-protocol semantics MUST obey API-0 (admission token transport, overload semantics, retry/backoff, pagination law).",
+      "edge_type": "integration_floor"
+    },
+    {
+      "doc_id": "PSC-1",
+      "min_version": "1.8.2",
+      "reason": "GAP-2 runtime law binding: ORD hot-sale and flash-sale survival MUST obey PSC-1 (bulkheads, concurrency caps, timeouts, queue requirement triggers).",
+      "edge_type": "foundation_floor"
+    }
+  ],
+  "dependency_floors": {
+    "API-0": "1.1.1",
+    "ERR-1": "1.4.15",
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0",
+    "LED-1": "4.4.3",
+    "OBS-1": "2.7.15",
+    "PAY-1": "2.7.7",
+    "PAY-2": "2.8.4",
+    "PAY-3": "2.10.3",
+    "PRICE-1": "3.5.6",
+    "PSC-1": "1.8.2",
+    "REFUND-1": "1.6.2",
+    "SEAT-1": "3.7.0",
+    "TAX-1": "2.1.1",
+    "TEN-1": "1.7.6",
+    "PROD-1": "1.1.1"
+  },
+  "dependency_pins": {
+    "gc_001_chain": {
+      "ERR-1": "1.4.15",
+      "OBS-1": "2.7.15",
+      "PAY-1": "2.7.7",
+      "PAY-2": "2.8.4",
+      "PAY-3": "2.9.2",
+      "PRICE-1": "3.5.6",
+      "SEAT-1": "3.7.0",
+      "TEN-1": "1.7.6"
+    },
+    "physics_layer": {
+      "DP-1": "2.1.0",
+      "EVT-1": "2.16.4",
+      "LOCKS-1": "2.1.0",
+      "SM-0": "1.2.0"
+    },
+    "API-0": {
+      "version": "1.1.1",
+      "sha256": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991",
+      "artifact": "API-0_Contract_v1.1.1.json"
+    },
+    "PSC-1": {
+      "version": "1.8.2",
+      "sha256": "d29f4e93d95677713d2b16d6e2e60a5916f5f3a99da1ff24e70b50303f10c9a1",
+      "artifact": "PSC-1_Contract_v1.8.2.json"
+    },
+    "PROD-1": {
+      "version": "1.1.1",
+      "sha256": "bbba4a2d4832759bb1d7b4d81c6379cc38b277fe4e6a80fb42fd4ef350941eb0",
+      "artifact": "PROD-1_Contract_v1.1.1.json"
+    }
+  },
+  "doc_id": "ORD-1",
+  "domain_actions": {
+    "create_checkout": {
+      "idempotency": {
+        "input_field": "idempotency_key",
+        "key_source": "action_input",
+        "replay_behavior": "return_original_or_ERR_CONFLICT_on_mismatch",
+        "required": true,
+        "transport_mapping": "HTTP Idempotency-Key header maps to action input; not normative"
+      },
+      "input_schemas": {
+        "entitlement_allocations": {
+          "items": {
+            "properties": {
+              "beneficiary_customer_id": {
+                "notes": "Customer who will consume the entitlement (and must match PRICE snapshot beneficiary_customer_id for subscriber-priced lines).",
+                "type": "uuid_v7"
+              },
+              "entitlement_grant_id": {
+                "notes": "Required when entitlement_kind=\"subscriber\"; MUST be null when entitlement_kind=\"none\".",
+                "nullable": true,
+                "type": "uuid_v7"
+              },
+              "entitlement_kind": {
+                "enum": [
+                  "subscriber",
+                  "none"
+                ],
+                "notes": "Explicitly declares whether these units are subscriber-priced or non-entitled.",
+                "type": "string"
+              },
+              "entitlement_tier_id": {
+                "notes": "Required when entitlement_kind=\"subscriber\"; MUST be null when entitlement_kind=\"none\".",
+                "nullable": true,
+                "type": "uuid_v7"
+              },
+              "line_key": {
+                "notes": "Stable identifier linking to the signed priced line item. Default construction: \"<item_ref_type>:<item_ref_id>\" for the corresponding PRICE line.",
+                "type": "string"
+              },
+              "qty": {
+                "min": 1,
+                "notes": "Number of units in the referenced line assigned to this entitlement context.",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "line_key",
+              "qty",
+              "beneficiary_customer_id",
+              "entitlement_kind"
+            ],
+            "type": "object"
+          },
+          "notes": "When provided, entitlement_allocations MUST reconcile exactly with signed PRICE snapshot lines. For each line_key, sum(qty) must equal line.quantity. Mixed entitlement_kind within a single line_key is not supported; split holds/lines if mixed pricing is required.",
+          "type": "array"
+        },
+        "seat_hold_proofs": {
+          "type": "array",
+          "required_when": "provided",
+          "items": {
+            "type": "object",
+            "required": [
+              "hold_id",
+              "hold_signature"
+            ]
+          }
+        },
+        "bucket_hold_proofs": {
+          "type": "array",
+          "required_when": "provided",
+          "items": {
+            "type": "object",
+            "required": [
+              "hold_id",
+              "hold_signature"
+            ]
+          }
+        }
+      },
+      "inputs_optional": [
+        "bucket_hold_proofs",
+        "entitlement_allocations",
+        "seat_hold_proofs"
+      ],
+      "inputs_required": [
+        "org_id",
+        "actor_id",
+        "currency",
+        "idempotency_key",
+        "request_id",
+        "trace_id",
+        "pricing_snapshot_id",
+        "actor_type"
+      ],
+      "output_minimum": [
+        "org_id",
+        "order_id",
+        "checkout_group_id",
+        "status",
+        "version",
+        "created_at_utc",
+        "expires_at_utc",
+        "event_ids",
+        "occurrence_ids",
+        "price_snapshot_id",
+        "price_signature_version",
+        "price_signature_hash",
+        "signature_hash",
+        "currency",
+        "total_amount_minor",
+        "request_id",
+        "trace_id",
+        "actor_id",
+        "seat_hold_ids",
+        "bucket_hold_ids"
+      ],
+      "purpose": "Create a draft Order bound to verified seat and/or GA bucket inventory claims and the exact active PRICE-1 quote snapshot.",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "pricing_snapshot_id MUST identify the exact transaction-specific PRICE-1 quote snapshot supplied to this checkout. ORD MUST verify that this PRICE-1 snapshot belongs to org_id, is active and unexpired, has signature_version=PRICE-SIG-V4, and passes PRICE-1 signature and total validation.",
+        "Persist the supplied pricing_snapshot_id only as Order.price_snapshot_id. Order.price_snapshot_id MUST equal inputs.pricing_snapshot_id; Order MUST NOT persist or return a second authoritative pricing_snapshot_id field.",
+        "After the Order id is fixed, ORD MUST invoke PRICE-1.consume_snapshot for that exact snapshot with consumed_by_order_id=order_id. PRICE-1 owns the transition and field write; ORD MUST NOT mutate consumed_by_order_id directly. Snapshot consumption and Order creation MUST commit or roll back together, and a snapshot already consumed by another Order MUST fail closed.",
+        "Order MUST be created with status=draft",
+        "Client totals MUST be rejected or ignored",
+        "Server MUST enforce addon dependency: if any resolved EVT-2 Occurrence has workshops_require_primary_access=true, then the checkout MUST also include at least one Occurrence with occurrence_kind=main for the same event_id; otherwise return ERR_PRECONDITION subcode ORD_PRIMARY_ACCESS_REQUIRED.",
+        "Exception: an EVT-2 Occurrence with workshops_require_primary_access=true MAY be purchased without a main Occurrence ONLY if that Occurrence has standalone_allowed=true; otherwise ORD_PRIMARY_ACCESS_REQUIRED applies.",
+        "If entitlement_allocations are provided, each allocation MUST reference a hold_id present in the verified seat_hold_proofs or bucket_hold_proofs (1 allocation per hold_id max; duplicates forbidden).",
+        "entitlement_allocations MUST be treated as purchase-time intent only; raw external membership references MUST NOT be persisted (persist only non-reversible hashes or resolved subject_customer_id).",
+        "The supplied PRICE-1 quote snapshot MUST use PRICE-SIG-V4. ORD verifies the supplied snapshot; it MUST NOT create or request another snapshot.",
+        "If entitlement_allocations is provided, ORD MUST evaluate each allocation via SUB-1 at checkout creation time to prevent quoting subscriber pricing to ineligible buyers. If any allocation is ineligible, return ERR_FORBIDDEN with one of: SUB_ENTITLEMENT_NOT_ELIGIBLE, SUB_ENTITLEMENT_REQUIRED, SUB_INVALID_STATE, SUB_GRACE_PERIOD_ELAPSED, SUB_QUOTA_EXCEEDED, SUB_OFFER_NOT_AVAILABLE, SUB_FORBIDDEN.",
+        "Mixed subscriber and non-subscriber pricing within a single multi-unit inventory hold is NOT supported in ORD-1 v3.0.11. To purchase (e.g.) 2 subscriber units + 2 normal units from the same GA pool, the client MUST split into separate holds in SEAT-1 so each hold has a uniform pricing context, then provide entitlement_allocations per hold.",
+        "If any subscriber entitlement is applied (i.e., any resulting PRICE line has entitlement_grant_id present), ORD MUST NOT accept PRICE-SIG-V1/V2 snapshots for that checkout; PRICE-SIG-V3 or PRICE-SIG-V4 is required (PRICE-SIG-V4 preferred for new checkouts).",
+        "Implementations MUST derive line_items by combining: verified holds (SEAT-1) + signed pricing lines (PRICE-1). line_items MUST be immutable once persisted.",
+        "Implementations MUST derive event_ids and occurrence_ids from line_items as sorted de-duplicated unions. Client-provided event_ids/occurrence_ids are ignored.",
+        "Addon dependency checks MUST be evaluated per event_id: for each event_id in event_ids, if any bound occurrence requires primary access, the corresponding primary occurrence MUST be present within the same order for that event_id unless the occurrence is explicitly marked as standalone in EVT-2/SEAT-1 metadata.",
+        "Implementation MUST secure payment-grace hold extensions via SEAT-1 per ORD-1-GC-001-SD-043-001 before returning checkout_url / payment initiation tokens.",
+        "Tax lock: create_checkout MUST resolve jurisdiction evidence (PII-1 vault) and compute TAX-1 tax_context_digest + locked_tax_inclusivity_mode. It MUST persist Order.tax_context_digest, Order.locked_tax_inclusivity_mode, Order.jurisdiction_evidence_ref, and Order.locked_at_utc (DB time) and these fields MUST be immutable thereafter. (ND-170, ND-171)",
+        "Money arithmetic: create_checkout MUST persist subtotal_amount_minor, tax_total_minor, fee_total_minor, internal_rounding_adjustment_minor, and total_amount_minor as M_u scaled integers. It MUST enforce: subtotal + tax + fees + adjustment == total. (ND-172)",
+        "At least one of seat_hold_proofs or bucket_hold_proofs MUST contain a verified proof. Empty combined proof sets MUST fail closed.",
+        "When seat_hold_proofs are supplied, preserve current SEAT-1.verify_hold_proofs validation and persist authoritative seat_hold_ids.",
+        "When bucket_hold_proofs are supplied, call SEAT-1.verify_bucket_hold_proofs and persist authoritative bucket_hold_ids; never resolve bucket holds by id alone.",
+        "Derive event_ids and occurrence_ids only from verified seat and bucket tuples and deduplicate in stable order.",
+        "Every line item MUST bind to verified inventory_claims. A bucket claim MUST match the verified occurrence_id, bucket_id and quantity exactly. Bucket-backed lines MUST omit seat_ids and MUST NOT invent a seat_id.",
+        "Checkout expiry MUST be min(database_now + 15 minutes, active PRICE quote expiry, every bound seat hold expiry, every bound bucket hold expiry).",
+        "Before returning checkout handoff data, call SEAT-1.extend_hold_grace for every seat proof and SEAT-1.extend_bucket_hold_grace for every bucket proof using the existing SEAT-1 limits; then compute expiry from updated authoritative expiries.",
+        "Single-order create_checkout emits no checkout-created domain event unless a registered EVT-1 event type and this action producer law explicitly require it. Do not emit ticketing.order.checkout_created.v1 based on checkout-group text alone.",
+        "Order.expires_at_utc MUST equal the bounded minimum of checkout TTL, active quote expiry, and all extended hold expiries.",
+        "ORD MUST NOT silently create a different snapshot during checkout after accepting a quote; it MUST bind the supplied pricing_snapshot_id or fail closed.",
+        "Every verified seat or bucket hold MUST bind to exactly one persisted line_items[].inventory_claims entry; no verified proof may be left unbound and no line claim may lack a verified proof.",
+        "ORD MUST NOT create or request another snapshot after accepting the supplied quote; it verifies and consumes only the supplied snapshot.",
+        "The supplied exact active, unexpired PRICE-1 quote snapshot is the pricing authority for checkout; ORD does not require a particular quote-producing domain.",
+        "ORD MUST pass inputs.actor_type from the authenticated tenancy context unchanged to every SEAT-1 bucket proof verification and grace-extension action."
+      ],
+      "seat_and_bucket_proof_rule": {
+        "at_least_one_set_nonempty": true,
+        "seat_action": "SEAT-1.verify_hold_proofs",
+        "bucket_action": "SEAT-1.verify_bucket_hold_proofs",
+        "sets": "Each supplied non-empty proof set MUST be verified independently. A bucket-only Order is valid without seat proofs; a seat-only Order is valid without bucket proofs; mixed claims require both sets.",
+        "persisted_fields": {
+          "seat": "Order.seat_hold_ids",
+          "bucket": "Order.bucket_hold_ids"
+        },
+        "invalid_behavior": "Missing, extra, changed, expired, wrong-tenant, wrong-actor, wrong-bucket, or wrong-quantity proof fails closed.",
+        "accepted_shapes": [
+          "seat-only",
+          "bucket-only",
+          "mixed seat and bucket"
+        ],
+        "rejected_cases": [
+          "mixed-order-missing-seat-proofs",
+          "mixed-order-missing-bucket-proofs",
+          "unbound-extra-seat-proof",
+          "unbound-extra-bucket-proof",
+          "changed-seat-proof",
+          "changed-bucket-proof"
+        ]
+      },
+      "event_emission": {
+        "emitted_events": [],
+        "reason": "EVT-1 does not register ticketing.order.checkout_created.v1 and single-order create_checkout has no producer law requiring a checkout-created event."
+      },
+      "actor_type_source": "Required authenticated tenancy context actor_type from the principal bound to the inventory hold; never accept a client-body override."
+    },
+    "create_checkout_group": {
+      "errors": [
+        "ERR_FORBIDDEN.AUTH_FORBIDDEN",
+        "ERR_PRECONDITION.ORD_SEAT_HOLD_EXPIRED",
+        "ERR_PRECONDITION.ORD_PRICE_SNAPSHOT_EXPIRED",
+        "ERR_PRECONDITION.ORD_ADDON_DEPENDENCY_MISSING",
+        "ERR_PRECONDITION.ORD_PRIMARY_ACCESS_REQUIRED",
+        "ERR_CONFLICT.LOCKS_OPTIMISTIC_CONFLICT",
+        "ERR_VALIDATION.ORD_CHECKOUT_GROUP_CURRENCY_MISMATCH"
+      ],
+      "input_schemas": {
+        "entitlement_allocations": {
+          "items": {
+            "properties": {
+              "entitlement_id": {
+                "type": "uuid_v7"
+              },
+              "line_key": {
+                "type": "string"
+              },
+              "qty": {
+                "type": "integer"
+              }
+            },
+            "required": [
+              "line_key",
+              "entitlement_id",
+              "qty"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "seat_hold_proofs": {
+          "items": {
+            "properties": {
+              "hold_id": {
+                "type": "uuid_v7"
+              },
+              "proof": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "hold_id",
+              "proof"
+            ],
+            "type": "object"
+          },
+          "min_items": 1,
+          "type": "array"
+        }
+      },
+      "inputs_optional": [
+        "idempotency_key",
+        "entitlement_allocations",
+        "experiment_assignment_id",
+        "event_page_revision_id"
+      ],
+      "inputs_required": [
+        "org_id",
+        "actor_id",
+        "currency",
+        "seat_hold_proofs",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "checkout_group_id",
+        "currency",
+        "total_amount_minor",
+        "expires_at_utc",
+        "orders"
+      ],
+      "purpose": "Create a multi-org checkout group (platform-orchestrated) from seat_hold_proofs, producing one draft org-scoped Order per target org derived from verified holds. All created Orders share the same checkout_group_id.",
+      "side_effects": [
+        "Calls SEAT-1.verify_hold_proofs per org partition.",
+        "Calls PRICE-1.create_snapshot per org partition (until PRICE supports cross-org snapshots).",
+        "Persists Orders and enqueues ticketing.order.checkout_created.v1 after commit (per order)."
+      ],
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "This action is cross-tenant orchestration and MUST be allowed only for platform/system services with explicit capability. The input org_id denotes the operator context only and MUST NOT be used as the target org partition.",
+        "Implementations MUST partition verified holds by org_id and create exactly one draft Order per org_id, each with its own seat_hold_ids, line_items, price_snapshot_id, price_signature_hash, signature_hash, currency, and total_amount_minor.",
+        "All created Orders MUST share checkout_group_id and actor_id. All created Orders MUST share the same expires_at_utc equal to the minimum expires_at_utc across the created Orders.",
+        "If any org partition fails validation, the entire action MUST fail and MUST NOT create partial Orders.",
+        "Implementations MUST validate that every derived Order.currency equals inputs.currency. If any org partition yields a different currency, the entire orchestration MUST fail with ERR_VALIDATION subcode ORD_CHECKOUT_GROUP_CURRENCY_MISMATCH and MUST NOT create any Orders.",
+        "Implementation MUST secure payment-grace hold extensions via SEAT-1 per ORD-1-GC-001-SD-043-001 before returning checkout_url / payment initiation tokens."
+      ]
+    },
+    "expire_checkout": {
+      "inputs_required": [
+        "org_id",
+        "order_id",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "org_id",
+        "order_id",
+        "checkout_group_id",
+        "status",
+        "version",
+        "expired_at_utc",
+        "request_id",
+        "trace_id",
+        "actor_id"
+      ],
+      "purpose": "Expire draft orders whose TTL has elapsed and release associated holds.",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "now() MUST be > order.expires_at_utc",
+        "status MUST transition draft → expired",
+        "ORD-1 does not own hold release. Holds MUST expire/release by SEAT-1 TTL enforcement. expire_checkout MUST mark the Order expired (status=expired, expired_at_utc set) and MUST emit ticketing.order.expired.v1 after commit.",
+        "expire_checkout MUST set expired_at_utc and transition status to 'expired' only when status=='draft'."
+      ]
+    },
+    "expire_checkout_group": {
+      "errors": [
+        "ERR_FORBIDDEN.AUTH_FORBIDDEN",
+        "ERR_NOT_FOUND",
+        "ERR_CONFLICT.LOCKS_OPTIMISTIC_CONFLICT"
+      ],
+      "input_schemas": {
+        "checkout_group_id": {
+          "type": "uuid_v7"
+        }
+      },
+      "inputs_optional": [
+        "idempotency_key"
+      ],
+      "inputs_required": [
+        "org_id",
+        "checkout_group_id",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "checkout_group_id",
+        "orders"
+      ],
+      "purpose": "Expire all draft org-scoped Orders in a checkout_group_id (platform-orchestrated).",
+      "side_effects": [
+        "Transitions each Order to status='expired' and sets expired_at_utc for each order.",
+        "Enqueues ticketing.order.expired.v1 per order after commit."
+      ],
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "This action is cross-tenant orchestration and MUST be allowed only for platform/system services with explicit capability. The input org_id denotes the operator context only and MUST NOT be used as the target org partition.",
+        "All Orders in the group MUST share the same actor_id. Orders that are already finalized MUST NOT be expired.",
+        "If any Order cannot be expired, the action MUST fail and MUST NOT partially expire the group."
+      ]
+    },
+    "finalize_checkout": {
+      "accept": [
+        "payment_reference",
+        "idempotency_key",
+        "payment_method_id",
+        "billing_address",
+        "billing_contact",
+        "browser_ip",
+        "user_agent"
+      ],
+      "idempotency": {
+        "input_field": "idempotency_key",
+        "key_source": "action_input",
+        "replay_behavior": "return_original_or_ERR_CONFLICT_on_mismatch",
+        "required": true,
+        "transport_mapping": "HTTP Idempotency-Key header maps to action input; not normative"
+      },
+      "inputs_required": [
+        "org_id",
+        "order_id",
+        "payment_reference",
+        "idempotency_key",
+        "actor_id",
+        "request_id",
+        "trace_id",
+        "actor_type"
+      ],
+      "ledger_intent": "\n- Platform fees MUST be derived from PAY-3 FeeAssessment (SD-011) and MUST NOT be inserted ad-hoc (ORD_PLATFORM_FEE_DERIVATION_FORBIDDEN).",
+      "output_minimum": [
+        "org_id",
+        "order_id",
+        "checkout_group_id",
+        "status",
+        "version",
+        "finalized_at_utc",
+        "event_ids",
+        "occurrence_ids",
+        "price_snapshot_id",
+        "price_signature_version",
+        "price_signature_hash",
+        "signature_hash",
+        "currency",
+        "total_amount_minor",
+        "payment_reference",
+        "verified_payment_attempt_id",
+        "paid_confirmed_at_utc",
+        "request_id",
+        "trace_id",
+        "actor_id",
+        "payment_intent_id",
+        "seat_hold_ids",
+        "bucket_hold_ids"
+      ],
+      "postconditions": [
+        "OrderFeeLine rows MUST be written from the PAY-3 FeeAssessment fee_lines (if present) and Order.fee_total_minor MUST reconcile to them.",
+        "If PricingSnapshot.platform_fee_mode='on' AND platform_fee_payer_mode='buyer', PricingSnapshot MUST include the PLATFORM_FEE PriceLine and it MUST reconcile to OrderFeeLine totals."
+      ],
+      "preconditions": [
+        "A PAY-3 FeeAssessment MUST be computed for this org-scope order using a resolved FeeScheduleRevision (or fees must be explicitly disabled)."
+      ],
+      "purpose": "Finalize the checkout as a single atomic commit.",
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "now() MUST be < order.expires_at_utc",
+        "status MUST be draft prior to finalization",
+        "Given `payment_reference`, the system MUST call PAY-1.verify_payment_reference with `expected_order_id = order_id` and `org_id`. Finalization MUST fail-closed unless PAY-1 returns a Provider-verified outcome where `resolved_order_id == order_id`.",
+        "If PAY-1 outcome is Provider-verified PAID, ORD-1 MUST persist `payment_intent_id` (from PAY-1), `verified_payment_attempt_id` (or equivalent provider attempt id), and `paid_confirmed_at_utc = provider_confirmed_at_utc` in the Order record. These fields MUST be immutable after finalization.",
+        "PRICE-1 signature_hash MUST be verified as a DB predicate in the atomic commit (no client-trust).",
+        "ORD MUST NOT construct raw ledger legs. finalize_checkout MUST construct a canonical LED-1 Posting Intent payload using template_id='SALE_STD' (or another allowlisted template) with args derived strictly from the verified PRICE snapshot (unit totals, platform fee, tax amounts) and TAX-1 policy (tax_inclusion_mode). finalize_checkout MUST call LED-1.post_intent(payload, idempotency_key, idempotency_payload_hash_sha256) inside the same DB transaction. The idempotency_key passed to LED-1 MUST be derived from order_id (e.g., 'ord_finalize:' + order_id) and MUST be unique per finalized order. ORD MUST persist ledger_intent_id, ledger_posting_id, ledger_template_id, ledger_idempotency_key, and ledger_idempotency_payload_hash_sha256 on the Order row in the same transaction.",
+        "Concurrent finalize attempts MUST be rejected via optimistic locking",
+        "ORD MUST validate the PRICE snapshot signature using the declared price_signature_version; implementations MUST support PRICE-SIG-V1/V2/V3/V4 for legacy checkouts and MUST require PRICE-SIG-V4 for new checkouts.",
+        "If any PRICE line in the snapshot carries entitlement_grant_id (subscriber pricing), ORD MUST re-evaluate entitlement eligibility at purchase-finalize time via SUB-1 for the relevant subject/beneficiary and MUST reject finalize if ineligible (use SUB_* subcodes).",
+        "Subscriber-priced lines MAY be mixed with non-subscriber lines in the same order; entitlement enforcement MUST occur per line (beneficiary-aware) and quota rules MUST be enforced (use SUB_QUOTA_EXCEEDED when applicable).",
+        "Implementations MUST re-derive event_ids/occurrence_ids from persisted line_items and MUST enforce addon dependency rules per event_id prior to seat allocation; any violation MUST fail with ERR_PRECONDITION ORD_PRIMARY_ACCESS_REQUIRED or ORD_ADDON_DEPENDENCY_MISSING as applicable.",
+        "If payment confirmation arrives after order.expires_at_utc or holds have expired, finalize_checkout MUST fail deterministically and the payment pipeline MUST execute PAY-3 compensation (void/refund) with ERR-1 subcode PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED (no issuance).",
+        "Tax lock enforcement: finalize_checkout MUST compute the current tax_context_digest (TAX-1) for the same jurisdiction evidence and fail-closed if it differs from Order.tax_context_digest. No tax recomputation is allowed for a locked intent. (ND-171)",
+        "DB temporal truth: finalize_checkout MUST set finalized_at_utc using the database clock inside the finalization transaction. (ND-170)",
+        "Audit evidence binding: finalize_checkout MUST include jurisdiction_evidence_ref in the ledger intent payload and MUST NOT allow it to be modified during retry/recovery flows. (PII-1 ↔ TAX-1 ↔ ORD-1)",
+        "At least one persisted bound hold set MUST be non-empty. For each non-empty Order.seat_hold_ids or Order.bucket_hold_ids set, the corresponding proof input is required and its verified set MUST match exactly; mixed Orders require both. Missing, extra, or changed proofs fail closed.",
+        "Re-verify each required proof set at commit time against its exact persisted Order hold-ID set. Any missing, extra, or changed proof fails closed.",
+        "For bucket holds call SEAT-1.verify_bucket_hold_proofs and allocate each via SEAT-1.allocate_bucket_hold inside the same atomic finalization boundary.",
+        "For seat holds preserve existing verify_hold_proofs and seat allocation behavior.",
+        "All bound holds MUST be unexpired at commit time.",
+        "Bucket allocations MUST match persisted order line occurrence_id, bucket_id and quantity; no seat_id is synthesized.",
+        "SEAT-1 seat allocations, SEAT-1 bucket allocations, Order status transition, and the existing ledger writes MUST remain in the same Postgres transaction; any allocation failure rolls back the finalization.",
+        "ORD MUST pass inputs.actor_type from the authenticated tenancy context unchanged to SEAT-1 bucket proof verification and allocation; actor mismatch fails closed under SEAT-1."
+      ],
+      "inputs_optional": [
+        "bucket_hold_proofs",
+        "seat_hold_proofs"
+      ],
+      "bound_hold_proof_rule": {
+        "at_least_one_persisted_set_nonempty": true,
+        "seat": {
+          "when": "Order.seat_hold_ids is non-empty",
+          "proof_input_required": "seat_hold_proofs",
+          "verified_set_equals": "Order.seat_hold_ids"
+        },
+        "bucket": {
+          "when": "Order.bucket_hold_ids is non-empty",
+          "proof_input_required": "bucket_hold_proofs",
+          "verified_set_equals": "Order.bucket_hold_ids"
+        },
+        "mixed_order": "Both proof inputs are required and each verified set MUST equal its persisted Order set exactly.",
+        "invalid_behavior": "Missing, extra, or changed proof fails closed; each supplied proof is reverified at commit time.",
+        "accepted_shapes": [
+          "seat-only",
+          "bucket-only",
+          "mixed seat and bucket"
+        ],
+        "rejected_cases": [
+          "mixed-order-missing-seat-proofs",
+          "mixed-order-missing-bucket-proofs",
+          "extra-seat-proof",
+          "extra-bucket-proof",
+          "changed-seat-proof",
+          "changed-bucket-proof"
+        ]
+      },
+      "actor_type_source": "Required authenticated tenancy context actor_type from the principal bound to the inventory hold; never accept a client-body override."
+    },
+    "finalize_checkout_group": {
+      "errors": [
+        "ERR_FORBIDDEN.AUTH_FORBIDDEN",
+        "ERR_NOT_FOUND",
+        "ERR_PRECONDITION.ORD_SEAT_HOLD_EXPIRED",
+        "ERR_PRECONDITION.ORD_PRICE_SNAPSHOT_EXPIRED",
+        "ERR_PRECONDITION.PRICE_TOTAL_MISMATCH",
+        "ERR_CONFLICT.LOCKS_OPTIMISTIC_CONFLICT",
+        "ERR_VALIDATION.ORD_CHECKOUT_GROUP_CURRENCY_MISMATCH"
+      ],
+      "input_schemas": {
+        "checkout_group_id": {
+          "type": "uuid_v7"
+        },
+        "payment_reference": {
+          "type": "string"
+        }
+      },
+      "inputs_optional": [
+        "idempotency_key"
+      ],
+      "inputs_required": [
+        "org_id",
+        "checkout_group_id",
+        "payment_reference",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "checkout_group_id",
+        "currency",
+        "total_amount_minor",
+        "verified_payment_attempt_id",
+        "paid_confirmed_at_utc",
+        "orders"
+      ],
+      "purpose": "Finalize all draft org-scoped Orders in a checkout_group_id (platform-orchestrated) using a single payment_reference. Emits ticketing.order.finalized.v1 per order after commit.",
+      "side_effects": [
+        "Calls PAY-* verify for payment_reference.",
+        "Allocates seats via SEAT-1 for each Order partition.",
+        "Posts LED-1 entries per org partition.",
+        "Enqueues ticketing.order.finalized.v1 events after commit (per order)."
+      ],
+      "side_effects_separation": "after_commit_only",
+      "validation_rules": [
+        "This action is cross-tenant orchestration and MUST be allowed only for platform/system services with explicit capability. The input org_id denotes the operator context only and MUST NOT be used as the target org partition.",
+        "Implementations MUST load all Orders sharing checkout_group_id and MUST ensure they all share the same actor_id and are in status=='draft'.",
+        "Implementations MUST verify payment_reference via PAY-* and MUST validate: (1) all Orders in the checkout_group_id share the same Order.currency, (2) verified payment currency equals that group currency, and (3) verified payment amount equals the sum of Order.total_amount_minor across the group. If currencies are mixed or mismatched, finalize_checkout_group MUST fail with ERR_VALIDATION subcode ORD_CHECKOUT_GROUP_CURRENCY_MISMATCH.",
+        "Implementations MUST finalize every Order in the group atomically at the database level. Partial finalization is forbidden.",
+        "verified_payment_attempt_id and paid_confirmed_at_utc MUST be persisted onto each finalized Order.",
+        "If payment confirmation arrives after order.expires_at_utc or holds have expired, finalize_checkout_group MUST fail deterministically and the payment pipeline MUST execute PAY-3 compensation (void/refund) with ERR-1 subcode PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED (no issuance).",
+        "For multi-order checkout groups, payment verification MUST be performed via a group-capable payment contract (PAY-4) that binds the provider payment reference to `checkout_group_id` and returns the exact set of `order_id`s. Using PAY-1 (order-bound) for group verification is forbidden."
+      ]
+    }
+  },
+  "err_subcodes_used": [
+    {
+      "subcode": "GOV_ADMIN_OVERRIDE_BLOCKED_DISPUTE_ACTIVE"
+    },
+    {
+      "subcode": "GOV_DISPUTE_OVERRIDE_EVIDENCE_REQUIRED"
+    },
+    {
+      "subcode": "ORD_ADDON_DEPENDENCY_MISSING"
+    },
+    {
+      "subcode": "ORD_ALREADY_FINALIZED"
+    },
+    {
+      "subcode": "ORD_CHECKOUT_EXPIRED"
+    },
+    {
+      "subcode": "ORD_CHECKOUT_GROUP_CURRENCY_MISMATCH"
+    },
+    {
+      "subcode": "ORD_CHECKOUT_SNAPSHOT_MISMATCH"
+    },
+    {
+      "subcode": "ORD_ENTITLEMENT_ALLOCATION_INVALID"
+    },
+    {
+      "subcode": "ORD_ENTITLEMENT_ALLOCATION_QTY_MISMATCH"
+    },
+    {
+      "subcode": "ORD_PAYMENT_REQUIRED"
+    },
+    {
+      "subcode": "ORD_PAYMENT_STATE_INVALID"
+    },
+    {
+      "subcode": "ORD_PRICE_SNAPSHOT_EXPIRED"
+    },
+    {
+      "subcode": "ORD_PRIMARY_ACCESS_REQUIRED"
+    },
+    {
+      "subcode": "ORD_SEAT_HOLD_EXPIRED"
+    },
+    {
+      "subcode": "PRICE_TOTAL_MISMATCH"
+    },
+    {
+      "subcode": "SEAT_HOLD_TOKEN_INVALID"
+    },
+    {
+      "subcode": "SUB_ENTITLEMENT_NOT_ELIGIBLE"
+    },
+    {
+      "subcode": "SUB_ENTITLEMENT_REQUIRED"
+    },
+    {
+      "subcode": "SUB_FORBIDDEN"
+    },
+    {
+      "subcode": "SUB_GRACE_PERIOD_ELAPSED"
+    },
+    {
+      "subcode": "SUB_INVALID_STATE"
+    },
+    {
+      "subcode": "SUB_OFFER_NOT_AVAILABLE"
+    },
+    {
+      "subcode": "SUB_QUOTA_EXCEEDED"
+    },
+    {
+      "subcode": "TEN_TENANT_CONTEXT_MISSING"
+    }
+  ],
+  "errors": {
+    "primary_codes_used": [
+      "ERR_BAD_REQUEST",
+      "ERR_CONFLICT",
+      "ERR_FORBIDDEN",
+      "ERR_NOT_FOUND",
+      "ERR_PRECONDITION",
+      "ERR_TIMEOUT",
+      "ERR_UNAVAILABLE",
+      "ERR_VALIDATION"
+    ],
+    "registry": "ERR-1",
+    "subcodes": {
+      "EXT_SIGNATURE_INVALID": {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false
+      },
+      "LOCKS_OPTIMISTIC_CONFLICT": {
+        "base": "ERR_CONFLICT",
+        "retryable": true
+      },
+      "ORD_ALREADY_FINALIZED": {
+        "base": "ERR_CONFLICT",
+        "retryable": false
+      },
+      "ORD_CHECKOUT_SNAPSHOT_MISMATCH": {
+        "base": "ERR_CONFLICT",
+        "retryable": false
+      },
+      "ORD_ENTITLEMENT_ALLOCATION_INVALID": {
+        "notes": "Invalid entitlement_allocations schema or invariant violation.",
+        "subcode": "ORD_ENTITLEMENT_ALLOCATION_INVALID",
+        "top_level": "ERR_VALIDATION"
+      },
+      "ORD_ENTITLEMENT_ALLOCATION_QTY_MISMATCH": {
+        "notes": "Allocation quantities do not reconcile with signed priced line quantities.",
+        "subcode": "ORD_ENTITLEMENT_ALLOCATION_QTY_MISMATCH",
+        "top_level": "ERR_CONFLICT"
+      },
+      "ORD_PAYMENT_REQUIRED": "Payment is required to finalize; payment_reference missing; MUST map to ERR-1 registry subcode.",
+      "ORD_PAYMENT_STATE_INVALID": "Payment is missing or not in a final verified state for order finalization; MUST map to ERR-1 registry subcode.",
+      "ORD_PRICE_SNAPSHOT_EXPIRED": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "ORD_PRIMARY_ACCESS_REQUIRED": "Addon/session/workshop items require primary access for this event.",
+      "ORD_SEAT_HOLD_EXPIRED": {
+        "base": "ERR_PRECONDITION",
+        "retryable": false
+      },
+      "PRICE_TOTAL_MISMATCH": {
+        "base": "ERR_VALIDATION",
+        "retryable": false
+      },
+      "SEAT_HOLD_TOKEN_INVALID": {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false
+      },
+      "SUB_ENTITLEMENT_NOT_ELIGIBLE": "Subscriber entitlement is not eligible at purchase-finalize time (status/tier/org mismatch).",
+      "SUB_ENTITLEMENT_REQUIRED": "Subscriber entitlement is required to purchase this offer/price.",
+      "SUB_GRACE_PERIOD_ELAPSED": "Subscriber entitlement grace period has elapsed; not eligible for subscriber pricing.",
+      "SUB_INVALID_STATE": "Subscriber entitlement is in an invalid state for purchase.",
+      "SUB_QUOTA_EXCEEDED": "Subscriber quota exceeded for this event/offer.",
+      "SUB_SUBJECT_MISMATCH": "Subscriber entitlement subject does not match the beneficiary/customer context.",
+      "TEN_TENANT_CONTEXT_MISSING": {
+        "base": "ERR_FORBIDDEN",
+        "retryable": false
+      }
+    }
+  },
+  "events": {
+    "outbox_events": [
+      {
+        "event_name": "ticketing.order.finalized.v1",
+        "governance": {
+          "ash_resource_ref": "ORD-1:Order",
+          "drift_check_hash": "sha256:a00559e73cfc1342761beabc55ef844254a72b3babad960bea8b31e9d9bdebe0",
+          "hash_basis": "sha256(event_name|source|ash_resource_ref|sorted(required_data_keys))",
+          "source": "derived_from_ash_resource"
+        },
+        "idempotency": "event_id derived from (org_id, order_id, version)",
+        "ordering": "per org_id + order_id",
+        "required_data_keys": [
+          "actor_id",
+          "checkout_group_id",
+          "currency",
+          "event_ids",
+          "occurrence_ids",
+          "order_id",
+          "paid_confirmed_at_utc",
+          "payment_reference",
+          "price_signature_hash",
+          "price_signature_version",
+          "price_snapshot_id",
+          "signature_hash",
+          "total_amount_minor",
+          "verified_payment_attempt_id",
+          "tax_apportionment_priority_map",
+          "tax_apportionment_priority_map_sha256",
+          "version"
+        ],
+        "required_keys": [
+          "actor_id",
+          "checkout_group_id",
+          "currency",
+          "event_ids",
+          "occurrence_ids",
+          "order_id",
+          "paid_confirmed_at_utc",
+          "payment_reference",
+          "price_signature_hash",
+          "price_signature_version",
+          "price_snapshot_id",
+          "signature_hash",
+          "total_amount_minor",
+          "verified_payment_attempt_id",
+          "tax_apportionment_priority_map",
+          "tax_apportionment_priority_map_sha256"
+        ],
+        "schema_ref": "EVT-2",
+        "topic": "ticketing.order"
+      },
+      {
+        "event_name": "ticketing.order.expired.v1",
+        "governance": {
+          "ash_resource_ref": "ORD-1:Order",
+          "drift_check_hash": "sha256:1693f2c44927ea54f2ab1874eeb05005248c91ab0f0dd143592ff16db056db16",
+          "hash_basis": "sha256(event_name|source|ash_resource_ref|sorted(required_data_keys))",
+          "source": "derived_from_ash_resource"
+        },
+        "idempotency": "event_id derived from (org_id, order_id, version)",
+        "ordering": "per org_id + order_id",
+        "required_data_keys": [
+          "actor_id",
+          "checkout_group_id",
+          "expired_at_utc",
+          "order_id",
+          "version"
+        ],
+        "required_keys": [
+          "actor_id",
+          "checkout_group_id",
+          "expired_at_utc",
+          "order_id"
+        ],
+        "schema_ref": "EVT-2",
+        "topic": "ticketing.order"
+      }
+    ]
+  },
+  "gc_patch_register": {
+    "GC-001": {
+      "controls": {
+        "hold_extension_required": true,
+        "late_capture_compensation_required": true,
+        "no_issuance_on_late_capture": true,
+        "payment_grace_seconds_default": 120
+      },
+      "notes": "Extend holds for grace at checkout creation; reject/fail finalization if expired; auto-void/refund on late capture.",
+      "sd": "SD-043"
+    }
+  },
+  "generated_at_utc": "2026-10-09T16:48:29Z",
+  "idempotency_hash_spec": {
+    "algorithm": "blake3",
+    "canonical_string": "${actor_id}|${org_id}|${action_name}|${idempotency_key}",
+    "inputs": [
+      "actor_id",
+      "org_id",
+      "action_name",
+      "idempotency_key"
+    ],
+    "notes": "For cross-tenant checkout-group actions, org_id is the anchor org_id supplied for audit; actor_id binds idempotency across org partitions."
+  },
+  "invariants": [
+    {
+      "rule_id": "ORD-1-GC-001-SD-043-001",
+      "text": "At checkout creation (create_checkout / create_checkout_group), the platform MUST request SEAT-1 to extend every hold bound to the order so that hold.expires_at_utc >= order.expires_at_utc + payment_grace_seconds_default. Extension MUST be idempotent and bounded by SEAT-1 policies. If extension cannot be secured, checkout creation MUST fail (no payment initiation)."
+    },
+    {
+      "rule_id": "ORD-1-GC-001-SD-043-002",
+      "text": "If a payment is confirmed by the provider AFTER the Order is terminal (expired/canceled) or after seat/inventory holds have expired, ORD-1 MUST NOT finalize the Order. The system MUST emit an `audit_recovery` signal into OBS-1 (ND-196) with correlation ids and the provider evidence, and MUST route the funds for deterministic disposition (refund or unallocated credit journaling) per PAY-3/REFUND-1. This is a fail-closed posture."
+    },
+    {
+      "rule_id": "ORD-1-SEC-NO-CLIENT-FEES",
+      "severity": "P0",
+      "text": "The finalize_checkout action MUST NOT accept fee_lines or fee_total_minor as input arguments. These fields MUST be computed exclusively by the system via the fetch_platform_fees step. Client-side fee injection is strictly forbidden."
+    },
+    {
+      "category": "pricing_authority",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-PRICING-001",
+      "severity": "P0",
+      "text": "Implementations MUST NOT accept client-provided totals (total_amount_minor, line totals, taxes). Totals MUST be derived server-side from a PRICE-1 price_snapshot and verified via price_signature_hash and signature_hash."
+    },
+    {
+      "category": "checkout_session_ttl",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-TTL-001",
+      "severity": "P0",
+      "text": "Every draft Order MUST set expires_at_utc to min(database_now + checkout TTL, the accepted quote snapshot expiry, each bound seat hold expiry, and each bound bucket hold expiry), using the authoritative hold expiries after bounded SEAT-1 grace is secured. Empty seat or bucket sets contribute no expiry. finalize_checkout MUST fail after expires_at_utc with ERR_PRECONDITION subcode ORD_CHECKOUT_EXPIRED."
+    },
+    {
+      "category": "atomic_finalization",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-ATOMIC-001",
+      "severity": "P0",
+      "text": "finalize_checkout MUST be atomic at the database level: either the Order is finalized, every inventory claim bound to the Order is allocated using its matching SEAT-1 seat or bucket allocation action, and ledger postings are recorded together, OR none of those effects occur."
+    },
+    {
+      "category": "concurrency",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-CONCURRENCY-001",
+      "severity": "P0",
+      "text": "finalize_checkout MUST enforce optimistic locking using Order.version. Concurrent finalization attempts MUST return ERR_CONFLICT with subcode LOCKS_OPTIMISTIC_CONFLICT."
+    },
+    {
+      "category": "events_after_commit",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-EVENTS-001",
+      "severity": "P0",
+      "text": "Outbox events MUST be emitted after commit only (after_commit_only). Finalized events MUST include actor_id, payment_reference, verified_payment_attempt_id, and paid_confirmed_at_utc."
+    },
+    {
+      "category": "seat_hold_binding",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-HOLD-001",
+      "severity": "P0",
+      "text": "For single-order create_checkout/finalize_checkout, verify every supplied proof through its matching SEAT-1 action and persist only authoritative hold IDs. At finalization, if Order.seat_hold_ids is non-empty, seat_hold_proofs are required and their verified set MUST equal Order.seat_hold_ids exactly; if Order.bucket_hold_ids is non-empty, bucket_hold_proofs are required and their verified set MUST equal Order.bucket_hold_ids exactly. At least one persisted set MUST be non-empty. Bucket-only Orders do not require seat proofs; seat-only Orders do not require bucket proofs. Mixed Orders require both exact proof sets. Missing, extra, or changed proofs MUST fail closed with the matching canonical proof error. The existing checkout-group actions retain their separately declared seat-only inputs in this version."
+    },
+    {
+      "category": "finalized_state_fields",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-STATE-001",
+      "severity": "P0",
+      "text": "If status == 'finalized', finalized_at_utc MUST be non-null AND payment_reference MUST be non-null AND verified_payment_attempt_id MUST be non-null AND paid_confirmed_at_utc MUST be non-null. If status == 'expired', expired_at_utc MUST be non-null. If status == 'cancelled', cancelled_at_utc MUST be non-null. If status == 'draft', finalized_at_utc/expired_at_utc/cancelled_at_utc MUST all be null AND payment_reference/verified_payment_attempt_id/paid_confirmed_at_utc MUST all be null."
+    },
+    {
+      "category": "seat_hold_proof_verification",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-SEAT-VERIFY-001",
+      "severity": "P0",
+      "text": "Implementations MUST resolve seat_hold_proofs by calling SEAT-1.verify_hold_proofs. Implementations MUST NOT derive occurrence_id/seat_id by fetching holds via hold_id alone (ID-only trust is forbidden)."
+    },
+    {
+      "category": "line_items",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-LINE-ITEMS-001",
+      "severity": "P0",
+      "text": "Order.line_items MUST be the canonical snapshot of purchasable units and MUST bind to PRICE-signed lines (pricing_line_key). event_ids/occurrence_ids MUST be derived from line_items and MUST NOT be client-authoritative."
+    },
+    {
+      "category": "checkout_group",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-CHECKOUT-GROUP-001",
+      "severity": "P0",
+      "text": "Multi-org checkouts MUST be represented as one Order per target org_id sharing the same checkout_group_id. All Orders in a checkout_group_id MUST share the same actor_id. create_checkout_group / finalize_checkout_group / expire_checkout_group are cross-tenant orchestration actions and MUST be platform/system-owned operations requiring explicit capability. For these orchestration actions, the input org_id denotes the operator context only and MUST NOT be used as the target org partition. Target org partitions MUST be derived from verified SEAT hold partitioning. finalize_checkout_group MUST validate that payment_reference matches the group total and MUST finalize each Order exactly-once."
+    },
+    {
+      "id": "ORD-INV-PRICE-SIG-004",
+      "text": "For new single-order checkouts, the caller MUST supply an exact active, unexpired PRICE-SIG-V4 PRICE-1 quote snapshot. ORD MUST verify and bind that exact snapshot, then invoke PRICE-1.consume_snapshot for the Order. ORD MUST NOT request or create a replacement snapshot. ORD MUST continue to verify PRICE-SIG-V3 for legacy checkouts.",
+      "tier": "P0"
+    },
+    {
+      "category": "checkout_group",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-CHECKOUT-GROUP-002",
+      "severity": "P0",
+      "text": "Checkout group orchestration MUST be executed under a platform/service authority boundary (not an organizer tenant boundary). Implementations MUST perform any cross-tenant reads/writes using audited capability-gated access and MUST still enforce actor_id authorization per target org partition. If any target org partition fails validation or persistence, the entire orchestration MUST fail and MUST NOT create or finalize partial Orders."
+    },
+    {
+      "category": "checkout_group",
+      "enforceable": true,
+      "rule_id": "ORD-1-P0-CHECKOUT-GROUP-CURRENCY-001",
+      "severity": "P0",
+      "text": "All Orders in the same checkout_group_id MUST share the same currency. create_checkout_group MUST fail-closed if any derived org partition would yield an Order.currency differing from inputs.currency. finalize_checkout_group MUST fail-closed if Orders in the group have mixed currencies or if verified payment currency does not equal the group's currency. Violations MUST return ERR_VALIDATION subcode ORD_CHECKOUT_GROUP_CURRENCY_MISMATCH. No FX inference is permitted."
+    },
+    {
+      "id": "ORD-1-VAL-FEE-INTEGRITY",
+      "severity": "MUST",
+      "text": "Order.fee_total_minor MUST equal the sum over OrderFeeLine (amount_minor + tax_amount_minor)."
+    },
+    {
+      "id": "ORD-1-VAL-PLATFORM-FEE-DERIVATION",
+      "severity": "MUST",
+      "text": "Platform fees MUST be derived from PAY-3 FeeAssessment/FeeScheduleRevision; ad-hoc insertion is forbidden (ORD_PLATFORM_FEE_DERIVATION_FORBIDDEN)."
+    },
+    {
+      "id": "ORD-1-VAL-PLATFORM-FEE-SNAPSHOT",
+      "severity": "MUST",
+      "text": "If PricingSnapshot.platform_fee_mode='on' AND platform_fee_payer_mode='buyer', PricingSnapshot MUST include the PLATFORM_FEE PriceLine and OrderFeeLine MUST reconcile to that line total."
+    },
+    {
+      "rule_id": "ORD-1-P0-TAX-LOCK",
+      "severity": "P0",
+      "text": "Order tax context MUST be locked at checkout creation. Order.tax_context_digest, Order.locked_tax_inclusivity_mode, Order.jurisdiction_evidence_ref, and Order.locked_at_utc MUST be persisted at create_checkout and MUST NOT change thereafter. finalize_checkout MUST fail-closed if the current computed tax_context_digest (from TAX-1 using the same evidence ref) does not exactly match Order.tax_context_digest (ND-171)."
+    },
+    {
+      "rule_id": "ORD-1-P0-BALANCED",
+      "severity": "P0",
+      "text": "Order totals MUST be internally balanced in M_u scaled integers: subtotal_amount_minor + tax_total_minor + fee_total_minor + internal_rounding_adjustment_minor MUST equal total_amount_minor for every Order row (ND-172)."
+    },
+    {
+      "rule_id": "ORD-1-P0-DB-TIME",
+      "severity": "P0",
+      "text": "All financial finalization timestamps MUST be sourced from the database clock (Postgres) as the single temporal source of truth. finalized_at_utc MUST be set using a DB-side now() predicate within the finalization transaction (ND-170)."
+    },
+    {
+      "rule_id": "ORD-1-P0-PAYMENT-ANCHOR-ND195",
+      "severity": "P0",
+      "text": "On successful finalization, ORD-1 MUST persist `payment_intent_id` returned by PAY-1 and MUST treat it as immutable. Any subsequent reconciliation MUST treat `(order_id, payment_intent_id)` as the authoritative binding for payment outcomes for this order."
+    },
+    {
+      "id": "ORD-1-INVARIANT-TAX-APPORTIONMENT-PRIORITY-MAP",
+      "severity": "P0",
+      "text": "At order finalization, the system MUST compute and persist tax_apportionment_priority_map as an immutable, authoritative ordering of taxable line_item_id values. All downstream refunds MUST consume this map to allocate remainder minor units deterministically. The map MUST NOT be UI-derived and MUST NOT be recomputed at refund time."
+    },
+    {
+      "id": "ORD-1-INV-BUCKET-PROOF-001",
+      "level": "P0",
+      "must": "Order.bucket_hold_ids MUST equal the unique authoritative InventoryBucketHold ids returned by SEAT-1.verify_bucket_hold_proofs. Each bucket-backed line item MUST bind exact verified occurrence_id, bucket_id and quantity. No bucket claim may be represented as a SeatHold or fabricated seat_id."
+    }
+  ],
+  "last_updated_utc": "2026-10-09T16:48:29Z",
+  "limits_and_budgets": {
+    "bulkhead_routing": {
+      "action_pools": {
+        "add_line_item": "primary",
+        "create_draft_order": "primary",
+        "expire_checkout": "background",
+        "finalize_checkout": "primary",
+        "remove_line_item": "primary",
+        "sweep_expired_orders": "background"
+      },
+      "dp_1_ref": "DP-1@2.1.0",
+      "enforcement": "Implementation MUST execute actions in the mapped DP-1 pool, either via Repo wrappers, Oban queue->Repo pool mapping, or explicit pool selection in data layer.",
+      "principle": "Checkout flow MUST not share DB pool with expiry/sweep workloads. Expiry is best-effort background work and MUST be bulkheaded away from revenue path."
+    },
+    "concurrency_limit": 20,
+    "p99_latency_ms": 800,
+    "rate_limit_per_tenant": 60
+  },
+  "migration": {
+    "compat": "patch",
+    "data_backfills": [
+      "If upgrading from utc_datetime to utc_datetime_usec fields, backfill microseconds as 0 for historical records and regenerate indexes."
+    ],
+    "rolling_deploy_safety": [
+      "During rolling deploy, finalize_checkout MUST remain idempotent across N and N-1 service versions.",
+      "Existing draft orders MAY expire naturally at original expires_at_utc; do not extend TTL implicitly."
+    ]
+  },
+  "normative_source": "json",
+  "observability": {
+    "bounded_labels": {
+      "forbid_user_identifiers_as_labels": true,
+      "max_label_values_per_dim": 64
+    },
+    "metrics": {
+      "counters": [
+        "ticketing.order.checkouts.created.total",
+        "ticketing.order.checkouts.finalized.total",
+        "ticketing.order.checkouts.expired.total",
+        "ticketing.order.finalize.errors.total{code,subcode}"
+      ],
+      "histograms": [
+        "ticketing.order.finalize.duration_ms"
+      ]
+    },
+    "namespace": "ticketing.order",
+    "release_blocks": [
+      {
+        "block_release": true,
+        "id": "ord1_finalize_p99_latency",
+        "p99_latency_ms": 800,
+        "window": "rolling_30m"
+      }
+    ],
+    "request_id_propagation": {
+      "field": "request_id",
+      "required": true
+    },
+    "runbooks": [
+      {
+        "id": "ord1_finalize_failures",
+        "note": "Runbook MUST exist in OBS-1 runbook registry (external to this bundle).",
+        "required": true
+      }
+    ],
+    "trace_id_propagation": {
+      "field": "trace_id",
+      "required": true
+    }
+  },
+  "outbox_requirements": [],
+  "purpose_and_boundaries": {
+    "never_owns": [
+      "Seat inventory truth (SEAT-1)",
+      "Pricing computation rules (PRICE-1)",
+      "Ledger correctness (LED-1)",
+      "Payment capture and provider integration (PAY-*)"
+    ],
+    "out_of_scope": [
+      "Refunds, disputes (PAY-3)",
+      "Payout orchestration (PAY-4)",
+      "Ticket issuance mechanics (ISSUE-*)"
+    ],
+    "owns": [
+      "Order state machine (draft, finalized, expired, cancelled)",
+      "Checkout TTL enforcement (draft hard expiry)",
+      "Authoritative binding between Order and PRICE-1 price_snapshot + signature_hash",
+      "Atomic finalization boundary (single commit semantics)",
+      "Support multi-event Orders within a single org and checkout_group_id grouping for multi-org carts."
+    ]
+  },
+  "risk_flags_integration": {
+    "notes": [
+      "ORD-1 itself does not resolve disputes; dispute lifecycle is owned by PAY-3.",
+      "However, ORD-1 downstream admin operations that mutate fulfillment/issuance (e.g., manual seat reassign, ticket reissue triggers, forced cancellation) MUST treat active_dispute as a risk flag and MUST fail closed unless an explicit admin override pathway exists with auditable evidence.",
+      "When dispute_active, admin override paths SHOULD be blocked by default (ERR-1 GOV_ADMIN_OVERRIDE_BLOCKED_DISPUTE_ACTIVE)."
+    ],
+    "posture": "enterprise_safe",
+    "source": {
+      "concept": "active_dispute",
+      "doc_id": "PAY-3"
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "ORD-1-P0-FINALIZE-ATOMIC-BOUNDARY",
+      "severity": "P0",
+      "text": "Finalization MUST be a single Postgres transaction that (a) transitions the Order to status=finalized, (b) allocates every bound seat claim with SEAT-1.allocate_hold and every bound bucket claim with SEAT-1.allocate_bucket_hold using exact verified proofs, and (c) submits a ledger posting intent via LED-1.post_intent using an allowlisted template (default: SALE_STD) derived from the verified PRICE snapshot + TAX policy. Any failure MUST roll back every allocation, Order transition, and ledger write. Cross-service sagas/workflows are forbidden for finalization."
+    },
+    {
+      "rule_id": "ORD-1-P0-MONEY-CONFIRMED-BOUNDARY",
+      "severity": "P0",
+      "text": "Order finalization MUST represent money-confirmed only. Implementations MUST NOT finalize for any non-final money state. Proof is verified_payment_attempt_id + paid_confirmed_at_utc obtained by verifying payment_reference against PAY-* contracts."
+    },
+    {
+      "rule_id": "ORD-1-P0-LINE-ITEMS-SHAPE",
+      "severity": "P0",
+      "text": "Order.line_items MUST be the canonical immutable price-and-inventory snapshot and MUST bind each purchasable unit to PRICE-signed lines and verified inventory_claims. Each element MUST include line_item_id, line_key (unique within Order), event_id, occurrence_id, product_ref, qty >= 1, pricing_line_key, and inventory_claims. Assigned-seat claims MAY include seat_ids. GA bucket claims MUST include bucket_id and quantity and MUST omit seat_ids. event_ids and occurrence_ids MUST be derived from verified inventory-bound line_items and MUST NOT be client-authoritative."
+    },
+    {
+      "rule_id": "ORD-1-P0-DERIVED-SETS",
+      "severity": "P0",
+      "text": "Order.event_ids and Order.occurrence_ids MUST equal the de-duplicated, sorted unions of line_items[].event_id and line_items[].occurrence_id respectively. Implementations MUST NOT accept client-provided event_ids/occurrence_ids that diverge from line_items."
+    },
+    {
+      "rule_id": "ORD-1-P0-MULTI-EVENT-ALLOWED",
+      "severity": "P0",
+      "text": "Orders MAY include holds/lines spanning multiple events within the same org_id. Any policy constraints (e.g., addon dependency rules) MUST be evaluated per event_id and MUST NOT rely on a single Order.event_id field."
+    },
+    {
+      "rule_id": "ORD-1-P0-CHECKOUT-GROUP",
+      "severity": "P0",
+      "text": "checkout_group_id is a first-class grouping identifier. Multi-org carts MUST be represented as one Order per org_id sharing the same checkout_group_id. finalize_checkout_group MUST finalize all Orders in the group using a single payment_reference and MUST enforce actor_id equality across the group."
+    },
+    {
+      "rule_id": "ORD-1-P0-OUTBOX-AFTER-COMMIT",
+      "severity": "P0",
+      "text": "Outbox events MUST be enqueued after the database commit only (after_commit_only). ticketing.order.finalized.v1 MUST include verified_payment_attempt_id and paid_confirmed_at_utc; omission is forbidden."
+    },
+    {
+      "rule_id": "ORD-1-P0-PAYMENT-VERIFY-BINDS-ORDER-ND195",
+      "severity": "P0",
+      "text": "ORD-1.finalize_checkout MUST fail-closed unless PAY-1.verify_payment_reference returns provider-verified PAID AND `resolved_order_id` equals the ORD-1 `order_id` being finalized. The returned `payment_intent_id` MUST be stored and treated immutable."
+    },
+    {
+      "id": "ORD-1-LAW-CHECKOUT-PROOF-UNION-001",
+      "level": "P0",
+      "text": "create_checkout MUST accept seat_hold_proofs plus bucket_hold_proofs, require at least one valid proof overall, preserve seat verification, and verify GA proofs through SEAT-1.verify_bucket_hold_proofs. Order occurrence_ids MUST come only from verified tuples. Checkout expiry MUST be bounded by every active hold and quote expiry. Secure grace for all bound hold types before returning checkout handoff data."
+    },
+    {
+      "rule_id": "ORD-1-P0-INVENTORY-CLAIMS-IMMUTABLE",
+      "severity": "P0",
+      "text": "Order.bucket_hold_ids and Order.seat_hold_ids are immutable after checkout creation. Order.line_items and every line_items[].inventory_claims value are one immutable snapshot. A retry MUST NOT replace or remove a bound hold; any correction requires a separately governed new Order or compensation path."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Integrate PAY-3 Fee Engine (SD-011) and PRICE-1 Platform Fee Lines. Security hardening: forbid client-side fee injection.\n\n3.5.4: Repin GC-001 chain to PAY-1@2.7.7 and PAY-2@2.8.4 (no semantic rule changes).",
+  "tenancy": {
+    "context_required": [
+      "org_id",
+      "actor_id",
+      "request_id",
+      "trace_id"
+    ],
+    "cross_tenant_lookup": {
+      "error_code": "ERR_NOT_FOUND",
+      "retryable": false
+    },
+    "forbid_ambient_tenancy": true,
+    "leakage_policy": "hide_existence",
+    "missing_tenant_context": {
+      "error_code": "ERR_FORBIDDEN",
+      "retryable": false,
+      "subcode": "TEN_TENANT_CONTEXT_MISSING"
+    },
+    "none_sentinel_forbidden": true,
+    "sentinel_values_forbidden": [
+      "NONE"
+    ],
+    "strategy": "attribute",
+    "tenant_key": "org_id"
+  },
+  "tier": 3,
+  "title": "ORD-1 — Orders & Checkout Finalization Contract (Ticketing / Ash 3.x)",
+  "updated_at": "2026-10-09T16:48:29Z",
+  "version": "3.8.4",
+  "handover_laws": {
+    "redis_postgres_atomicity": {
+      "rule_id": "ORD-1-INVARIANT-REDIS-POSTGRES-ATOMICITY",
+      "severity": "P0",
+      "text": "When finalizing an order that consumes inventory held in a volatile store (e.g., Redis), the platform MUST perform a crash-safe, idempotent handover between the volatile hold record and the durable Postgres truth. The handover MUST guarantee all of the following under retry, process crash, and network partition: (1) No Ghost Holds: after durable commitment that an inventory claim is allocated in Postgres, any corresponding volatile hold record MUST be removed or marked as terminal such that it cannot block future buyers; (2) No Double-Sell: a seat MUST NOT be committed as sold/reserved in Postgres while any competing buyer can still obtain or extend a volatile hold for that same inventory claim; (3) Deterministic Reconciliation: if the handover is interrupted, a deterministic reconciliation procedure MUST converge both stores to Postgres truth within a bounded time window, without human intervention; (4) Proof of Completion: the order finalization workflow MUST record a durable marker that the handover completed (or that reconciliation completed) so that retries do not repeat side effects. If true atomic cross-store commit is not available, the implementation MUST use an equivalent pattern such as a Postgres outbox + redis tombstone key keyed by (org_id, occurrence_id, seat_id, hold_id) with compare-and-set semantics and bounded TTL, and MUST treat Postgres as the source of truth for final allocation."
+    }
+  },
+  "paired_inventory_finalization": {
+    "seat_verification_action": "SEAT-1.verify_hold_proofs",
+    "bucket_verification_action": "SEAT-1.verify_bucket_hold_proofs",
+    "seat_allocation_action": "SEAT-1.allocate_hold",
+    "bucket_allocation_action": "SEAT-1.allocate_bucket_hold",
+    "atomicity": "Seat allocations, bucket allocations, Order status transition, and existing ledger writes commit or roll back together under the existing verified-payment boundary."
+  },
+  "quote_snapshot_binding": {
+    "checkout_input": "ORD-1.create_checkout.pricing_snapshot_id",
+    "price_resource": "PRICE-1.PricingSnapshot.snapshot_id",
+    "persisted_order_field": "Order.price_snapshot_id",
+    "equality": "Order.price_snapshot_id MUST equal ORD-1.create_checkout.inputs.pricing_snapshot_id.",
+    "required_state": "The exact PRICE-1 snapshot MUST be active, unexpired, org-bound, signature-valid, total-valid, and PRICE-SIG-V4 for a new checkout.",
+    "consume_action": "PRICE-1.consume_snapshot",
+    "consume_input": "consumed_by_order_id=Order.order_id",
+    "ownership": "PRICE-1 owns snapshot activation, expiry, and consumed_by_order_id transitions. ORD MUST verify, bind, and invoke the PRICE-owned consume action; ORD MUST NOT create a snapshot or write PRICE fields directly."
+  },
+  "bucket_hold_actor_binding": {
+    "actor_type_source": "Authenticated tenancy context actor_type, required on create_checkout and finalize_checkout; value is not caller-controlled request-body data.",
+    "allowed_actor_types": "Use the existing SEAT-1 tenancy context rule and actor taxonomy; SEAT-1 verifies actor_id and actor_type against each persisted InventoryBucketHold.",
+    "mismatch_behavior": "Any actor_id or actor_type mismatch fails closed through SEAT-1 proof verification; no Order, grace, allocation, or counter write may proceed.",
+    "seat_action_inputs": {
+      "verify_bucket_hold_proofs": {
+        "org_id": "inputs.org_id",
+        "bucket_hold_proofs": "inputs.bucket_hold_proofs or exact persisted proofs",
+        "actor_id": "inputs.actor_id",
+        "actor_type": "authenticated tenancy context.actor_type",
+        "request_id": "inputs.request_id",
+        "trace_id": "inputs.trace_id"
+      },
+      "extend_bucket_hold_grace": {
+        "org_id": "inputs.org_id",
+        "bucket_hold_proofs": "verified input proofs",
+        "min_remaining_seconds": "ORD-1 payment-grace minimum",
+        "actor_id": "inputs.actor_id",
+        "actor_type": "authenticated tenancy context.actor_type",
+        "request_id": "inputs.request_id",
+        "trace_id": "inputs.trace_id"
+      },
+      "allocate_bucket_hold": {
+        "org_id": "Order.org_id",
+        "hold_id": "exact verified bucket hold id",
+        "hold_signature": "exact supplied bucket proof signature",
+        "order_id": "Order.order_id",
+        "actor_id": "inputs.actor_id",
+        "actor_type": "authenticated tenancy context.actor_type",
+        "request_id": "inputs.request_id",
+        "trace_id": "inputs.trace_id"
+      }
+    }
+  },
+  "updated_at_utc": "2026-10-09T16:48:29Z"
+}

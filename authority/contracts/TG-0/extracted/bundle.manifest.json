@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "TG-0",
+    "bundle_version": "2.3.2"
+  },
+  "doc_id": "TG-0",
+  "files": [
+    {
+      "bytes": 13874,
+      "path": "TG-0_Contract_v2.3.2.json",
+      "sha256": "982c5aa4145412973e0b329fbdd416b058b4e95947d585e215ad1dc3d299ca6b"
+    },
+    {
+      "bytes": 4082,
+      "path": "TG-0_Test_Gates_v2.3.2.json",
+      "sha256": "69b844c9897df8d715188fa222d8607c6f6b70ce178523d06bdf7014ea7dc434"
+    }
+  ],
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.3.2"
+}

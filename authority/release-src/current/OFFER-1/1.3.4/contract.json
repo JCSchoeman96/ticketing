@@ -1,0 +1,1409 @@
+{
+  "artifact_kind": "contract",
+  "banned_anti_patterns": [
+    {
+      "id": "OFFER-1-BAN-PLACEHOLDER",
+      "must_not": "Placeholders such as TODO/?? are forbidden in contract artifacts."
+    }
+  ],
+  "change_log": [
+    {
+      "changes": [
+        "Introduce SignedEligibilityClaim + key registry.",
+        "Mandate anchoring to EVT-2 occurrences and inventory authority via SEAT-1.",
+        "Mandate ORD-1 breadcrumbs and bundle apportionment/rounding strategy."
+      ],
+      "date_utc": "2026-02-10",
+      "summary": "Initial OFFER-1 commercial grammar contract (Offer/ProductRevision/OfferWindow/Eligibility claims) anchored to EVT-2 and SEAT-1 with strict tax/currency and apportionment laws.",
+      "version": "1.0.0"
+    },
+    {
+      "version": "1.3.0",
+      "date_utc": "2026-10-09",
+      "summary": "Add organizer setup lifecycle and bind reusable ProductRevision configuration to PRICE-1 PricingProgramRevision."
+    },
+    {
+      "version": "1.3.1",
+      "date_utc": "2026-10-09",
+      "summary": "Correct T0 lifecycle, quote binding, inventory proof, or publication semantics; align release identity metadata."
+    },
+    {
+      "version": "1.3.2",
+      "date_utc": "2026-10-09",
+      "summary": "Complete ProductRevision input authority, quote lifecycle guards, and action dependency floors."
+    },
+    {
+      "version": "1.3.3",
+      "changes": [
+        "Require explicit quote idempotency key and map the complete PRICE-1 snapshot input; raise ORD-1 floor to 3.8.3 and declare the OFFER-to-ORD snapshot handoff."
+      ]
+    },
+    {
+      "version": "1.3.4",
+      "date_utc": "2026-10-09",
+      "changes": [
+        "Correct the P0 gate contract-version identity assertion to match this release."
+      ]
+    }
+  ],
+  "created_at_utc": "2026-02-10T00:00:00Z",
+  "data_model": {
+    "enums": {
+      "eligibility_mode_enum": [
+        "public",
+        "signed_claim_required"
+      ],
+      "entitlement_kind_enum": [
+        "admission_ticket",
+        "scan_voucher",
+        "physical_pickup",
+        "digital_access"
+      ],
+      "inventory_claim_type_enum": [
+        "seat_ids",
+        "bucket_quantity",
+        "unbounded"
+      ],
+      "key_status_enum": [
+        "active",
+        "revoked"
+      ],
+      "offer_status_enum": [
+        "draft",
+        "active",
+        "archived"
+      ],
+      "prerequisite_mode_enum": [
+        "none",
+        "requires_entitlement"
+      ],
+      "product_status_enum": [
+        "draft",
+        "active",
+        "archived"
+      ],
+      "rounding_strategy_enum": [
+        "lead_component_absorbs_remainder"
+      ]
+    },
+    "resources": [
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "offer_id"
+            ],
+            "name": "offer_pk"
+          }
+        ],
+        "name": "Offer",
+        "purpose": "Storefront wrapper that groups Products for a defined occurrence scope.",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "offer_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "occurrence_scope",
+            "type": "occurrence_scope_spec"
+          },
+          {
+            "name": "status",
+            "type": "offer_status_enum"
+          },
+          {
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "updated_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "archived_at_utc",
+            "type": "utc_datetime_usec_nullable"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "product_id"
+            ],
+            "name": "product_pk"
+          }
+        ],
+        "name": "Product",
+        "purpose": "Stable identity for something that can be sold (revisions are immutable).",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "product_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "offer_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "status",
+            "type": "product_status_enum"
+          },
+          {
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "updated_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "archived_at_utc",
+            "type": "utc_datetime_usec_nullable"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "product_revision_id"
+            ],
+            "name": "product_revision_pk"
+          }
+        ],
+        "name": "ProductRevision",
+        "purpose": "Immutable sellable unit. Defines entitlements, inventory claims, reusable PRICE-1 program-revision binding, and rounding strategy.",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "product_revision_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "product_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "revision_seq",
+            "type": "pos_int"
+          },
+          {
+            "name": "pricing_program_revision_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "anchor_occurrence_ids",
+            "type": "uuid_v7_list_nonempty"
+          },
+          {
+            "name": "inventory_claim_specs",
+            "type": "inventory_claim_spec_list"
+          },
+          {
+            "name": "entitlement_specs",
+            "type": "entitlement_spec_list_nonempty"
+          },
+          {
+            "name": "currency_code",
+            "type": "iso4217_code"
+          },
+          {
+            "name": "tax_context_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "is_bundle",
+            "type": "bool"
+          },
+          {
+            "name": "bundle_apportionment_map",
+            "type": "bundle_apportionment_map_nullable"
+          },
+          {
+            "name": "rounding_strategy",
+            "type": "rounding_strategy_enum"
+          },
+          {
+            "name": "primary_entitlement_id",
+            "type": "uuid_v7_nullable"
+          },
+          {
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "offer_window_id"
+            ],
+            "name": "offer_window_pk"
+          }
+        ],
+        "name": "OfferWindow",
+        "purpose": "Commercial phase/timebox. Carries eligibility + pricing overrides and may reference prerequisite requirements.",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "offer_window_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "offer_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "name",
+            "type": "short_text"
+          },
+          {
+            "name": "starts_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "ends_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "eligibility_policy",
+            "type": "eligibility_policy_spec"
+          },
+          {
+            "name": "pricing_override_policy",
+            "type": "pricing_override_spec_nullable"
+          },
+          {
+            "name": "prerequisite_policy",
+            "type": "prerequisite_policy_spec_nullable"
+          },
+          {
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "updated_at_utc",
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "jti"
+            ],
+            "name": "elig_claim_pk"
+          }
+        ],
+        "name": "SignedEligibilityClaim",
+        "purpose": "Portable commercial eligibility claim envelope (Ed25519) bound to org_id and offer_window_id.",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "ver",
+            "type": "small_int"
+          },
+          {
+            "name": "iss",
+            "type": "issuer_id"
+          },
+          {
+            "name": "sub_actor_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "aud_org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "offer_window_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "exp_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "jti",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "claims",
+            "type": "json_object_nonpii"
+          },
+          {
+            "name": "signature_ed25519_base64",
+            "type": "base64"
+          },
+          {
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Stable grant identifier (UUIDv7) for the entitlement being exercised.",
+            "name": "entitlement_grant_id",
+            "type": "uuid_v7"
+          },
+          {
+            "description": "One-time random nonce to prevent replay of a signed claim.",
+            "name": "consumption_nonce",
+            "type": "uuid_v4"
+          }
+        ],
+        "required_db_constraints": [
+          {
+            "constraint_id": "offer_claim_aud_matches_org",
+            "expression": "aud_org_id = org_id",
+            "type": "check"
+          }
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "issuer_id",
+              "key_id"
+            ],
+            "name": "issuer_key_pk"
+          }
+        ],
+        "name": "EligibilityIssuerKey",
+        "purpose": "Key registry for SignedEligibilityClaim issuers.",
+        "required_attributes": [
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "issuer_id",
+            "type": "issuer_id"
+          },
+          {
+            "name": "key_id",
+            "type": "key_id"
+          },
+          {
+            "name": "public_key_ed25519_base64",
+            "type": "base64"
+          },
+          {
+            "name": "status",
+            "type": "key_status_enum"
+          },
+          {
+            "name": "not_before_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "not_after_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "tenant_scoped": true
+      }
+    ],
+    "types": {
+      "bool_nullable": {
+        "kind": "bool_or_null"
+      },
+      "bundle_apportionment_map_nullable": {
+        "kind": "object_or_null",
+        "shape": "bundle_apportionment_map"
+      },
+      "eligibility_policy_spec": {
+        "defaults": {
+          "ttl_seconds_default": 900
+        },
+        "kind": "object",
+        "notes": "When mode==signed_claim_required, SignedEligibilityClaim must validate against EligibilityIssuerKey registry.",
+        "properties": {
+          "jti_single_use": {
+            "type": "bool_nullable"
+          },
+          "mode": {
+            "type": "eligibility_mode_enum"
+          },
+          "required_claim_schema": {
+            "type": "short_text_nullable"
+          },
+          "ttl_seconds_default": {
+            "type": "pos_int_nullable"
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "entitlement_spec": {
+        "kind": "object",
+        "notes": "buffer_minutes is critical for session windows (morning/afternoon/full-day) to prevent shadow manual overrides.",
+        "properties": {
+          "buffer_minutes": {
+            "type": "nonneg_int_nullable"
+          },
+          "entitlement_id": {
+            "type": "uuid_v7"
+          },
+          "kind": {
+            "type": "entitlement_kind_enum"
+          },
+          "max_scans": {
+            "type": "nonneg_int_nullable"
+          },
+          "occurrence_id": {
+            "type": "uuid_v7"
+          },
+          "reentry_allowed": {
+            "type": "bool_nullable"
+          },
+          "scan_policy_ref": {
+            "type": "scan_policy_ref_nullable"
+          },
+          "valid_from_utc": {
+            "type": "utc_datetime_usec_nullable"
+          },
+          "valid_until_utc": {
+            "type": "utc_datetime_usec_nullable"
+          }
+        },
+        "required": [
+          "entitlement_id",
+          "kind",
+          "occurrence_id"
+        ]
+      },
+      "entitlement_spec_list_nonempty": {
+        "items": "entitlement_spec",
+        "kind": "array",
+        "min_items": 1
+      },
+      "inventory_claim_spec": {
+        "invariants": [
+          "If claim_type == seat_ids then seat_ids MUST be present and bucket_id/quantity MUST be null.",
+          "If claim_type == bucket_quantity then bucket_id and quantity MUST be present and seat_ids MUST be null.",
+          "If claim_type == unbounded then seat_ids/bucket_id/quantity MUST be null."
+        ],
+        "kind": "object",
+        "properties": {
+          "bucket_id": {
+            "type": "uuid_v7_nullable"
+          },
+          "claim_type": {
+            "type": "inventory_claim_type_enum"
+          },
+          "occurrence_id": {
+            "type": "uuid_v7"
+          },
+          "quantity": {
+            "type": "pos_int_nullable"
+          },
+          "seat_ids": {
+            "nullable": true,
+            "type": "uuid_v7_list_nonempty"
+          }
+        },
+        "required": [
+          "claim_type",
+          "occurrence_id"
+        ]
+      },
+      "inventory_claim_spec_list": {
+        "items": "inventory_claim_spec",
+        "kind": "array",
+        "min_items": 1
+      },
+      "json_object_nonpii": {
+        "kind": "json_object",
+        "must_not_include": [
+          "email",
+          "phone",
+          "id_number",
+          "address"
+        ]
+      },
+      "literal_SCAN-1": {
+        "kind": "literal",
+        "value": "SCAN-1"
+      },
+      "nonneg_int_nullable": {
+        "kind": "int_or_null",
+        "min": 0
+      },
+      "occurrence_scope_spec": {
+        "kind": "object",
+        "notes": "Offer scopes must anchor to EVT-2 occurrence(s). Parent occurrence may be used for festival/day containers.",
+        "properties": {
+          "occurrence_ids": {
+            "type": "uuid_v7_list_nonempty"
+          },
+          "parent_occurrence_id": {
+            "type": "uuid_v7_nullable"
+          }
+        },
+        "required": [
+          "occurrence_ids"
+        ]
+      },
+      "pos_int_nullable": {
+        "kind": "int_or_null",
+        "min": 1
+      },
+      "prerequisite_policy_spec": {
+        "kind": "object",
+        "notes": "Prerequisite enforcement for add-ons/session products. When mode==requires_entitlement, proof must be provided via SignedEligibilityClaim bound to the OfferWindow.",
+        "properties": {
+          "mode": {
+            "type": "prerequisite_mode_enum"
+          },
+          "must_be_satisfied_by": {
+            "type": "short_text_nullable"
+          },
+          "proof_mode": {
+            "type": "short_text_nullable"
+          },
+          "required_entitlement_spec_ids": {
+            "type": "uuid_v7_list_nonempty"
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "prerequisite_policy_spec_nullable": {
+        "kind": "object_or_null",
+        "shape": "prerequisite_policy_spec"
+      },
+      "pricing_override_spec": {
+        "kind": "object",
+        "notes": "Percentages are UI-only; PRICE-1 snapshots and minor-unit values are authoritative at sale time.",
+        "properties": {
+          "percent_bps": {
+            "type": "int_nullable"
+          },
+          "type": {
+            "type": "short_text"
+          },
+          "value_minor": {
+            "type": "int_nullable"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "pricing_override_spec_nullable": {
+        "kind": "object_or_null",
+        "shape": "pricing_override_spec"
+      },
+      "scan_policy_ref": {
+        "kind": "object",
+        "properties": {
+          "doc_id": {
+            "type": "literal_SCAN-1"
+          },
+          "policy_id": {
+            "type": "short_text"
+          }
+        },
+        "required": [
+          "doc_id",
+          "policy_id"
+        ]
+      },
+      "scan_policy_ref_nullable": {
+        "kind": "object_or_null",
+        "shape": "scan_policy_ref"
+      },
+      "utc_datetime_usec_nullable": {
+        "format": "utc_datetime_usec",
+        "kind": "string_or_null"
+      },
+      "uuid_v7_list_nonempty": {
+        "items": "uuid_v7",
+        "kind": "array",
+        "min_items": 1
+      },
+      "uuid_v7_nullable": {
+        "format": "uuid_v7",
+        "kind": "string_or_null"
+      }
+    }
+  },
+  "data_types": {
+    "uuid_v4": {
+      "description": "RFC 4122 UUID version 4 (random). Used only for non-ordered nonces (never for ordering).",
+      "example": "550e8400-e29b-41d4-a716-446655440000",
+      "format": "uuid"
+    }
+  },
+  "dependencies": [
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.6.2",
+      "reason": "Current Event publication and occurrence buyer sale-eligibility authority used by build_cart_quote."
+    },
+    {
+      "doc_id": "SEAT-1",
+      "edge_type": "requires",
+      "min_version": "3.6.2",
+      "reason": "InventoryBucket/Seat holds and allocations are authoritative inventory claims."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.5.6",
+      "reason": "PRICE-SIG-V4 quote snapshot creation, activation, and transaction-specific pricing authority."
+    },
+    {
+      "doc_id": "TAX-1",
+      "edge_type": "requires",
+      "min_version": "2.2.6",
+      "reason": "Single tax context per order; credit-note legality relies on tax context."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.8.3",
+      "reason": "ORD-1 3.8.3 guarantees exact active PRICE quote snapshot verification, Order binding, and PRICE-owned consumption required by the OFFER quote handoff."
+    },
+    {
+      "doc_id": "TKT-1",
+      "edge_type": "requires",
+      "min_version": "1.5.11",
+      "reason": "Admission entitlements may produce tickets/QRs."
+    },
+    {
+      "doc_id": "SCAN-1",
+      "edge_type": "requires",
+      "min_version": "1.4.12",
+      "reason": "Voucher/admission scan policies referenced by entitlement specs."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.4.6",
+      "reason": "Actor identifiers and org tenancy are defined here."
+    }
+  ],
+  "doc_id": "OFFER-1",
+  "domain_actions": {
+    "build_cart_quote": {
+      "inputs": [
+        "org_id",
+        "actor_id",
+        "offer_window_id",
+        "requested_items[]",
+        "idempotency_key"
+      ],
+      "must": "MUST fail-closed if tax_context cannot unify across all revisions in cart or if currency codes differ.",
+      "outputs": [
+        "quote_id",
+        "pricing_snapshot_id",
+        "line_quotes[]",
+        "tax_context_id",
+        "currency_code",
+        "expires_at_utc"
+      ],
+      "purpose": "Require active same-tenant Offer and Product state, a currently eligible OfferWindow and EVT-2 occurrence scope, and the active PRICE-1 PricingProgramRevision before creating and activating a transaction-specific signed quote snapshot.",
+      "validation_rules": [
+        "ProductRevision MUST reference pricing_program_revision_id, not price_snapshot_id.",
+        "PRICE-1 PricingSnapshot MUST be transaction-specific, time-bounded, signed, and eligible for consumption by one Order only.",
+        "The quote MUST expose the exact pricing_snapshot_id and expiry used by ORD-1.",
+        "MUST fail-closed if tax_context cannot unify across all revisions in cart or if currency codes differ.",
+        "PRICE-1 PricingSnapshot MUST have consumed_by_order_id null until ORD-1 binds the exact quote to one order; it MUST NOT be consumed by a different order.",
+        "Offer.status MUST equal active; draft or archived Offers MUST fail closed.",
+        "Product.status MUST equal active and Product.offer_id MUST equal the Offer identified by the OfferWindow; draft or archived Products MUST fail closed.",
+        "ProductRevision MUST belong to the active Product and MUST be immutable and valid under its required-attribute and entitlement/inventory rules.",
+        "OfferWindow MUST belong to the active Offer and database UTC MUST satisfy starts_at_utc <= now < ends_at_utc.",
+        "Every referenced EVT-2 Occurrence MUST pass current EVT-2 buyer sale eligibility at database quote time.",
+        "The referenced PRICE-1 PricingProgramRevision MUST be active and eligible at quote time under PRICE-1 program-selection rules.",
+        "Offer, Product, ProductRevision, OfferWindow, EVT-2 Occurrences, and PRICE-1 Program/PricingProgramRevision MUST match the same org_id and declared event/occurrence scope.",
+        "If any quote precondition fails, return ERR_PRECONDITION and create neither a buyer quote nor a PRICE-1 snapshot.",
+        "inputs.idempotency_key MUST be required, non-empty, and passed unchanged as PRICE-1.create_snapshot.idempotency_key; OFFER MUST NOT derive or replace idempotency_key.",
+        "OFFER MUST supply every required PRICE-1.create_snapshot input according to price_snapshot_input_mapping; a quote MUST represent one event and one PRICE-1-compatible pricing revision or fail closed.",
+        "For the same (org_id, idempotency_key) and identical canonical PRICE inputs, return the same quote_id and pricing_snapshot_id for the existing snapshot. Do not create a duplicate snapshot.",
+        "For the same (org_id, idempotency_key) with different canonical PRICE inputs, fail with ERR_CONFLICT / EXT_IDEMPOTENCY_REPLAY and create no replacement snapshot.",
+        "The output quote_id MUST equal pricing_snapshot_id, matching PRICE-1 quote_id=snapshot_id alias authority."
+      ],
+      "quote_preconditions": {
+        "offer_status": "active",
+        "product_status": "active",
+        "product_revision": {
+          "belongs_to_product": true,
+          "immutable": true,
+          "all_required_attributes_valid": true
+        },
+        "offer_window": {
+          "belongs_to_offer": true,
+          "database_utc_interval": "starts_at_utc <= now < ends_at_utc"
+        },
+        "occurrence_eligibility": "Every referenced EVT-2 occurrence MUST pass current buyer sale eligibility, including parent Event publication, occurrence state, UTC sale window, and sovereignty checks.",
+        "pricing_program_revision": "The exact referenced PRICE-1 PricingProgramRevision MUST be active and eligible at database quote time under PRICE-1 program selection rules.",
+        "tenant_binding": "Offer, Product, ProductRevision, OfferWindow, all EVT-2 occurrences, and PRICE-1 program/revision MUST share the same org_id supplied as inputs.org_id and matching foreign-key/event scope.",
+        "invalid_behavior": {
+          "error": "ERR_PRECONDITION",
+          "quote_created": false,
+          "pricing_snapshot_created": false,
+          "no_quote_or_snapshot": true
+        },
+        "rejected_cases": [
+          "draft-offer",
+          "archived-offer",
+          "draft-product",
+          "archived-product",
+          "product-revision-not-owned-by-product",
+          "offer-window-not-owned-by-offer",
+          "database-utc-before-window",
+          "database-utc-at-or-after-window-end",
+          "occurrence-not-sale-eligible",
+          "pricing-program-revision-not-active",
+          "cross-tenant-offer-product-revision-window-occurrence-or-price-reference",
+          "mixed-event-requested-items",
+          "mixed-pricing-revision-not-representable-by-PRICE-1"
+        ]
+      },
+      "price_snapshot_lifecycle": {
+        "create_action": "PRICE-1.create_snapshot",
+        "activation_action": "PRICE-1.activate_snapshot",
+        "signature_version": "PRICE-SIG-V4",
+        "quote_snapshot_status_on_return": "active",
+        "expiry_source": "PRICE-1 PricingSnapshot.quote_expires_at_utc",
+        "ownership_rule": "OFFER-1 MUST invoke PRICE-1 actions; it MUST NOT write PRICE-1 resource fields directly."
+      },
+      "price_snapshot_input_mapping": {
+        "org_id": "inputs.org_id",
+        "idempotency_key": "inputs.idempotency_key (pass through unchanged)",
+        "currency": "single resolved currency_code shared by all requested line_quotes",
+        "expires_at_utc": "PRICE-1 quote TTL policy using database time, bounded by the active OfferWindow end and PRICE-1 maximum",
+        "price_lines": "resolved, signed price lines derived from requested_items and the active PricingProgramRevision/phase",
+        "event_id": "the one event_id shared by all requested occurrence references; reject mixed-event quotes",
+        "occurrence_ids": "sorted unique occurrence IDs resolved from requested_items and verified against EVT-2",
+        "pricing_program_revision_id": "the exact active pricing_program_revision_id referenced by each requested ProductRevision; reject a mixed-revision quote if PRICE-1 cannot represent it",
+        "pricing_phase_id": "the active phase selected by PRICE-1 for the referenced PricingProgramRevision",
+        "pricing_experiment_id": "selected PRICE-1 experiment ID, or null when no experiment applies",
+        "pricing_variant_key": "selected PRICE-1 variant key, or null when no experiment applies",
+        "signature_version": "PRICE-SIG-V4"
+      },
+      "idempotency_semantics": {
+        "key_scope": "(org_id, idempotency_key), matching PRICE-1.create_snapshot uniqueness",
+        "key_source": "required inputs.idempotency_key, passed unchanged to PRICE-1.create_snapshot; OFFER MUST NOT derive or replace it",
+        "replay": "If the key and canonical PRICE inputs match, return the existing quote_id and pricing_snapshot_id for the existing snapshot; activation retry is idempotent under PRICE-1.",
+        "mismatch": "If the key matches but canonical PRICE inputs differ, fail with ERR_CONFLICT / EXT_IDEMPOTENCY_REPLAY and create no replacement quote or snapshot.",
+        "consumed_or_expired": "A replay MUST NOT create another snapshot. If the existing snapshot is not active and unexpired, fail closed as a non-saleable quote."
+      },
+      "errors": [
+        "ERR_CONFLICT / EXT_IDEMPOTENCY_REPLAY"
+      ]
+    },
+    "emit_ord_line_items": {
+      "must": "MUST include mandatory breadcrumbs and persisted apportionment priority map snapshot.",
+      "outputs": [
+        "ord_line_items[]"
+      ],
+      "purpose": "Emit canonical ORD-1 line items from an accepted quote and sale snapshot.",
+      "validation_rules": [
+        "Line items MUST be derived from the accepted quote and exact pricing_snapshot_id.",
+        "Line items MUST bind each inventory claim to its verified occurrence, inventory type, bucket or seat references, and quantity.",
+        "MUST include mandatory breadcrumbs and persisted apportionment priority map snapshot."
+      ]
+    },
+    "create_offer": {
+      "inputs_required": [
+        "org_id",
+        "occurrence_scope",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "offer_id",
+        "status"
+      ],
+      "purpose": "Create an Offer in draft state for organizer-managed occurrences.",
+      "validation_rules": [
+        "Actor MUST be authenticated and authorized to manage org_id.",
+        "Every occurrence in occurrence_scope MUST exist in EVT-2 and belong to org_id.",
+        "status MUST be initialized as draft.",
+        "archived_at_utc MUST be initialized to null."
+      ],
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_NOT_FOUND"
+      ]
+    },
+    "create_product": {
+      "inputs_required": [
+        "org_id",
+        "offer_id",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "product_id",
+        "status"
+      ],
+      "purpose": "Create a Product in draft state under an authorized same-tenant Offer.",
+      "validation_rules": [
+        "Offer MUST exist in org_id and MUST NOT be archived.",
+        "Actor MUST be authenticated and authorized to manage org_id.",
+        "status MUST be initialized as draft.",
+        "archived_at_utc MUST be initialized to null."
+      ],
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_NOT_FOUND"
+      ]
+    },
+    "create_product_revision": {
+      "inputs_required": [
+        "org_id",
+        "product_id",
+        "revision_seq",
+        "anchor_occurrence_ids",
+        "inventory_claim_specs",
+        "entitlement_specs",
+        "pricing_program_revision_id",
+        "is_bundle",
+        "bundle_apportionment_map",
+        "rounding_strategy",
+        "primary_entitlement_id",
+        "currency_code",
+        "tax_context_id",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "product_revision_id",
+        "revision_seq"
+      ],
+      "purpose": "Create an immutable ProductRevision using reusable PRICE-1 pricing configuration.",
+      "validation_rules": [
+        "Product MUST exist in org_id and MUST NOT be archived.",
+        "Every anchor occurrence MUST exist in EVT-2 within org_id.",
+        "PricingProgramRevision MUST exist in PRICE-1 within org_id, belong to the same event scope, and be eligible for quote resolution.",
+        "Do not accept or persist a PricingSnapshot id as reusable configuration.",
+        "Revision sequence MUST be the next monotonic sequence for the Product.",
+        "Every required ProductRevision attribute MUST be supplied by an explicit action input or by the documented server/database derivation in persisted_attribute_sources.",
+        "is_bundle=false requires bundle_apportionment_map=null. The action MUST NOT infer a bundle map or default a missing is_bundle value.",
+        "rounding_strategy MUST be supplied explicitly and MUST be an allowed rounding_strategy_enum value.",
+        "primary_entitlement_id MUST be supplied explicitly as a UUID or null; if non-null it MUST identify exactly one entitlement_specs.entitlement_id. The action MUST NOT infer a primary entitlement.",
+        "If is_bundle=true, bundle_apportionment_map MUST satisfy OFFER-1-INV-BUNDLE-APPORTION-001."
+      ],
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_NOT_FOUND",
+        "ERR_VALIDATION"
+      ],
+      "side_effects_separation": "after_commit_only",
+      "persisted_attribute_sources": {
+        "org_id": "inputs.org_id",
+        "product_revision_id": "server-generated UUIDv7",
+        "product_id": "inputs.product_id",
+        "revision_seq": "inputs.revision_seq, validated as the next monotonic Product sequence",
+        "pricing_program_revision_id": "inputs.pricing_program_revision_id",
+        "anchor_occurrence_ids": "inputs.anchor_occurrence_ids",
+        "inventory_claim_specs": "inputs.inventory_claim_specs",
+        "entitlement_specs": "inputs.entitlement_specs",
+        "currency_code": "inputs.currency_code",
+        "tax_context_id": "inputs.tax_context_id",
+        "is_bundle": "inputs.is_bundle",
+        "bundle_apportionment_map": "inputs.bundle_apportionment_map, including explicit null for a non-bundle",
+        "rounding_strategy": "inputs.rounding_strategy",
+        "primary_entitlement_id": "inputs.primary_entitlement_id, including explicit null when no primary entitlement is designated",
+        "created_at_utc": "database clock at insert"
+      }
+    },
+    "create_offer_window": {
+      "inputs_required": [
+        "org_id",
+        "offer_id",
+        "name",
+        "starts_at_utc",
+        "ends_at_utc",
+        "eligibility_policy",
+        "pricing_override_policy",
+        "prerequisite_policy",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "offer_window_id"
+      ],
+      "purpose": "Create an OfferWindow for an existing same-tenant Offer.",
+      "validation_rules": [
+        "Offer MUST exist in org_id and MUST NOT be archived.",
+        "starts_at_utc MUST be earlier than ends_at_utc.",
+        "Any occurrence scope and pricing override MUST resolve within org_id.",
+        "Actor MUST be authenticated and authorized to manage org_id."
+      ],
+      "errors": [
+        "ERR_AUTHZ_DENIED",
+        "ERR_NOT_FOUND",
+        "ERR_VALIDATION"
+      ]
+    },
+    "activate_offer": {
+      "inputs_required": [
+        "org_id",
+        "offer_id",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "offer_id",
+        "status"
+      ],
+      "purpose": "Activate a draft Offer for organizer sale.",
+      "validation_rules": [
+        "Current status MUST be draft.",
+        "At least one same-tenant Product in draft with an immutable valid revision and valid OfferWindow MUST be configured in the Offer occurrence scope. Product activation follows Offer activation.",
+        "All referenced EVT-2 occurrences MUST be valid and not archived/cancelled.",
+        "Actor MUST be authorized for org_id.",
+        "archived_at_utc MUST remain null while status is active."
+      ],
+      "errors": [
+        "ERR_PRECONDITION",
+        "ERR_AUTHZ_DENIED",
+        "ERR_NOT_FOUND"
+      ],
+      "state_transition": {
+        "from": "draft",
+        "to": "active",
+        "terminal": false
+      }
+    },
+    "activate_product": {
+      "inputs_required": [
+        "org_id",
+        "product_id",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "product_id",
+        "status"
+      ],
+      "purpose": "Activate a draft Product after validating its offer and revision.",
+      "validation_rules": [
+        "Current status MUST be draft.",
+        "Parent Offer MUST be active in the same org_id.",
+        "At least one immutable ProductRevision MUST have valid occurrence anchors, a reusable PRICE-1 PricingProgramRevision, currency and tax context.",
+        "Actor MUST be authorized for org_id.",
+        "archived_at_utc MUST remain null while status is active."
+      ],
+      "errors": [
+        "ERR_PRECONDITION",
+        "ERR_AUTHZ_DENIED",
+        "ERR_NOT_FOUND"
+      ],
+      "state_transition": {
+        "from": "draft",
+        "to": "active",
+        "terminal": false
+      }
+    },
+    "archive_offer": {
+      "inputs_required": [
+        "org_id",
+        "offer_id",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "offer_id",
+        "status",
+        "archived_at_utc"
+      ],
+      "purpose": "Archive an Offer without deleting its commercial history.",
+      "validation_rules": [
+        "Current status MUST be draft or active.",
+        "Actor MUST be authorized for org_id.",
+        "Archived Offer MUST not become active again.",
+        "Set archived_at_utc from the database clock in the same transaction as status=archived; return the persisted value."
+      ],
+      "errors": [
+        "ERR_PRECONDITION",
+        "ERR_AUTHZ_DENIED",
+        "ERR_NOT_FOUND"
+      ],
+      "state_transition": {
+        "from": [
+          "draft",
+          "active"
+        ],
+        "to": "archived",
+        "terminal": true,
+        "side_effects": "Persist status=archived and archived_at_utc=database_now atomically; preserve all history."
+      }
+    },
+    "archive_product": {
+      "inputs_required": [
+        "org_id",
+        "product_id",
+        "actor_id",
+        "request_id",
+        "trace_id"
+      ],
+      "output_minimum": [
+        "product_id",
+        "status",
+        "archived_at_utc"
+      ],
+      "purpose": "Archive a Product without deleting its revision history.",
+      "validation_rules": [
+        "Current status MUST be draft or active.",
+        "Actor MUST be authorized for org_id.",
+        "Archived Product MUST not become active again.",
+        "Set archived_at_utc from the database clock in the same transaction as status=archived; return the persisted value."
+      ],
+      "errors": [
+        "ERR_PRECONDITION",
+        "ERR_AUTHZ_DENIED",
+        "ERR_NOT_FOUND"
+      ],
+      "state_transition": {
+        "from": [
+          "draft",
+          "active"
+        ],
+        "to": "archived",
+        "terminal": true,
+        "side_effects": "Persist status=archived and archived_at_utc=database_now atomically; preserve all history."
+      }
+    }
+  },
+  "generated_at_utc": "2026-10-09T16:48:29Z",
+  "invariants": [
+    {
+      "id": "OFFER-1-INV-ANCHOR-001",
+      "level": "P0",
+      "must": "Every ProductRevision.anchor_occurrence_ids MUST reference existing EVT-2 Occurrence records within the same org_id. Orphan products are forbidden."
+    },
+    {
+      "id": "OFFER-1-INV-TAX-001",
+      "level": "P0",
+      "must": "A single order/cart MUST resolve to exactly one TAX-1 tax_context_id. If multiple contexts are implied and cannot unify, the system MUST fail-closed and refuse checkout."
+    },
+    {
+      "id": "OFFER-1-INV-CURRENCY-001",
+      "level": "P0",
+      "must": "All ProductRevisions in a cart/bundle MUST share the same PRICE-1 currency_code. Mixed-currency carts/bundles MUST be rejected (fail-closed)."
+    },
+    {
+      "id": "OFFER-1-INV-BUNDLE-APPORTION-001",
+      "level": "P0",
+      "must": "If ProductRevision.is_bundle == true, bundle_apportionment_map MUST be present and MUST include every entitlement_spec component with fixed_amount_minor units summing exactly to the ProductRevision total price in minor units."
+    },
+    {
+      "id": "OFFER-1-LAW-LEAD-APPORTIONMENT",
+      "level": "P0",
+      "must": "Rounding remainder rule: when a total price is allocated across components, the component with the highest apportionment_priority MUST absorb any ±1 minor-unit remainder so ORD-1 and LED-1 reconcile exactly."
+    },
+    {
+      "id": "OFFER-1-INV-BREADCRUMB",
+      "level": "P0",
+      "must": "Every ORD-1 line item emitted for an OFFER-1 sale MUST include offer_id and product_revision_id, and MUST include inventory_bucket_id when the revision contains a bucket claim. These breadcrumbs are mandatory for refunds, audits, and scan policy enforcement."
+    },
+    {
+      "id": "OFFER-1-INV-LEAD-TIE-BREAKER",
+      "level": "P0",
+      "must": "In any bundle apportionment, if multiple entitlements share the same apportionment_priority, the designated lead MUST be the lexicographically smallest entitlement_spec_id using memcmp semantics on the raw UUID bytes. This lead MUST absorb any ±1 minor-unit rounding remainder."
+    },
+    {
+      "id": "OFFER-1-INV-PREREQ-001",
+      "level": "P0",
+      "must": "If a ProductRevision anchors to a child Occurrence (EVT-2 depth_level==1 or parent_occurrence_id present), the selling OfferWindow MUST require a prerequisite_policy proving ownership of the designated parent entitlement. Proof MUST be via a SignedEligibilityClaim (Ed25519) with claims referencing the parent entitlement id(s)."
+    },
+    {
+      "errors": {
+        "replay": {
+          "subcode": "CLAIM_REPLAY_DETECTED",
+          "top_level": "ERR_FORBIDDEN"
+        }
+      },
+      "id": "OFFER-1-INV-CLAIM-REPLAY-PREVENTION",
+      "rule": "SignedEligibilityClaim signature payload MUST include entitlement_grant_id and consumption_nonce. consumption_nonce MUST be single-use: the entitlement service (SUB-1) MUST mark the nonce as consumed atomically with Order Finalization; any reuse MUST be rejected as a replay.",
+      "severity": "P0"
+    },
+    {
+      "id": "OFFER-1-INV-PRICE-REUSABLE-001",
+      "level": "P0",
+      "must": "ProductRevision pricing configuration MUST be reusable and MUST reference PricingProgramRevision. A buyer quote MUST cause OFFER-1 to invoke PRICE-1.create_snapshot and PRICE-1.activate_snapshot for a transaction-specific, signed, time-bounded PricingSnapshot. ORD-1 consumes that exact snapshot only through PRICE-1.consume_snapshot."
+    },
+    {
+      "id": "OFFER-INV-ORD-QUOTE-BINDING-001",
+      "severity": "P0",
+      "text": "OFFER returns the exact active transaction-specific PRICE-1 quote snapshot. Its ORD-1 checkout handoff MUST pass that id unchanged as pricing_snapshot_id; ORD persists it only as Order.price_snapshot_id and consumes it through PRICE-1.consume_snapshot."
+    }
+  ],
+  "last_updated_utc": "2026-10-09T16:48:29Z",
+  "purpose_and_boundaries": {
+    "must_not_do": [
+      "MUST NOT define seat-map or capacity physics (SEAT-1 is sole inventory authority).",
+      "MUST NOT define event reality semantics beyond anchoring to EVT-2 occurrences.",
+      "MUST NOT embed general eCommerce catalog (no COM-1); every sellable item anchors to an EVT-2 occurrence (including store/season occurrences)."
+    ],
+    "purpose": "Define the commercial grammar that binds EVT-2 reality anchors to SEAT-1 inventory claims, PRICE-1 snapshots, TAX-1 context, eligibility claims, and entitlement fulfilment channels."
+  },
+  "rules": [
+    {
+      "level": "P0",
+      "rule_id": "OFFER-1-LAW-ELIGIBILITY-SIGNED",
+      "text": "Eligibility MUST be enforced using SignedEligibilityClaim (Ed25519). UI hiding is non-binding. Claims MUST bind to org_id and offer_window_id and MUST expire (default TTL 15 minutes)."
+    },
+    {
+      "level": "P0",
+      "rule_id": "OFFER-1-LAW-PREREQ-001",
+      "text": "Prerequisites for child/session products MUST validate both: (a) current cart atomic contents, and (b) historical entitlements in the wallet (TKT-1 / entitlement ledger)."
+    },
+    {
+      "level": "P0",
+      "rule_id": "OFFER-1-LAW-ORD-MAPPING-001",
+      "text": "ORD-1 line items produced from OFFER-1 MUST include offer_id and product_revision_id. If inventory claims include SEAT-1 bucket claims, the line MUST also include inventory_bucket_id and occurrence_id for traceability."
+    },
+    {
+      "id": "OFFER-1-LAW-KEY-SOVEREIGNTY",
+      "level": "P0",
+      "must": "On EligibilityIssuerKey create/rotate/revoke, OFFER-1 MUST publish EVT-1 event ticketing.offer.key_rotated.v1 containing {org_id, issuer_id, key_id, status, effective_at_utc}."
+    },
+    {
+      "id": "OFFER-1-LAW-PRICING-BINDING-001",
+      "level": "P0",
+      "must": "ProductRevision MUST reference a reusable PRICE-1 PricingProgramRevision through pricing_program_revision_id. It MUST NOT persist a PricingSnapshot id. A buyer quote MUST resolve pricing from that program revision and create or bind a transaction-specific active PricingSnapshot with quote expiry and single-order consumed_by_order_id semantics. ORD-1.create_checkout MUST bind and consume that exact snapshot for at most one Order."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "draft",
+  "suite_schema": "CS-0@3.0.1",
+  "tenancy": {
+    "must_enforce_rls": true,
+    "notes": "All resources are tenant-scoped by org_id (uuid_v7).",
+    "tenant_key": "org_id"
+  },
+  "test_vectors": {
+    "OFFER-1-VEC-APPORTIONMENT-001": {
+      "components": [
+        {
+          "apportionment_priority": 1,
+          "entitlement_spec_id_example": "01000000-0000-7000-8000-000000000000",
+          "label": "A"
+        },
+        {
+          "apportionment_priority": 1,
+          "entitlement_spec_id_example": "02000000-0000-7000-8000-000000000000",
+          "label": "B"
+        },
+        {
+          "apportionment_priority": 1,
+          "entitlement_spec_id_example": "03000000-0000-7000-8000-000000000000",
+          "label": "C"
+        }
+      ],
+      "currency_code": "USD",
+      "expected_apportionment_minor": {
+        "A": 3334,
+        "B": 3333,
+        "C": 3333
+      },
+      "notes": "When priorities tie, lead is lexicographically smallest entitlement_spec_id by raw UUID bytes (memcmp). Lead absorbs remainder (+1 minor here).",
+      "title": "Bundle apportionment remainder tie-breaker (memcmp UUID bytes)",
+      "total_minor": 10000
+    }
+  },
+  "tier": "L4_product_offer_layer",
+  "title": "OFFER-1: Commercial Grammar (Offer/Product/Revision/Window/Entitlements)",
+  "updated_at_utc": "2026-10-09T16:48:29Z",
+  "version": "1.3.4",
+  "state_lifecycle": {
+    "Offer": {
+      "states": [
+        "draft",
+        "active",
+        "archived"
+      ],
+      "transitions": [
+        {
+          "from": "absent",
+          "to": "draft",
+          "action": "create_offer",
+          "initiator": "authorized organizer",
+          "guards": [
+            "same-tenant occurrence_scope"
+          ],
+          "side_effects": "Persist draft state, archived_at_utc=null, and database timestamps.",
+          "invalid_behavior": "ERR_VALIDATION or hidden ERR_NOT_FOUND",
+          "terminal": false
+        },
+        {
+          "from": "draft",
+          "to": "active",
+          "action": "activate_offer",
+          "initiator": "authorized organizer",
+          "guards": [
+            "configured same-tenant draft Product",
+            "valid immutable ProductRevision and OfferWindow",
+            "same-tenant live occurrence scope"
+          ],
+          "side_effects": "Persist active state and transition timestamp; archived_at_utc remains null.",
+          "invalid_behavior": "ERR_PRECONDITION with no write",
+          "terminal": false
+        },
+        {
+          "from": [
+            "draft",
+            "active"
+          ],
+          "to": "archived",
+          "action": "archive_offer",
+          "initiator": "authorized organizer",
+          "guards": [
+            "same-tenant Offer exists"
+          ],
+          "side_effects": "Persist archived status and archived_at_utc from database time; preserve history.",
+          "invalid_behavior": "ERR_PRECONDITION with no write",
+          "terminal": true
+        }
+      ]
+    },
+    "Product": {
+      "states": [
+        "draft",
+        "active",
+        "archived"
+      ],
+      "transitions": [
+        {
+          "from": "absent",
+          "to": "draft",
+          "action": "create_product",
+          "initiator": "authorized organizer",
+          "guards": [
+            "same-tenant non-archived Offer"
+          ],
+          "side_effects": "Persist draft state, archived_at_utc=null, and database timestamps.",
+          "invalid_behavior": "ERR_VALIDATION or hidden ERR_NOT_FOUND",
+          "terminal": false
+        },
+        {
+          "from": "draft",
+          "to": "active",
+          "action": "activate_product",
+          "initiator": "authorized organizer",
+          "guards": [
+            "parent Offer active",
+            "valid immutable revision and pricing configuration"
+          ],
+          "side_effects": "Persist active state and transition timestamp; archived_at_utc remains null.",
+          "invalid_behavior": "ERR_PRECONDITION with no write",
+          "terminal": false
+        },
+        {
+          "from": [
+            "draft",
+            "active"
+          ],
+          "to": "archived",
+          "action": "archive_product",
+          "initiator": "authorized organizer",
+          "guards": [
+            "same-tenant Product exists"
+          ],
+          "side_effects": "Persist archived status and archived_at_utc from database time; preserve history.",
+          "invalid_behavior": "ERR_PRECONDITION with no write",
+          "terminal": true
+        }
+      ]
+    },
+    "ProductRevision": {
+      "states": [
+        "immutable after create"
+      ],
+      "transitions": [
+        {
+          "from": "absent",
+          "to": "immutable",
+          "action": "create_product_revision",
+          "initiator": "authorized organizer",
+          "guards": [
+            "valid same-tenant Product and occurrence",
+            "reusable PRICE-1 PricingProgramRevision"
+          ],
+          "side_effects": "persist immutable revision",
+          "invalid_behavior": "reject without write",
+          "terminal": true
+        }
+      ]
+    },
+    "OfferWindow": {
+      "states": [
+        "immutable after create; time eligibility is evaluated at quote time"
+      ],
+      "transitions": [
+        {
+          "from": "absent",
+          "to": "configured",
+          "action": "create_offer_window",
+          "initiator": "authorized organizer",
+          "guards": [
+            "valid same-tenant Offer",
+            "starts_at_utc < ends_at_utc"
+          ],
+          "side_effects": "persist window configuration",
+          "invalid_behavior": "reject without write",
+          "terminal": true
+        }
+      ]
+    }
+  },
+  "ord_checkout_binding": {
+    "quote_output": "OFFER-1.build_cart_quote.pricing_snapshot_id",
+    "checkout_input": "ORD-1.create_checkout.pricing_snapshot_id",
+    "persisted_order_field": "Order.price_snapshot_id",
+    "equality": "Order.price_snapshot_id MUST equal the exact pricing_snapshot_id returned by the accepted OFFER quote.",
+    "lifecycle": "OFFER creates and activates the transaction-specific PRICE-1 snapshot. ORD verifies the exact active, unexpired snapshot and invokes PRICE-1.consume_snapshot for its Order.",
+    "dependency_floor": "ORD-1 >= 3.8.3"
+  }
+}

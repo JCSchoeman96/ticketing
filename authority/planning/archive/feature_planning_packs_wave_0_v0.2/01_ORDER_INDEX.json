@@ -1,0 +1,58 @@
+{
+  "generated_at_utc": "2026-06-04T19:49:48Z",
+  "packs": [
+    {
+      "class": "MVP0",
+      "folder": "0000_MVP0-000_repo-airlock-scaffold",
+      "mvp_blocker": "yes",
+      "next": "0010_TB-000_governance-tracer-bullet",
+      "order": "0000",
+      "pack_id": "FP-MVP0-000-repo-airlock-scaffold",
+      "plan_src": "FP-MVP0-000-repo-airlock-scaffold.md",
+      "prompt_src": "PROMPT-FP-MVP0-000-repo-airlock-scaffold.md",
+      "release_phase": "foundation",
+      "source_row": "A-to-Z \u00a717 / \u00a729, TB-000 preconditions",
+      "title": "Repo and Airlock Scaffolding"
+    },
+    {
+      "class": "TB",
+      "folder": "0010_TB-000_governance-tracer-bullet",
+      "mvp_blocker": "yes",
+      "next": "0020_CI-001_deterministic-uuid-binary-sort",
+      "order": "0010",
+      "pack_id": "FP-TB-000-governance-tracer-bullet",
+      "plan_src": "FP-TB-000-governance-tracer-bullet.md",
+      "prompt_src": "PROMPT-FP-TB-000-governance-tracer-bullet.md",
+      "release_phase": "foundation",
+      "source_row": "TB-000",
+      "title": "Governance Tracer Bullet"
+    },
+    {
+      "class": "CI",
+      "folder": "0020_CI-001_deterministic-uuid-binary-sort",
+      "mvp_blocker": "yes",
+      "next": "0030_CI-002_migration-safety-baseline",
+      "order": "0020",
+      "pack_id": "FP-CI-001-deterministic-uuid-binary-sort",
+      "plan_src": "FP-CI-001-deterministic-uuid-binary-sort.md",
+      "prompt_src": "PROMPT-FP-CI-001-deterministic-uuid-binary-sort.md",
+      "release_phase": "foundation",
+      "source_row": "CI-001",
+      "title": "Deterministic UUID Binary Sort"
+    },
+    {
+      "class": "CI",
+      "folder": "0030_CI-002_migration-safety-baseline",
+      "mvp_blocker": "yes",
+      "next": "TBD after Wave 0 execution evidence",
+      "order": "0030",
+      "pack_id": "FP-CI-002-migration-safety-baseline",
+      "plan_src": "FP-CI-002-migration-safety-baseline.md",
+      "prompt_src": "PROMPT-FP-CI-002-migration-safety-baseline.md",
+      "release_phase": "foundation",
+      "source_row": "CI-002",
+      "title": "Migration Safety Baseline"
+    }
+  ],
+  "version": "0.2"
+}

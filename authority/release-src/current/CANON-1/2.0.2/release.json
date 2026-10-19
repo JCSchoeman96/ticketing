@@ -1,0 +1,18 @@
+{
+  "doc_id": "CANON-1",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "release_intent": "Generated exact-hash suite pinset from the frozen resolved selection.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "accepted_registry_sha256": "4379be46d264c38fc229f7b02db0dd40a3d2ec1043db5e8e51570d10b28d8fb1",
+    "audit_source_commit": "c4d6de25f13b9bc3aa5ff7c442fa44e3e2e5efd5",
+    "generator": "tools/generate_canon.py",
+    "generator_commit": "e09f82b6602b9ed8e22e492ab9cc66ebcd20d0e0",
+    "generator_version": "1.0.0",
+    "kind": "resolved-canonical-suite-selection",
+    "path": "generation-provenance.json",
+    "selection_sha256": "8c750833845a418d21cb3ac67156613bf580f79add07ea3d1f4107f5e3ad16a1"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.0.2"
+}

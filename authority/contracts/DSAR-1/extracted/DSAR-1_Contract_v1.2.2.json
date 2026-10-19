@@ -1,0 +1,644 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "DSAR-1_Contract_v1.2.2.json",
+  "dependencies": [
+    {
+      "doc_id": "BP-0",
+      "edge_type": "governance_floor",
+      "min_version": "3.0.0",
+      "reason": "Blueprint baseline patterns and anti-pattern bans."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Suite schema source of truth for contract-suite/1.0, test-gates/1.0, bundle-manifest/1.0."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Test-gates schema + authoring constraints for CI strict."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.0",
+      "reason": "Constitutional invariants: immutability boundaries, truth preservation, and platform-wide constraints."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.3",
+      "reason": "Multi-tenancy: org_id sealing, hide-existence semantics, cross-tenant prohibition."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.2.0",
+      "reason": "Capabilities/authorization model; DSAR actions are capability-gated + audited, including tiered export capabilities (data.export.c3, data.export.c4)."
+    },
+    {
+      "doc_id": "PII-1",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "PII boundary: identity mapping, PII vault exclusivity, joinable identifier classification, cryptoshred primitives, and anti-differencing invariants."
+    },
+    {
+      "doc_id": "CONSENT-1",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "Consent proof ownership; DSAR MUST preserve consent proofs while removing PII linkability per PII-1."
+    },
+    {
+      "doc_id": "TRK-1",
+      "edge_type": "requires",
+      "min_version": "1.3.1",
+      "reason": "Tracking schema and storage rules; DSAR MUST delete/transform subject-linked raw telemetry."
+    },
+    {
+      "doc_id": "DATA-1",
+      "edge_type": "requires",
+      "min_version": "1.3.0",
+      "reason": "Export profiles + data-class ceilings; DSAR access exports MUST bind to a C4-regulated export profile."
+    },
+    {
+      "doc_id": "ARCH-1",
+      "edge_type": "requires",
+      "min_version": "3.0.1",
+      "reason": "Archival/destruction semantics; DSAR cryptoshred is destruction-by-unlinkability without mutating immutable facts."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "3.0.8",
+      "reason": "Ledger immutability boundary: postings MUST NOT be mutated or redacted by DSAR."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.0.10",
+      "reason": "Immutable order truth boundary: order price snapshots & fulfillment facts MUST NOT be mutated by DSAR."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.0.9",
+      "reason": "Immutable price snapshot boundary: DSAR MUST NOT alter historical pricing truth."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.8",
+      "reason": "Anomaly monitoring and evidence posture for DSAR/PII access."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.3.32",
+      "reason": "Canonical error envelope and subcode conventions for DSAR errors."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.0.12",
+      "reason": "Governance discipline: break-glass, approvals, and audit retention requirements."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Registry floor parity for type safety even as non-producer."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.0",
+      "reason": "Schema_ref token normalization context."
+    }
+  ],
+  "dependency_floors": {
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0"
+  },
+  "doc_id": "DSAR-1",
+  "domain_sections": {
+    "anonymization_threshold": {
+      "min_population_size": 5,
+      "ownership": "PII-1 sets the privacy invariant; BI-1/AN-1 owns reporting implementation but MUST comply.",
+      "rule": "counts_less_than_min_population_size_must_not_be_displayed",
+      "statement": "Aggregates and drilldowns MUST NOT be displayed or exported when any grouping cohort size is less than min_population_size; such results MUST be suppressed or bucketed into 'other'."
+    },
+    "approvals": {
+      "approval_pipeline": {
+        "notes": "Support performs validation; org admin/owner approves org-scoped; platform support + super_admin dual control for platform-wide.",
+        "stages": [
+          {
+            "capability": "dsar.validate",
+            "evidence_required": true,
+            "evidence_type": "verification_evidence_refs",
+            "required": true,
+            "stage": "validation"
+          },
+          {
+            "capability": "dsar.approve_org",
+            "dual_control": false,
+            "required_for": [
+              "org_scoped"
+            ],
+            "stage": "approval_org_scoped"
+          },
+          {
+            "capability": "dsar.approve_platform_wide_batch",
+            "dual_control": true,
+            "required_for": [
+              "platform_wide"
+            ],
+            "second_approver_capability": "dsar.break_glass",
+            "stage": "approval_platform_wide_batch"
+          }
+        ]
+      },
+      "approval_reason_codes": [
+        "subject_request_verified",
+        "legal_obligation",
+        "fraud_prevention_check_passed",
+        "support_escalation"
+      ],
+      "approval_requirements": [
+        "Validation MUST be performed by an actor with IAM capability dsar.validate.",
+        "Org-scoped execution approval MUST be performed by an actor with IAM capability dsar.approve_org.",
+        "Platform-wide batch approval MUST be performed by an actor with IAM capability dsar.approve_platform_wide_batch AND MUST include explicit multi_org_scope.",
+        "Approval MUST include bounded approval_reason_code.",
+        "Approval MUST include verification_evidence_refs (non-PII).",
+        "Approval MUST be append-only; rejection reasons MUST be stored."
+      ],
+      "break_glass": {
+        "allowed": true,
+        "audit_marker": "break_glass_used",
+        "prohibition": "break_glass MUST NOT bypass identity verification evidence requirements",
+        "requirement": "platform capability dsar.break_glass + post_facto governance review"
+      },
+      "dual_control_required_for": [
+        "org_admin_submitted_any_request_type",
+        "platform_wide_any_request_type"
+      ]
+    },
+    "audit_and_notifications": {
+      "append_only_audit_required": true,
+      "audit_entry_fields_required": [
+        "actor_id",
+        "capability_used",
+        "dsar_case_id",
+        "export_profile_id",
+        "occurred_at_utc",
+        "org_id",
+        "outcome",
+        "reason_code",
+        "request_type",
+        "scope"
+      ],
+      "export_audit_events_required": [
+        "dsar.export.requested",
+        "dsar.export.job_started",
+        "dsar.export.job_completed",
+        "dsar.export.token_issued",
+        "dsar.export.downloaded",
+        "dsar.export.revoked_or_expired"
+      ],
+      "reason_codes": [
+        "dsar_legal_obligation",
+        "subject_request",
+        "org_admin_request_approved",
+        "support_initiated",
+        "break_glass"
+      ],
+      "subject_notification": {
+        "must_include": [
+          "request_type",
+          "completion_status",
+          "actions_executed",
+          "residuals_retained_and_why",
+          "how_to_escalate"
+        ],
+        "required": true,
+        "residuals_trigger": "Any retained data due to legal hold, immutable truth boundaries, or anonymized aggregates MUST be disclosed."
+      }
+    },
+    "case_model": {
+      "case_id_format": "uuid_v7",
+      "idempotency": {
+        "idempotency_key_format": "uuid_v7",
+        "required": true,
+        "scope": "org_id + subject_key + request_type + idempotency_key"
+      },
+      "states": [
+        "received",
+        "verification_pending",
+        "support_approval_pending",
+        "approved",
+        "execution_queued",
+        "executing",
+        "completed",
+        "rejected",
+        "cancelled",
+        "failed"
+      ],
+      "timelines": {
+        "clock_pause_notice_required": true,
+        "clock_start": "received_at_utc",
+        "max_days_to_complete": 30,
+        "pause_conditions": [
+          "verification_pending",
+          "support_approval_pending",
+          "legal_hold_active"
+        ]
+      },
+      "transitions": [
+        {
+          "from": "received",
+          "to": "verification_pending",
+          "when": "verification_required"
+        },
+        {
+          "from": "verification_pending",
+          "to": "support_approval_pending",
+          "when": "approval_required"
+        },
+        {
+          "from": "verification_pending",
+          "to": "approved",
+          "when": "approval_not_required_and_verification_satisfied"
+        },
+        {
+          "from": "support_approval_pending",
+          "to": "approved",
+          "when": "support_approval_granted"
+        },
+        {
+          "from": "approved",
+          "to": "execution_queued",
+          "when": "execution_job_enqueued"
+        },
+        {
+          "from": "execution_queued",
+          "to": "executing",
+          "when": "executor_starts"
+        },
+        {
+          "from": "executing",
+          "to": "completed",
+          "when": "all_actions_succeeded"
+        },
+        {
+          "from": "executing",
+          "to": "failed",
+          "when": "any_action_failed"
+        },
+        {
+          "from": "received",
+          "to": "rejected",
+          "when": "verification_impossible_or_scope_invalid"
+        },
+        {
+          "from": "verification_pending",
+          "to": "rejected",
+          "when": "verification_failed"
+        },
+        {
+          "from": "support_approval_pending",
+          "to": "rejected",
+          "when": "support_rejects"
+        },
+        {
+          "from": "received",
+          "to": "cancelled",
+          "when": "requestor_cancels_before_execution"
+        },
+        {
+          "from": "approved",
+          "to": "cancelled",
+          "when": "requestor_cancels_before_execution"
+        }
+      ]
+    },
+    "cryptoshred_semantics": {
+      "definition": "Destroy linkability by destroying subject identity mappings and envelope keys so that PII vault ciphertext becomes permanently unlinkable to subject_key.",
+      "effects": {
+        "audit": "retain_append_only_metadata_without_pii",
+        "consent_proofs": "retain_integrity_but_remove_direct_identifier_fields_and_break_linkability",
+        "pii_vault": "destroy_mapping_and_keys; retain ciphertext only if required by ARCH-1, but make it unlinkable",
+        "tracking_aggregates": "retain_only_if_subjectless_and_meets_anonymization_threshold",
+        "tracking_raw": "delete_or_transform_to_anonymous_no_subject_key_no_session_key"
+      },
+      "evidence_required": [
+        "cryptoshred_execution_receipt with timestamps and executor identity",
+        "key_destruction_attestation_ref",
+        "mapping_deletion_attestation_ref"
+      ],
+      "must_not_mutate": [
+        "LED-1 postings",
+        "ORD-1 immutable snapshots",
+        "PRICE-1 immutable snapshots"
+      ]
+    },
+    "export_delivery": {
+      "auth_recheck": {
+        "job_start": {
+          "checks": [
+            "dsar_case_state MUST be approved at job start",
+            "approval record MUST still be valid (not revoked, not expired)",
+            "actor MUST still hold required capabilities for request_type",
+            "scope MUST remain equal to approved scope (no widening)"
+          ],
+          "on_failure": "abort_job_and_append_audit",
+          "required": true
+        },
+        "token_issue": {
+          "checks": [
+            "dsar_case_state MUST be completed before issuing delivery token",
+            "actor MUST still hold required capabilities for request_type",
+            "delivery_token MUST be issued to subject channel only (no third-party substitution)"
+          ],
+          "on_failure": "deny_token_and_append_audit",
+          "required": true
+        }
+      },
+      "delivery_token": {
+        "issued_only_after_auth_recheck": true,
+        "single_use": true,
+        "subject_delivery_channel_only": true,
+        "ttl_seconds": 86400,
+        "type": "time_limited_retrieval_token"
+      },
+      "export_artifact": {
+        "excludes": [
+          "ledger_postings",
+          "immutable_order_price_snapshots",
+          "raw_tracking_events_after_erasure"
+        ],
+        "format": "json_lines_or_csv",
+        "includes": [
+          "pii_vault_fields_per_pii_1",
+          "consent_proofs_without_direct_identifiers",
+          "audit_receipts"
+        ],
+        "integrity": {
+          "export_hash_sha256_required": true,
+          "export_hash_stored_in_audit": true
+        }
+      },
+      "export_profile_binding": {
+        "access_export_profile_id": "dsar_access_export_c4",
+        "binding_rules": [
+          "DSAR access exports MUST use export_profile_id dsar_access_export_c4.",
+          "The DSAR export profile MUST be a C4 ceiling profile (includes joinable identifiers and vault rehydration).",
+          "C2 and C3 profiles MUST NOT be used for DSAR access exports."
+        ],
+        "forbid_profile_ids": [
+          "c2_public_aggregate_default",
+          "c2_org_reporting_default",
+          "c3_ops_default"
+        ],
+        "source_contract": {
+          "doc_id": "DATA-1",
+          "min_version": "1.3.0"
+        }
+      },
+      "mode": "async_job_only",
+      "required_capabilities": {
+        "access_export": [
+          "dsar.execute",
+          "data.export.c4"
+        ],
+        "erasure_cryptoshred": [
+          "dsar.execute"
+        ],
+        "restriction_processing": [
+          "dsar.execute"
+        ]
+      }
+    },
+    "identity_verification": {
+      "evidence_model": {
+        "evidence_ref_schema": {
+          "evidence_kind_ids": [
+            "authenticated_session_ref",
+            "email_possession_challenge_ref",
+            "payment_reference_ref",
+            "ticket_reference_ref",
+            "support_case_ref"
+          ],
+          "evidence_ref_fields_required": [
+            "evidence_kind",
+            "evidence_ref",
+            "captured_at_utc",
+            "captured_by_actor_id"
+          ],
+          "evidence_ref_rules": [
+            "evidence_ref MUST NOT contain PII; it MUST be a reference token or internal id resolvable only within the PII vault/support systems.",
+            "captured_by_actor_id MUST be org-scoped actor identity; platform-wide support actions MUST include platform_actor_id and explicit multi_org_scope."
+          ]
+        }
+      },
+      "level_definitions": {
+        "level_1_basic": {
+          "minimum_evidence_count": 1,
+          "minimum_evidence_kinds": [
+            "authenticated_session_ref",
+            "email_possession_challenge_ref"
+          ],
+          "prohibitions": [
+            "no_government_id_storage_in_dsar_case"
+          ]
+        },
+        "level_2_strong": {
+          "minimum_evidence_count": 2,
+          "minimum_evidence_kinds": [
+            "authenticated_session_ref",
+            "email_possession_challenge_ref",
+            "payment_reference_ref",
+            "ticket_reference_ref",
+            "support_case_ref"
+          ],
+          "prohibitions": [
+            "no_government_id_storage_in_dsar_case"
+          ]
+        }
+      },
+      "verification_levels": [
+        "level_1_basic",
+        "level_2_strong"
+      ]
+    },
+    "prohibitions": [
+      "DSAR case records MUST NOT store direct identifiers (email, phone, full name, address, gov_id).",
+      "DSAR processing MUST NOT read or export PII without IAM capability + append-only audit entry.",
+      "DSAR processing MUST NOT mutate immutable truth sources (LED-1, ORD-1, PRICE-1).",
+      "DSAR access exports MUST NOT be produced under C2 or C3 export profiles; DSAR access exports are C4 by definition due to joinable identifiers."
+    ],
+    "request_types": {
+      "definitions": {
+        "access_export": "Produce a time-limited export of PII scoped to subject_key and org_id.",
+        "erasure_cryptoshred": "Destroy linkability to PII via cryptoshred semantics defined by PII-1 without mutating immutable truth.",
+        "restriction_processing": "Restrict or pause processing/use of subject-linked data where feasible; does not imply deletion."
+      },
+      "ids": [
+        "access_export",
+        "erasure_cryptoshred",
+        "restriction_processing"
+      ],
+      "requirement_precedence": "If requestor defaults conflict with request_type minimums, the request_type minimum MUST win.",
+      "requirements": {
+        "access_export": {
+          "export_profile_id": "dsar_access_export_c4",
+          "minimum_verification_level": "level_2_strong",
+          "notes": "Access exports include joinable identifiers and vault rehydration; treat as C4 regulated export."
+        },
+        "erasure_cryptoshred": {
+          "minimum_verification_level": "level_2_strong",
+          "notes": "Erasure is irreversible unlinkability; require strong verification."
+        },
+        "restriction_processing": {
+          "minimum_verification_level": "level_1_basic",
+          "notes": "Restriction does not release full export or irreversibly destroy linkability."
+        }
+      }
+    },
+    "requestors": {
+      "org_admin": {
+        "approval_actor": "support",
+        "approval_actor_kinds": [
+          "org_owner",
+          "org_admin"
+        ],
+        "approval_required": true,
+        "minimum_verification_level": "level_2_strong",
+        "notes": "Org admin may submit DSAR but MUST NOT bypass support validation; approval requires strict verification evidence.",
+        "scope_rule": "org_scoped_subject_only",
+        "validation_actor_kinds": [
+          "org_support"
+        ],
+        "validation_required": true,
+        "verification_required": true,
+        "who": "org_admin"
+      },
+      "platform_support": {
+        "allowed": true,
+        "approval_actor_kinds": [
+          "super_admin"
+        ],
+        "approval_required": true,
+        "notes": "Platform support may submit platform-wide DSAR batches with explicit multi_org_scope; requires super_admin approval.",
+        "validation_actor_kinds": [
+          "platform_support"
+        ],
+        "validation_required": true
+      },
+      "subject_self": {
+        "approval_actor_kinds": [
+          "org_admin",
+          "org_owner"
+        ],
+        "approval_required": true,
+        "minimum_verification_level": "level_1_basic",
+        "notes": "Subject-initiated DSAR MUST be validated by support with verification evidence, then approved by org_admin/org_owner for org-scoped execution.",
+        "scope_rule": "subject_only",
+        "validation_actor_kinds": [
+          "org_support"
+        ],
+        "validation_required": true,
+        "verification_required": true,
+        "who": "subject"
+      },
+      "support": {
+        "approval_required": false,
+        "minimum_verification_level": "level_2_strong",
+        "scope_rule": "org_scoped_or_platform_wide_with_explicit_scope",
+        "verification_required": true,
+        "who": "support"
+      }
+    },
+    "tenancy": {
+      "org_id_required_on": [
+        "dsar_case",
+        "verification_evidence",
+        "approvals",
+        "audit_entries",
+        "exports",
+        "cryptoshred_execution"
+      ],
+      "org_scoped_default": true,
+      "platform_wide_behaviour": "platform_wide DSAR MUST execute as a batch of org-scoped DSAR actions; each org_id MUST be enumerated and logged. platform_wide MUST require explicit multi_org_scope and dual-control approval.",
+      "platform_wide_scope": {
+        "allowed": true,
+        "rationale": "Platform support may need to process DSAR spanning multiple orgs only when authorized.",
+        "requirement": "platform capability + explicit multi_org_scope list"
+      },
+      "prohibition": "System MUST NOT cryptoshred a subject across multiple orgs unless the DSAR case is explicitly platform_wide with the required approvals.",
+      "scope": "org_scoped_default"
+    },
+    "terminology": {
+      "dsar_case": "The authoritative record of a DSAR request lifecycle, including verification, approvals, actions executed, and receipts.",
+      "dsar_request": "A request to exercise data subject rights (access/export, erasure/cryptoshred, restriction).",
+      "subject": "A natural person whose data is in scope for DSAR processing.",
+      "subject_key": "A pseudonymous stable identifier for a subject within an org_id as defined by PII-1."
+    }
+  },
+  "emits_events": false,
+  "errors": {
+    "error_family": "ERR-1",
+    "subcodes": {
+      "DSAR_ACCESS_DENIED": "Actor lacks required IAM capability.",
+      "DSAR_ADMIN_APPROVAL_REQUIRED": "Admin approval is required before execution.",
+      "DSAR_ANON_THRESHOLD_VIOLATION": "Attempted to display/export aggregate below min_population_size.",
+      "DSAR_CRYPTOSHRED_FAILED": "Cryptoshred job failed; system MUST preserve immutable truth and record failure evidence.",
+      "DSAR_EXPORT_TOKEN_INVALID_OR_EXPIRED": "Export retrieval token expired or already used.",
+      "DSAR_SUPPORT_APPROVAL_REJECTED": "Support rejected the DSAR request.",
+      "DSAR_SUPPORT_APPROVAL_REQUIRED": "Support approval is required before execution.",
+      "DSAR_TIMELINE_BREACH": "DSAR exceeded max_days_to_complete.",
+      "DSAR_VERIFICATION_REQUIRED": "Verification evidence is missing or insufficient."
+    }
+  },
+  "generated_at_utc": "2026-01-30T06:10:36Z",
+  "last_updated_utc": "2026-01-30T06:10:36Z",
+  "locked_decisions": {
+    "cryptoshred_destroys_aliases_and_mappings": true,
+    "dsar_access_export_binds_export_profile": true,
+    "dsar_access_export_is_c4": true,
+    "dsar_export_requires_auth_recheck": true,
+    "export_async_only": true,
+    "org_admin_requires_support_approval": true,
+    "org_scoped_default": true,
+    "raw_tracking_deleted_or_anonymized": true,
+    "verification_evidence_required": true
+  },
+  "outbox_events": [],
+  "purpose_and_boundaries": {
+    "does_not_own": [
+      "pii_classification_registry_and_vault_storage_rules (PII-1)",
+      "consent_ui_and_consent_proof_schemas (CONSENT-1)",
+      "tracking_event_schemas_and_payload_shapes (TRK-1)",
+      "implementation_of_key_management (SEC-1 via PII-1/ARCH-1)",
+      "analytics_reporting_models (BI-1/AN-1)"
+    ],
+    "immutability_guards": [
+      "DSAR-1 SHALL NOT permit mutation or redaction of LED-1 postings.",
+      "DSAR-1 SHALL NOT permit mutation or redaction of ORD-1 or PRICE-1 immutable snapshots."
+    ],
+    "owns": [
+      "dsar_case_model_and_state_machine",
+      "identity_verification_policy_and_evidence_requirements",
+      "dual_control_approval_rules_for_non_subject_requestors",
+      "export_orchestration_and_delivery_tokens",
+      "cryptoshred_orchestration_and_receipt_generation",
+      "dsar_audit_evidence_and_notification_requirements"
+    ]
+  },
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "summary": "Defines deterministic DSAR request lifecycle, identity verification, dual-control approval, export delivery, and cryptoshred orchestration without mutating immutable truth. Patch v1.2.0: binds DSAR access exports to a C4-regulated DATA-1 export profile and requires auth re-check at job start and token issuance.",
+  "title": "Data Subject Access Request Contract",
+  "version": "1.2.2"
+}

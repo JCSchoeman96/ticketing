@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "c24bc7312bbc63c96890e4b49fc392601676f004",
+  "provenance_statement": "Successor source candidate derived from the tracked CS-0 v3.0.0 ratification snapshot, which was bootstrapped from the identified ignored staging ZIP. Owner-approved D1 and D7 semantics are recorded in reports/owner-ratification.md. This is editable candidate source, not original authoring source or a released canonical bundle. The successor candidate sets the contract canonical marker to false; D1/D7 approve semantics only and do not make a release canonical.",
+  "source_bundle_path": ".staging/raw/CS-0_and_BP-0/CS-0_bundle_v3.0.0.zip",
+  "source_members": [
+    {
+      "source_member_path": "CS-0_bundle_v3.0.0/CS-0_Contract_v3.0.0.json",
+      "tracked_source_path": "contract.json",
+      "sha256": "3edb84b4cc27084735098c07205420a923abaa0e3040aab1ef74788aa2fa5c72",
+      "bytes": 19857
+    },
+    {
+      "source_member_path": "CS-0_bundle_v3.0.0/CS-0_Test_Gates_v3.0.0.json",
+      "tracked_source_path": "test-gates.json",
+      "sha256": "9331cdc0fa94dbaf2a66c7d4f30a5d105f985d571e44903cb86ae7d9e4515545",
+      "bytes": 10923
+    }
+  ],
+  "source_version": "3.0.0",
+  "source_zip_bytes": 5253,
+  "source_zip_sha256": "75c0f020b86153233d9fcc0cdd195b6565862362d1de6724638069d64c894c39",
+  "candidate_preparation_base_commit": "c24bc7312bbc63c96890e4b49fc392601676f004",
+  "origin_members": [
+    {
+      "source_member_path": "CS-0_bundle_v3.0.0/CS-0_Contract_v3.0.0.json",
+      "sha256": "fee69f166d4cb43b47509a4b32fa4f74fb910e8f2ddee318d9e9710f0f61271c",
+      "bytes": 16737
+    },
+    {
+      "source_member_path": "CS-0_bundle_v3.0.0/CS-0_Test_Gates_v3.0.0.json",
+      "sha256": "a01ca7da7fe1f4cbd43d906e35982cdf3691d9401d854d4d9a230c1bcd927828",
+      "bytes": 8170
+    }
+  ]
+}

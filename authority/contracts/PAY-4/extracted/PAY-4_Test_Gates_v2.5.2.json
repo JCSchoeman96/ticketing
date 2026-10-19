@@ -1,0 +1,1043 @@
+{
+  "artifact_kind": "test_gates",
+  "artifact_name": "PAY-4_Test_Gates_v2.5.2.json",
+  "ci_tasks": [
+    {
+      "artifact_kind": "contract",
+      "description": "Fail if any timestamp field uses generic date-time or lacks utc_datetime_usec + RFC3339 microseconds + Z.",
+      "must_pass": true,
+      "runner": "contract_gate",
+      "task_id": "pay4_enforce_utc_datetime_usec"
+    },
+    {
+      "artifact_kind": "contract",
+      "description": "Fail if org_id is not uuid_v7 or internal IDs do not match <prefix><uuid_v7> patterns per id_prefixes.",
+      "must_pass": true,
+      "runner": "contract_gate",
+      "task_id": "pay4_enforce_uuid_v7_patterns"
+    },
+    {
+      "artifact_kind": "contract",
+      "description": "Cross-check errors.subcodes against ERR-1 registry in the pinned suite; fail if any are unregistered.",
+      "must_pass": true,
+      "runner": "suite_validator",
+      "task_id": "pay4_err_subcodes_registered"
+    },
+    {
+      "artifact_kind": "contract",
+      "description": "Deterministic concurrency test: reserve/release uses atomic predicate on cleared_minor and liability cap; no race-induced negative balances.",
+      "must_pass": true,
+      "runner": "runtime_harness",
+      "task_id": "pay4_atomic_reservation_predicate"
+    }
+  ],
+  "contract_ref": {
+    "doc_id": "PAY-4",
+    "version": "2.5.2"
+  },
+  "doc_id": "PAY-4-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema MUST match the CS bundle used by CI.",
+      "failure_message": "Gate PAY-4-GATE-010 failed. suite_schema MUST match the CS bundle used by CI.",
+      "id": "PAY-4-GATE-010",
+      "level": "P0",
+      "must": true,
+      "title": "suite_schema MUST match the CS bundle used by CI."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "Bundle manifest filename MUST be canonical.",
+      "failure_message": "Gate PAY-4-GATE-020 failed. Bundle manifest filename MUST be canonical.",
+      "id": "PAY-4-GATE-020",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle manifest filename MUST be canonical."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "required_files": [
+              "PAY-4_Contract_v2.5.2.json",
+              "PAY-4_Test_Gates_v2.5.2.json",
+              "bundle.manifest.json"
+            ]
+          },
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "bundle.manifest.json MUST exactly match the JSON files in the bundle (sha256 + bytes).",
+      "failure_message": "Gate PAY-4-GATE-030 failed. bundle.manifest.json MUST exactly match the JSON files in the bundle (sha256 + bytes).",
+      "id": "PAY-4-GATE-030",
+      "level": "P0",
+      "must": true,
+      "title": "bundle.manifest.json MUST exactly match the JSON files in the bundle (sha256 + bytes)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/invariants/treasury/liability_capping_required"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "available_minor = min(total_minor, cleared_minor) and available_minor >= 0",
+            "json_pointer": "/invariants/treasury/available_balance_formula"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Liability cap is enabled and formula declared.",
+      "failure_message": "Gate PAY-4-P0-009 failed. Liability cap is enabled and formula declared.",
+      "id": "PAY-4-P0-009",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "When pending chargebacks reduce total_minor below cleared_minor, available_minor is capped down and cannot exceed total_minor.",
+        "available_minor never becomes negative; payout reservation fails instead."
+      ],
+      "title": "Liability cap is enabled and formula declared."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ss_",
+            "json_pointer": "/data_model/entities/SettlementStatement/id_prefix"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sli_",
+            "json_pointer": "/data_model/entities/SettlementLineItem/id_prefix"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "pse_",
+            "json_pointer": "/data_model/entities/ProviderSettlementEvent/id_prefix"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "recon_",
+            "json_pointer": "/data_model/entities/ReconciliationRun/id_prefix"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "idem_",
+            "json_pointer": "/data_model/entities/IdempotencyRecord/id_prefix"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "FAILED payout auto-releases reservation atomically.",
+      "failure_message": "Gate PAY-4-P0-010 failed. FAILED payout auto-releases reservation atomically.",
+      "id": "PAY-4-P0-010",
+      "level": "P0",
+      "must": true,
+      "negative_tests": [
+        "When a payout transitions to FAILED before provider submission, TreasuryReservation becomes RELEASED and TreasuryBalance increases by amount_minor in the same transaction.",
+        "A duplicate failure notification is idempotent and does not double-credit."
+      ],
+      "title": "FAILED payout auto-releases reservation atomically."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 48,
+            "json_pointer": "/invariants/ambiguity_handling/inquiry_ttl_hours_max"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 50,
+            "json_pointer": "/invariants/ambiguity_handling/inquiry_max_attempts"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "MANUAL_REVIEW_REQUIRED",
+            "json_pointer": "/invariants/ambiguity_handling/terminal_state_on_inquiry_expiry"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Inquiry loop bounded by ttl and attempts; stop polling.",
+      "failure_message": "Gate PAY-4-P1-005 failed. Inquiry loop bounded by ttl and attempts; stop polling.",
+      "id": "PAY-4-P1-005",
+      "level": "P1",
+      "must": true,
+      "negative_tests": [
+        "Provider API returns 500 indefinitely; after 50 attempts or 48 hours the payout transitions to MANUAL_REVIEW_REQUIRED and worker stops re-enqueueing.",
+        "Queue does not accumulate unbounded retryable jobs for a single payout."
+      ],
+      "title": "Inquiry loop bounded by ttl and attempts; stop polling."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\"doc_id\"\\s*:\\s*\"SM-0\"",
+              "\"doc_id\"\\s*:\\s*\"EVT-1\""
+            ],
+            "json_pointers": [
+              "/dependencies"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No ghost dependencies (planned only)",
+      "failure_message": "Gate PAY4-DEPS-NOGHOST failed. No ghost dependencies (planned only)",
+      "id": "PAY4-DEPS-NOGHOST",
+      "level": "P1",
+      "must": true,
+      "title": "No ghost dependencies (planned only)"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "PAY_4_"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PAY_RESERVATION_FAILED",
+            "json_pointer": "/errors/subcodes/0"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PAY_INQUIRY_TTL_EXCEEDED",
+            "json_pointer": "/errors/subcodes/1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PAY_LIABILITY_CAP_EXCEEDED",
+            "json_pointer": "/errors/subcodes/2"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PAY_CURRENCY_MISMATCH",
+            "json_pointer": "/errors/subcodes/3"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "PAY_INSUFFICIENT_FUNDS",
+            "json_pointer": "/errors/subcodes/4"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "ERR subcodes PAY_4_",
+      "failure_message": "Gate PAY4-ERR-SUB failed. ERR subcodes PAY_4_",
+      "id": "PAY4-ERR-SUB",
+      "level": "P0",
+      "must": true,
+      "title": "ERR subcodes PAY_4_"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\"doc_id\"\\s*:\\s*\"EVT-1\"",
+              "\"doc_id\"\\s*:\\s*\"SM-0\""
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "EVT-1 dep",
+      "failure_message": "Gate PAY4-EVT-DEP failed. EVT-1 dep",
+      "id": "PAY4-EVT-DEP",
+      "level": "P1",
+      "must": true,
+      "title": "No direct EVT-1 dependency unless shipped"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\"format\"\\s*:\\s*\"date-time\""
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/OrgPayoutPolicy/fields/created_at_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/OrgPayoutPolicy/fields/created_at_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/OrgPayoutPolicy/fields/updated_at_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/OrgPayoutPolicy/fields/updated_at_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/Payout/fields/ambiguity_probe_last_at_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/Payout/fields/ambiguity_probe_last_at_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/Payout/fields/created_at_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/Payout/fields/created_at_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/Payout/fields/scheduled_for_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/Payout/fields/scheduled_for_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/Payout/fields/updated_at_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/Payout/fields/updated_at_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/TreasuryBalance/fields/as_of_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/TreasuryBalance/fields/as_of_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/TreasuryBalance/fields/cleared_cutoff_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/TreasuryBalance/fields/cleared_cutoff_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/TreasuryBalance/fields/created_at_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/TreasuryBalance/fields/created_at_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/TreasuryBalance/fields/updated_at_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/TreasuryBalance/fields/updated_at_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/TreasuryReservation/fields/created_at_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/TreasuryReservation/fields/created_at_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "utc_datetime_usec",
+            "json_pointer": "/data_model/entities/TreasuryReservation/fields/updated_at_utc/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+            "json_pointer": "/data_model/entities/TreasuryReservation/fields/updated_at_utc/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "utc_datetime_usec rule",
+      "failure_message": "Gate PAY4-TIME failed. utc_datetime_usec rule",
+      "id": "PAY4-TIME",
+      "level": "P0",
+      "must": true,
+      "title": "utc_datetime_usec rule"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/OrgPayoutPolicy/fields/org_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/data_model/entities/OrgPayoutPolicy/fields/org_id/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/Payout/fields/org_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/data_model/entities/Payout/fields/org_id/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/TreasuryBalance/fields/org_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/data_model/entities/TreasuryBalance/fields/org_id/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/TreasuryReservation/fields/org_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/data_model/entities/TreasuryReservation/fields/org_id/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/SettlementStatement/fields/org_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/data_model/entities/SettlementStatement/fields/org_id/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/SettlementLineItem/fields/org_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/data_model/entities/SettlementLineItem/fields/org_id/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/ProviderSettlementEvent/fields/org_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/data_model/entities/ProviderSettlementEvent/fields/org_id/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/ReconciliationRun/fields/org_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/data_model/entities/ReconciliationRun/fields/org_id/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/IdempotencyRecord/fields/org_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "uuid_v7",
+            "json_pointer": "/data_model/entities/IdempotencyRecord/fields/org_id/format"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^opp_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/OrgPayoutPolicy/fields/org_payout_policy_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^po_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/Payout/fields/payout_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^tbal_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/TreasuryBalance/fields/treasury_balance_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^tres_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/TreasuryReservation/fields/treasury_reservation_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^po_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/TreasuryReservation/fields/payout_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^ss_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/SettlementStatement/fields/settlement_statement_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^sli_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/SettlementLineItem/fields/settlement_line_item_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^pse_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/ProviderSettlementEvent/fields/provider_settlement_event_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^recon_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/ReconciliationRun/fields/reconciliation_run_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "^idem_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+            "json_pointer": "/data_model/entities/IdempotencyRecord/fields/idempotency_record_id/pattern"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "UUIDv7 IDs",
+      "failure_message": "Gate PAY4-UUID7 failed. UUIDv7 IDs",
+      "id": "PAY4-UUID7",
+      "level": "P0",
+      "must": true,
+      "title": "UUIDv7 IDs"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "pbl_",
+            "json_pointer": "/data_model/entities/PayoutBlocker/id_prefix"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PAY-4 MUST define auditable PayoutBlocker entity for enterprise-safe payout holds.",
+      "failure_message": "Gate PAY4_PAYOUT_BLOCKER_ENTITY_REQUIRED failed. PAY-4 MUST define auditable PayoutBlocker entity for enterprise-safe payout holds.",
+      "id": "PAY4_PAYOUT_BLOCKER_ENTITY_REQUIRED",
+      "level": "P0",
+      "must": true,
+      "title": "PAY-4 MUST define auditable PayoutBlocker entity for enterprise-safe payout holds."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.8.0",
+            "json_pointer": "/dependency_pins/PAY-3/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PAY-4 MUST pin PAY-3 >= 2.8.0 for dispute-risk propagation.",
+      "failure_message": "Gate PAY4_PAY3_MIN_VERSION_PIN failed. PAY-4 MUST pin PAY-3 >= 2.8.0 for dispute-risk propagation.",
+      "id": "PAY4_PAY3_MIN_VERSION_PIN",
+      "level": "P0",
+      "must": true,
+      "title": "PAY-4 MUST pin PAY-3 >= 2.8.0 for dispute-risk propagation."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.4.3",
+            "json_pointer": "/dependency_pins/ERR-1/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PAY-4 MUST pin ERR-1 >= 1.4.3 for dispute-risk payout blocker subcodes.",
+      "failure_message": "Gate PAY4_ERR1_MIN_VERSION_PIN failed. PAY-4 MUST pin ERR-1 >= 1.4.3 for dispute-risk payout blocker subcodes.",
+      "id": "PAY4_ERR1_MIN_VERSION_PIN",
+      "level": "P0",
+      "must": true,
+      "title": "PAY-4 MUST pin ERR-1 >= 1.4.3 for dispute-risk payout blocker subcodes."
+    },
+    {
+      "acceptance_criteria": [
+        "Provider settlement entities MUST include provider_account_ref and uniqueness must include it."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "legacy_checks": [
+              {
+                "must_contain": "provider_account_ref",
+                "path": "data_model.entities.ProviderSettlementEvent.required"
+              },
+              {
+                "must_contain": "provider_account_ref",
+                "path": "data_model.entities.SettlementStatement.required"
+              },
+              {
+                "must_contain": [
+                  "org_id",
+                  "provider",
+                  "provider_account_ref",
+                  "provider_event_id"
+                ],
+                "path": "data_model.entities.ProviderSettlementEvent.uniqueness_constraints[*].fields"
+              },
+              {
+                "must_contain": [
+                  "org_id",
+                  "provider",
+                  "provider_account_ref",
+                  "provider_statement_id"
+                ],
+                "path": "data_model.entities.SettlementStatement.uniqueness_constraints[*].fields"
+              }
+            ]
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Provider settlement entities MUST include provider_account_ref and uniqueness must include it.",
+      "failure_message": "Gate PAY-4-P0-IDENTITY-TRIPLEKEY failed. Provider settlement entities MUST include provider_account_ref and uniqueness must include it.",
+      "id": "PAY-4-P0-IDENTITY-TRIPLEKEY",
+      "level": "P0",
+      "must": true,
+      "title": "Provider settlement entities MUST include provider_account_ref and uniqueness must include it."
+    },
+    {
+      "acceptance_criteria": [
+        "Payout compute/execution MUST declare OBQC serialized queue requirement keyed by org/provider/provider_account_ref."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "legacy_checks": [
+              {
+                "equals": "OBQC-1.serialized_queue",
+                "path": "actions_and_workflows.payouts.execution.worker_model.queue_governance.serialization.via"
+              },
+              {
+                "contains": "{provider_account_ref}",
+                "path": "actions_and_workflows.payouts.execution.worker_model.queue_governance.serialization.key_template"
+              }
+            ]
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Payout compute/execution MUST declare OBQC serialized queue requirement keyed by org/provider/provider_account_ref.",
+      "failure_message": "Gate PAY-4-P0-PAYOUT-SERIALIZATION failed. Payout compute/execution MUST declare OBQC serialized queue requirement keyed by org/provider/provider_account_ref.",
+      "id": "PAY-4-P0-PAYOUT-SERIALIZATION",
+      "level": "P0",
+      "must": true,
+      "title": "Payout compute/execution MUST declare OBQC serialized queue requirement keyed by org/provider/provider_account_ref."
+    },
+    {
+      "acceptance_criteria": [
+        "Contract must declare session-affine lock/write requirement and depend on LOCKS-1>=2.1.0."
+      ],
+      "assertions": [
+        {
+          "details": {
+            "legacy_checks": [
+              {
+                "must_contain": "PAY-4-INV-020",
+                "path": "invariants.p0[*].rule_id"
+              },
+              {
+                "must_contain": "LOCKS-1",
+                "path": "dependencies[*].doc_id"
+              }
+            ]
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
+        }
+      ],
+      "description": "Contract must declare session-affine lock/write requirement and depend on LOCKS-1>=2.1.0.",
+      "failure_message": "Gate PAY-4-P0-LOCKS-SESSION-AFFINITY failed. Contract must declare session-affine lock/write requirement and depend on LOCKS-1>=2.1.0.",
+      "id": "PAY-4-P0-LOCKS-SESSION-AFFINITY",
+      "level": "P0",
+      "must": true,
+      "title": "Contract must declare session-affine lock/write requirement and depend on LOCKS-1>=2.1.0."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "PAY-4 MUST be an explicit non-producer",
+      "failure_message": "Gate PAY-4.GATE.0003 failed. PAY-4 MUST be an explicit non-producer",
+      "id": "PAY-4.GATE.0003",
+      "level": "P0",
+      "must": true,
+      "title": "PAY-4 MUST be an explicit non-producer"
+    }
+  ],
+  "generated_at_utc": "2026-02-07T05:29:25Z",
+  "last_updated_utc": "2026-02-07T05:29:25Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "PAY-4 Test Gates",
+  "updated_at_utc": "2026-02-03T00:00:00Z",
+  "version": "2.5.2"
+}

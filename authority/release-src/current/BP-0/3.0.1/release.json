@@ -1,0 +1,14 @@
+{
+  "doc_id": "BP-0",
+  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "proposed_successor_version": "3.0.1",
+  "release_intent": "Build candidate from owner-approved BP-0 semantics at successor version 3.0.1, validated against the owner-ratified CS-0@3.0.1 source profile. This is not a released or canonical bundle.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "successor-source-derived-from-ratification-snapshot",
+    "path": "provenance.json",
+    "source_zip_sha256": "ad745bf7deb9bfa6ea3ffdd0deb1ffa433dc35651b40cef6e474549df9970f68"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "3.0.1"
+}

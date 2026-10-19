@@ -1,0 +1,13 @@
+{
+  "doc_id": "IAM-2",
+  "version": "1.4.0",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "release_status": "candidate",
+  "release_intent": "Review-only successor package for the frozen T0 authority snapshot, IAM-2@1.4.0.",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "d2a38ac6ade82ab73bc14ccd1a675375511da9f2cc9b811dc3f82ccfcd3d8edd"
+  }
+}

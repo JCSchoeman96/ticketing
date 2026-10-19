@@ -1,0 +1,11 @@
+*.json text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.zip binary
+
+# Imported historical Markdown uses trailing spaces for hard line breaks. Preserve those source bytes.
+authority/governance/** whitespace=-blank-at-eol
+authority/planning/archive/** whitespace=-blank-at-eol
+authority/planning/reference/** whitespace=-blank-at-eol

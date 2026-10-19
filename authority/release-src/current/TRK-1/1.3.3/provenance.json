@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "candidate_preparation_base_commit": "39be7c153696778f2de910a06588e02997736f97",
+  "provenance_statement": "Editable successor source bootstrapped from exact tracked bundle ticketing-contracts/CS3.0-REFACTORED/TRK-1_bundle_v1.3.2_refactored.zip; this is not original authoring source. Changes are limited to release identity/schema, identified defects, and approved Remediation E decisions.",
+  "source_bundle_path": "ticketing-contracts/CS3.0-REFACTORED/TRK-1_bundle_v1.3.2_refactored.zip",
+  "source_zip_sha256": "8197dc8c1071a9b65a2a8340e47eca2a2c6c1151b29fa8d757da2895bfabcc82",
+  "source_zip_bytes": 18262,
+  "source_version": "1.3.2",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "TRK-1_bundle_v1.3.2/TRK-1_Contract_v1.3.2.json",
+      "sha256": "97c2683a84cbf145956de95bdf0fa79ff0b1e0bf2da72530a630fe5f24160cc7",
+      "bytes": 54393
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "TRK-1_bundle_v1.3.2/TRK-1_Test_Gates_v1.3.2.json",
+      "sha256": "32822b2de0a50e4ef3fbce244d62cef99f8fb4b0823020a46868a530003c0ad5",
+      "bytes": 24004
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "TRK-1_bundle_v1.3.2/TRK-1_Contract_v1.3.2.json",
+      "sha256": "69bb2173f1325bd0624ca924dc07c0ce03d6dee6dd4c547b318d49b15d9f2abc",
+      "bytes": 54393
+    },
+    {
+      "source_member_path": "TRK-1_bundle_v1.3.2/TRK-1_Test_Gates_v1.3.2.json",
+      "sha256": "fd75227ca65637bd4749f5c6c303380ad4d3b98aaaa7aa5e12213f115d98983d",
+      "bytes": 24018
+    }
+  ]
+}

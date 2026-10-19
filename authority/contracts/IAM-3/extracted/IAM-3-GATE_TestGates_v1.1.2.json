@@ -1,0 +1,163 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "IAM-3",
+    "version": "1.1.2"
+  },
+  "doc_id": "IAM-3-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.0"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "Bundle declares the correct suite schema.",
+      "failure_message": "Bundle declares the correct suite schema.",
+      "id": "IAM-3-GATE-0001",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle declares the correct suite schema."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "Bundle uses the standard manifest filename.",
+      "failure_message": "Bundle uses the standard manifest filename.",
+      "id": "IAM-3-GATE-0002",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle uses the standard manifest filename."
+    },
+    {
+      "assertions": [
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "Bundle files match manifest (paths, hashes, bytes).",
+      "failure_message": "Bundle files match manifest (paths, hashes, bytes).",
+      "id": "IAM-3-GATE-0003",
+      "level": "P0",
+      "must": true,
+      "title": "Bundle files match manifest (paths, hashes, bytes)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "IAM-3",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "1.1.2",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract doc_id and version match the bundle head.",
+      "failure_message": "Contract doc_id and version match the bundle head.",
+      "id": "IAM-3-GATE-0100",
+      "level": "P0",
+      "must": true,
+      "title": "Contract doc_id and version match the bundle head."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "IAM-3 MUST be an explicit non-producer (no EVT outbox).",
+      "failure_message": "IAM-3 MUST be an explicit non-producer (no EVT outbox).",
+      "id": "IAM-3-GATE-0200",
+      "level": "P0",
+      "must": true,
+      "title": "IAM-3 MUST be an explicit non-producer (no EVT outbox)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.16.4",
+            "json_pointer": "/dependency_floors/EVT-1"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "EVT-1 dependency floor parity (Phase-5 no split-brain).",
+      "failure_message": "EVT-1 dependency floor parity (Phase-5 no split-brain).",
+      "id": "IAM-3-GATE-0300",
+      "level": "P0",
+      "must": true,
+      "title": "EVT-1 dependency floor parity (Phase-5 no split-brain)."
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "(?i)\\b(TBD|TODO|FIXME)\\b"
+            ],
+            "json_pointers": [
+              ""
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No unresolved placeholders in the contract.",
+      "failure_message": "No unresolved placeholders in the contract.",
+      "id": "IAM-3-GATE-0400",
+      "level": "P0",
+      "must": true,
+      "title": "No unresolved placeholders in the contract."
+    }
+  ],
+  "generated_at_utc": "2026-02-06T18:31:21Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.0",
+  "title": "IAM-3 Test Gates",
+  "version": "1.1.2"
+}

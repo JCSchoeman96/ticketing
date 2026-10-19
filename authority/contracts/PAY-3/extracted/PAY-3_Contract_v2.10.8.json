@@ -1,0 +1,2177 @@
+{
+  "anomaly_detection": {
+    "dispute_open_spike": {
+      "alert_event": "payment.dispute_open_spike.v1",
+      "emit_event_type": null,
+      "severity": "SEV2",
+      "threshold_shift_percent": 40,
+      "window": "15_minutes"
+    },
+    "reconciliation_backlog": {
+      "emit_event_type": null,
+      "unmatched_lines_sev1_after_days": 3,
+      "unmatched_lines_sev2_after_hours": 24,
+      "value_at_risk": {
+        "alert_event": "payment.reconciliation_value_at_risk.v1",
+        "metric": "pay3.recon_unmatched_amount_minor",
+        "required": true,
+        "severity": "SEV2",
+        "threshold_configuration_required": true,
+        "window": "4_hours"
+      }
+    },
+    "refund_rate_spike": {
+      "alert_event": "payment.refund_rate_spike_realtime.v1",
+      "baseline": "24_hour_rolling_average",
+      "emit_event_type": null,
+      "severity": "SEV2",
+      "threshold_multiplier": 3,
+      "window": "5_minutes"
+    }
+  },
+  "anti_patterns": [
+    {
+      "anti_pattern_id": "ATP-PAY-3-DOUBLE-KEY-DEDUPE",
+      "severity": "P1",
+      "text": "Implementations MUST NOT deduplicate provider events using only (provider, provider_event_id) in any multi-account integration. Dedupe keys MUST include provider_account_ref to prevent cross-account collisions."
+    }
+  ],
+  "artifact_kind": "contract",
+  "artifact_name": "PAY-3_Contract_v2.10.8.json",
+  "ash_3x_alignment": {
+    "actions": {
+      "notes": [
+        "All money-impacting transitions MUST occur in Ash actions inside DB transactions.",
+        "Side effects MUST occur after durable state is persisted (enqueue jobs/outbox), never before commit."
+      ],
+      "transactional": true
+    },
+    "authorizer": "Ash.Policy.Authorizer",
+    "concurrency": {
+      "atomic_arithmetic_predicates_required_for_refund_totals": true,
+      "notes": [
+        "Partial refund sum-of-parts validation MUST be enforced at the DB level via atomic updates with predicates."
+      ],
+      "optimistic_locking_allowed_but_not_sufficient_for_sum_of_parts": true,
+      "prevent_concurrent_writes_required": true
+    },
+    "domain_first_design_required": true,
+    "multitenancy": {
+      "hide_existence_cross_tenant": true,
+      "notes": [
+        "All resources in scope MUST require tenant context on actions/queries.",
+        "Cross-tenant reads MUST return ERR_NOT_FOUND (hide existence) per TEN-1."
+      ],
+      "strategy": "attribute",
+      "tenant_required": true
+    },
+    "policies_required": true
+  },
+  "change_log": [
+    {
+      "author": "assistant",
+      "date_utc": "2026-02-06T14:52:59Z",
+      "summary": "Phase 5: bump EVT-1 floor to 2.16.4; align REFUND-1 to v2-only baseline; align LED/ORD dependency floors; fix drift-theater gates; add stable dependency_floors map.",
+      "type": "semantics_hardening"
+    },
+    {
+      "changes": [
+        "BREAKING: JSON-only normative bundle (removed markdown artifacts).",
+        "Made tenant binding + hide-existence semantics explicit and enforceable.",
+        "Made parameter-consistent idempotency mandatory for refunds, disputes, and evidence submission.",
+        "Added immutable evidence pack sealing invariant with hash manifest requirement.",
+        "Aligned with Ash 3.x: actions as transactional boundary + multitenancy enforcement."
+      ],
+      "date": "2026-01-02",
+      "version": "2.0.0"
+    },
+    {
+      "changes": [
+        "Upgraded envelope to CS-0@2.2.0 (contract-suite/1.0) and BP-0 shape.",
+        "Added settlement reconciliation model (reports, normalized lines, mismatch queue) and telemetry/anomaly sections."
+      ],
+      "date": "2026-01-05",
+      "version": "2.6.0"
+    },
+    {
+      "changes": [
+        "Fixed reconciliation replay/double-counting by mandating global uniqueness for SettlementLine via (provider, provider_settlement_id) and defining ignored-duplicate handling that cannot trigger LED-1 re-posting.",
+        "Made evidence sealing asynchronous via OBQC-1 worker with EvidencePackStatus states SEALING/SEAL_FAILED; forbids synchronous hashing in HTTP request path.",
+        "Strengthened partial refund concurrency: sum-of-parts validation must use atomic arithmetic predicates.",
+        "Added dead-letter/audit sink for UnboundProviderEvent TTL expiry (PermanentlyUnboundProviderEvent) with investigation signal.",
+        "Added reconciliation value-at-risk monitoring via pay3.recon_unmatched_amount_minor gauge and SEV2 alert."
+      ],
+      "date": "2026-01-05",
+      "version": "2.7.0"
+    },
+    {
+      "changes": [
+        "DEPENDENCY ALIGNMENT: Upgraded TEN-1 min_version from 1.5.2 → 1.6.8 (canonical org_id tenant key + fail-closed RLS semantics).",
+        "DEPENDENCY ALIGNMENT: Upgraded LED-1 min_version from 2.1.5 → 2.3.4 (org_id/RLS alignment for finance postings boundaries).",
+        "DEPENDENCY ALIGNMENT: Upgraded PAY-1 min_version from 2.1.0 → 2.6.0.",
+        "DEPENDENCY ALIGNMENT: Upgraded PAY-2 min_version from 2.6.0 → 2.7.0 (org_id normalization).",
+        "DEPENDENCY ALIGNMENT: Upgraded ERR-1 min_version from 1.3.13 → 1.3.18.",
+        "BUNDLE SHAPE ALIGNMENT: Test gates no longer require markdown files; bundle contains only contract, test gates, and manifest artifacts."
+      ],
+      "date": "2026-01-06",
+      "version": "2.7.1"
+    },
+    {
+      "changes": [
+        "Define active_statuses and normative active_dispute_risk computation.",
+        "Add DisputeRiskOverride audit record and override enums; prohibit automated override creation.",
+        "Publish pay.dispute_risk_flag_changed for deterministic propagation.",
+        "Bump ERR-1 dependency to >= 1.4.3 and add rule mappings to ERR-1 subcodes."
+      ],
+      "date_utc": "2026-01-25T10:08:44.972901Z",
+      "summary": "Enterprise-safe dispute-risk model: explicit ACTIVE dispute definition + fail-closed cross-domain obligations + explicit admin override record.",
+      "type": "minor",
+      "version": "2.8.0"
+    },
+    "2.8.2: Align with ORD checkout_group + SD-009 single-currency; add deterministic multi-Order provider allocation model (ProviderAllocation + AllocationRule/Kind); update dependency floors (ORD/PRICE/REFUND/TAX, ERR@1.4.13, TEN@1.7.5, LED@4.1.1, OBS@2.7.11).",
+    {
+      "changes": [
+        "Add FeeSchedule, FeeScheduleRevision entities",
+        "Add FeeAssessment, FeeLine, FeeLineAllocation entities",
+        "Add ProviderLineAllocation entity and allocation invariants",
+        "Add fee payer/supply and non-refundable default invariants",
+        "Bump ERR-1 dependency floor to 1.4.15"
+      ],
+      "date_utc": "2026-01-27",
+      "summary": "Introduce FeeSchedule/FeeAssessment + SD-010 v2 allocation semantics for platform fee engine wiring (SD-011).",
+      "version": "2.9.0"
+    },
+    {
+      "changes": [
+        "Add RefundReasonCode values for late-capture auto-reversal (hold expired / grace expired).",
+        "Add GC-001 late capture remediation P0 rule with deterministic ERR subcode correlation.",
+        "Normalize bundle.manifest.json format and update test-gate required file lists.",
+        "Fix dependency_pins ERR-1 to 1.4.15."
+      ],
+      "date_utc": "2026-01-28",
+      "summary": "GC-001 late-capture reversal hardening + manifest normalization for strict CI.",
+      "version": "2.9.1"
+    },
+    {
+      "date_utc": "2026-02-03T07:02:20Z",
+      "summary": "Add provider_account_ref account scoping to provider-event dedupe and dispute identities to prevent cross-account ID collisions; align webhook unique_by and entity uniqueness constraints.",
+      "version": "2.10.0"
+    },
+    {
+      "by": "contract_regen",
+      "change": "GAP-2.1 hard-pins + PAY-3 fee-ledger handover invariant (runtime trio pinned by sha256; outbox+tombstone crash safety).",
+      "when_utc": "2026-02-08T13:39:34Z"
+    }
+  ],
+  "core_domain_contract": {
+    "required_identities": [
+      {
+        "identity": [
+          "org_id",
+          "idempotency_key"
+        ],
+        "resource": "Refund",
+        "why": "Parameter-consistent idempotency."
+      },
+      {
+        "identity": [
+          "org_id",
+          "provider",
+          "provider_case_id"
+        ],
+        "resource": "Dispute",
+        "why": "One dispute per provider case per org."
+      },
+      {
+        "identity": [
+          "provider",
+          "provider_event_id"
+        ],
+        "resource": "ProviderRefundEvent",
+        "why": "Webhook replay dedupe."
+      },
+      {
+        "identity": [
+          "provider",
+          "provider_event_id"
+        ],
+        "resource": "ProviderDisputeEvent",
+        "why": "Webhook replay dedupe."
+      },
+      {
+        "identity": [
+          "provider",
+          "provider_report_id"
+        ],
+        "resource": "SettlementReport",
+        "why": "Idempotent report ingestion."
+      },
+      {
+        "identity": [
+          "provider",
+          "provider_settlement_id"
+        ],
+        "resource": "SettlementLine",
+        "why": "Global settlement line uniqueness across pending/finalized reports."
+      },
+      {
+        "identity": [
+          "provider",
+          "provider_line_id"
+        ],
+        "resource": "SettlementLine",
+        "why": "Deduplicate repeated imports of the same report line item when line id is stable."
+      },
+      {
+        "identity": [
+          "provider",
+          "provider_settlement_id"
+        ],
+        "resource": "IgnoredDuplicateSettlementLine",
+        "why": "One audit record per globally duplicated settlement id."
+      },
+      {
+        "identity": [
+          "provider",
+          "provider_event_id"
+        ],
+        "resource": "UnboundProviderEvent",
+        "why": "Deduplicate unbound holding pen items."
+      },
+      {
+        "identity": [
+          "provider",
+          "provider_event_id"
+        ],
+        "resource": "PermanentlyUnboundProviderEvent",
+        "why": "Deduplicate permanent audit sink items."
+      },
+      {
+        "identity": [
+          "provider",
+          "period_start_utc",
+          "period_end_utc",
+          "run_mode"
+        ],
+        "resource": "ReconciliationBatch",
+        "why": "Idempotent batch identity for safe replays."
+      }
+    ],
+    "required_resources": [
+      {
+        "purpose": "Refund command and lifecycle; tenant-scoped; idempotent; atomic refund-total enforcement.",
+        "resource": "Refund"
+      },
+      {
+        "purpose": "Dispute/chargeback lifecycle; tenant-scoped; provider-truth authoritative; state machine.",
+        "resource": "Dispute"
+      },
+      {
+        "purpose": "Evidence artifacts; append-only pre-seal; async sealing; immutable after seal.",
+        "resource": "DisputeEvidencePack"
+      },
+      {
+        "purpose": "Verified provider refund events; durable dedupe; replay/backfill safe.",
+        "resource": "ProviderRefundEvent"
+      },
+      {
+        "purpose": "Verified provider dispute events; durable dedupe; replay/backfill safe.",
+        "resource": "ProviderDisputeEvent"
+      },
+      {
+        "purpose": "Verified but unbound provider events (ordering/lag); retry bind; dead-letter on TTL.",
+        "resource": "UnboundProviderEvent",
+        "tenant_scoped": false
+      },
+      {
+        "purpose": "Audit sink for TTL-expired unbound events; retained for investigation.",
+        "resource": "PermanentlyUnboundProviderEvent",
+        "tenant_scoped": false
+      },
+      {
+        "purpose": "Durable ingestion of provider settlement reports/backfills (raw pointer + checksum).",
+        "resource": "SettlementReport"
+      },
+      {
+        "purpose": "Normalized settlement line items; globally unique to prevent replay double-counting.",
+        "resource": "SettlementLine"
+      },
+      {
+        "purpose": "Audit log for duplicated settlement lines detected by global uniqueness rule.",
+        "resource": "IgnoredDuplicateSettlementLine"
+      },
+      {
+        "purpose": "Reconciliation run metadata; idempotent batch identity; replay-safe.",
+        "resource": "ReconciliationBatch"
+      },
+      {
+        "purpose": "Exception queue for unmatched/mismatched settlement lines with resolution workflow.",
+        "resource": "ReconciliationMismatch"
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Contract-suite schemas for contract/test-gates/manifest artifacts."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "registry_floor",
+      "min_version": "1.6.1",
+      "reason": "Canonical ERR-1 envelope and primary error codes for denials."
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Context/type-safety alignment with suite-head registry (Phase 5)."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "foundation_floor",
+      "min_version": "4.4.3",
+      "reason": "Ledger immutability + posting boundaries with org_id/RLS alignment (refund/dispute/reconciliation)."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "foundation_floor",
+      "min_version": "2.1.1",
+      "reason": "Concurrency/lock ordering and retryable conflict taxonomy."
+    },
+    {
+      "doc_id": "OBQC-1",
+      "edge_type": "governance_floor",
+      "min_version": "2.1.8",
+      "reason": "Background execution, queue budgets, and storm-safe async processing."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "governance_floor",
+      "min_version": "2.7.17",
+      "reason": "Incident/degraded modes and payout blockers for finance integrity. [NOTE] Raised to guarantee incident modes + payout blocker semantics required by PAY-3."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "paired_contract",
+      "min_version": "3.7.4",
+      "reason": "[NOTE] PAY-3 cross-Order allocations are defined against ORD checkout_group semantics."
+    },
+    {
+      "doc_id": "PAY-1",
+      "edge_type": "paired_contract",
+      "min_version": "2.10.2",
+      "reason": "PSP adapter boundary aligned to org_id semantics; provider evidence and webhook verification."
+    },
+    {
+      "doc_id": "PAY-2",
+      "edge_type": "paired_contract",
+      "min_version": "2.10.2",
+      "reason": "Provider routing + ProviderAccount mapping aligned to org_id tenant key (tenant binding + correlation)."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "paired_contract",
+      "min_version": "3.5.4",
+      "reason": "[NOTE] PAY-3 amounts MUST reconcile to PRICE snapshots/Order totals in minor units; no FX."
+    },
+    {
+      "doc_id": "REFUND-1",
+      "edge_type": "paired_contract",
+      "min_version": "1.6.3",
+      "reason": "[NOTE] Provider refunds/disputes MUST map to REFUND-1 intent posting and fee/tax posture."
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "governance_floor",
+      "min_version": "3.2.1",
+      "reason": "Ash 3.x resource patterns and boundary rules."
+    },
+    {
+      "doc_id": "SM-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.2.1",
+      "reason": "State machine discipline for dispute lifecycle transitions."
+    },
+    {
+      "doc_id": "TAX-1",
+      "edge_type": "paired_contract",
+      "min_version": "2.2.1",
+      "reason": "[NOTE] Tax context participates in reconciliation; PAY-3 MUST not drift on tax basis."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "foundation_floor",
+      "min_version": "1.7.12",
+      "reason": "Tenant isolation with canonical org_id key, fail-closed RLS posture, and hide-existence semantics."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.1",
+      "reason": "TG-0 v2.3.0 gate standard: denial tests + runtime verification primitives + harness interlock."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "integration_floor",
+      "min_version": "2.4.1",
+      "reason": "Context/type-safety: envelope/transport container authority for schema_ref normalization."
+    },
+    {
+      "doc_id": "API-0",
+      "edge_type": "integration_floor",
+      "min_version": "1.1.1",
+      "reason": "Public ingress + overload semantics MUST obey API-0."
+    },
+    {
+      "doc_id": "PSC-1",
+      "edge_type": "governance_floor",
+      "min_version": "1.8.2",
+      "reason": "Flash-sale runtime physics (bulkheads/timeouts/pagination) MUST obey PSC-1."
+    },
+    {
+      "doc_id": "PROD-1",
+      "edge_type": "governance_floor",
+      "min_version": "1.1.3",
+      "reason": "Production survival law (DR/PITR/break-glass/immutability) MUST obey PROD-1."
+    }
+  ],
+  "dependency_floors": {
+    "API-0": "1.1.1",
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.1",
+    "LED-1": "4.4.3",
+    "ORD-1": "3.7.9",
+    "PROD-1": "1.1.1",
+    "PSC-1": "1.8.2",
+    "REFUND-1": "1.6.4"
+  },
+  "dependency_pins": {
+    "API-0": {
+      "artifact": "API-0_Contract_v1.1.1.json",
+      "sha256": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991",
+      "version": "1.1.1"
+    },
+    "ERR-1": {
+      "min_version": "1.4.15",
+      "reason": "ERR-1 late-capture + checkout invariants required by GC-001; PAY-3 MUST emit deterministic subcodes without drift."
+    },
+    "EVT-1": {
+      "min_version": "2.16.4"
+    },
+    "EVT-2": {
+      "min_version": "2.4.0"
+    },
+    "LOCKS-1": {
+      "min_version": "2.1.0"
+    },
+    "OBQC-1": {
+      "min_version": "2.1.4"
+    },
+    "PAY-1": {
+      "min_version": "2.10.1"
+    },
+    "PROD-1": {
+      "artifact": "PROD-1_Contract_v1.1.3.json",
+      "sha256": "1b53890c44a5387244d6d2eac803180e77b716629bfc00d294d500e79a70194f",
+      "version": "1.1.3"
+    },
+    "PSC-1": {
+      "artifact": "PSC-1_Contract_v1.8.2.json",
+      "sha256": "d29f4e93d95677713d2b16d6e2e60a5916f5f3a99da1ff24e70b50303f10c9a1",
+      "version": "1.8.2"
+    },
+    "RP-0": {
+      "min_version": "3.2.0"
+    },
+    "SM-0": {
+      "min_version": "1.2.0"
+    }
+  },
+  "disputes": {
+    "active_dispute_risk_definition": {
+      "default_effect": "hard_block_for_automated_authorities",
+      "definition": "A dispute is ACTIVE if dispute_status is one of active_statuses AND closed_at_utc IS NULL. active_dispute_risk for a scoped object is TRUE if ANY ACTIVE dispute exists for that scope.",
+      "name": "ACTIVE_DISPUTE",
+      "scopes": [
+        {
+          "keys": [
+            "org_id",
+            "order_id"
+          ],
+          "scope": "order"
+        },
+        {
+          "keys": [
+            "org_id",
+            "verified_payment_attempt_id"
+          ],
+          "note": "If both order_id and verified_payment_attempt_id are present, implementations SHOULD key by verified_payment_attempt_id and index back to order_id.",
+          "scope": "verified_payment_attempt"
+        },
+        {
+          "keys": [
+            "org_id",
+            "provider_account_id"
+          ],
+          "note": "Used for PAY-4 payout blocking / rolling reserve behaviors.",
+          "scope": "provider_account"
+        }
+      ]
+    },
+    "active_statuses": [
+      "OPENED",
+      "NEEDS_RESPONSE",
+      "SUBMITTED",
+      "UNDER_REVIEW"
+    ],
+    "anti_patterns": [
+      "Mutable evidence after submission (audit integrity failure).",
+      "Treating provider dispute state as advisory rather than authoritative."
+    ],
+    "cross_domain_obligations": [
+      "ORD-1 / TKT-1 / REFUND-1 / PAY-4 / EVT-2 / SCAN-1 consumers MUST treat active_dispute_risk as a fail-closed risk flag. Automated authorities MUST NOT bypass this block.",
+      "Explicit admin override MAY bypass active_dispute_risk only via a recorded DisputeRiskOverride with sealed evidence and explicit approver identity. Overrides MUST be scoped, time-bounded, and auditable.",
+      "If a provider dispute/chargeback targets a checkout_group payment spanning multiple Orders, the platform MUST allocate dispute_amount_minor and provider fees across Orders using AllocationRule=PROPORTIONAL_ORDER_GROSS_V1 with immutable ProviderAllocation entries; MUST NOT apply FX."
+    ],
+    "evidence": {
+      "artifact_hash_manifest_required": true,
+      "sealed_pack_required": true,
+      "submission_is_idempotent": true
+    },
+    "ingestion": {
+      "durable_events": true,
+      "idempotent": true,
+      "provider_truth_is_authoritative": true,
+      "state_machine_required": true
+    }
+  },
+  "doc_id": "PAY-3",
+  "domain_invariants": {
+    "dispute_risk_fail_closed": {
+      "errors": {
+        "default_block_subcode": "GOV_ADMIN_OVERRIDE_BLOCKED_DISPUTE_ACTIVE",
+        "evidence_required_subcode": "GOV_DISPUTE_OVERRIDE_EVIDENCE_REQUIRED"
+      },
+      "must": "Active dispute risk MUST be treated as a fail-closed risk flag for all automated authorities; only explicit admin override records may bypass within bounded scope and time.",
+      "must_not": [
+        "Automated systems MUST NOT bypass dispute risk via implicit retries or silent fallbacks.",
+        "Dispute risk MUST NOT be inferred from free-form text; it MUST be derived from DisputeStatus + closed_at_utc per definition."
+      ]
+    },
+    "err1_primary_code_canonical": true
+  },
+  "emits_events": true,
+  "entities": {
+    "Dispute": {
+      "fields": {
+        "amount_minor": {
+          "min": 1,
+          "type": "integer"
+        },
+        "closed_at_utc": {
+          "format": "date-time",
+          "notes": "MUST be RFC3339 UTC with microseconds and trailing 'Z' (utc_datetime_usec).",
+          "nullable": true,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "created_at_utc": {
+          "format": "date-time",
+          "notes": "MUST be RFC3339 UTC with microseconds and trailing 'Z' (utc_datetime_usec).",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "currency": {
+          "pattern": "^[A-Z]{3}$",
+          "type": "string"
+        },
+        "dispute_id": {
+          "notes": "MUST be dsp_<uuid_v7>.",
+          "pattern": "^dsp_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "evidence_due_at_utc": {
+          "format": "date-time",
+          "notes": "MUST be RFC3339 UTC with microseconds and trailing 'Z' (utc_datetime_usec).",
+          "nullable": true,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "evidence_pack_id": {
+          "nullable": true,
+          "type": "string"
+        },
+        "opened_at_utc": {
+          "format": "date-time",
+          "notes": "MUST be RFC3339 UTC with microseconds and trailing 'Z' (utc_datetime_usec).",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "order_id": {
+          "notes": "MUST be UUIDv7 (refer to ORD-1 / PAY-2).",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "org_id": {
+          "notes": "MUST be UUIDv7 (lowercase hex).",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "payment_intent_id": {
+          "notes": "MUST be UUIDv7 (refer to ORD-1 / PAY-2).",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "provider": {
+          "enum": [
+            "stripe",
+            "paystack",
+            "peach_payments",
+            "payfast",
+            "yoco"
+          ],
+          "type": "string"
+        },
+        "provider_account_ref": {
+          "description": "Account-scoped provider identifier used to fence provider_case_id collisions across multiple provider accounts.",
+          "type": "string"
+        },
+        "provider_case_id": {
+          "type": "string"
+        },
+        "status": {
+          "enum": "DisputeStatus",
+          "type": "string"
+        },
+        "updated_at_utc": {
+          "format": "date-time",
+          "notes": "MUST be RFC3339 UTC with microseconds and trailing 'Z' (utc_datetime_usec).",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "verified_payment_attempt_id": {
+          "description": "Canonical verified payment attempt id from PAY-2/PAY-1 where available. Used for deterministic joins and risk propagation.",
+          "required": false,
+          "type": "uuid_v7"
+        }
+      },
+      "id_prefix": "dis_",
+      "required": [
+        "dispute_id",
+        "org_id",
+        "order_id",
+        "payment_intent_id",
+        "provider",
+        "provider_case_id",
+        "amount_minor",
+        "currency",
+        "status",
+        "opened_at_utc",
+        "created_at_utc",
+        "updated_at_utc",
+        "provider_account_ref"
+      ],
+      "uniqueness_constraints": [
+        {
+          "fields": [
+            "dispute_id"
+          ],
+          "name": "dispute_pk"
+        },
+        {
+          "fields": [
+            "org_id",
+            "provider",
+            "provider_case_id"
+          ],
+          "name": "dispute_provider_case_unique"
+        }
+      ]
+    },
+    "DisputeRiskOverride": {
+      "description": "Explicit, auditable admin override record used to bypass active_dispute_risk blocks in tightly scoped, time-bounded cases.",
+      "entity_kind": "event_sourced_audit_record",
+      "fields": {
+        "approved_at_utc": {
+          "required": true,
+          "type": "utc_datetime_usec"
+        },
+        "approved_by_actor_id": {
+          "required": true,
+          "type": "uuid_v7"
+        },
+        "dispute_id": {
+          "required": true,
+          "type": "uuid_v7"
+        },
+        "dispute_risk_override_id": {
+          "required": true,
+          "type": "uuid_v7"
+        },
+        "evidence_pack_id": {
+          "description": "Reference to sealed verification evidence (non-PII in band).",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        "expires_at_utc": {
+          "required": true,
+          "type": "utc_datetime_usec"
+        },
+        "notes": {
+          "max_bytes": 2048,
+          "required": false,
+          "type": "string"
+        },
+        "org_id": {
+          "required": true,
+          "type": "uuid_v7"
+        },
+        "override_effect": {
+          "enum": "DisputeRiskOverrideEffect",
+          "required": true,
+          "type": "enum"
+        },
+        "override_scope": {
+          "enum": "DisputeRiskOverrideScope",
+          "required": true,
+          "type": "enum"
+        },
+        "requested_by_actor_id": {
+          "required": true,
+          "type": "uuid_v7"
+        }
+      },
+      "id_prefix": "dro_",
+      "invariants": [
+        "Overrides MUST NOT be created by automated authorities; only explicit admin action paths may create them.",
+        "Overrides MUST be time-bounded and MUST NOT outlive the dispute lifecycle by default (expires_at_utc SHOULD be <= dispute expected_response_deadline_utc where available).",
+        "Overrides MUST be append-only audit records; they MUST NOT be silently deleted or overwritten."
+      ]
+    },
+    "EvidencePack": {
+      "fields": {
+        "artifact_count": {
+          "min": 0,
+          "type": "integer"
+        },
+        "created_at_utc": {
+          "format": "date-time",
+          "notes": "MUST be RFC3339 UTC with microseconds and trailing 'Z' (utc_datetime_usec).",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "evidence_pack_id": {
+          "notes": "MUST be epk_<uuid_v7>.",
+          "pattern": "^epk_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "org_id": {
+          "notes": "MUST be UUIDv7 (lowercase hex).",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "sealed_at_utc": {
+          "format": "date-time",
+          "notes": "MUST be RFC3339 UTC with microseconds and trailing 'Z' (utc_datetime_usec).",
+          "nullable": true,
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "status": {
+          "enum": "EvidencePackStatus",
+          "type": "string"
+        },
+        "updated_at_utc": {
+          "format": "date-time",
+          "notes": "MUST be RFC3339 UTC with microseconds and trailing 'Z' (utc_datetime_usec).",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        }
+      },
+      "id_prefix": "evi_",
+      "required": [
+        "evidence_pack_id",
+        "org_id",
+        "status",
+        "artifact_count",
+        "created_at_utc",
+        "updated_at_utc"
+      ],
+      "rules": [
+        {
+          "if": "status == 'SEALED'",
+          "then": "sealed_at_utc must be non-null and no further mutations allowed"
+        }
+      ]
+    },
+    "FeeAssessment": {
+      "description": "Deterministic fee quote/evaluation for an org-scoped Order; drives PricingSnapshot platform_fee lines and refund math.",
+      "fields": [
+        {
+          "name": "fee_assessment_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "order_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "checkout_group_id",
+          "required": false,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "org_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "currency",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "payer_mode",
+          "required": true,
+          "type": "fee_payer_mode"
+        },
+        {
+          "name": "supply_counterparty",
+          "notes": "Must equal payer_mode (SD-011: supply to payer).",
+          "required": true,
+          "type": "fee_payer_mode"
+        },
+        {
+          "name": "fee_schedule_revision_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "basis_ticket_excl_tax_minor",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "name": "fee_principal_minor",
+          "notes": "Fee excl tax.",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "name": "fee_tax_minor",
+          "notes": "Tax on fee (from TAX-1) when applicable.",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "name": "fee_total_minor",
+          "notes": "Fee incl tax (fee_principal_minor + fee_tax_minor).",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "name": "quote_digest_sha256",
+          "notes": "Digest binding inputs + outputs for replay protection.",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "computed_at_utc",
+          "required": true,
+          "type": "utc_datetime_usec"
+        }
+      ]
+    },
+    "FeeLine": {
+      "description": "Optional fee line breakdown (e.g., per-ticket percent, fixed-per-order, min adjustment).",
+      "fields": [
+        {
+          "name": "fee_line_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "fee_assessment_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "description",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "fee_type",
+          "required": true,
+          "type": "fee_type"
+        },
+        {
+          "name": "amount_minor",
+          "notes": "Fee excl tax for this line.",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "name": "tax_amount_minor",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "tax_rate",
+          "required": false,
+          "type": "decimal"
+        },
+        {
+          "name": "sort_key",
+          "required": false,
+          "type": "integer"
+        }
+      ]
+    },
+    "FeeLineAllocation": {
+      "description": "Line-level fee allocation for refunds/disputes (deterministic, auditable).",
+      "fields": [
+        {
+          "name": "fee_line_allocation_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "fee_assessment_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "price_line_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "basis_amount_minor",
+          "notes": "Basis used for allocation (ticket_price_excl_tax per line).",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "name": "fee_principal_minor",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "name": "fee_tax_minor",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "fee_total_minor",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "name": "rounding_method",
+          "notes": "largest_remainder + stable tie-break by price_line_id",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    "FeeSchedule": {
+      "description": "Org-scoped platform fee schedule (mutable container; revisions are immutable).",
+      "fields": [
+        {
+          "name": "fee_schedule_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "org_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "status",
+          "notes": "active|inactive",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "default_payer_mode",
+          "required": true,
+          "type": "fee_payer_mode"
+        },
+        {
+          "name": "currency",
+          "notes": "ISO 4217 currency code.",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "created_at_utc",
+          "required": true,
+          "type": "utc_datetime_usec"
+        },
+        {
+          "name": "updated_at_utc",
+          "required": true,
+          "type": "utc_datetime_usec"
+        }
+      ]
+    },
+    "FeeScheduleRevision": {
+      "description": "Immutable revision of a FeeSchedule used for deterministic quoting and audit.",
+      "fields": [
+        {
+          "name": "fee_schedule_revision_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "fee_schedule_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "effective_from_utc",
+          "required": true,
+          "type": "utc_datetime_usec"
+        },
+        {
+          "name": "effective_to_utc",
+          "required": false,
+          "type": "utc_datetime_usec"
+        },
+        {
+          "name": "fee_basis",
+          "required": true,
+          "type": "fee_basis"
+        },
+        {
+          "name": "pct_per_ticket",
+          "notes": "Percent on ticket_price_excl_tax per ticket line.",
+          "required": false,
+          "type": "decimal"
+        },
+        {
+          "name": "fixed_per_ticket_minor",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "pct_per_order",
+          "notes": "Percent on order ticket subtotal excl tax.",
+          "required": false,
+          "type": "decimal"
+        },
+        {
+          "name": "fixed_per_order_minor",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "min_fee_minor",
+          "required": false,
+          "type": "integer"
+        },
+        {
+          "name": "payer_mode_override",
+          "notes": "Optional override for payer_mode.",
+          "required": false,
+          "type": "fee_payer_mode"
+        },
+        {
+          "name": "is_fee_enabled",
+          "required": true,
+          "type": "boolean"
+        },
+        {
+          "name": "notes",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    "ProviderAllocation": {
+      "description": "Immutable per-Order allocation record for provider-level events (fee/refund/dispute) that span multiple Orders within a checkout_group.",
+      "fields": {
+        "allocated_amount_minor": "int64",
+        "allocation_kind": "AllocationKind",
+        "allocation_rule": "AllocationRule",
+        "checkout_group_id": "uuidv7|null",
+        "created_at_utc": "utc_datetime_usec",
+        "currency": "iso_4217",
+        "notes": "string|null",
+        "order_id": "uuidv7",
+        "org_id": "uuidv7",
+        "provider_allocation_id": "uuidv7",
+        "provider_event_receipt_id": "uuidv7"
+      },
+      "uniqueness": [
+        "UNIQUE(provider_event_receipt_id, order_id, allocation_kind)"
+      ]
+    },
+    "ProviderEventReceipt": {
+      "fields": {
+        "org_id": {
+          "notes": "MUST be UUIDv7 (lowercase hex).",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "payload_sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        "provider": {
+          "enum": [
+            "stripe",
+            "paystack",
+            "peach_payments",
+            "payfast",
+            "yoco"
+          ],
+          "type": "string"
+        },
+        "provider_account_ref": {
+          "description": "Account-scoped provider identifier derived from verified webhook signature configuration.",
+          "type": "string"
+        },
+        "provider_event_id": {
+          "type": "string"
+        },
+        "provider_event_receipt_id": {
+          "notes": "MUST be per_<uuid_v7>.",
+          "pattern": "^per_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "received_at_utc": {
+          "format": "date-time",
+          "notes": "MUST be RFC3339 UTC with microseconds and trailing 'Z' (utc_datetime_usec).",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        }
+      },
+      "id_prefix": "pev_",
+      "required": [
+        "provider_event_receipt_id",
+        "org_id",
+        "provider",
+        "provider_event_id",
+        "payload_sha256",
+        "received_at_utc",
+        "provider_account_ref"
+      ],
+      "uniqueness_constraints": [
+        {
+          "fields": [
+            "provider",
+            "provider_event_id"
+          ],
+          "name": "provider_event_unique",
+          "notes": "Global uniqueness. org_id MUST NOT be part of uniqueness for provider events."
+        }
+      ]
+    },
+    "ProviderLineAllocation": {
+      "description": "Line-level allocation of payment-provider fees (for dispute/refund attribution).",
+      "fields": [
+        {
+          "name": "provider_line_allocation_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "provider_allocation_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "price_line_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "basis_amount_minor",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "name": "amount_minor",
+          "required": true,
+          "type": "integer"
+        },
+        {
+          "name": "currency",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "rounding_method",
+          "required": false,
+          "type": "string"
+        }
+      ]
+    },
+    "Refund": {
+      "fields": {
+        "amount_minor": {
+          "min": 1,
+          "type": "integer"
+        },
+        "created_at_utc": {
+          "format": "date-time",
+          "notes": "MUST be RFC3339 UTC with microseconds and trailing 'Z' (utc_datetime_usec).",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        },
+        "currency": {
+          "pattern": "^[A-Z]{3}$",
+          "type": "string"
+        },
+        "idempotency_key": {
+          "type": "string"
+        },
+        "order_id": {
+          "notes": "MUST be UUIDv7 (refer to ORD-1 / PAY-2).",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "org_id": {
+          "notes": "MUST be UUIDv7 (lowercase hex).",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "payment_intent_id": {
+          "notes": "MUST be UUIDv7 (refer to ORD-1 / PAY-2).",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "provider": {
+          "enum": [
+            "stripe",
+            "paystack",
+            "peach_payments",
+            "payfast",
+            "yoco"
+          ],
+          "type": "string"
+        },
+        "provider_refund_id": {
+          "nullable": true,
+          "type": "string"
+        },
+        "reason_code": {
+          "enum": "RefundReasonCode",
+          "type": "string"
+        },
+        "refund_id": {
+          "notes": "MUST be ref_<uuid_v7>.",
+          "pattern": "^ref_[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "status": {
+          "enum": "RefundStatus",
+          "type": "string"
+        },
+        "updated_at_utc": {
+          "format": "date-time",
+          "notes": "MUST be RFC3339 UTC with microseconds and trailing 'Z' (utc_datetime_usec).",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{6}Z$",
+          "type": "string"
+        }
+      },
+      "id_prefix": "ref_",
+      "required": [
+        "refund_id",
+        "org_id",
+        "order_id",
+        "payment_intent_id",
+        "provider",
+        "amount_minor",
+        "currency",
+        "reason_code",
+        "status",
+        "idempotency_key",
+        "created_at_utc",
+        "updated_at_utc"
+      ],
+      "uniqueness_constraints": [
+        {
+          "fields": [
+            "refund_id"
+          ],
+          "name": "refund_pk"
+        },
+        {
+          "fields": [
+            "org_id",
+            "idempotency_key"
+          ],
+          "name": "refund_idempotency_unique"
+        }
+      ]
+    }
+  },
+  "enums": {
+    "AllocationKind": {
+      "DISPUTE_AMOUNT": "Allocation of a dispute/chargeback amount across Orders.",
+      "PROVIDER_FEE": "Allocation of provider fee(s) charged on capture/settlement.",
+      "REFUND_AMOUNT": "Allocation of a provider refund amount across Orders."
+    },
+    "AllocationRule": {
+      "PROPORTIONAL_ORDER_GROSS_V1": "Allocate by each Order's grand_total_minor proportion; remainder goes to lexicographically-smallest order_id after stable sort."
+    },
+    "DisputeRiskOverrideEffect": [
+      "allow_once",
+      "allow_until_expiry"
+    ],
+    "DisputeRiskOverrideScope": [
+      "refund_finalize",
+      "ticket_transfer",
+      "ticket_reissue",
+      "payout_execute",
+      "reentry_policy"
+    ],
+    "DisputeStatus": [
+      "OPENED",
+      "NEEDS_RESPONSE",
+      "SUBMITTED",
+      "UNDER_REVIEW",
+      "WON",
+      "LOST",
+      "CANCELED"
+    ],
+    "EvidencePackStatus": [
+      "DRAFT",
+      "SEALING",
+      "SEAL_FAILED",
+      "SEALED"
+    ],
+    "RefundReasonCode": [
+      "CUSTOMER_REQUEST",
+      "DUPLICATE",
+      "FRAUD",
+      "PRODUCT_UNACCEPTABLE",
+      "PRODUCT_NOT_RECEIVED",
+      "SUBSCRIPTION_CANCELED",
+      "LATE_CAPTURE_AFTER_HOLD_EXPIRED",
+      "LATE_CAPTURE_AFTER_GRACE_EXPIRED",
+      "OTHER"
+    ],
+    "RefundStatus": [
+      "REQUESTED",
+      "PENDING_PROVIDER",
+      "SUCCEEDED",
+      "FAILED",
+      "CANCELED"
+    ],
+    "fee_basis": [
+      "ticket_price_excl_tax"
+    ],
+    "fee_mode": [
+      "on",
+      "off"
+    ],
+    "fee_payer_mode": [
+      "buyer",
+      "org"
+    ],
+    "fee_type": [
+      "pct",
+      "fixed",
+      "min"
+    ]
+  },
+  "events": {
+    "published_events": [
+      {
+        "event_name": "pay.dispute_risk_flag_changed",
+        "idempotency": "per_dispute_status_transition",
+        "ordering": "after Dispute status transition is committed; before any payout/refund execution that depends on the flag.",
+        "payload": {
+          "active": "boolean",
+          "checkout_group_id": "uuidv7|null",
+          "dispute_id": "uuid_v7",
+          "dispute_status": "enum DisputeStatus",
+          "effective_at_utc": "utc_datetime_usec",
+          "order_id": "uuid_v7 (optional)",
+          "org_id": "uuid_v7",
+          "provider_account_id": "uuid_v7 (optional)",
+          "risk_flag": "enum: active_dispute",
+          "verified_payment_attempt_id": "uuid_v7 (optional)"
+        }
+      }
+    ]
+  },
+  "evidence_sealing": {
+    "enqueue": {
+      "job_kind": "pay3_evidence_seal",
+      "max_attempts": 10,
+      "queue_contract": "OBQC-1",
+      "queue_name": "finance"
+    },
+    "forbid_sync_hashing_in_http_request": true,
+    "limits": {
+      "max_artifacts": 50,
+      "max_total_bytes": 250000000,
+      "per_artifact_max_bytes": 50000000
+    },
+    "mode": "async",
+    "states": [
+      "DRAFT",
+      "SEALING",
+      "SEALED",
+      "SEAL_FAILED"
+    ]
+  },
+  "gc_001": {
+    "late_capture_reversal": {
+      "fee_posture": "provider_fee_refund_attempted_if_supported; platform_fee_refunded (no customer fault)",
+      "preferred_reversal_order": "void_then_refund",
+      "refund_reason_codes": [
+        "LATE_CAPTURE_AFTER_HOLD_EXPIRED",
+        "LATE_CAPTURE_AFTER_GRACE_EXPIRED"
+      ]
+    }
+  },
+  "generated_at_utc": "2026-02-08T13:39:34Z",
+  "invariants": {
+    "err1_primary_code_canonical": true,
+    "evidence": {
+      "evidence_artifacts_append_only": true,
+      "evidence_hash_manifest_required": true,
+      "evidence_pack_immutable_after_seal": true
+    },
+    "fee_ledger_handover": {
+      "crash_safe": true,
+      "idempotent": true,
+      "must": "Redis hot-path state MUST NOT be cleared prior to durable Postgres write-through truth for any ledger-affecting fee/payment outcome.",
+      "pattern": "postgres_outbox_plus_redis_tombstone",
+      "required": true
+    },
+    "idempotency": {
+      "dedupe_provider_events": true,
+      "dedupe_window_min_days": 30,
+      "parameter_consistent": true,
+      "required": true
+    },
+    "money": {
+      "allocation_rule_required": "When a provider event impacts multiple Orders, PAY-3 MUST allocate minor-unit amounts deterministically per Order using AllocationRule=PROPORTIONAL_ORDER_GROSS_V1 and persist immutable ProviderAllocation records.",
+      "chargeback_platform_loss_default": "Chargebacks are treated as platform loss by default (unless a separate, explicitly-locked organizer chargeback penalty is configured).",
+      "checkout_group_single_currency": "A single provider payment attempt/capture/refund/dispute MUST NOT span Orders of different currencies. If encountered, system MUST fail-closed with ERR_VALIDATION / ORD_CHECKOUT_GROUP_CURRENCY_MISMATCH. FX is out of scope.",
+      "currency_must_match_original": true,
+      "fee_allocation_rounding": "Allocation rounding MUST be deterministic (largest remainder; stable tie-break by price_line_id ascending).",
+      "fee_allocation_two_tier": "Fee allocation MUST be line-level for refunds/disputes, and order-level for settlement/payout; sums MUST reconcile deterministically.",
+      "gateway_fees_platform_borne": "Payment provider (gateway) fees are platform-borne and MUST NOT reduce org payout except via explicit chargeback/penalty policy.",
+      "partial_refunds_allowed": true,
+      "platform_fee_basis_ticket_excl_tax": "Percent platform fees MUST be computed on ticket_price_excl_tax (not on ticket VAT).",
+      "platform_fee_non_refundable_default": "Platform fees are non-refundable by default; refunding fees requires explicit override reason + ledger postings.",
+      "platform_fee_supply_to_payer": "Platform fee supply counterparty MUST equal payer_mode (supply to payer).",
+      "refund_never_exceeds_captured_or_settled": true
+    },
+    "pci_scope": {
+      "no_pan_no_cvv": true,
+      "no_sensitive_auth_data": true
+    },
+    "tenancy": {
+      "cross_tenant_hidden": true,
+      "forbid_untrusted_tenant_binding": true,
+      "tenant_binding_for_provider_events": true,
+      "tenant_required": true
+    }
+  },
+  "last_updated_utc": "2026-02-08T13:39:34Z",
+  "ledger_hooks": [
+    {
+      "name": "LED.post_refund",
+      "required_on": "Refund.status=SUCCEEDED"
+    },
+    {
+      "name": "LED.post_dispute_open",
+      "required_on": "Dispute.status=OPENED"
+    },
+    {
+      "name": "LED.post_dispute_resolution",
+      "required_on": "Dispute.status in [WON,LOST]"
+    }
+  ],
+  "normative_source": "json",
+  "outbox_events": [
+    {
+      "deprecated": false,
+      "event_name": "ticketing.payment.dispute_open_spike.v1",
+      "notes": "Phase-5 normalized producer outbox: parity with EVT-1 required_data_keys (ordered).",
+      "required_keys": [
+        "alert_id",
+        "alert_type",
+        "severity",
+        "detected_at_utc",
+        "window",
+        "measure",
+        "threshold",
+        "value",
+        "context"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "deprecated": false,
+      "event_name": "ticketing.payment.chargeback_rate_exceeded.v1",
+      "notes": "Phase-5 normalized producer outbox: parity with EVT-1 required_data_keys (ordered).",
+      "required_keys": [
+        "alert_id",
+        "alert_type",
+        "severity",
+        "detected_at_utc",
+        "window",
+        "measure",
+        "threshold",
+        "value",
+        "context"
+      ],
+      "schema_ref": "EVT-2"
+    },
+    {
+      "deprecated": false,
+      "event_name": "ticketing.payment.evidence_submission_failed.v1",
+      "notes": "Phase-5 normalized producer outbox: parity with EVT-1 required_data_keys (ordered).",
+      "required_keys": [
+        "alert_id",
+        "alert_type",
+        "severity",
+        "detected_at_utc",
+        "window",
+        "measure",
+        "threshold",
+        "value",
+        "context"
+      ],
+      "schema_ref": "EVT-2"
+    }
+  ],
+  "provider_registry": [
+    {
+      "capabilities": {
+        "3ds2_supported": true,
+        "partial_refunds": true,
+        "settlement_reports": true,
+        "signed_webhooks": true,
+        "webhook_signature": {
+          "algorithm": "hmac-sha256",
+          "header": "Stripe-Signature",
+          "timestamped": true
+        }
+      },
+      "display_name": "Stripe",
+      "methods": [
+        "card",
+        "bank_transfer",
+        "wallet"
+      ],
+      "provider_id": "stripe",
+      "regions": [
+        "global"
+      ]
+    },
+    {
+      "capabilities": {
+        "3ds2_supported": true,
+        "partial_refunds": true,
+        "settlement_reports": true,
+        "signed_webhooks": true,
+        "webhook_signature": {
+          "algorithm": "hmac-sha512",
+          "body": "raw",
+          "header": "x-paystack-signature"
+        }
+      },
+      "display_name": "Paystack",
+      "methods": [
+        "card",
+        "bank_transfer",
+        "mobile_money"
+      ],
+      "provider_id": "paystack",
+      "regions": [
+        "africa"
+      ]
+    },
+    {
+      "capabilities": {
+        "3ds2_supported": "provider_defined",
+        "partial_refunds": "provider_defined",
+        "settlement_reports": "provider_defined",
+        "signed_webhooks": true,
+        "webhook_signature": {
+          "algorithm": "md5",
+          "digest": "hex_lowercase",
+          "param_encoding": "urlencode_uppercase",
+          "param_order": "alphabetical_asc_by_field_name",
+          "signature_field": "signature",
+          "spaces_as": "+",
+          "string_to_sign": "k1=v1&k2=v2&... (exclude signature). If passphrase configured, append &passphrase=<passphrase>.",
+          "transport": "form_post"
+        }
+      },
+      "display_name": "PayFast",
+      "methods": [
+        "card",
+        "eft",
+        "instant_eft"
+      ],
+      "provider_id": "payfast",
+      "regions": [
+        "ZA"
+      ]
+    },
+    {
+      "capabilities": {
+        "3ds2_supported": true,
+        "partial_refunds": true,
+        "settlement_reports": true,
+        "signed_webhooks": true,
+        "webhook_signature": {
+          "algorithm": "hmac-sha256",
+          "digest": "hex_lowercase",
+          "headers": {
+            "algorithm": "x-webhook-signature-algorithm",
+            "signature": "x-webhook-signature",
+            "timestamp": "x-webhook-timestamp"
+          },
+          "signed_content": "{x-webhook-timestamp}.{request_url}.{raw_body}",
+          "timestamp_tolerance_sec": 300
+        }
+      },
+      "display_name": "Peach Payments",
+      "methods": [
+        "card",
+        "wallet",
+        "bank_transfer"
+      ],
+      "provider_id": "peach_payments",
+      "regions": [
+        "ZA",
+        "africa",
+        "EU"
+      ]
+    },
+    {
+      "capabilities": {
+        "3ds2_supported": "provider_defined",
+        "partial_refunds": "provider_defined",
+        "settlement_reports": "provider_defined",
+        "signed_webhooks": true,
+        "webhook_signature": {
+          "algorithm": "hmac-sha256",
+          "headers": {
+            "id": "webhook-id",
+            "signature": "webhook-signature",
+            "timestamp": "webhook-timestamp"
+          },
+          "secret_decode": "base64_decode(part_after_prefix_whsec_)",
+          "secret_format": "whsec_{base64}",
+          "signature_format": "v1,{base64_hmac_sha256(secret, signed_content)}",
+          "signed_content": "{webhook-id}.{webhook-timestamp}.{raw_body}"
+        }
+      },
+      "display_name": "Yoco",
+      "methods": [
+        "card"
+      ],
+      "provider_id": "yoco",
+      "regions": [
+        "ZA"
+      ]
+    }
+  ],
+  "reconciliation": {
+    "aging_and_escalation": {
+      "unmatched_lines_sev1_after_days": 3,
+      "unmatched_lines_sev2_after_hours": 24
+    },
+    "global_line_uniqueness": {
+      "duplicate_handling": {
+        "ignored_resource": "IgnoredDuplicateSettlementLine",
+        "mode": "persist_ignored_duplicates"
+      },
+      "ledger_posting_guard": "A SettlementLine MUST NOT cause more than one LED-1 posting ever.",
+      "required": true,
+      "unique_identity": [
+        "provider",
+        "provider_settlement_id"
+      ]
+    },
+    "idempotent_backfills": {
+      "batch_identity": [
+        "provider",
+        "period_start_utc",
+        "period_end_utc",
+        "run_mode"
+      ],
+      "report_identity": [
+        "provider",
+        "provider_report_id"
+      ],
+      "required": true
+    },
+    "layers": {
+      "internal_to_ledger": {
+        "required": true,
+        "scope": "Refund/Dispute transitions MUST correspond to LED-1 postings; missing postings block close-out."
+      },
+      "internal_to_provider": {
+        "required": true,
+        "scope": "Internal money state MUST be matched to provider settlement reports and provider truth."
+      }
+    },
+    "matching": {
+      "primary_keys": [
+        "provider",
+        "provider_settlement_id",
+        "amount_minor",
+        "currency"
+      ],
+      "secondary_keys": [
+        "org_id",
+        "payment_intent_id",
+        "amount_minor",
+        "currency"
+      ],
+      "supported_shapes": [
+        "one_to_one",
+        "one_to_many",
+        "many_to_one"
+      ],
+      "tolerance": {
+        "allowed_only_for": [
+          "fx_rounding",
+          "provider_fee_rounding"
+        ],
+        "minor_unit_tolerance": 1
+      }
+    }
+  },
+  "references": [
+    {
+      "title": "Ash: Prevent concurrent writes",
+      "url": "https://hexdocs.pm/ash/prevent-concurrent-writes.html"
+    },
+    {
+      "title": "Ash: Update actions",
+      "url": "https://hexdocs.pm/ash/update-actions.html"
+    },
+    {
+      "title": "Hookdeck: Fetch-before-process webhooks pattern",
+      "url": "https://hookdeck.com/webhooks/guides/webhooks-fetch-before-process-pattern"
+    }
+  ],
+  "refunds": {
+    "anti_patterns": [
+      "Allowing client to specify refund amount without validating against authoritative totals.",
+      "Synchronous refund execution without idempotency key support."
+    ],
+    "concurrency_control": {
+      "assertion": "UPDATE fieldN SET total_refunded = total_refunded + amount WHERE total_refunded + amount <= total_captured AND currency matches.",
+      "forbid": [
+        "read_modify_write_sum_of_parts"
+      ],
+      "pattern": "atomic_arithmetic_predicate",
+      "required": true
+    },
+    "idempotency_required": true,
+    "parameter_consistent_idempotency": true,
+    "rules": [
+      "Refund amount + currency must be validated against server-side truth (captured/settled totals).",
+      "Refunds must be safe under concurrency; use locking/optimistic concurrency per LOCKS-1 when updating totals.",
+      "Refund creation must emit EVT-1 events after commit.",
+      "If a provider refund is issued against a checkout_group payment that covers multiple Orders, the platform MUST allocate refund_amount_minor to affected Orders using AllocationRule=PROPORTIONAL_ORDER_GROSS_V1 and record ProviderAllocation entries before posting to LED-1/REFUND-1 intents.",
+      "GC-001: late-capture reversal MUST use Refund.reason_code in {LATE_CAPTURE_AFTER_HOLD_EXPIRED, LATE_CAPTURE_AFTER_GRACE_EXPIRED}; fee posture: platform_fee MUST be refunded; provider fees MUST be refunded/voided when provider capabilities allow; reversal MUST be idempotent per refund idempotency rules."
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "PAY-3-ID-001",
+      "severity": "P0",
+      "text": "Platform-issued identifiers MUST be UUIDv7-based. PAY-3-issued IDs MUST use an explicit prefix registry: refund_id=ref_<uuid_v7>, dispute_id=dsp_<uuid_v7>, evidence_pack_id=epk_<uuid_v7>, provider_event_receipt_id=per_<uuid_v7>. IDs that reference other domain contracts (order_id, payment_intent_id) MUST be bare UUIDv7 (see ORD-1 / PAY-2). Provider-originated identifiers (provider_event_id, provider_refund_id, provider_case_id) MUST NOT be constrained to UUID formats."
+    },
+    {
+      "rule_id": "PAY-3-LED-001",
+      "severity": "P0",
+      "text": "Ledger hooks: ticketing.ledger.post_refund.v1, ticketing.ledger.post_dispute_open.v1"
+    },
+    {
+      "applies_to": [
+        "Refund",
+        "Dispute",
+        "ProviderRefundEvent",
+        "ProviderDisputeEvent"
+      ],
+      "category": "pci",
+      "rationale": "Avoid expanding PCI scope and catastrophic data exposure.",
+      "rule_id": "PAY-3-P0-001",
+      "severity": "P0",
+      "text": "No PAN/CVV/sensitive authentication data may be stored. Token-only, hosted payment methods preferred."
+    },
+    {
+      "applies_to": [
+        "Refund",
+        "Dispute",
+        "DisputeEvidencePack",
+        "ReconciliationMismatch"
+      ],
+      "category": "tenancy",
+      "rationale": "Prevents cross-tenant money movement and enumeration.",
+      "rule_id": "PAY-3-P0-002",
+      "severity": "P0",
+      "text": "All refund/dispute actions and reads MUST be tenant-scoped. Missing tenant context => ERR_FORBIDDEN; cross-tenant reads => ERR_NOT_FOUND (hide existence)."
+    },
+    {
+      "applies_to": [
+        "Refund",
+        "ProviderRefundEvent",
+        "ProviderDisputeEvent",
+        "DisputeEvidencePack"
+      ],
+      "category": "idempotency",
+      "rationale": "Retries and duplicated webhooks are normal; dedupe must be durable.",
+      "rule_id": "PAY-3-P0-003",
+      "severity": "P0",
+      "text": "Refund actions, dispute ingestion, and evidence submission MUST be idempotent and parameter-consistent. Provider events MUST be durably deduped by provider_event_id."
+    },
+    {
+      "applies_to": [
+        "Refund"
+      ],
+      "category": "money",
+      "rationale": "Prevents irreversible financial loss from concurrent partial refunds.",
+      "rule_id": "PAY-3-P0-004",
+      "severity": "P0",
+      "text": "Refund totals MUST never exceed captured/settled totals and MUST match the original currency. Sum-of-parts validation MUST use atomic arithmetic predicates (no read-then-write)."
+    },
+    {
+      "applies_to": [
+        "DisputeEvidencePack"
+      ],
+      "category": "evidence",
+      "rationale": "Evidence integrity is required for disputes and audits.",
+      "rule_id": "PAY-3-P0-005",
+      "severity": "P0",
+      "text": "Evidence packs MUST be immutable after sealing. Artifact set is append-only pre-seal; seal produces a hash manifest and disallows mutation."
+    },
+    {
+      "applies_to": [
+        "Dispute",
+        "ProviderDisputeEvent"
+      ],
+      "category": "disputes",
+      "rationale": "Provider is source of truth; local contradictions cause wrong financial postings.",
+      "rule_id": "PAY-3-P0-006",
+      "severity": "P0",
+      "text": "Dispute state transitions MUST be provider-truth authoritative; out-of-order provider events MUST NOT regress terminal states."
+    },
+    {
+      "applies_to": [
+        "SettlementLine",
+        "IgnoredDuplicateSettlementLine",
+        "ReconciliationBatch",
+        "LED-1"
+      ],
+      "category": "reconciliation",
+      "rationale": "Providers can include the same settlement item in multiple reports (pending/finalized); global dedupe prevents double-counting and double-posting.",
+      "rule_id": "PAY-3-P0-007",
+      "severity": "P0",
+      "text": "Settlement lines MUST be globally unique by (provider, provider_settlement_id). Duplicates across reports/batches MUST NOT trigger LED-1 posting and MUST be recorded as ignored duplicates (or rejected)."
+    },
+    {
+      "applies_to": [
+        "DisputeEvidencePack",
+        "OBQC-1"
+      ],
+      "category": "ops",
+      "rationale": "Prevents denial-of-service from heavy CPU/IO in request path.",
+      "rule_id": "PAY-3-P0-008",
+      "severity": "P0",
+      "text": "Evidence hashing/manifest generation MUST be performed asynchronously via OBQC-1. HTTP request handlers MUST NOT synchronously hash evidence artifacts."
+    },
+    {
+      "priority": "P0",
+      "rule_id": "PAY-3-P0-009",
+      "text": "Single-currency checkout groups: a single provider payment attempt/capture/refund/dispute MUST NOT be applied across Orders with different currency. If detected, MUST fail-closed with ERR_VALIDATION / ORD_CHECKOUT_GROUP_CURRENCY_MISMATCH; MUST NOT attempt FX."
+    },
+    {
+      "priority": "P0",
+      "rule_id": "PAY-3-P0-010",
+      "text": "Deterministic allocation: if a provider-level amount (fee/refund/dispute) references multiple Orders, the platform MUST allocate minor-unit amounts using AllocationRule=PROPORTIONAL_ORDER_GROSS_V1 and persist immutable ProviderAllocation rows. Allocation MUST be reproducible; rounding remainder MUST be assigned deterministically (stable sort by order_id, remainder to first)."
+    },
+    {
+      "priority": "P0",
+      "rule_id": "PAY-3-P0-011",
+      "text": "Ledger fan-out: PAY-driven ledger postings MUST be posted per Order/org (never as a single checkout_group posting). PAY-3 MUST invoke LED-1 posting intents/templates per Order allocation to preserve COA boundaries and multi-tenancy."
+    },
+    {
+      "rule_id": "PAY-3-P0-012",
+      "severity": "P0",
+      "text": "GC-001 late capture remediation: if a provider confirms capture/settlement for a payment_attempt after the associated SeatHold has expired (or after any bounded payment-grace window), the system MUST NOT issue admission rights or allocate inventory. It MUST enqueue an automatic reversal (void if possible; otherwise refund) using RefundReasonCode LATE_CAPTURE_AFTER_HOLD_EXPIRED or LATE_CAPTURE_AFTER_GRACE_EXPIRED, and MUST emit ERR_VALIDATION / PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED (ERR-1) for correlation."
+    },
+    {
+      "applies_to": [
+        "OBS-1",
+        "reconciliation",
+        "webhooks"
+      ],
+      "category": "ops",
+      "rationale": "System must degrade safely without losing events or leaking money.",
+      "rule_id": "PAY-3-P1-001",
+      "severity": "P1",
+      "text": "Refund/dispute storms and webhook burst traffic MUST degrade safely using OBS-1 observed flags. When OBS-1 observed flag PAYOUT_FREEZE=true, payout/settlement release operations in the payments domain MUST be blocked with ERR_UNAVAILABLE and subcode OBS_DEGRADED_MODE_BLOCKED (ERR-1), while webhook ingestion and ProviderEventReceipt persistence MUST remain enabled. When OBS-1 observed flag HOT_SALE_MODE=true, webhook ingestion MAY apply backpressure/rate limits, but MUST NOT drop events; events MUST either be accepted and queued or rejected deterministically with ERR_UNAVAILABLE (OBS_DEGRADED_MODE_BLOCKED) and MUST be retryable. Queue backlog, receipt processing lag, and dedupe rejection rate MUST be emitted as telemetry and MUST alert within 24 hours; if sustained beyond 72 hours, the incident MUST be escalated per GOV-0."
+    },
+    {
+      "applies_to": [
+        "telemetry"
+      ],
+      "category": "observability",
+      "rationale": "Makes money flows debuggable without increasing risk.",
+      "rule_id": "PAY-3-P1-002",
+      "severity": "P1",
+      "text": "Refund/dispute/reconciliation actions MUST emit Ash.Tracer spans and bounded metrics; labels MUST NOT include PII or secrets."
+    },
+    {
+      "applies_to": [
+        "anomaly_detection"
+      ],
+      "category": "anomaly",
+      "rationale": "Prevents silent margin/liquidity loss and operational overwhelm.",
+      "rule_id": "PAY-3-P1-003",
+      "severity": "P1",
+      "text": "System MUST detect refund-rate spikes, dispute-open spikes, and reconciliation value-at-risk; alerts MUST be SEV2."
+    },
+    {
+      "applies_to": [
+        "UnboundProviderEvent",
+        "PermanentlyUnboundProviderEvent"
+      ],
+      "category": "webhooks",
+      "rationale": "Preserves forensic evidence for phantom/misrouted webhooks.",
+      "rule_id": "PAY-3-P1-004",
+      "severity": "P1",
+      "text": "Verified but unbound provider events MUST NOT be silently deleted on TTL expiry; they MUST be moved to a permanent audit sink and emit an investigation signal."
+    },
+    {
+      "rule_id": "PAY-3-PROV-001",
+      "severity": "P0",
+      "text": "Provider enum values MUST match provider_registry.provider_id exactly"
+    },
+    {
+      "rule_id": "PAY-3-RES-001",
+      "severity": "P0",
+      "text": "Canonical resources: DisputeEvidencePack, ProviderRefundEvent, ProviderDisputeEvent"
+    },
+    {
+      "rule_id": "PAY-3-TEN-001",
+      "severity": "P0",
+      "text": "Cross-tenant reads return ERR_NOT_FOUND per TEN-1"
+    },
+    {
+      "rule_id": "PAY-3-TIME-001",
+      "severity": "P0",
+      "text": "All *_at_utc fields MUST be utc_datetime_usec (RFC3339 UTC microseconds Z)"
+    },
+    {
+      "rule_id": "PAY-3-WH-001",
+      "severity": "P0",
+      "text": "ProviderEventReceipt uniqueness: (org_id, provider, provider_event_id)"
+    },
+    {
+      "rule_id": "PAY-3-WH-SIG-001",
+      "severity": "P0",
+      "text": "Webhook signature comparison MUST use constant-time compare on canonical body bytes"
+    },
+    {
+      "errors": [
+        {
+          "reason_subcode": "REFUND_DISPUTE_ACTIVE",
+          "top_level": "ERR_CONFLICT"
+        },
+        {
+          "reason_subcode": "TKT_TRANSFER_BLOCKED_DISPUTE_ACTIVE",
+          "top_level": "ERR_CONFLICT"
+        },
+        {
+          "reason_subcode": "TKT_REISSUE_BLOCKED_DISPUTE_ACTIVE",
+          "top_level": "ERR_CONFLICT"
+        },
+        {
+          "reason_subcode": "PAY_PAYOUT_BLOCKED_DISPUTE_ACTIVE",
+          "top_level": "ERR_CONFLICT"
+        }
+      ],
+      "priority": "P0",
+      "rationale": "Prevents fraud/chargeback arbitrage and ensures consistent enterprise-safe posture across offline/online flows.",
+      "rule_id": "PAY3_P0_ACTIVE_DISPUTE_RISK_FAIL_CLOSED",
+      "text": "If any ACTIVE dispute exists for an order/payment attempt, systems SHALL treat it as a risk flag and MUST fail-closed for refunds, transfers, reissues, and payout execution unless a valid explicit admin DisputeRiskOverride exists for that specific scope."
+    },
+    {
+      "errors": [
+        {
+          "reason_subcode": "GOV_ADMIN_OVERRIDE_BLOCKED_DISPUTE_ACTIVE",
+          "top_level": "ERR_CONFLICT"
+        },
+        {
+          "reason_subcode": "GOV_DISPUTE_OVERRIDE_EVIDENCE_REQUIRED",
+          "top_level": "ERR_PRECONDITION"
+        }
+      ],
+      "priority": "P0",
+      "rationale": "Maintains auditability and prevents automation from weakening risk posture.",
+      "rule_id": "PAY3_P0_ADMIN_OVERRIDE_EXPLICIT_ONLY",
+      "text": "Dispute risk overrides MUST be explicit admin actions with sealed evidence, approver identity, and expiry; automated authorities MUST NOT create overrides."
+    },
+    {
+      "rule_id": "SD-011-FEE-SCHEDULE-001",
+      "severity": "MUST",
+      "text": "Fee evaluation MUST resolve an applicable FeeScheduleRevision (org default, with optional event override) or raise PAY_FEE_SCHEDULE_NOT_FOUND."
+    },
+    {
+      "rule_id": "SD-011-FEE-BASIS-001",
+      "severity": "MUST",
+      "text": "Percent fees MUST use ticket_price_excl_tax basis; implementations MUST NOT compute fees on the VAT portion of ticket price."
+    },
+    {
+      "rule_id": "SD-011-FEE-PAYER-001",
+      "severity": "MUST",
+      "text": "Fee payer_mode MUST be one of {buyer, org}. Supply counterparty MUST equal payer_mode."
+    },
+    {
+      "rule_id": "SD-010-ALLOCATION-V2-001",
+      "severity": "MUST",
+      "text": "Provider fee allocation MUST record basis_amount_minor and support deterministic line-level allocations for refunds/disputes."
+    },
+    {
+      "rule_id": "SD-010-ALLOCATION-V2-002",
+      "severity": "MUST",
+      "text": "Allocation sums MUST reconcile exactly after deterministic rounding; otherwise raise PAY_FEE_ALLOCATION_SUM_MISMATCH."
+    },
+    {
+      "rule_id": "PAY-3-INVARIANT-REDIS-POSTGRES-ATOMICITY-FEE_LEDGER",
+      "severity": "P0",
+      "text": "Fee/Ledger atomicity: When PAY-3 transitions a payment/fee outcome that results in ledger writes, the Redis hot-path state (e.g., payment intent dedupe keys, provider-event receipt caches, temporary auth locks) MUST NOT be cleared unless and until the corresponding Postgres write-through truth (LED-1 hook/outbox record) is durable. If true cross-store atomic commit is unavailable, PAY-3 MUST implement a crash-safe handover using a Postgres outbox as the source of truth and a Redis tombstone pattern (idempotent) to prevent double-entry on retry and to prevent phantom 'in-flight' states after crash."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "scope": {
+    "in_scope": [
+      "Refund lifecycle (full/partial) with provider execution",
+      "Dispute/chargeback ingestion and lifecycle state tracking",
+      "Evidence pack creation/sealing and immutable audit",
+      "Provider webhook signature verification + replay safety",
+      "CI-enforced tenant isolation + idempotency tests"
+    ],
+    "out_of_scope": [
+      "Payment initiation/capture (PAY-1/PAY-2)",
+      "Ledger posting rules (LED-1)"
+    ]
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines tenant-safe refunds and dispute lifecycles, verified webhook ingestion, immutable evidence handling with async sealing, and a multi-provider reconciliation loop that prevents settlement replay double-counting and blocks ledger double-posting, with Ash 3.x concurrency rules and CI-enforced denial tests.",
+  "telemetry": {
+    "logs": {
+      "forbid_secrets_and_pii": true,
+      "include_trace_ids": true,
+      "structured": true
+    },
+    "metrics": {
+      "bounded_labels": true,
+      "counters": [
+        "pay3.refunds_total{provider, status, reason_code}",
+        "pay3.disputes_total{provider, status}",
+        "pay3.webhooks_ingested_total{provider, result}",
+        "pay3.recon_batches_total{provider, status}",
+        "pay3.recon_mismatches_total{provider, mismatch_type}",
+        "pay3.unbound_events_total{provider}",
+        "pay3.unbound_events_deadletter_total{provider}"
+      ],
+      "gauges": [
+        "pay3.recon_unmatched_amount_minor{provider, currency}"
+      ],
+      "histograms": [
+        "pay3.refund_create_duration_ms{provider}",
+        "pay3.webhook_process_duration_ms{provider}",
+        "pay3.recon_batch_duration_ms{provider}"
+      ],
+      "max_label_values_per_dim": 64
+    },
+    "tracer": {
+      "ash_tracer_required": true,
+      "attributes": [
+        "pay3.org_id",
+        "pay3.provider",
+        "pay3.refund_status",
+        "pay3.dispute_status",
+        "pay3.recon_batch_id"
+      ],
+      "required": true,
+      "spans": [
+        "pay3.refund.create",
+        "pay3.refund.provider_execute",
+        "pay3.dispute.transition",
+        "pay3.evidence.seal_request",
+        "pay3.evidence.seal_worker",
+        "pay3.webhook.ingest",
+        "pay3.recon.batch_run"
+      ]
+    }
+  },
+  "tier": 3,
+  "title": "Payments — Refunds, Disputes, Evidence & Reconciliation Contract (Enterprise)",
+  "version": "2.10.8",
+  "webhooks": {
+    "dedupe": {
+      "notes": "Deduplication MUST be scoped to a specific provider integration account. provider_event_id MUST NOT be treated as globally unique across multiple provider accounts.",
+      "unique_by": [
+        "provider",
+        "provider_account_ref",
+        "provider_event_id"
+      ],
+      "window_min_days": 30
+    },
+    "receiver_requirements": {
+      "ack_fast_process_async": true,
+      "durable_ingest_before_2xx": true,
+      "reject_unsigned": true,
+      "replay_protection": true,
+      "verify_signature": true
+    },
+    "tenant_binding": {
+      "allowed_methods": [
+        "signature-bound metadata in payload",
+        "trusted mapping from ProviderAccount to tenant"
+      ],
+      "forbidden_methods": [
+        "untrusted query params",
+        "untrusted body fields not covered by signature"
+      ],
+      "orphaned_event_handling": {
+        "dead_letter": {
+          "emit_event": "payment.webhook_unbound_expired.v1",
+          "on_ttl_expiry_move_to": "PermanentlyUnboundProviderEvent",
+          "required": true,
+          "severity": "P3"
+        },
+        "forbid_silent_delete": true,
+        "holding_pen_resource": "UnboundProviderEvent",
+        "retry_backoff": {
+          "initial_seconds": 5,
+          "max_retries": 10,
+          "max_seconds": 300,
+          "multiplier": 2
+        },
+        "ttl_hours": 24
+      },
+      "required": true
+    }
+  }
+}

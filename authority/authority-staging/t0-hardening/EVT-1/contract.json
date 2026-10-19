@@ -1,0 +1,3736 @@
+{
+  "artifact_kind": "contract",
+  "artifact_name": "EVT-1_Contract_v2.16.8.json",
+  "banned_anti_patterns": {
+    "AP-ASH2-DRIFT": {
+      "ban": "MUST NOT use Ash 2.x API-centric terminology for system boundaries; use Ash 3.x Domain/Resource/Action.",
+      "severity": "P0"
+    },
+    "AP-EVT-010-OPAQUE-DATA-BLOB": {
+      "severity": "P0",
+      "text": "Opaque payload blobs are forbidden. Event payloads MUST be governed by required_data_keys + schema_governance. Do not emit full records without declaring keys."
+    },
+    "AP-EVT-011-SEMVER-SKIP": {
+      "severity": "P0",
+      "text": "Semantic version skipping is forbidden. Any breaking change in payload meaning or type MUST bump the event version suffix (e.g., .v1 -> .v2)."
+    },
+    "AP-EVT-012-AMBIGUOUS-TOPIC-ROUTING": {
+      "severity": "P1",
+      "text": "Ambiguous topic routing is forbidden. High-volume best-effort events MUST NOT share topics with critical-path financial/order events unless explicitly bulkheaded."
+    },
+    "AP-IMPLICIT": {
+      "ban": "MUST NOT rely on implicit tenancy or ordering; MUST be explicit.",
+      "severity": "P0"
+    },
+    "AP-KEY-NAMING": {
+      "ban": "MUST NOT use api_actions key naming in contracts; use domain_actions.",
+      "severity": "P0"
+    },
+    "AP-PLACEHOLDERS": {
+      "ban": "MUST NOT include placeholder tokens (TODO/TBD/FIXME/REPLACEME) in lockable artifacts.",
+      "severity": "P0"
+    }
+  },
+  "change_log": [
+    {
+      "date_utc": "2026-02-04T12:16:51Z",
+      "summary": "Register SCAN-1 structural sovereignty events (scan recorded, hydration recorded, redemption status materialized) with mechanical parity; add SCAN-1 dependency floor.",
+      "version": "2.10.0"
+    },
+    {
+      "change_kind": "patch",
+      "summary": "v2.6.1: manifest metadata corrected (bundle id/version) + dependency floor bump to ERR-1 >= 1.3.27; no semantic registry changes."
+    },
+    {
+      "date_utc": "2026-01-19T18:23:17Z",
+      "summary": "Register EVT-2 lifecycle + experiment events; align dependencies to latest; fix refund producer.",
+      "version": "2.6.0"
+    },
+    {
+      "date_utc": "2026-02-04T05:47:48Z",
+      "summary": "Register SUB-1 entitlement events and PAY-3 anomaly alert events; align dependency floors to hardened baseline (EVT-2/ORD-1/SEAT-1/LED-1/PAY-3).",
+      "version": "2.8.0"
+    },
+    {
+      "breaking": false,
+      "date_utc": "2026-02-04T11:22:20Z",
+      "summary": "Mechanical parity update: add missing domain outbox event types and align key-law (required_data_keys/required_extensions/topics) to producer contracts (TKT-1/SEAT-1/ORD-1/PRICE-1/TAX-1/REFUND-1/LED-1).",
+      "version": "2.9.0"
+    },
+    {
+      "breaking": false,
+      "date_utc": "2026-02-04T15:31:45Z",
+      "summary": "Final suite parity fix: remove registry version-key overreach for producers not emitting 'version'; align IAM session events with required occurred_at_utc; overwrite ticket event key-law to match TKT-1 outbox_events (Structural Sovereignty).",
+      "version": "2.12.0"
+    },
+    {
+      "breaking": false,
+      "date_utc": "2026-02-05T05:20:01Z",
+      "summary": "Mechanical parity update: require monotonic pricing snapshot version in registry for ticketing.pricing.snapshot.generated.v1; align required_extensions; bump PRICE-1 dependency floor to >= 3.5.0; add deployment interlock note for DMSC-1 drain-and-deploy.",
+      "version": "2.15.0"
+    },
+    {
+      "breaking": false,
+      "date_utc": "2026-02-06T00:00:00Z",
+      "summary": "Phase-5 hygiene: move org_id/trace_id/request_id out of SUB required_data_keys into required_extensions across SUB event types to enforce Envelope ≠ Payload.",
+      "version": "2.16.4"
+    },
+    {
+      "change_id": "EVT-1-CHG-2.16.7-ORDER-FINALIZED-TYPING",
+      "severity": "P0",
+      "summary": "Add P0 invariant defining strict typing for ticketing.order.finalized.v1 tax apportionment keys (list(uuid_v7) + sha256 hex)."
+    },
+    {
+      "breaking": false,
+      "date_utc": "2026-02-10T12:44:20Z",
+      "summary": "Registry addendum: register ticketing.offer.key_rotated.v1 (OFFER-1 issuer key rotation) with outbox high-priority requirement for gate key sync.",
+      "version": "2.16.8"
+    },
+    {
+      "changes": [
+        "Pin crypto constraints for ticketing.offer.key_rotated.v1 (Ed25519 + Base64URL_NoPadding, min_entropy_bits=128).",
+        "Add invariant EVT-1-INV-OFFER-KEY-TYPES requiring outbox rejection on non-conforming crypto constraints."
+      ],
+      "date_utc": "2026-02-10T13:55:16Z",
+      "version": "2.16.9"
+    }
+  ],
+  "dependencies": [
+    {
+      "doc_id": "BP-0",
+      "edge_type": "requires",
+      "min_version": "1.0.6",
+      "reason": "Blueprint bundle structure + baseline authoring and gating rules."
+    },
+    {
+      "doc_id": "CG-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "CI strict enforcement posture for JSON-only bundles and manifest integrity."
+    },
+    {
+      "doc_id": "CONSENT-1",
+      "edge_type": "requires",
+      "min_version": "1.1.0",
+      "reason": "Producer contract for ticketing.consent.* domain events."
+    },
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "2.2.0",
+      "reason": "Schema validation for contract-suite/1.0, test-gates/1.0, bundle-manifest/1.0."
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.6.0",
+      "reason": "Canonical error envelope and error code registry for denial semantics."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.0",
+      "reason": "Referenced by EVT-1 registry and/or used by platform core flows."
+    },
+    {
+      "doc_id": "GOV-0",
+      "edge_type": "requires",
+      "min_version": "2.0.13",
+      "reason": "Governance baseline for registry enforcement posture and dependency floors."
+    },
+    {
+      "doc_id": "IAM-1",
+      "edge_type": "requires",
+      "min_version": "3.0.5",
+      "reason": "Producer contract for ticketing.iam.* session domain events."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "4.3.0",
+      "reason": "Producer contract for ticketing.ledger.* domain events."
+    },
+    {
+      "doc_id": "LINT-0",
+      "edge_type": "requires",
+      "min_version": "2.0.11",
+      "reason": "Naming and lint discipline for event types, topics, and identifiers."
+    },
+    {
+      "doc_id": "LOCKS-1",
+      "edge_type": "requires",
+      "min_version": "2.1.0",
+      "reason": "Atomic outbox/idempotency patterns and contention-safe updates."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.16",
+      "reason": "Observability contract used by registry governance metadata."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.7.0",
+      "reason": "Producer contract for ticketing.order.* domain events."
+    },
+    {
+      "doc_id": "PAY-3",
+      "edge_type": "requires",
+      "min_version": "2.10.1",
+      "reason": "Referenced by EVT-1 registry and/or used by platform core flows."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.5.0",
+      "reason": "Producer contract for ticketing.pricing.* outbox events with monotonic versioning (PricingEventCursor)."
+    },
+    {
+      "doc_id": "PROD-1",
+      "edge_type": "requires",
+      "min_version": "1.0.5",
+      "reason": "Producer identity allowlist (ticketing.tickets) used by governance posture."
+    },
+    {
+      "doc_id": "REFUND-1",
+      "edge_type": "requires",
+      "min_version": "1.6.0",
+      "reason": "Refund v2 requires refund_version + additional linkage fields per REFUND-1 v1.6.0."
+    },
+    {
+      "doc_id": "SEAT-1",
+      "edge_type": "requires",
+      "min_version": "3.5.0",
+      "reason": "Seating v3 allocation events require bucket-scoped monotonic versioning per SEAT-1 v3.5.0."
+    },
+    {
+      "doc_id": "SUB-1",
+      "edge_type": "requires",
+      "min_version": "1.2.0",
+      "reason": "Producer contract for ticketing.sub.* lawful outbox events (Structural Sovereignty + trace headers)."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.11",
+      "reason": "Multi-tenant scoping rules for org_id and event envelope tenancy."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "requires",
+      "min_version": "2.3.0",
+      "reason": "Test gate discipline (P0/P1) and denial-test expectations for high-risk domains."
+    },
+    {
+      "doc_id": "TKT-1",
+      "edge_type": "requires",
+      "min_version": "1.5.0",
+      "reason": "Producer contract for ticketing.ticket.* domain events (structural outbox_events)."
+    },
+    {
+      "doc_id": "TRK-1",
+      "edge_type": "requires",
+      "min_version": "1.2.3",
+      "reason": "Tracking taxonomy separation: EVT-1 SHALL NOT register tracking event types owned by TRK-1."
+    },
+    {
+      "doc_id": "SCAN-1",
+      "edge_type": "requires",
+      "min_version": "1.4.0",
+      "reason": "Producer contract for ticketing.scan.* and ticketing.redemption.* lawful outbox events (Structural Sovereignty)."
+    }
+  ],
+  "doc_id": "EVT-1",
+  "domain_actions": {
+    "inputs_required": [
+      "org_id",
+      "trace_id",
+      "request_id"
+    ],
+    "output_minimum": [
+      "event_id",
+      "event_type",
+      "topic"
+    ],
+    "purpose": "Defines normative constraints for emitting events from Ash 3.x resource actions via outbox.",
+    "validation_rules": [
+      "Event emission MUST be outbox-driven and committed atomically with the state mutation.",
+      "Event emission MUST include org_id, trace_id, request_id in the event envelope extensions.",
+      "Event type MUST exist in event_types registry.",
+      "Publisher MUST NOT emit v42.* event types in this contract scope."
+    ]
+  },
+  "errors": {
+    "registry": "ERR-1",
+    "subcodes": {
+      "EVT_CONTEXT_MISSING": {
+        "base_code": "ERR_BAD_REQUEST",
+        "message": "Required event context is missing."
+      },
+      "EVT_IDEMPOTENCY_REPLAY": {
+        "base_code": "ERR_CONFLICT",
+        "message": "Idempotency key replay detected."
+      },
+      "EVT_INVALID_TYPE": {
+        "base_code": "ERR_VALIDATION",
+        "message": "Invalid event type."
+      },
+      "TEN_CROSS_TENANT_HIDDEN": {
+        "base_code": "ERR_NOT_FOUND",
+        "message": "Cross-tenant resource is hidden; behave as not found."
+      }
+    }
+  },
+  "event_envelope": {
+    "cloudevents": {
+      "attribute_rules": {
+        "datacontenttype": {
+          "allowed": [
+            "application/json"
+          ]
+        },
+        "id": {
+          "format": "uuidv7"
+        },
+        "time": {
+          "format": "rfc3339"
+        }
+      },
+      "optional_attributes": [
+        "subject",
+        "dataschema"
+      ],
+      "required_attributes": [
+        "specversion",
+        "id",
+        "source",
+        "type",
+        "time",
+        "datacontenttype"
+      ],
+      "specversion": "1.0"
+    },
+    "data": {
+      "must_be_json": true,
+      "type": "object"
+    },
+    "extensions": {
+      "field_rules": {
+        "org_id": {
+          "min_length": 1,
+          "type": "string"
+        },
+        "registry_version_sha": {
+          "min_length": 64,
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "request_id": {
+          "min_length": 1,
+          "type": "string"
+        },
+        "trace_id": {
+          "min_length": 1,
+          "type": "string"
+        }
+      },
+      "optional": [
+        "actor_id",
+        "correlation_id",
+        "causation_id",
+        "producer",
+        "producer_version"
+      ],
+      "required": [
+        "org_id",
+        "trace_id",
+        "request_id",
+        "registry_version_sha"
+      ]
+    },
+    "schema_ref": "ticketing.event.envelope.v1"
+  },
+  "event_types": {
+    "ticketing.archival.export.finalized.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "export_id",
+          "content_hash_sha256",
+          "version"
+        ],
+        "dedupe_window_days": 180
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "export_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "ARCH-1",
+      "required_data_keys": [
+        "export_id",
+        "content_hash_sha256",
+        "retention_policy_id",
+        "occurred_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "drift_check_hash": "sha256:ffc57bf89cf0d1c3885c451511d689a95d4e884152ce38b819d384cbdeaf4e70",
+        "hash_basis": "sha256(event_type|source|schema_ref|sorted(required_data_keys))",
+        "schema_ref": "ticketing.event.envelope.v1",
+        "source": "explicit_json_schema"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.org.{org_id}.archival.export"
+    },
+    "ticketing.archival.legalhold.changed.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "legal_hold_id",
+          "active",
+          "version"
+        ],
+        "dedupe_window_days": 365
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "legal_hold_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "ARCH-1",
+      "required_data_keys": [
+        "legal_hold_id",
+        "scope",
+        "active",
+        "occurred_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "drift_check_hash": "sha256:f90315d1d2ef180fdcd9b606444a0bc8549b2ec18f238eee76f44664fb749fd6",
+        "hash_basis": "sha256(event_type|source|schema_ref|sorted(required_data_keys))",
+        "schema_ref": "ticketing.event.envelope.v1",
+        "source": "explicit_json_schema"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.org.{org_id}.archival.legalhold"
+    },
+    "ticketing.archival.retention.purge.executed.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "artifact_id",
+          "purge_action",
+          "data_class",
+          "version"
+        ],
+        "dedupe_window_days": 180
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "artifact_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "ARCH-1",
+      "required_data_keys": [
+        "artifact_id",
+        "purge_action",
+        "data_class",
+        "occurred_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "drift_check_hash": "sha256:dab2b6f29aaed9164475b1aa5e262f9b7a7bba2252e519c4c60b213e5e08f3be",
+        "hash_basis": "sha256(event_type|source|schema_ref|sorted(required_data_keys))",
+        "schema_ref": "ticketing.event.envelope.v1",
+        "source": "explicit_json_schema"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.org.{org_id}.archival.retention"
+    },
+    "ticketing.consent.changed.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "subject_id",
+          "mode",
+          "version"
+        ],
+        "dedupe_window_sec": 604800
+      },
+      "ordering": {
+        "ordering_key": [
+          "org_id",
+          "subject_id"
+        ],
+        "ordering_window_sec": 2592000
+      },
+      "producer_contract": "CONSENT-1",
+      "required_data_keys": [
+        "subject_id",
+        "mode",
+        "purposes_changed",
+        "source",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "drift_check_hash": "sha256:836485a2fdf0e9409ef779a5ac9cd16b3eb1962475f2b1ed004d6b46e4fc5431",
+        "hash_basis": "sha256(event_type|source|schema_ref|sorted(required_data_keys))",
+        "schema_ref": "ticketing.event.envelope.v1",
+        "source": "explicit_json_schema"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.consent"
+    },
+    "ticketing.consent.withdrawn.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "subject_id",
+          "mode",
+          "version"
+        ],
+        "dedupe_window_sec": 604800
+      },
+      "ordering": {
+        "ordering_key": [
+          "org_id",
+          "subject_id"
+        ],
+        "ordering_window_sec": 2592000
+      },
+      "producer_contract": "CONSENT-1",
+      "required_data_keys": [
+        "subject_id",
+        "mode",
+        "purposes_withdrawn",
+        "source",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "drift_check_hash": "sha256:b77eef2b8b4b61e296977c462e7b1973ae2f6d4b318f770a023d5d6d82517838",
+        "hash_basis": "sha256(event_type|source|schema_ref|sorted(required_data_keys))",
+        "schema_ref": "ticketing.event.envelope.v1",
+        "source": "explicit_json_schema"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.consent"
+    },
+    "ticketing.event.archived.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "event_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "event_id",
+        "archived_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Event",
+        "drift_check_hash": "sha256:0a904d94eabf205c8c05eb6cd7b889d5c11871442664087252ffc193669e4a30",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.event"
+    },
+    "ticketing.event.content.revision.published.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "event_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "event_id",
+        "revision_id",
+        "surface",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:EventContentRevision",
+        "drift_check_hash": "sha256:424799563ba4380edbe143e710f0a823e52872718df947b2f312a42d3824818b",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.event"
+    },
+    "ticketing.event.published.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "event_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "event_id",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Event",
+        "drift_check_hash": "sha256:e3bb2ea41ff33368bad2b82f36a629f6dd63f939884398a4d380aaaa1149dd11",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.event",
+      "producer_action": "EVT-2.publish_event",
+      "resource_version_source": "EVT-2.Event.version incremented by publish_event",
+      "atomic_outbox_rule": "EVT-2.publish_event MUST commit the Event publication state and ticketing.event.published.v1 outbox row in one transaction.",
+      "payload_source": {
+        "event_id": "published Event identity",
+        "version": "committed Event.version after publication"
+      }
+    },
+    "ticketing.event.slug.redirect.created.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "event_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "event_id",
+        "old_slug",
+        "new_slug",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Event",
+        "drift_check_hash": "sha256:cce9f36d48f5d74827f2a56ffec895c21e7e36612eaec0a6514e6d1d432615f7",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.event"
+    },
+    "ticketing.event.visibility.changed.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "event_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "event_id",
+        "visibility",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Event",
+        "drift_check_hash": "sha256:324c38e991405a43880150bc08985389c19fd08081960858b7abd4dba3b67703",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.event"
+    },
+    "ticketing.experiment.ended.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "experiment_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "experiment_id",
+        "event_id",
+        "ended_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Event",
+        "drift_check_hash": "sha256:96cbf124aebd3798d96b89826c54fa06fd115cbfca294907dcd89139347ecead",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.experiment"
+    },
+    "ticketing.experiment.started.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "experiment_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "experiment_id",
+        "event_id",
+        "surface",
+        "started_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Event",
+        "drift_check_hash": "sha256:68dbf0c4cdc09f39851d9e12a582da6e03bb5de27fcb591c4097031e8b2fd46f",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.experiment"
+    },
+    "ticketing.experiment.stop_proposed.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "experiment_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "experiment_id",
+        "event_id",
+        "proposed_at_utc",
+        "reason",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Event",
+        "drift_check_hash": "sha256:78074777f21bfa26f7d8ba3a65396e8ef88b612131004635dbb55e70e24bb8ad",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.experiment"
+    },
+    "ticketing.experiment.stopped.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "experiment_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "experiment_id",
+        "event_id",
+        "stopped_at_utc",
+        "stop_reason",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Event",
+        "drift_check_hash": "sha256:7cad69bdc0fb7cd381f17f5ef12541da58ffcf6624bbd53d9bfdf8691996a248",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.experiment"
+    },
+    "ticketing.iam.session.created.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "session_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "user_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "IAM-1",
+      "required_data_keys": [
+        "session_id",
+        "user_id",
+        "actor_id",
+        "tenant_tier",
+        "auth_strategy",
+        "result",
+        "occurred_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "drift_check_hash": "sha256:f52d88cdf527fd697fea635d54b6dbf00a935e901710f20cfceadd72178a4abc",
+        "hash_basis": "sha256(event_type|source|schema_ref|sorted(required_data_keys))",
+        "schema_ref": "ticketing.event.envelope.v1",
+        "source": "explicit_json_schema"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.iam.session"
+    },
+    "ticketing.iam.session.revoked.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "session_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "user_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "IAM-1",
+      "required_data_keys": [
+        "session_id",
+        "user_id",
+        "actor_id",
+        "tenant_tier",
+        "reason",
+        "occurred_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "drift_check_hash": "sha256:c68e659b02ac90f841fdfc15431dbe7b3e2ae92245a0a1b2568b7e6e0194339a",
+        "hash_basis": "sha256(event_type|source|schema_ref|sorted(required_data_keys))",
+        "schema_ref": "ticketing.event.envelope.v1",
+        "source": "explicit_json_schema"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.iam.session"
+    },
+    "ticketing.ledger.entry.posted.v1": {
+      "consumer_capability_requirement": "Any consumer of the ticketing.ledger.* family MUST implement the T_vis=500ms visibility buffer as defined in LED-1-INV-SEQ-001 (buffer out-of-order versions before declaring a gap).",
+      "deployment_interlock_requirement": "Deployment interlock: when tightening required_data_keys (e.g., adding version), operators MUST perform Drain-and-Deploy to prevent legacy (version-less) events from being validated against the stricter registry.",
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "posting_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "ledger_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "LED-1",
+      "required_data_keys": [
+        "event_id",
+        "occurred_at_utc",
+        "posting_id",
+        "ledger_id",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "LED-1:LedgerPosting",
+        "drift_check_hash": "sha256:d8d410fa6e7bf72db08994b4813355ba69ba65a4ccb5d52d530b084140b4b085",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ledger"
+    },
+    "ticketing.ledger.period.closed.v1": {
+      "consumer_capability_requirement": "Any consumer of the ticketing.ledger.* family MUST implement the T_vis=500ms visibility buffer as defined in LED-1-INV-SEQ-001 (buffer out-of-order versions before declaring a gap).",
+      "deployment_interlock_requirement": "Deployment interlock: when tightening required_data_keys (e.g., adding version), operators MUST perform Drain-and-Deploy to prevent legacy (version-less) events from being validated against the stricter registry.",
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "period_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "ledger_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "LED-1",
+      "required_data_keys": [
+        "event_id",
+        "occurred_at_utc",
+        "period_id",
+        "ledger_id",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "LED-1:LedgerPeriod",
+        "drift_check_hash": "sha256:b2f421981339ed5b16cbc8c3d663a6c1bcd12edb1884f0440408983a56d0d8ae",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ledger"
+    },
+    "ticketing.ledger.snapshot.created.v1": {
+      "consumer_capability_requirement": "Any consumer of the ticketing.ledger.* family MUST implement the T_vis=500ms visibility buffer as defined in LED-1-INV-SEQ-001 (buffer out-of-order versions before declaring a gap).",
+      "deployment_interlock_requirement": "Deployment interlock: when tightening required_data_keys (e.g., adding version), operators MUST perform Drain-and-Deploy to prevent legacy (version-less) events from being validated against the stricter registry.",
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "snapshot_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "ledger_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "LED-1",
+      "required_data_keys": [
+        "event_id",
+        "occurred_at_utc",
+        "snapshot_id",
+        "period_id",
+        "ledger_id",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "LED-1:LedgerSnapshot",
+        "drift_check_hash": "sha256:f2ddd473c808ef0c369bd18b8212cbf571706037fb527b2e1591cd6c46fa22b2",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ledger"
+    },
+    "ticketing.occurrence.access_policy.updated.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "occurrence_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "occurrence_id",
+        "event_id",
+        "policy_id",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Occurrence",
+        "drift_check_hash": "sha256:a1d58fc03362bc3d9556390674afd45794c84cb646291268e138601614b7a35f",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.occurrence"
+    },
+    "ticketing.occurrence.cancelled.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "occurrence_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "occurrence_id",
+        "event_id",
+        "cancel_reason",
+        "cancelled_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Occurrence",
+        "drift_check_hash": "sha256:3b0037315ec71ed451b732cecf10c757d80b482cc9e8bb77f3a4766dca7e588a",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.occurrence"
+    },
+    "ticketing.occurrence.capacity.updated.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "occurrence_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "occurrence_id",
+        "event_id",
+        "capacity_total",
+        "capacity_reserved",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Occurrence",
+        "drift_check_hash": "sha256:e1a4de79abad1b2ff1e562527710c1e7767b7718a2987846231c085f1594de64",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.occurrence"
+    },
+    "ticketing.occurrence.created.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "occurrence_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "occurrence_id",
+        "event_id",
+        "starts_at_utc",
+        "timezone",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Occurrence",
+        "drift_check_hash": "sha256:77fd63443cf8c0f2df6ddd1f22e2404d2ebfdde18e6783c7e317b15a46e2ca5d",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.occurrence",
+      "producer_action": "EVT-2.create_occurrence",
+      "resource_version_source": "committed EVT-2.Occurrence.version",
+      "atomic_outbox_rule": "EVT-2.create_occurrence MUST commit the new Occurrence and ticketing.occurrence.created.v1 outbox row in one transaction.",
+      "payload_source": {
+        "occurrence_id": "created Occurrence identity",
+        "event_id": "same-tenant parent Event identity",
+        "starts_at_utc": "persisted Occurrence.starts_at_utc",
+        "timezone": "persisted Occurrence.timezone",
+        "version": "committed Occurrence.version"
+      }
+    },
+    "ticketing.occurrence.customer_action_required.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "occurrence_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "occurrence_id",
+        "event_id",
+        "action_kind",
+        "deadline_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Occurrence",
+        "drift_check_hash": "sha256:7a03c670bda0aed3ea431fb2f1daea8635e099e064eea25f37f2459c56dc0c25",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.occurrence"
+    },
+    "ticketing.occurrence.rescheduled.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "occurrence_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "occurrence_id",
+        "event_id",
+        "previous_starts_at_utc",
+        "starts_at_utc",
+        "timezone",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Occurrence",
+        "drift_check_hash": "sha256:a873cc0751e957ca5b29c1f309c602ebf344323780c7949af2a05b4f5c9ca76f",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.occurrence"
+    },
+    "ticketing.occurrence.sales.closed.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "occurrence_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "occurrence_id",
+        "event_id",
+        "closed_reason",
+        "closed_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Occurrence",
+        "drift_check_hash": "sha256:61c36a4df67d81b889cb61e058c274de87fdd506eaab1cc239b6353e4249db27",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.occurrence",
+      "producer_action": "EVT-2.close_occurrence_sales",
+      "resource_version_source": "committed Occurrence.version after the close transition",
+      "atomic_outbox_rule": "EVT-2.close_occurrence_sales MUST commit the Occurrence sales close transition and ticketing.occurrence.sales.closed.v1 outbox row in one transaction.",
+      "payload_source": {
+        "occurrence_id": "closed Occurrence identity",
+        "event_id": "same-tenant parent Event identity",
+        "closed_reason": {
+          "authorized_organizer": "organizer_requested",
+          "authenticated_system": "configured_sales_close_time"
+        },
+        "closed_at_utc": "database_now committed with the sales close transition",
+        "version": "committed Occurrence.version after increment"
+      }
+    },
+    "ticketing.occurrence.sales.paused.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "occurrence_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "occurrence_id",
+        "event_id",
+        "paused_reason",
+        "paused_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Occurrence",
+        "drift_check_hash": "sha256:9cfb2e975bd75072d9f5e8fd75e4fcd77fc3a8ba189b7202e27171de44768213",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.occurrence"
+    },
+    "ticketing.occurrence.sales.resumed.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "occurrence_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "occurrence_id",
+        "event_id",
+        "resumed_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Occurrence",
+        "drift_check_hash": "sha256:e5c80c74263ec264de6e9c395088d840ceef10f08fc432bc5f555a966a571453",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.occurrence"
+    },
+    "ticketing.occurrence.sales.window.updated.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "occurrence_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "monotonic_within_key": true,
+        "ordering_key": [
+          "org_id",
+          "event_id"
+        ]
+      },
+      "producer_contract": "EVT-2",
+      "required_data_keys": [
+        "occurrence_id",
+        "event_id",
+        "sales_start_utc",
+        "sales_end_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "EVT-2:Occurrence",
+        "drift_check_hash": "sha256:c21ff010c371686008c0953a8ea91dabfffd07300c8c9c57c087116077b769eb",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.occurrence"
+    },
+    "ticketing.order.expired.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "order_id",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "order_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "ORD-1",
+      "required_data_keys": [
+        "actor_id",
+        "checkout_group_id",
+        "expired_at_utc",
+        "order_id",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "ORD-1:Order",
+        "drift_check_hash": "sha256:5c8bbdf0b2b953cb010531c4974cbe5aecc39d7df6bb6afaf8b649f6aaec3e17",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.order"
+    },
+    "ticketing.order.finalized.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "order_id",
+          "price_snapshot_id",
+          "signature_hash",
+          "version"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "order_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "ORD-1",
+      "required_data_keys": [
+        "actor_id",
+        "checkout_group_id",
+        "currency",
+        "event_ids",
+        "occurrence_ids",
+        "order_id",
+        "paid_confirmed_at_utc",
+        "payment_reference",
+        "price_signature_hash",
+        "price_signature_version",
+        "price_snapshot_id",
+        "signature_hash",
+        "total_amount_minor",
+        "verified_payment_attempt_id",
+        "tax_apportionment_priority_map",
+        "tax_apportionment_priority_map_sha256",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "ORD-1:Order",
+        "drift_check_hash": "sha256:42b6d1014eab02d9bb6916e942e1535c5a5fa8c1037d675ee559a257060cd452",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.order"
+    },
+    "ticketing.payment.chargeback_rate_exceeded.v1": {
+      "idempotency": {
+        "dedup_key_fields": [
+          "org_id",
+          "provider",
+          "provider_account_ref",
+          "alert_code",
+          "window_end_utc"
+        ],
+        "strategy": "producer_dedup_key"
+      },
+      "ordering": {
+        "causal_key_fields": [
+          "org_id",
+          "provider",
+          "provider_account_ref"
+        ],
+        "strategy": "causal"
+      },
+      "producer_contract": "PAY-3",
+      "required_data_keys": [
+        "alert_id",
+        "alert_type",
+        "severity",
+        "detected_at_utc",
+        "window",
+        "measure",
+        "threshold",
+        "value",
+        "context"
+      ],
+      "schema_governance": {
+        "json_schema_ref": "EVT-2:ticketing.alert.envelope.v1",
+        "source": "explicit_json_schema"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "payments"
+    },
+    "ticketing.payment.dispute_open_spike.v1": {
+      "idempotency": {
+        "dedup_key_fields": [
+          "org_id",
+          "provider",
+          "provider_account_ref",
+          "alert_code",
+          "window_end_utc"
+        ],
+        "strategy": "producer_dedup_key"
+      },
+      "ordering": {
+        "causal_key_fields": [
+          "org_id",
+          "provider",
+          "provider_account_ref"
+        ],
+        "strategy": "causal"
+      },
+      "producer_contract": "PAY-3",
+      "required_data_keys": [
+        "alert_id",
+        "alert_type",
+        "severity",
+        "detected_at_utc",
+        "window",
+        "measure",
+        "threshold",
+        "value",
+        "context"
+      ],
+      "schema_governance": {
+        "json_schema_ref": "EVT-2:ticketing.alert.envelope.v1",
+        "source": "explicit_json_schema"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "payments"
+    },
+    "ticketing.payment.evidence_submission_failed.v1": {
+      "idempotency": {
+        "dedup_key_fields": [
+          "org_id",
+          "provider",
+          "provider_account_ref",
+          "alert_code",
+          "window_end_utc"
+        ],
+        "strategy": "producer_dedup_key"
+      },
+      "ordering": {
+        "causal_key_fields": [
+          "org_id",
+          "provider",
+          "provider_account_ref"
+        ],
+        "strategy": "causal"
+      },
+      "producer_contract": "PAY-3",
+      "required_data_keys": [
+        "alert_id",
+        "alert_type",
+        "severity",
+        "detected_at_utc",
+        "window",
+        "measure",
+        "threshold",
+        "value",
+        "context"
+      ],
+      "schema_governance": {
+        "json_schema_ref": "EVT-2:ticketing.alert.envelope.v1",
+        "source": "explicit_json_schema"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "payments"
+    },
+    "ticketing.pricing.snapshot.generated.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "pricing_snapshot_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "pricing_snapshot_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "PRICE-1",
+      "required_data_keys": [
+        "event_id",
+        "pricing_snapshot_id",
+        "version",
+        "currency",
+        "quote_issued_at_utc",
+        "quote_expires_at_utc",
+        "pricing_program_revision_id",
+        "tax_context_digest_sha256",
+        "subtotal_minor",
+        "discount_total_minor",
+        "fee_total_minor",
+        "tax_total_minor",
+        "rounding_adjustment_minor",
+        "total_minor",
+        "signature_hash",
+        "signature_version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "PRICE-1:PricingSnapshot",
+        "deployment_interlock_requirement": {
+          "min_version": "2.1.0",
+          "reason": "Tightening required_data_keys to include pricing snapshot version requires drain-and-deploy and automated backfill for legacy versionless snapshots.",
+          "requires_contract": "DMSC-1"
+        },
+        "drift_check_hash": "sha256:0e7a26795b2cdc66ca4bf84df1b69e0b1ec6fe68f90a078234ade8102c436d02",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.pricing",
+      "producer_action": "Ticketing.Pricing.PricingSnapshot.create_snapshot",
+      "resource_version_source": "PricingSnapshot.version allocated by PricingEventCursor",
+      "atomic_outbox_rule": "PricingSnapshot and outbox event commit atomically in the create_snapshot transaction.",
+      "payload_source": {
+        "event_id": "PricingSnapshot.event_id",
+        "pricing_snapshot_id": "PricingSnapshot.snapshot_id",
+        "version": "PricingSnapshot.version allocated atomically through PricingEventCursor under the existing LOCKS-1 Namespace 102 requirement",
+        "currency": "PricingSnapshot.currency",
+        "quote_issued_at_utc": "PricingSnapshot.quote_issued_at_utc",
+        "quote_expires_at_utc": "PricingSnapshot.quote_expires_at_utc",
+        "pricing_program_revision_id": "PricingSnapshot.pricing_program_revision_id",
+        "tax_context_digest_sha256": "PricingSnapshot.tax_context_digest_sha256, mapped unchanged from TAXCTX-V2.digest_sha256",
+        "subtotal_minor": "PricingSnapshot.subtotal_minor",
+        "discount_total_minor": "PricingSnapshot.discount_total_minor",
+        "fee_total_minor": "PricingSnapshot.fee_total_minor",
+        "tax_total_minor": "PricingSnapshot.tax_total_minor",
+        "rounding_adjustment_minor": "PricingSnapshot.internal_rounding_adjustment_minor",
+        "total_minor": "PricingSnapshot.total_minor",
+        "signature_hash": "PricingSnapshot.signature_hash",
+        "signature_version": "PricingSnapshot.signature_version"
+      }
+    },
+    "ticketing.redemption.status.materialized.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "redemption_id",
+          "version"
+        ],
+        "dedupe_window_sec": 3888000
+      },
+      "ordering": {
+        "ordering_key": [
+          "org_id",
+          "redemption_id"
+        ],
+        "ordering_window_sec": 3888000
+      },
+      "producer_contract": "SCAN-1",
+      "required_data_keys": [
+        "redemption_id",
+        "occurrence_id",
+        "ticket_id",
+        "scan_intent",
+        "redemption_state",
+        "winner_scan_id",
+        "winner_scanned_at_utc",
+        "conflict_count",
+        "last_reconciled_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SCAN-1:RedemptionStatus",
+        "drift_check_hash": "sha256:70641695cf9d0c612d916156436f87638642328975561610b9d2d7f0f1f83ad3",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.redemption"
+    },
+    "ticketing.refund.finalized.v2": {
+      "event_type": "ticketing.refund.finalized.v2",
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "refund_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "order_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "REFUND-1",
+      "required_data_keys": [
+        "refund_id",
+        "order_id",
+        "occurrence_id",
+        "checkout_group_id",
+        "amount_minor",
+        "currency_iso",
+        "payment_reference",
+        "verified_payment_attempt_id",
+        "refunded_at_utc",
+        "reason_subcode",
+        "ticket_revocation_batch_id"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "REFUND-1:RefundRequest",
+        "drift_check_hash": "sha256:b1818cdba8b05d70157c4fd1b667bfc68b9d752642166c549dd9b7771a103252",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.refund"
+    },
+    "ticketing.scan.hydration.recorded.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "hydration_id",
+          "version"
+        ],
+        "dedupe_window_sec": 3888000
+      },
+      "ordering": {
+        "ordering_key": [
+          "org_id",
+          "hydration_id"
+        ],
+        "ordering_window_sec": 3888000
+      },
+      "producer_contract": "SCAN-1",
+      "required_data_keys": [
+        "hydration_id",
+        "occurrence_id",
+        "device_id",
+        "manifest_version",
+        "manifest_key_id",
+        "server_time_utc",
+        "device_time_utc",
+        "client_clock_offset_seconds",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SCAN-1:HydrationSession",
+        "drift_check_hash": "sha256:13c26234b332a015cb939d78d1ea24ba7d87ac3f6e04a3e4c647fb90604dbe1f",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.scan"
+    },
+    "ticketing.scan.recorded.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "scan_id",
+          "version"
+        ],
+        "dedupe_window_sec": 3888000
+      },
+      "ordering": {
+        "ordering_key": [
+          "org_id",
+          "scan_id"
+        ],
+        "ordering_window_sec": 3888000
+      },
+      "producer_contract": "SCAN-1",
+      "required_data_keys": [
+        "scan_id",
+        "occurrence_id",
+        "ticket_id",
+        "device_id",
+        "gate_id",
+        "device_scan_sequence_number",
+        "scan_intent",
+        "scan_outcome",
+        "decision_authority",
+        "provisional",
+        "reason_subcode",
+        "scanned_at_corrected_utc",
+        "manifest_version",
+        "manifest_age_seconds_at_scan",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SCAN-1:Scan",
+        "drift_check_hash": "sha256:70afa8b3b827de376f87dd86a3575301034e6afeb315cf39855b248917bb7251",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.scan"
+    },
+    "ticketing.seat.allocated.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "order_id",
+          "seat_id"
+        ],
+        "dedupe_window_sec": 2592000
+      },
+      "ordering": {
+        "ordering_key": [
+          "org_id",
+          "order_id"
+        ],
+        "ordering_window_sec": 2592000
+      },
+      "producer_contract": "SEAT-1",
+      "required_data_keys": [
+        "allocation_id",
+        "hold_id",
+        "order_id",
+        "occurrence_id",
+        "seat_id",
+        "allocated_at_utc"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SEAT-1:SeatAllocation",
+        "drift_check_hash": "sha256:e80a540e891df9d5be8a1d5b503d65685b0ba5bd385b41e50303bdbefaa33cdc",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat",
+      "producer_action": "SEAT-1.allocate_hold",
+      "resource_version_source": "SEAT-1.InventoryBucketCursor.current_version + 1 allocated for the atomic allocation",
+      "atomic_outbox_rule": "SEAT-1.allocate_hold MUST write the SeatHold/SeatAllocation and corresponding OutboxEvent in the same transaction.",
+      "payload_source": {
+        "allocation_id": "created SeatAllocation identity",
+        "hold_id": "allocated SeatHold identity",
+        "order_id": "SEAT-1.allocate_hold order_id input persisted on SeatAllocation",
+        "occurrence_id": "allocated SeatAllocation.occurrence_id",
+        "seat_id": "allocated SeatAllocation.seat_id",
+        "allocated_at_utc": "allocation timestamp committed with the transition"
+      }
+    },
+    "ticketing.seat.allocated.v2": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "allocation_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "order_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "SEAT-1",
+      "required_data_keys": [
+        "allocation_id",
+        "hold_id",
+        "occurrence_id",
+        "seat_id",
+        "order_id",
+        "checkout_group_id",
+        "pricing_snapshot_id",
+        "price_line_id",
+        "allocated_at_utc"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SEAT-1:SeatAllocation",
+        "drift_check_hash": "sha256:28ce05c2aae91edcf9bf6ee9d0b86184dd8fc1cff731913f2664ff50dfb74bbf",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    },
+    "ticketing.seat.allocation.created.v3": {
+      "event_name": "ticketing.seat.allocation.created.v3",
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "allocation_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "event_id",
+          "bucket_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "SEAT-1",
+      "required_data_keys": [
+        "event_id",
+        "bucket_id",
+        "version",
+        "seat_id",
+        "occurrence_id",
+        "hold_id",
+        "allocation_id",
+        "allocated_at_utc",
+        "pricing_snapshot_id",
+        "total_minor",
+        "currency"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SEAT-1:SeatAllocation",
+        "deployment_interlock_requirement": "Tightening seating required_data_keys requires a DMSC-1 v2.1.0 Drain-and-Deploy. Operators MUST prove the seating outbox is drained of legacy v2 events before enabling v3 producers.",
+        "drift_check_hash": "befd303427afb2f643f8de4adf9b78d733f7f71556ec8f2d93f5f7e9744e21eb",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "notes": "Registered from SEAT-1 v3.5.0 outbox_events; bucket-scoped monotonic versioning.",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    },
+    "ticketing.seat.allocation.reversed.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "reversal_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "order_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "SEAT-1",
+      "required_data_keys": [
+        "reversal_id",
+        "allocation_id",
+        "occurrence_id",
+        "seat_id",
+        "order_id",
+        "reversal_authority",
+        "reason_subcode",
+        "reversed_at_utc"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SEAT-1:SeatAllocationReversal",
+        "drift_check_hash": "sha256:b4fd04522ab1e67e507e585f1aac5ce97abcec3013372e266a2bc26833aed531",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat",
+      "producer_action": "SEAT-1.reverse_allocation",
+      "resource_version_source": "SEAT-1.InventoryBucketCursor.current_version + 1 allocated for the atomic reversal",
+      "atomic_outbox_rule": "SEAT-1.reverse_allocation MUST write the SeatAllocationReversal and corresponding OutboxEvent in the same transaction.",
+      "payload_source": {
+        "reversal_id": "created SeatAllocationReversal identity",
+        "allocation_id": "reversed SeatAllocation identity",
+        "occurrence_id": "reversed SeatAllocation.occurrence_id",
+        "seat_id": "reversed SeatAllocation.seat_id",
+        "order_id": "reversed SeatAllocation.order_id",
+        "reversal_authority": "validated reverse_allocation input",
+        "reason_subcode": "validated reverse_allocation input",
+        "reversed_at_utc": "timestamp committed with reversal transition"
+      }
+    },
+    "ticketing.seat.allocation.reversed.v2": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "reversal_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "order_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "SEAT-1",
+      "required_data_keys": [
+        "reversal_id",
+        "allocation_id",
+        "occurrence_id",
+        "seat_id",
+        "order_id",
+        "checkout_group_id",
+        "pricing_snapshot_id",
+        "price_line_id",
+        "reversal_authority",
+        "reason_subcode",
+        "reversed_at_utc"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SEAT-1:SeatAllocationReversal",
+        "drift_check_hash": "sha256:409c5bb85090bc7a5285be90f601263acb00d3aec16e447265c76f3fe87b8070",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    },
+    "ticketing.seat.allocation.reversed.v3": {
+      "event_name": "ticketing.seat.allocation.reversed.v3",
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "allocation_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "event_id",
+          "bucket_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "SEAT-1",
+      "required_data_keys": [
+        "event_id",
+        "bucket_id",
+        "version",
+        "seat_id",
+        "occurrence_id",
+        "hold_id",
+        "allocation_id",
+        "allocated_at_utc",
+        "pricing_snapshot_id",
+        "total_minor",
+        "currency"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SEAT-1:SeatAllocation",
+        "deployment_interlock_requirement": "Tightening seating required_data_keys requires a DMSC-1 v2.1.0 Drain-and-Deploy. Operators MUST prove the seating outbox is drained of legacy v2 events before enabling v3 producers.",
+        "drift_check_hash": "befd303427afb2f643f8de4adf9b78d733f7f71556ec8f2d93f5f7e9744e21eb",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "notes": "Registered from SEAT-1 v3.5.0 outbox_events; bucket-scoped monotonic versioning.",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat"
+    },
+    "ticketing.seat.hold.created.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "hold_id"
+        ],
+        "dedupe_window_sec": 604800
+      },
+      "ordering": {
+        "ordering_key": [
+          "org_id",
+          "occurrence_id",
+          "seat_id"
+        ],
+        "ordering_window_sec": 604800
+      },
+      "producer_contract": "SEAT-1",
+      "required_data_keys": [
+        "hold_id",
+        "occurrence_id",
+        "seat_id",
+        "expires_at_utc"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SEAT-1:SeatHold",
+        "drift_check_hash": "sha256:e0e2fc0f7afd9bdada12c5c5cb1ab32cbfeafa75a039c441a742c55ee810380c",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat",
+      "producer_action": "SEAT-1.create_hold",
+      "resource_version_source": "SEAT-1.InventoryBucketCursor.current_version + 1, committed as the created SeatHold version",
+      "atomic_outbox_rule": "SEAT-1.create_hold MUST persist the SeatHold and corresponding OutboxEvent in the same transaction.",
+      "payload_source": {
+        "hold_id": "created SeatHold identity",
+        "occurrence_id": "target SeatHold.occurrence_id",
+        "seat_id": "target SeatHold.seat_id",
+        "expires_at_utc": "server-computed and persisted SeatHold.expires_at_utc"
+      }
+    },
+    "ticketing.seat.hold.expired.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "hold_id",
+          "expired_at_utc"
+        ],
+        "dedupe_window_sec": 604800
+      },
+      "ordering": {
+        "ordering_key": [
+          "org_id",
+          "occurrence_id",
+          "seat_id"
+        ],
+        "ordering_window_sec": 604800
+      },
+      "producer_contract": "SEAT-1",
+      "required_data_keys": [
+        "hold_id",
+        "occurrence_id",
+        "seat_id",
+        "expired_at_utc"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SEAT-1:SeatHold",
+        "drift_check_hash": "sha256:bdd2d101a88534878d3a7728251f90e3b9283e021f8396c809fcd742d61fdd85",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat",
+      "producer_action": "SEAT-1.expire_holds",
+      "resource_version_source": "SeatHold.lock_version after the fenced expiration transition",
+      "atomic_outbox_rule": "SEAT-1.expire_holds MUST persist the OutboxEvent in the same database transaction as the SeatHold state mutation.",
+      "payload_source": {
+        "hold_id": "expired SeatHold identity",
+        "occurrence_id": "expired SeatHold.occurrence_id",
+        "seat_id": "expired SeatHold.seat_id",
+        "expired_at_utc": "action cutoff_utc persisted on the expired SeatHold"
+      }
+    },
+    "ticketing.seat.hold.released.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "hold_id",
+          "released_at_utc"
+        ],
+        "dedupe_window_sec": 604800
+      },
+      "ordering": {
+        "ordering_key": [
+          "org_id",
+          "occurrence_id",
+          "seat_id"
+        ],
+        "ordering_window_sec": 604800
+      },
+      "producer_contract": "SEAT-1",
+      "required_data_keys": [
+        "hold_id",
+        "occurrence_id",
+        "seat_id",
+        "released_at_utc"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SEAT-1:SeatHold",
+        "drift_check_hash": "sha256:25ceee1fbda2af902634c2290f3cae519a398f182f118282914c48af3b1bbf49",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.seat",
+      "producer_action": "SEAT-1.release_hold",
+      "resource_version_source": "SeatHold.lock_version after the fenced release transition",
+      "atomic_outbox_rule": "SEAT-1.release_hold MUST persist the OutboxEvent in the same database transaction as the SeatHold state mutation.",
+      "payload_source": {
+        "hold_id": "released SeatHold identity",
+        "occurrence_id": "released SeatHold.occurrence_id",
+        "seat_id": "released SeatHold.seat_id",
+        "released_at_utc": "database timestamp committed with the release transition"
+      }
+    },
+    "ticketing.sub.entitlement_checked.v1": {
+      "idempotency": {
+        "dedup_key_fields": [
+          "org_id",
+          "program_id",
+          "entitlement_id",
+          "event_id"
+        ],
+        "strategy": "producer_dedup_key"
+      },
+      "ordering": {
+        "causal_key_fields": [
+          "org_id",
+          "program_id"
+        ],
+        "strategy": "causal"
+      },
+      "producer_contract": "SUB-1",
+      "required_data_keys": [
+        "program_id",
+        "subject_customer_id",
+        "eligible",
+        "entitlement_grant_id",
+        "evaluated_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SUB-1:entitlement_grant",
+        "drift_check_hash": "sha256:TBD",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.sub"
+    },
+    "ticketing.sub.entitlement_expired.v1": {
+      "idempotency": {
+        "dedup_key_fields": [
+          "org_id",
+          "program_id",
+          "entitlement_id",
+          "event_id"
+        ],
+        "strategy": "producer_dedup_key"
+      },
+      "ordering": {
+        "causal_key_fields": [
+          "org_id",
+          "program_id"
+        ],
+        "strategy": "causal"
+      },
+      "producer_contract": "SUB-1",
+      "required_data_keys": [
+        "program_id",
+        "entitlement_grant_id",
+        "subject_customer_id",
+        "expired_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SUB-1:entitlement_grant",
+        "drift_check_hash": "sha256:TBD",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.sub"
+    },
+    "ticketing.sub.entitlement_granted.v1": {
+      "idempotency": {
+        "dedup_key_fields": [
+          "org_id",
+          "program_id",
+          "entitlement_id",
+          "event_id"
+        ],
+        "strategy": "producer_dedup_key"
+      },
+      "ordering": {
+        "causal_key_fields": [
+          "org_id",
+          "program_id"
+        ],
+        "strategy": "causal"
+      },
+      "producer_contract": "SUB-1",
+      "required_data_keys": [
+        "program_id",
+        "tier_id",
+        "entitlement_grant_id",
+        "subject_customer_id",
+        "status",
+        "granted_at_utc",
+        "activated_at_utc",
+        "expires_at_utc",
+        "grace_until_utc",
+        "source_system",
+        "actor_id",
+        "actor_role",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SUB-1:entitlement_grant",
+        "drift_check_hash": "sha256:TBD",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.sub"
+    },
+    "ticketing.sub.entitlement_revoked.v1": {
+      "idempotency": {
+        "dedup_key_fields": [
+          "org_id",
+          "program_id",
+          "entitlement_id",
+          "event_id"
+        ],
+        "strategy": "producer_dedup_key"
+      },
+      "ordering": {
+        "causal_key_fields": [
+          "org_id",
+          "program_id"
+        ],
+        "strategy": "causal"
+      },
+      "producer_contract": "SUB-1",
+      "required_data_keys": [
+        "program_id",
+        "entitlement_grant_id",
+        "subject_customer_id",
+        "revoked_at_utc",
+        "revocation_reason",
+        "actor_id",
+        "actor_role",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SUB-1:entitlement_grant",
+        "drift_check_hash": "sha256:TBD",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.sub"
+    },
+    "ticketing.sub.offer_blocked.v1": {
+      "idempotency": {
+        "dedup_key_fields": [
+          "org_id",
+          "program_id",
+          "entitlement_id",
+          "event_id"
+        ],
+        "strategy": "producer_dedup_key"
+      },
+      "ordering": {
+        "causal_key_fields": [
+          "org_id",
+          "program_id"
+        ],
+        "strategy": "causal"
+      },
+      "producer_contract": "SUB-1",
+      "required_data_keys": [
+        "program_id",
+        "subject_customer_id",
+        "offer_ref",
+        "blocked_reason",
+        "evaluated_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SUB-1:benefit_rule",
+        "drift_check_hash": "sha256:TBD",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.sub"
+    },
+    "ticketing.sub.program_created.v1": {
+      "idempotency": {
+        "dedup_key_fields": [
+          "org_id",
+          "program_id",
+          "entitlement_id",
+          "event_id"
+        ],
+        "strategy": "producer_dedup_key"
+      },
+      "ordering": {
+        "causal_key_fields": [
+          "org_id",
+          "program_id"
+        ],
+        "strategy": "causal"
+      },
+      "producer_contract": "SUB-1",
+      "required_data_keys": [
+        "program_id",
+        "actor_id",
+        "actor_role",
+        "created_at_utc",
+        "version"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "SUB-1:sub_program",
+        "drift_check_hash": "sha256:TBD",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.sub"
+    },
+    "ticketing.ticket.abuse_signal.recorded.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "signal_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "ticket_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "TKT-1",
+      "required_data_keys": [
+        "signal_id",
+        "ticket_id",
+        "occurrence_id",
+        "signal_kind",
+        "severity",
+        "decision",
+        "created_at_utc"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "TKT-1:TicketAbuseSignal",
+        "drift_check_hash": "sha256:efbfc988af2ecb14d5484434d25470fb9e2ea9d02100f139ff0617e5e673e892",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ticket"
+    },
+    "ticketing.ticket.credential.revoked.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "credential_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "ticket_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "TKT-1",
+      "required_data_keys": [
+        "ticket_id",
+        "occurrence_id",
+        "credential_id",
+        "revoked_at_utc",
+        "revocation_authority",
+        "reason_subcode"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "TKT-1:TicketRevocation",
+        "drift_check_hash": "sha256:b19e379c607b5200d46378185e80c06d113967ef7fabf07b562db25be8fad8b2",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ticket"
+    },
+    "ticketing.ticket.credential.superseded.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "new_credential_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "ticket_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "TKT-1",
+      "required_data_keys": [
+        "ticket_id",
+        "occurrence_id",
+        "old_credential_id",
+        "new_credential_id",
+        "kid",
+        "effective_at_utc",
+        "revocation_authority",
+        "reason_subcode"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "TKT-1:TicketCredential",
+        "drift_check_hash": "sha256:8eab412d2435c5b8dfa5a4196e141120715d064bc4b59b46b7e7b7f1abccb5c0",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ticket"
+    },
+    "ticketing.ticket.issued.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "ticket_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "ticket_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "TKT-1",
+      "required_data_keys": [
+        "ticket_id",
+        "order_id",
+        "checkout_group_id",
+        "purchaser_actor_id",
+        "occurrence_id",
+        "issued_at_utc",
+        "pricing_snapshot_id",
+        "pricing_line_id",
+        "credential_id",
+        "mode",
+        "kid",
+        "valid_from_utc",
+        "valid_until_utc",
+        "payload_fingerprint_sha256"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "TKT-1:Ticket",
+        "drift_check_hash": "sha256:4270c1fb4faff9239a262feee2cd9e779da7b7d343f157c085096a9218761b64",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ticket"
+    },
+    "ticketing.ticket.render.generated.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "render_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "ticket_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "TKT-1",
+      "required_data_keys": [
+        "render_id",
+        "ticket_id",
+        "credential_id",
+        "format",
+        "bytes",
+        "sha256",
+        "created_at_utc"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "TKT-1:TicketRenderArtifact",
+        "drift_check_hash": "sha256:79ba104f5e3c8cfca5cba8d62f783042fd1fdb15e0b3ddafe33e68991ec1f2c6",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ticket"
+    },
+    "ticketing.ticket.render.stale.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "render_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "ticket_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "TKT-1",
+      "required_data_keys": [
+        "render_id",
+        "ticket_id",
+        "credential_id",
+        "marked_stale_at_utc",
+        "reason_subcode"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "TKT-1:TicketRenderArtifact",
+        "drift_check_hash": "sha256:f4d3b4e904a2160f6551ea32e3c309977927355e36076536badb47c974833f34",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ticket"
+    },
+    "ticketing.ticket.wallet.revoked.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "binding_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "binding_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "TKT-1",
+      "required_data_keys": [
+        "binding_id",
+        "credential_id",
+        "provider",
+        "external_pass_id",
+        "revoked_at_utc",
+        "reason_subcode"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "TKT-1:TicketWalletBinding",
+        "drift_check_hash": "sha256:3d8ca1f56da74d81bf71c0cf96b903d17f3c6b01c0b12f3e759a79da53b48e32",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ticket"
+    },
+    "ticketing.ticket.wallet.update_requested.v1": {
+      "idempotency": {
+        "dedupe_key": [
+          "org_id",
+          "binding_id"
+        ],
+        "dedupe_window_days": 45
+      },
+      "ordering": {
+        "key": [
+          "org_id",
+          "binding_id"
+        ],
+        "monotonic_within_key": true
+      },
+      "producer_contract": "TKT-1",
+      "required_data_keys": [
+        "binding_id",
+        "credential_id",
+        "provider",
+        "external_pass_id",
+        "status",
+        "last_attempt_at_utc",
+        "attempt_count",
+        "last_error_subcode"
+      ],
+      "required_extensions": [
+        "org_id",
+        "trace_id",
+        "request_id"
+      ],
+      "schema_governance": {
+        "ash_resource_ref": "TKT-1:TicketWalletBinding",
+        "drift_check_hash": "sha256:c9578c63b9c0665a434bc3e41c46b5400d27b95c21bb196775cf2ae4be18695b",
+        "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+        "source": "derived_from_ash_resource"
+      },
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.ticket"
+    }
+  },
+  "t0_event_registry_dispositions": {
+    "scope": "T0 authority-hardening wave",
+    "scope_note": "These dispositions apply to existing event_types registrations and do not change their producer semantics, payloads, version sources, or outbox claims.",
+    "totals": {
+      "T0_BLOCKER": 0,
+      "SAME_WAVE_COHERENCE": 0,
+      "DEFERRED_EVENT_REGISTRY_DEBT": 53
+    },
+    "registrations": {
+      "ticketing.archival.export.finalized.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "ARCH-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.archival.export.finalized.v1.",
+          "Q2": "T0 does not consume ticketing.archival.export.finalized.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.archival.export.finalized.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.archival.export.finalized.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.archival.export.finalized.v1 remains recorded for a later ARCH-1 domain hardening wave."
+        }
+      },
+      "ticketing.archival.legalhold.changed.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "ARCH-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.archival.legalhold.changed.v1.",
+          "Q2": "T0 does not consume ticketing.archival.legalhold.changed.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.archival.legalhold.changed.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.archival.legalhold.changed.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.archival.legalhold.changed.v1 remains recorded for a later ARCH-1 domain hardening wave."
+        }
+      },
+      "ticketing.archival.retention.purge.executed.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "ARCH-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.archival.retention.purge.executed.v1.",
+          "Q2": "T0 does not consume ticketing.archival.retention.purge.executed.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.archival.retention.purge.executed.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.archival.retention.purge.executed.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.archival.retention.purge.executed.v1 remains recorded for a later ARCH-1 domain hardening wave."
+        }
+      },
+      "ticketing.consent.changed.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "CONSENT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.consent.changed.v1.",
+          "Q2": "T0 does not consume ticketing.consent.changed.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.consent.changed.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.consent.changed.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.consent.changed.v1 remains recorded for a later CONSENT-1 domain hardening wave."
+        }
+      },
+      "ticketing.consent.withdrawn.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "CONSENT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.consent.withdrawn.v1.",
+          "Q2": "T0 does not consume ticketing.consent.withdrawn.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.consent.withdrawn.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.consent.withdrawn.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.consent.withdrawn.v1 remains recorded for a later CONSENT-1 domain hardening wave."
+        }
+      },
+      "ticketing.event.archived.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.event.archived.v1.",
+          "Q2": "T0 does not consume ticketing.event.archived.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.event.archived.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.event.archived.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.event.archived.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.event.content.revision.published.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.event.content.revision.published.v1.",
+          "Q2": "T0 does not consume ticketing.event.content.revision.published.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.event.content.revision.published.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.event.content.revision.published.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.event.content.revision.published.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.event.slug.redirect.created.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.event.slug.redirect.created.v1.",
+          "Q2": "T0 does not consume ticketing.event.slug.redirect.created.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.event.slug.redirect.created.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.event.slug.redirect.created.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.event.slug.redirect.created.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.event.visibility.changed.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.event.visibility.changed.v1.",
+          "Q2": "T0 does not consume ticketing.event.visibility.changed.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.event.visibility.changed.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.event.visibility.changed.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.event.visibility.changed.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.experiment.ended.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.experiment.ended.v1.",
+          "Q2": "T0 does not consume ticketing.experiment.ended.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.experiment.ended.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.experiment.ended.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.experiment.ended.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.experiment.started.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.experiment.started.v1.",
+          "Q2": "T0 does not consume ticketing.experiment.started.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.experiment.started.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.experiment.started.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.experiment.started.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.experiment.stop_proposed.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.experiment.stop_proposed.v1.",
+          "Q2": "T0 does not consume ticketing.experiment.stop_proposed.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.experiment.stop_proposed.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.experiment.stop_proposed.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.experiment.stop_proposed.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.experiment.stopped.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.experiment.stopped.v1.",
+          "Q2": "T0 does not consume ticketing.experiment.stopped.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.experiment.stopped.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.experiment.stopped.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.experiment.stopped.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.iam.session.created.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "IAM-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.iam.session.created.v1.",
+          "Q2": "T0 does not consume ticketing.iam.session.created.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.iam.session.created.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.iam.session.created.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.iam.session.created.v1 remains recorded for a later IAM-1 domain hardening wave."
+        }
+      },
+      "ticketing.iam.session.revoked.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "IAM-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.iam.session.revoked.v1.",
+          "Q2": "T0 does not consume ticketing.iam.session.revoked.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.iam.session.revoked.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.iam.session.revoked.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.iam.session.revoked.v1 remains recorded for a later IAM-1 domain hardening wave."
+        }
+      },
+      "ticketing.ledger.entry.posted.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "LED-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.ledger.entry.posted.v1.",
+          "Q2": "T0 does not consume ticketing.ledger.entry.posted.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.ledger.entry.posted.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ledger.entry.posted.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.ledger.entry.posted.v1 remains recorded for a later LED-1 domain hardening wave."
+        }
+      },
+      "ticketing.ledger.period.closed.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "LED-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.ledger.period.closed.v1.",
+          "Q2": "T0 does not consume ticketing.ledger.period.closed.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.ledger.period.closed.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ledger.period.closed.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.ledger.period.closed.v1 remains recorded for a later LED-1 domain hardening wave."
+        }
+      },
+      "ticketing.ledger.snapshot.created.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "LED-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.ledger.snapshot.created.v1.",
+          "Q2": "T0 does not consume ticketing.ledger.snapshot.created.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.ledger.snapshot.created.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ledger.snapshot.created.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.ledger.snapshot.created.v1 remains recorded for a later LED-1 domain hardening wave."
+        }
+      },
+      "ticketing.occurrence.access_policy.updated.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.occurrence.access_policy.updated.v1.",
+          "Q2": "T0 does not consume ticketing.occurrence.access_policy.updated.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.occurrence.access_policy.updated.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.access_policy.updated.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.access_policy.updated.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.occurrence.cancelled.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.occurrence.cancelled.v1.",
+          "Q2": "T0 does not consume ticketing.occurrence.cancelled.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.occurrence.cancelled.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.cancelled.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.cancelled.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.occurrence.capacity.updated.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.occurrence.capacity.updated.v1.",
+          "Q2": "T0 does not consume ticketing.occurrence.capacity.updated.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.occurrence.capacity.updated.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.capacity.updated.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.capacity.updated.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.occurrence.customer_action_required.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.occurrence.customer_action_required.v1.",
+          "Q2": "T0 does not consume ticketing.occurrence.customer_action_required.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.occurrence.customer_action_required.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.customer_action_required.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.customer_action_required.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.occurrence.rescheduled.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.occurrence.rescheduled.v1.",
+          "Q2": "T0 does not consume ticketing.occurrence.rescheduled.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.occurrence.rescheduled.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.rescheduled.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.rescheduled.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.occurrence.sales.paused.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.occurrence.sales.paused.v1.",
+          "Q2": "T0 does not consume ticketing.occurrence.sales.paused.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.occurrence.sales.paused.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.sales.paused.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.sales.paused.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.occurrence.sales.resumed.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.occurrence.sales.resumed.v1.",
+          "Q2": "T0 does not consume ticketing.occurrence.sales.resumed.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.occurrence.sales.resumed.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.sales.resumed.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.sales.resumed.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.occurrence.sales.window.updated.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "EVT-2",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.occurrence.sales.window.updated.v1.",
+          "Q2": "T0 does not consume ticketing.occurrence.sales.window.updated.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.occurrence.sales.window.updated.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.occurrence.sales.window.updated.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.occurrence.sales.window.updated.v1 remains recorded for a later EVT-2 domain hardening wave."
+        }
+      },
+      "ticketing.order.expired.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "ORD-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.order.expired.v1.",
+          "Q2": "T0 does not consume ticketing.order.expired.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.order.expired.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.order.expired.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.order.expired.v1 remains recorded for a later ORD-1 domain hardening wave."
+        }
+      },
+      "ticketing.order.finalized.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "ORD-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.order.finalized.v1.",
+          "Q2": "T0 does not consume ticketing.order.finalized.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.order.finalized.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.order.finalized.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.order.finalized.v1 remains recorded for a later ORD finalization hardening wave."
+        },
+        "event_specific_statements": {
+          "t0_boundary": "T0 does not finalize an Order.",
+          "wave_scope": "This authority wave does not claim to harden finalization event production."
+        }
+      },
+      "ticketing.payment.chargeback_rate_exceeded.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "PAY-3",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.payment.chargeback_rate_exceeded.v1.",
+          "Q2": "T0 does not consume ticketing.payment.chargeback_rate_exceeded.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.payment.chargeback_rate_exceeded.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.payment.chargeback_rate_exceeded.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.payment.chargeback_rate_exceeded.v1 remains recorded for a later PAY-3 domain hardening wave."
+        }
+      },
+      "ticketing.payment.dispute_open_spike.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "PAY-3",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.payment.dispute_open_spike.v1.",
+          "Q2": "T0 does not consume ticketing.payment.dispute_open_spike.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.payment.dispute_open_spike.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.payment.dispute_open_spike.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.payment.dispute_open_spike.v1 remains recorded for a later PAY-3 domain hardening wave."
+        }
+      },
+      "ticketing.payment.evidence_submission_failed.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "PAY-3",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.payment.evidence_submission_failed.v1.",
+          "Q2": "T0 does not consume ticketing.payment.evidence_submission_failed.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.payment.evidence_submission_failed.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.payment.evidence_submission_failed.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.payment.evidence_submission_failed.v1 remains recorded for a later PAY-3 domain hardening wave."
+        }
+      },
+      "ticketing.redemption.status.materialized.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SCAN-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.redemption.status.materialized.v1.",
+          "Q2": "T0 does not consume ticketing.redemption.status.materialized.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.redemption.status.materialized.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.redemption.status.materialized.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.redemption.status.materialized.v1 remains recorded for a later SCAN-1 domain hardening wave."
+        }
+      },
+      "ticketing.refund.finalized.v2": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "REFUND-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.refund.finalized.v2.",
+          "Q2": "T0 does not consume ticketing.refund.finalized.v2.",
+          "Q3": "None of the T0-required actions depend on ticketing.refund.finalized.v2.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.refund.finalized.v2.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.refund.finalized.v2 remains recorded for a later REFUND-1 domain hardening wave."
+        }
+      },
+      "ticketing.scan.hydration.recorded.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SCAN-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.scan.hydration.recorded.v1.",
+          "Q2": "T0 does not consume ticketing.scan.hydration.recorded.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.scan.hydration.recorded.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.scan.hydration.recorded.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.scan.hydration.recorded.v1 remains recorded for a later SCAN-1 domain hardening wave."
+        }
+      },
+      "ticketing.scan.recorded.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SCAN-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.scan.recorded.v1.",
+          "Q2": "T0 does not consume ticketing.scan.recorded.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.scan.recorded.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.scan.recorded.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.scan.recorded.v1 remains recorded for a later SCAN-1 domain hardening wave."
+        }
+      },
+      "ticketing.seat.allocated.v2": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SEAT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.seat.allocated.v2.",
+          "Q2": "T0 does not consume ticketing.seat.allocated.v2.",
+          "Q3": "None of the T0-required actions depend on ticketing.seat.allocated.v2.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.seat.allocated.v2.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.seat.allocated.v2 remains recorded for a later SEAT-1 domain hardening wave."
+        }
+      },
+      "ticketing.seat.allocation.created.v3": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SEAT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.seat.allocation.created.v3.",
+          "Q2": "T0 does not consume ticketing.seat.allocation.created.v3.",
+          "Q3": "None of the T0-required actions depend on ticketing.seat.allocation.created.v3.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.seat.allocation.created.v3.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.seat.allocation.created.v3 remains recorded for a later SEAT allocation/finalization hardening wave."
+        },
+        "event_specific_statements": {
+          "bucket_cursor": "The T0 authority repair changes bucket cursor semantics but does not define, reinterpret, or claim producer parity for historical allocation v3 events.",
+          "event_version": "Event-version semantics belong to a later SEAT allocation/finalization hardening wave."
+        }
+      },
+      "ticketing.seat.allocation.reversed.v2": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SEAT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.seat.allocation.reversed.v2.",
+          "Q2": "T0 does not consume ticketing.seat.allocation.reversed.v2.",
+          "Q3": "None of the T0-required actions depend on ticketing.seat.allocation.reversed.v2.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.seat.allocation.reversed.v2.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.seat.allocation.reversed.v2 remains recorded for a later SEAT-1 domain hardening wave."
+        }
+      },
+      "ticketing.seat.allocation.reversed.v3": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SEAT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.seat.allocation.reversed.v3.",
+          "Q2": "T0 does not consume ticketing.seat.allocation.reversed.v3.",
+          "Q3": "None of the T0-required actions depend on ticketing.seat.allocation.reversed.v3.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.seat.allocation.reversed.v3.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.seat.allocation.reversed.v3 remains recorded for a later SEAT allocation/finalization hardening wave."
+        },
+        "event_specific_statements": {
+          "bucket_cursor": "The T0 authority repair changes bucket cursor semantics but does not define, reinterpret, or claim producer parity for historical allocation v3 events.",
+          "event_version": "Event-version semantics belong to a later SEAT allocation/finalization hardening wave."
+        }
+      },
+      "ticketing.sub.entitlement_checked.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SUB-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.sub.entitlement_checked.v1.",
+          "Q2": "T0 does not consume ticketing.sub.entitlement_checked.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.sub.entitlement_checked.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.entitlement_checked.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.sub.entitlement_checked.v1 remains recorded for a later SUB-1 domain hardening wave."
+        }
+      },
+      "ticketing.sub.entitlement_expired.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SUB-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.sub.entitlement_expired.v1.",
+          "Q2": "T0 does not consume ticketing.sub.entitlement_expired.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.sub.entitlement_expired.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.entitlement_expired.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.sub.entitlement_expired.v1 remains recorded for a later SUB-1 domain hardening wave."
+        }
+      },
+      "ticketing.sub.entitlement_granted.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SUB-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.sub.entitlement_granted.v1.",
+          "Q2": "T0 does not consume ticketing.sub.entitlement_granted.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.sub.entitlement_granted.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.entitlement_granted.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.sub.entitlement_granted.v1 remains recorded for a later SUB-1 domain hardening wave."
+        }
+      },
+      "ticketing.sub.entitlement_revoked.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SUB-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.sub.entitlement_revoked.v1.",
+          "Q2": "T0 does not consume ticketing.sub.entitlement_revoked.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.sub.entitlement_revoked.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.entitlement_revoked.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.sub.entitlement_revoked.v1 remains recorded for a later SUB-1 domain hardening wave."
+        }
+      },
+      "ticketing.sub.offer_blocked.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SUB-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.sub.offer_blocked.v1.",
+          "Q2": "T0 does not consume ticketing.sub.offer_blocked.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.sub.offer_blocked.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.offer_blocked.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.sub.offer_blocked.v1 remains recorded for a later SUB-1 domain hardening wave."
+        }
+      },
+      "ticketing.sub.program_created.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "SUB-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.sub.program_created.v1.",
+          "Q2": "T0 does not consume ticketing.sub.program_created.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.sub.program_created.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.sub.program_created.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.sub.program_created.v1 remains recorded for a later SUB-1 domain hardening wave."
+        }
+      },
+      "ticketing.ticket.abuse_signal.recorded.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "TKT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.ticket.abuse_signal.recorded.v1.",
+          "Q2": "T0 does not consume ticketing.ticket.abuse_signal.recorded.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.ticket.abuse_signal.recorded.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.abuse_signal.recorded.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.ticket.abuse_signal.recorded.v1 remains recorded for a later TKT-1 domain hardening wave."
+        }
+      },
+      "ticketing.ticket.credential.revoked.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "TKT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.ticket.credential.revoked.v1.",
+          "Q2": "T0 does not consume ticketing.ticket.credential.revoked.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.ticket.credential.revoked.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.credential.revoked.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.ticket.credential.revoked.v1 remains recorded for a later TKT-1 domain hardening wave."
+        }
+      },
+      "ticketing.ticket.credential.superseded.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "TKT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.ticket.credential.superseded.v1.",
+          "Q2": "T0 does not consume ticketing.ticket.credential.superseded.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.ticket.credential.superseded.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.credential.superseded.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.ticket.credential.superseded.v1 remains recorded for a later TKT-1 domain hardening wave."
+        }
+      },
+      "ticketing.ticket.issued.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "TKT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.ticket.issued.v1.",
+          "Q2": "T0 does not consume ticketing.ticket.issued.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.ticket.issued.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.issued.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.ticket.issued.v1 remains recorded for a later TKT-1 domain hardening wave."
+        }
+      },
+      "ticketing.ticket.render.generated.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "TKT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.ticket.render.generated.v1.",
+          "Q2": "T0 does not consume ticketing.ticket.render.generated.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.ticket.render.generated.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.render.generated.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.ticket.render.generated.v1 remains recorded for a later TKT-1 domain hardening wave."
+        }
+      },
+      "ticketing.ticket.render.stale.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "TKT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.ticket.render.stale.v1.",
+          "Q2": "T0 does not consume ticketing.ticket.render.stale.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.ticket.render.stale.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.render.stale.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.ticket.render.stale.v1 remains recorded for a later TKT-1 domain hardening wave."
+        }
+      },
+      "ticketing.ticket.wallet.revoked.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "TKT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.ticket.wallet.revoked.v1.",
+          "Q2": "T0 does not consume ticketing.ticket.wallet.revoked.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.ticket.wallet.revoked.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.wallet.revoked.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.ticket.wallet.revoked.v1 remains recorded for a later TKT-1 domain hardening wave."
+        }
+      },
+      "ticketing.ticket.wallet.update_requested.v1": {
+        "disposition": "DEFERRED_EVENT_REGISTRY_DEBT",
+        "producer_contract": "TKT-1",
+        "quarantine_proof": {
+          "Q1": "T0 does not emit ticketing.ticket.wallet.update_requested.v1.",
+          "Q2": "T0 does not consume ticketing.ticket.wallet.update_requested.v1.",
+          "Q3": "None of the T0-required actions depend on ticketing.ticket.wallet.update_requested.v1.",
+          "Q4": "This authority wave does not invent or modify producer semantics for ticketing.ticket.wallet.update_requested.v1.",
+          "Q5": "The unresolved producer-provenance debt for ticketing.ticket.wallet.update_requested.v1 remains recorded for a later TKT-1 domain hardening wave."
+        }
+      }
+    }
+  },
+  "generated_at_utc": "2026-02-10T13:55:16Z",
+  "invariants": [
+    {
+      "id": "EVT-1-P0-001",
+      "severity": "P0",
+      "text": "Every emitted event MUST include org_id in envelope extensions and MUST be rejected if org_id is missing."
+    },
+    {
+      "id": "EVT-1-P0-002",
+      "severity": "P0",
+      "text": "Event type strings MUST be namespaced under ticketing.* for this suite; v42.* types are forbidden."
+    },
+    {
+      "id": "EVT-1-P0-003",
+      "severity": "P0",
+      "text": "Event id MUST be UUIDv7 to preserve time-sortability without global sequences."
+    },
+    {
+      "id": "EVT-1-P0-004",
+      "severity": "P0",
+      "text": "Publish MUST be outbox-driven and atomic with the originating state mutation (no read-modify-write publish)."
+    },
+    {
+      "id": "EVT-1-P0-005",
+      "severity": "P0",
+      "text": "Every event type registration MUST declare schema_governance.source as either 'derived_from_ash_resource' or 'explicit_json_schema'. Ungoverned payload expansion is forbidden."
+    },
+    {
+      "id": "EVT-1-P0-006",
+      "severity": "P0",
+      "text": "required_data_keys is a contractual guarantee: downstream consumers MUST ONLY rely on keys listed in required_data_keys. Any other payload keys are 'shadow data' and may be dropped by governance scrubbing."
+    },
+    {
+      "id": "EVT-1-P0-DEPLOY-DRAIN-001",
+      "severity": "P0",
+      "text": "When EVT-1 introduces a new required_data_keys field for an existing event type (tightening validation), deployment MUST use a Drain-and-Deploy interlock: (1) pause/stop producers that can emit legacy payloads, (2) drain/flush in-flight legacy events from queues/outbox, (3) deploy the stricter registry, (4) resume producers. Deployments that would cause legacy events to be rejected MUST NOT proceed without completing the drain step."
+    },
+    {
+      "id": "EVT-1-INV-ENVELOPE-LEGACY-SENTINEL-001",
+      "severity": "P0",
+      "text": "Envelope extension registry_version_sha MUST be a 64-hex sha256. LEGACY_SHA_SENTINEL = \"0000000000000000000000000000000000000000000000000000000000000000\" (64 zeros) indicates pre-fencing legacy events and MUST be routed to automated backfill (no manual quarantine)."
+    },
+    {
+      "id": "EVT-1-INV-ENVELOPE-REGISTRY-SHA-001",
+      "severity": "P0",
+      "text": "All events MUST carry envelope extension registry_version_sha (sha256 of EVT-1 registry contract artifact that governed emission)."
+    },
+    {
+      "rule_id": "EVT-1-INVARIANT-ORDER-FINALIZED-PAYLOAD-TYPES-001",
+      "severity": "P0",
+      "text": "For event ticketing.order.finalized.v1, payload field types are strictly defined: tax_apportionment_priority_map MUST be list(uuid_v7) (each element uuid_v7); tax_apportionment_priority_map_sha256 MUST be lowercase hex sha256 (64 chars) over utf8(JCS(tax_apportionment_priority_map)) using SEC-1 JCS byte-truth rules; version MUST be semver string. Producers MUST emit and consumers MUST validate these types; any mismatch MUST fail closed via ERR-1."
+    }
+  ],
+  "last_updated_utc": "2026-02-10T13:55:16Z",
+  "limits_and_budgets": {
+    "concurrency_limit": {
+      "publisher_workers": 20
+    },
+    "p99_latency_ms": {
+      "enqueue_outbox": 50,
+      "publish": 250
+    },
+    "rate_limit_per_tenant": {
+      "events_publish": 600,
+      "unit": "per_minute"
+    }
+  },
+  "metadata": {
+    "artifact_name": "EVT-1_Contract_v2.16.1.json",
+    "updated_at_utc": "2026-02-05T07:15:22Z"
+  },
+  "migration_backward_compatibility": {
+    "compat_policy": "minor_versions_must_be_additive",
+    "deprecations": [
+      {
+        "rule": "Event types MUST NOT be removed in minor/patch; only deprecated with explicit replacement."
+      }
+    ]
+  },
+  "negative_tests": [
+    {
+      "expected_err1": "ERR_BAD_REQUEST",
+      "expected_subcode": "EVT_CONTEXT_MISSING",
+      "id": "EVT-1-NEG-001",
+      "scenario": "Attempt to publish an event without org_id in extensions."
+    },
+    {
+      "expected_err1": "ERR_NOT_FOUND",
+      "expected_subcode": "TEN_CROSS_TENANT_HIDDEN",
+      "id": "EVT-1-NEG-002",
+      "scenario": "Attempt cross-tenant publish using mismatched org_id vs persisted aggregate org_id."
+    },
+    {
+      "expected_err1": "ERR_BAD_REQUEST",
+      "expected_subcode": "EVT_INVALID_TYPE",
+      "id": "EVT-1-NEG-003",
+      "scenario": "Attempt to publish a v42.* event type."
+    },
+    {
+      "expected_err1": "ERR_CONFLICT",
+      "expected_subcode": "EVT_IDEMPOTENCY_REPLAY",
+      "id": "EVT-1-NEG-004",
+      "scenario": "Replay publish with identical dedupe_key within the dedupe window."
+    }
+  ],
+  "normative_source": "json",
+  "observability": {
+    "metrics": {
+      "cardinality_limits": {
+        "forbid_user_identifiers_as_labels": true,
+        "max_label_values_per_dim": 64
+      },
+      "counters": [
+        {
+          "labels": [
+            "org_id",
+            "event_type"
+          ],
+          "name": "ticketing.evt1.events.published.total"
+        },
+        {
+          "labels": [
+            "org_id",
+            "reason"
+          ],
+          "name": "ticketing.evt1.events.rejected.total"
+        }
+      ]
+    },
+    "trace_id_propagation": {
+      "field": "trace_id",
+      "required": true
+    }
+  },
+  "rules": [
+    {
+      "id": "evt_scope_001",
+      "text": "EVT-1 SHALL be the single authoritative registry for platform domain event types and their canonical envelopes, schemas, and required extensions. EVT-1 MUST NOT define UI concerns or analytics/tracking telemetry."
+    },
+    {
+      "id": "evt_exclusive_registry_001",
+      "text": "All contracts that emit or consume platform domain events MUST reference event types registered in EVT-1. No contract other than EVT-1 SHALL define new platform domain event type identifiers."
+    },
+    {
+      "id": "evt_no_tracking_001",
+      "text": "EVT-1 MUST NOT register high-volume tracking/attribution event types. Tracking event taxonomy SHALL be owned by TRK-1 and MUST be isolated from EVT-1 domain event registry."
+    },
+    {
+      "id": "evt_envelope_001",
+      "text": "All event types registered in EVT-1 MUST use schema_ref 'ticketing.event.envelope.v1' and MUST conform to the EVT-1 event_envelope requirements. Required tenancy sealing SHALL be enforced via required_extensions including 'org_id'."
+    },
+    {
+      "id": "evt_versioning_001",
+      "text": "All event type identifiers MUST be versioned with a '.vN' suffix where N is a positive integer. Backward-incompatible changes MUST introduce a new versioned event type identifier."
+    }
+  ],
+  "schema_governance_policy": {
+    "allowed_sources": [
+      "derived_from_ash_resource",
+      "explicit_json_schema"
+    ],
+    "derived_from_ash_resource": {
+      "hash_basis": "sha256(event_type|source|ash_resource_ref|sorted(required_data_keys))",
+      "notes": "Use this for events whose payload keys are derived from an Ash 3.x resource boundary (public attributes + enforced required_data_keys).",
+      "required_fields": [
+        "ash_resource_ref",
+        "drift_check_hash"
+      ]
+    },
+    "explicit_json_schema": {
+      "hash_basis": "sha256(event_type|source|schema_ref|sorted(required_data_keys))",
+      "notes": "Use this when the payload schema is not derivable from an Ash resource (external producers, integration events, or contracts without Ash resource linkage).",
+      "required_fields": [
+        "schema_ref",
+        "drift_check_hash"
+      ]
+    },
+    "shadow_data_rule": "Any payload key not declared in required_data_keys is non-guaranteed (shadow data) and MUST NOT be relied upon by downstream consumers."
+  },
+  "schema_version": "contract-suite/1.0",
+  "security_posture": {
+    "auth_boundary": "SEC-1",
+    "data_retention_days": 365,
+    "pii_fields": []
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines the tenant-scoped event envelope and event registry used by Ticketing subsystems for outbox-driven asynchronous signals.",
+  "tenancy": {
+    "context_required": true,
+    "forbid_ambient_tenancy": true,
+    "leakage_policy": "hide_existence",
+    "platform_org": {
+      "must_exist_as_org_record": true,
+      "notes": "platform_org_id is used only for platform-scope events; tenant-scope events MUST use the impacted tenant org_id.",
+      "org_record_flag_key": "is_platform_org",
+      "platform_org_id_config_key": "ticketing.platform_org_id"
+    },
+    "strategy": "ash_attribute",
+    "tenant_key": "org_id"
+  },
+  "tier": 2,
+  "title": "EVT-1 Eventing Contract (Ticketing)",
+  "updated_at": "2026-02-10T13:55:16Z",
+  "version": "2.16.9"
+}

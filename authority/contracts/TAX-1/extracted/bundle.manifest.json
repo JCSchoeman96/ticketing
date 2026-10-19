@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "bundle_manifest",
+  "bundle": {
+    "bundle_id": "TAX-1",
+    "bundle_version": "3.0.1"
+  },
+  "doc_id": "TAX-1",
+  "files": [
+    {
+      "bytes": 86037,
+      "path": "TAX-1_Contract_v3.0.1.json",
+      "sha256": "75e06b9202239d6f1241160438546b74ad6d1030adaea219b378f99ab390e50e"
+    },
+    {
+      "bytes": 31842,
+      "path": "TAX-1_Test_Gates_v3.0.1.json",
+      "sha256": "9f5abaa0cd6ab5a73113799fa083e626cd06565f97c43905ca294df87fcd06d7"
+    }
+  ],
+  "generated_at_utc": "2026-10-18T10:43:12Z",
+  "schema_version": "bundle-manifest/1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "version": "3.0.1"
+}

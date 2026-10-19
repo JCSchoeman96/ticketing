@@ -1,0 +1,2339 @@
+{
+  "artifact_kind": "contract",
+  "banned_anti_patterns": [
+    "Client-calculated tax totals",
+    "Floating point money math",
+    "Implicit jurisdiction inference without an explicit event/org location source",
+    "Mutable tax rates (update-in-place) without effective dating",
+    "Checkout-only tax surprises in inclusive default posture"
+  ],
+  "canonical": true,
+  "change_log": [
+    {
+      "date_utc": "2026-02-09T06:33:55Z",
+      "id": "CHG-TAX-1-2.2.6-0001",
+      "summary": "Add durable CreditNote resource (dual-date bridge) with chronology invariant and pinned sequence/profile digests."
+    },
+    {
+      "date_utc": "2026-02-09T06:17:46Z",
+      "kind": "patch",
+      "notes": [
+        "Credit Note lifecycle semantics: origin tax point vs issuance time, plus sequence strategy pinning.",
+        "OrderTaxRecord exposes immutable tax_point_at_utc and reporting anchors (template/version/sequence)."
+      ],
+      "version": "2.2.4"
+    },
+    {
+      "changes": [
+        "Hygiene: align Test Gates identity pointer expectations to TAX-1@2.1.1 (no semantic changes).",
+        "Suite floor alignment: PRICE-1>=3.1.1, TEN-1>=1.7.5."
+      ],
+      "version": "2.1.1",
+      "when_utc": "2026-01-28T09:12:36Z"
+    },
+    {
+      "changes": [
+        "Fix TaxProfile.default_tax_basis constraint drift; explicitly allow customer_location; remove conflicting enum key.",
+        "Define canonical TaxableLineInput.item_ref_type values for tax enforcement and add fail-closed subcode TAX_ITEM_REF_TYPE_UNKNOWN.",
+        "Pin dependencies to LED-1@4.1.1, ORD-1@3.3.3, PRICE-1@3.0.15 and add PII-1 dependency for location evidence refs.",
+        "Add semantic test gates for schema consistency and canonical item_ref_type enforcement."
+      ],
+      "date_utc": "2026-01-26T20:35:50Z",
+      "version": "2.0.3"
+    },
+    {
+      "changes": [
+        "Clarify PRICE-1 integration: PriceLine.unit_price_minor is net-of-tax; line_total_minor is gross payable; inclusive mode derives net+tax from advertised gross price.",
+        "Lock tax policy per occurrence_id after first completed order: resolved tax context MUST NOT change; changes require new occurrence or new pricing program revision.",
+        "Declare TAXCTX-V2 as single-context per PricingSnapshot: mixed tax_class/jurisdiction within a single snapshot is out-of-scope for TAX-1 and MUST fail closed."
+      ],
+      "date_utc": "2026-01-26",
+      "version": "2.0.1"
+    },
+    {
+      "changes": [
+        "BREAKING: Introduce TAXCTX-V2 canonical tax context and require tax_context_digest_sha256 snapshot binding to PRICE-1 signatures.",
+        "BREAKING: Snapshot tax_profile_id, tax_rate_id, tax_scope, rounding_mode, provider_mode/provider_name and tax_context_digest_sha256 into OrderTaxRecord for audit/no-drift.",
+        "Adopt utc_datetime_usec for all timestamp fields (previously utc_datetime).",
+        "Extend TaxLine to include required tax_rate_id for audit consistency."
+      ],
+      "date_utc": "2026-01-26",
+      "version": "2.0.0"
+    },
+    {
+      "date": "2026-01-26",
+      "summary": "Closes remaining semantic open items: tax point strategy, external provider quote staleness controls, fee-scope mapping hooks, and audit fields for replayable tax evidence.",
+      "version": "2.0.2"
+    },
+    {
+      "changes": [
+        "Align TaxableLineInput.item_ref_type registry with PRICE-1 line types used for tax scope (ticket_type, addon, platform_fee).",
+        "Add explicit rule/invariant: platform_fee lines are taxable customer charges when present and MUST be included under tax_scope=all_customer_charges; fail closed if excluded.",
+        "Clarify platform_fee tax context binding: PriceSnapshot.platform_fee_tax_context_digest_sha256 MUST match order tax_context_digest_sha256 when fee lines are charged to buyer.",
+        "Remove dependency on PII-1; replace with doc-local privacy boundary statement using opaque evidence refs (no raw address storage in TAX artifacts).",
+        "Dependency floors aligned to ERR-1@1.4.15, PRICE-1@3.1.0, ORD-1@3.4.2."
+      ],
+      "date_utc": "2026-01-28",
+      "summary": "Lock platform fee VAT mapping + align tax input registry; remove phantom PII-1 dependency."
+    },
+    {
+      "change_id": "TAX-1-CHG-223-SEM-HARDEN",
+      "date_utc": "2026-02-09",
+      "summary": "Introduce PITIC digests + TAXCTX-V2 tenancy-salted digest + jurisdiction evidence hash + rounding/apportionment anchors.",
+      "type": "semantics_hardening"
+    },
+    {
+      "date_utc": "2026-10-18",
+      "type": "patch",
+      "version": "3.0.1",
+      "summary": "Resolve general TAX rounding support and exclusive arithmetic through TAXCTX-V2 rounding_mode.",
+      "changes": [
+        "Support the resolved half-even or half-up TAXCTX-V2 rounding mode while retaining half-even as the default.",
+        "Require exclusive tax arithmetic to use the resolved TAXCTX-V2 rounding_mode."
+      ]
+    }
+  ],
+  "conformance_vectors": {
+    "TAXCTX_V2": {
+      "description": "TAXCTX-V2 canonical digest vectors using the declared field order and tenant salt.",
+      "vectors": [
+        {
+          "id": "TAXCTX-V2-0001",
+          "expected_canonical_string": "org_id=018f1c2e-6c3a-7b6a-9c2f-000000000001|jurisdiction_code=ZA|inclusion_mode=inclusive|rounding_mode=half_even_minor_units|tax_class=standard|rate_basis_points=1500|tax_scope=all_customer_charges|tax_basis=event_location|provider_mode=internal|provider_name=|tax_point_strategy=quote_time",
+          "expected_sha256_hex": "ba1400a36012729597a80c830ab1cda9eae3db71932148f420130f4199553509"
+        },
+        {
+          "id": "TAXCTX-V2-0002",
+          "expected_canonical_string": "org_id=018f1c2e-6c3a-7b6a-9c2f-000000000002|jurisdiction_code=ZA|inclusion_mode=exclusive|rounding_mode=half_up_minor_units|tax_class=zero|rate_basis_points=0|tax_scope=ticket_only|tax_basis=org_location|provider_mode=external|provider_name=provider_x|tax_point_strategy=payment_confirmed_time",
+          "expected_sha256_hex": "211a958157c02160a2fa33225624166a6ac4493ce8e7385f42998ac5110f8098"
+        },
+        {
+          "id": "TAXCTX-V2-0003",
+          "expected_canonical_string": "org_id=018f1c2e-6c3a-7b6a-9c2f-000000000003|jurisdiction_code=ZA|inclusion_mode=inclusive|rounding_mode=half_even_minor_units|tax_class=standard|rate_basis_points=1500|tax_scope=ticket_only|tax_basis=event_location|provider_mode=internal|provider_name=|tax_point_strategy=quote_time",
+          "expected_sha256_hex": "2e4e09a17899c09cf952d864eb3814f2c51190a92cd93cefdde0524cd92427e9"
+        }
+      ]
+    }
+  },
+  "dependencies": [
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.10",
+      "reason": "Tax subcodes required for deterministic failure taxonomy."
+    },
+    {
+      "doc_id": "LED-1",
+      "edge_type": "requires",
+      "min_version": "4.2.0",
+      "reason": "Reconciliation target for tax liability and settlements."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "requires",
+      "min_version": "2.7.6",
+      "purpose": "Required upstream contract dependency."
+    },
+    {
+      "doc_id": "ORD-1",
+      "edge_type": "requires",
+      "min_version": "3.7.0",
+      "reason": "Orders finalize against PRICE snapshots; tax audit records key off order lifecycle."
+    },
+    {
+      "doc_id": "PRICE-1",
+      "edge_type": "requires",
+      "min_version": "3.3.0",
+      "reason": "Tax totals MUST populate PRICE-1 price_line.tax_total_minor and snapshot totals."
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.4",
+      "reason": "Tenant key org_id and tx-local RLS posture (app.current_org_id)."
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Baseline test gate taxonomy and bundle enforcement patterns."
+    },
+    {
+      "doc_id": "V42-0",
+      "edge_type": "foundation_floor",
+      "min_version": "1.6.0",
+      "reason": "Constitutional invariants for money/ledger truth + MoR posture."
+    }
+  ],
+  "doc_id": "TAX-1",
+  "domain_actions": [
+    {
+      "action": "resolve_tax_context_for_event",
+      "errors": [
+        {
+          "code": "ERR_PRECONDITION",
+          "subcode": "TAX_PROFILE_REQUIRED"
+        },
+        {
+          "code": "ERR_PRECONDITION",
+          "subcode": "TAX_JURISDICTION_REQUIRED"
+        },
+        {
+          "code": "ERR_PRECONDITION",
+          "subcode": "TAX_RATE_REQUIRED"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "org_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "event_jurisdiction_hint",
+          "required": false,
+          "type": "struct:Jurisdiction"
+        },
+        {
+          "name": "event_jurisdiction_override",
+          "required": false,
+          "type": "struct:Jurisdiction"
+        },
+        {
+          "name": "event_jurisdiction_code_override",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "name": "tax_class_override",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Exact tax_profile_id pinned by ProductRevision; no profile substitution is permitted.",
+          "name": "tax_profile_id",
+          "required": true,
+          "type": "uuid_v7"
+        }
+      ],
+      "notes": [
+        "This action resolves jurisdiction and tax configuration during quote-time evaluation using supplied event or organization location context.",
+        "Resolved values are returned as the immutable TAXCTX-V2 quote value and are not persisted as a TaxContext resource or written to event/ticket configuration."
+      ],
+      "outputs": [
+        {
+          "name": "jurisdiction",
+          "type": "struct:Jurisdiction"
+        },
+        {
+          "name": "jurisdiction_code",
+          "type": "string"
+        },
+        {
+          "name": "tax_class",
+          "type": "string"
+        },
+        {
+          "name": "rate_basis_points",
+          "type": "int"
+        },
+        {
+          "name": "tax_rate_id",
+          "type": "uuid_v7"
+        },
+        {
+          "description": "Resolved TaxProfile id used for tax computation; tax_profile_id is not a TAXCTX-V2 digest field.",
+          "name": "tax_profile_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "enum": [
+            "ticket_only",
+            "all_customer_charges"
+          ],
+          "name": "tax_scope",
+          "required": true,
+          "type": "enum"
+        },
+        {
+          "enum": [
+            "half_even_minor_units",
+            "half_up_minor_units"
+          ],
+          "name": "rounding_mode",
+          "required": true,
+          "type": "enum",
+          "description": "Resolved rounding mode used by this TAXCTX-V2 value."
+        },
+        {
+          "enum": [
+            "internal",
+            "external",
+            "hybrid"
+          ],
+          "name": "provider_mode",
+          "required": true,
+          "type": "enum"
+        },
+        {
+          "name": "provider_name",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Resolved from the exact pinned TaxProfile.default_inclusion_mode.",
+          "name": "inclusion_mode",
+          "required": true,
+          "type": "enum",
+          "enum": [
+            "inclusive",
+            "exclusive"
+          ]
+        },
+        {
+          "description": "Resolved from the exact pinned TaxProfile.default_tax_basis.",
+          "name": "tax_basis",
+          "required": true,
+          "type": "enum",
+          "enum": [
+            "event_location",
+            "org_location",
+            "manual",
+            "customer_location"
+          ]
+        },
+        {
+          "description": "Copied from the exact pinned TaxProfile.tax_point_strategy.",
+          "name": "tax_point_strategy",
+          "required": true,
+          "type": "string",
+          "enum": [
+            "quote_time",
+            "payment_confirmed_time",
+            "invoice_issued_time"
+          ]
+        },
+        {
+          "description": "Database UTC timestamp at quote-time TAX context evaluation.",
+          "name": "evaluated_at_utc",
+          "required": true,
+          "type": "utc_datetime_usec"
+        },
+        {
+          "description": "TAXCTX-V2, as defined by the canonical digest rule.",
+          "name": "digest_version",
+          "required": true,
+          "type": "enum",
+          "enum": [
+            "TAXCTX-V2"
+          ]
+        },
+        {
+          "description": "SHA-256 lowercase hex of the exact TAXCTX-V2 canonical transcript.",
+          "name": "digest_sha256",
+          "required": true,
+          "type": "sha256_hex"
+        }
+      ],
+      "validation_rules": [
+        "tax_profile_id MUST identify the same immutable TaxProfile pinned by ProductRevision, belong to org_id, and be active and usable for selling at quote time. TAX-1 MUST NOT substitute another profile."
+      ]
+    },
+    {
+      "action": "compute_tax_for_price_line",
+      "errors": [
+        {
+          "code": "ERR_VALIDATION",
+          "subcode": "TAX_MODE_INVALID"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "org_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "inclusion_mode",
+          "required": true,
+          "type": "enum:inclusive|exclusive"
+        },
+        {
+          "name": "jurisdiction_code",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "tax_class",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "rate_basis_points",
+          "required": true,
+          "type": "int"
+        },
+        {
+          "name": "line",
+          "required": true,
+          "type": "struct:TaxableLineInput"
+        },
+        {
+          "description": "Resolved TaxRate id; copied into TaxLine.tax_rate_id.",
+          "name": "tax_rate_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "enum": [
+            "half_even_minor_units",
+            "half_up_minor_units"
+          ],
+          "name": "rounding_mode",
+          "required": true,
+          "type": "enum"
+        }
+      ],
+      "notes": [
+        "Output tax_total_minor MUST populate PRICE-1 price_line.tax_total_minor."
+      ],
+      "outputs": [
+        {
+          "name": "tax_total_minor",
+          "type": "int"
+        },
+        {
+          "name": "tax_lines",
+          "type": "array:struct:TaxLine"
+        },
+        {
+          "name": "taxable_amount_minor",
+          "type": "int"
+        },
+        {
+          "name": "gross_total_minor",
+          "type": "int"
+        }
+      ]
+    },
+    {
+      "action": "persist_order_tax_record",
+      "errors": [
+        {
+          "code": "ERR_CONFLICT",
+          "subcode": "TAX_TOTAL_MISMATCH"
+        },
+        {
+          "subcode": "TAX_CONTEXT_DIGEST_MISMATCH",
+          "top_level": "ERR_VALIDATION",
+          "when": "Provided tax_context_digest_sha256 does not match recomputed TAXCTX-V2 digest from provided context fields."
+        }
+      ],
+      "inputs": [
+        {
+          "name": "org_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "order_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "currency",
+          "required": true,
+          "type": "iso_4217"
+        },
+        {
+          "name": "price_snapshot_ref",
+          "required": true,
+          "type": "struct:PriceSnapshotRef"
+        },
+        {
+          "name": "tax_lines",
+          "required": true,
+          "type": "array:struct:TaxLine"
+        },
+        {
+          "fields": [
+            {
+              "name": "taxable_amount_total_minor",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "tax_total_minor",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "gross_total_minor",
+              "required": true,
+              "type": "int"
+            }
+          ],
+          "name": "totals",
+          "required": true,
+          "type": "object"
+        },
+        {
+          "fields": [
+            {
+              "name": "inclusion_mode",
+              "required": true,
+              "type": "enum:inclusive|exclusive"
+            },
+            {
+              "name": "tax_basis",
+              "required": true,
+              "type": "enum:event_location|org_location|manual"
+            },
+            {
+              "name": "jurisdiction",
+              "required": true,
+              "type": "struct:Jurisdiction"
+            },
+            {
+              "name": "jurisdiction_code",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "tax_class",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "rate_basis_points",
+              "required": true,
+              "type": "int"
+            },
+            {
+              "name": "tax_profile_id",
+              "required": true,
+              "type": "uuid_v7"
+            },
+            {
+              "name": "tax_rate_id",
+              "required": true,
+              "type": "uuid_v7"
+            },
+            {
+              "enum": [
+                "ticket_only",
+                "all_customer_charges"
+              ],
+              "name": "tax_scope",
+              "required": true,
+              "type": "enum"
+            },
+            {
+              "enum": [
+                "half_even_minor_units",
+                "half_up_minor_units"
+              ],
+              "name": "rounding_mode",
+              "required": true,
+              "type": "enum"
+            },
+            {
+              "enum": [
+                "internal",
+                "external",
+                "hybrid"
+              ],
+              "name": "provider_mode",
+              "required": true,
+              "type": "enum"
+            },
+            {
+              "name": "provider_name",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "description": "TAXCTX-V2 digest; MUST match PRICE-1 PriceSnapshot.tax_context_digest_sha256.",
+              "name": "tax_context_digest_sha256",
+              "required": true,
+              "type": "sha256_hex"
+            }
+          ],
+          "name": "context",
+          "required": true,
+          "type": "object"
+        }
+      ],
+      "notes": [
+        "MUST be executed atomically with order finalization. If this action fails, order finalization MUST fail."
+      ],
+      "outputs": [
+        {
+          "name": "order_tax_record_id",
+          "type": "uuid_v7"
+        }
+      ]
+    },
+    {
+      "action": "resolve_tax_point_at_utc",
+      "description": "Resolve the effective tax point timestamp to be recorded and used for rate selection audit, based on tax_point_strategy and canonical timestamps from upstream domains (PRICE/ORD/PAY/LED).",
+      "id": "TAX-1-ACT-040",
+      "inputs": [
+        {
+          "enum": [
+            "quote_time",
+            "payment_confirmed_time",
+            "invoice_issued_time"
+          ],
+          "name": "tax_point_strategy",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "name": "quote_at_utc",
+          "required": false,
+          "type": "utc_datetime_usec"
+        },
+        {
+          "name": "payment_confirmed_at_utc",
+          "required": false,
+          "type": "utc_datetime_usec"
+        },
+        {
+          "name": "invoice_issued_at_utc",
+          "required": false,
+          "type": "utc_datetime_usec"
+        }
+      ],
+      "notes": [
+        "If the chosen strategy's source timestamp is missing, the platform MUST fail closed and return ERR-1:TAX_MODE_INVALID (or a more specific TAX_* subcode when available).",
+        "The resolved tax_point_at_utc MUST be stored in OrderTaxRecord.tax_point_at_utc and MUST be immutable."
+      ],
+      "outputs": [
+        {
+          "name": "tax_point_at_utc",
+          "required": true,
+          "type": "utc_datetime_usec"
+        }
+      ]
+    },
+    {
+      "description": "Create a durable CreditNote for a finalized refund using OrderTaxRecord tax point anchors and credit_note_reporting_profile sequence rules.",
+      "inputs": [
+        "org_id",
+        "refund_id",
+        "order_tax_record_id",
+        "issuance_at_utc"
+      ],
+      "kind": "command",
+      "name": "create_credit_note_from_refund",
+      "outputs": [
+        "credit_note_id",
+        "credit_note_number"
+      ]
+    },
+    {
+      "action": "create_tax_profile",
+      "capability": "tax.profile.create",
+      "authorization_scope": "tenant",
+      "inputs": [
+        {
+          "name": "org_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "profile_spec",
+          "required": true,
+          "type": "TaxProfile"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "tax_profile_id",
+          "type": "uuid_v7"
+        }
+      ],
+      "notes": [
+        "Creates immutable tenant-scoped TaxProfile version."
+      ]
+    },
+    {
+      "action": "activate_tax_profile",
+      "capability": "tax.profile.activate",
+      "authorization_scope": "tenant",
+      "inputs": [
+        {
+          "name": "org_id",
+          "required": true,
+          "type": "uuid_v7"
+        },
+        {
+          "name": "tax_profile_id",
+          "required": true,
+          "type": "uuid_v7"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "tax_profile_id",
+          "type": "uuid_v7"
+        }
+      ],
+      "notes": [
+        "Activates the referenced immutable tenant TaxProfile under tenant isolation."
+      ]
+    },
+    {
+      "action": "create_platform_tax_rate",
+      "capability": "platform.tax_rate.create",
+      "authorization_scope": "platform",
+      "inputs": [
+        {
+          "name": "rate_spec",
+          "required": true,
+          "type": "TaxRate"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "tax_rate_id",
+          "type": "uuid_v7"
+        }
+      ],
+      "notes": [
+        "Creates an immutable effective-dated global platform TaxRate revision. Platform scope is allowed only under TEN-1 explicit allowlist and isolation constraints; tenant-specific tax truth remains tenant-scoped."
+      ]
+    }
+  ],
+  "emits_events": false,
+  "generated_at_utc": "2026-10-18T10:43:12Z",
+  "invariants": {
+    "TAX-1-INVARIANT-IMMUTABLE-PITIC-001": {
+      "severity": "P0",
+      "text": "TaxProfile, TaxRate, and any referenced law/reporting configuration used for an OrderTaxRecord MUST be point-in-time immutable. Any change to rate, inclusion rules, credit-note reporting requirements, or jurisdiction mapping MUST create a new immutable config instance and MUST NOT mutate previously referenced configs. OrderTaxRecord MUST persist digests of the exact configs used (PITIC digests)."
+    },
+    "TAX-1-INVARIANT-JURISDICTION-EVIDENCE-HASH-001": {
+      "severity": "P0",
+      "text": "OrderTaxRecord MUST persist jurisdiction_evidence_sha256, a sha256 hex digest of the normalized jurisdiction evidence payload used at time-of-tax-point, so that tax correctness can be proven even if underlying PII is later rotated/purged (PII retention mismatch)."
+    },
+    "TAX-1-INVARIANT-TAXCTX-V2-TENANCY-SALT-001": {
+      "severity": "P0",
+      "text": "tax_context_digest_sha256 computed under TAXCTX-V2 MUST include org_id as a salt/input component, preventing cross-tenant digest replay/collision. A digest MUST NOT be accepted unless its declared digest_version matches the canonical field set."
+    },
+    "calculation_arithmetic": [
+      "All money is integer minor units. Floating point arithmetic MUST NOT be used.",
+      "Inclusive mode: gross_total_minor is canonical; taxable_amount_minor and tax_amount_minor are derived. tax_amount_minor MUST equal gross_total_minor - net_total_minor.",
+      "Exclusive mode: net_total_minor is canonical; tax_amount_minor is computed by rounding (net_total_minor * rate_basis_points / 10000) to minor-unit precision using the resolved TAXCTX-V2 rounding_mode. gross_total_minor MUST equal net_total_minor + tax_amount_minor."
+    ],
+    "canon_item_ref_type_for_tax": {
+      "canonical_values": [
+        "ticket_type",
+        "addon",
+        "platform_fee"
+      ],
+      "error": {
+        "code": "ERR_VALIDATION",
+        "subcode": "TAX_ITEM_REF_TYPE_UNKNOWN"
+      },
+      "statement": "TaxableLineInput.item_ref_type MUST be canonical; unknown values MUST be rejected (fail-closed)."
+    },
+    "credit_note_compliance": {
+      "MUST": [
+        "TAX-1 MUST define a credit_note_reporting_profile for each tax_profile_id to determine the legally required fields for refund documents (credit notes) in the given jurisdiction.",
+        "Refund document generation MUST use the credit_note_reporting_profile captured in OrderTaxRecord for the original order, unless an override is explicitly authorized via QUORUM-1 and recorded as part of refund processing.",
+        "Credit note generation MUST bind each credit note to both the origin tax point (tax_point_at_utc from the original OrderTaxRecord) and the issuance time (issuance_at_utc) used for ledger posting in an open period.",
+        "credit_note_reporting_profile_digest_sha256 MUST cover (at minimum) sequence_strategy and template_version_id so that both numbering rules and document format remain legally reproducible.",
+        "When issuance_at_utc is forced into a later open ledger period, reports MUST still link the credit note to the origin liability at tax_point_at_utc.",
+        "For any CreditNote, issuance_at_utc MUST be greater than or equal to origin_tax_point_at_utc."
+      ],
+      "details": [
+        "This contract does not attempt to model every global tax authority. It instead requires the system to snapshot the reporting profile used at point-of-sale so that point-of-refund remains legally reproducible."
+      ],
+      "id": "TAX-INV-CN-COMPLIANCE-001"
+    },
+    "credit_note_finalization": [
+      "A CreditNote is NOT legally valid until it is finalized with a non-null ledger_posting_id referencing a successful LED-1 LedgerPosting.",
+      "Transition rule: legal_status MUST remain 'pending_ledger' until ledger_posting_id is set. When ledger_posting_id is set, legal_status MUST become 'finalized' and both fields MUST become immutable thereafter.",
+      "Bidirectional audit bridge: CreditNote.ledger_posting_id MUST match LED-1 LedgerPosting.refs.tax_credit_note_id for the same CreditNote.id (one-to-one)."
+    ],
+    "credit_note_sequence": {
+      "MUST": [
+        "TAX-1 MUST define a finite set of credit note sequence strategies and their deterministic credit_note_id generation rules.",
+        "Sequence generation MUST be tenant-scoped unless explicitly configured otherwise in the reporting profile snapshot.",
+        "Sequence generators MUST be monotonic within their configured scope and MUST NOT reuse identifiers."
+      ],
+      "details": [
+        "The intent is to prevent Credit Note ID drift when reporting profiles evolve. ID generation must be reproducible from the snapshotted reporting profile config."
+      ],
+      "id": "TAX-INV-CN-SEQUENCE-001"
+    },
+    "jurisdiction_resolution": [
+      "Tax jurisdiction MUST be resolved deterministically per sale using (a) event_location by default, (b) org_location or manual override only when explicitly configured.",
+      "If jurisdiction cannot be resolved, the event/ticket MUST NOT be sellable (fail closed) (TAX_JURISDICTION_REQUIRED)."
+    ],
+    "ledger_reconciliation": [
+      "For every settled order, the sum of OrderTaxRecord.tax_total_minor MUST reconcile exactly to the tax liability postings in LED-1 for that order (same org_id + currency).",
+      "Tax liability postings MUST be reversible via TaxAdjustmentRecord on refunds/chargebacks."
+    ],
+    "period_lock": {
+      "errors": {
+        "period_lock_violation": {
+          "subcode": "PERIOD_LOCK_VIOLATION",
+          "top_level": "ERR_CONFLICT"
+        }
+      },
+      "rules": [
+        {
+          "id": "TAX-1-INV-PERIOD-LOCK",
+          "rule": "When issuing a CreditNote, origin_tax_point_at_utc determines the fiscal period. If origin_tax_point_at_utc falls inside a CLOSED fiscal period (as defined by LED-1 fiscal period closure), the CreditNote MUST be rejected unless the linked LedgerPostingIntent is explicitly flagged as prior_period_adjustment=true. Ledger effective_date for the CreditNote posting MUST use origin_tax_point_at_utc (NOT issuance_at_utc). Violations fail-closed.",
+          "severity": "P0"
+        }
+      ],
+      "strict": true
+    },
+    "platform_fee_taxability": {
+      "details": [
+        "If a PRICE-1 PricingSnapshot includes any PriceLine with item_ref_type='platform_fee', the resolved tax_scope MUST be 'all_customer_charges' for that order tax context.",
+        "Tax computation MUST include platform_fee lines in taxable_amount_total_minor and tax_total_minor under the same tax_context_digest_sha256 recorded for the order.",
+        "If the PricingSnapshot.platform_fee_tax_context_digest_sha256 is present, it MUST equal OrderTaxRecord.tax_context_digest_sha256 when platform_fee_payer_mode='buyer'; otherwise fail closed with ERR_VALIDATION/TAX_CONTEXT_DIGEST_MISMATCH.",
+        "Silent exclusion of platform_fee lines (e.g., treating them as non-taxable while charging them) is forbidden."
+      ],
+      "error": {
+        "code": "ERR_VALIDATION",
+        "subcode": "TAX_MODE_INVALID"
+      },
+      "statement": "Platform fee customer charges MUST be taxed deterministically when present."
+    },
+    "pricing_integration": {
+      "assertion": "PRICE-1 integration MUST be deterministic and auditable.",
+      "details": [
+        "PRICE-1 PriceLine.unit_price_minor MUST represent the net-of-tax unit amount in minor units.",
+        "PRICE-1 PriceLine.tax_total_minor MUST represent the total tax for the line (minor units) computed under the resolved TAXCTX-V2 context.",
+        "PRICE-1 PriceLine.line_total_minor MUST represent the gross customer-payable line total and MUST equal: quantity*unit_price_minor + fee_total_minor - discount_total_minor + tax_total_minor.",
+        "In inclusion_mode='inclusive', the customer-facing advertised unit price is gross; systems MUST derive net unit_price_minor and tax_total_minor using TAX-1 calculation_arithmetic rules (reverse-calc).",
+        "In inclusion_mode='exclusive', the customer-facing advertised unit price is net; systems MUST compute tax_total_minor and present gross totals no later than the first price quote (no 'surprise' tax at final submit)."
+      ]
+    },
+    "pricing_transparency": [
+      "Default behavior MUST NOT introduce new customer-payable tax at checkout (inclusive mode).",
+      "If exclusive mode is enabled, customer-facing UI MUST disclose that prices exclude tax BEFORE add_to_cart and MUST show the tax line item at checkout.",
+      "Tax amounts MUST NOT be client-supplied; they MUST be server-computed from canonical inputs only."
+    ],
+    "privacy": [
+      "Tax computation MUST use the minimum PII necessary. Default storage is country/region only; full addresses are OPTIONAL and MUST be access-controlled."
+    ],
+    "rate_selection": [
+      "Tax rate selection MUST be effective-dated (effective_from/to) and deterministic at calculation time.",
+      "There MUST NOT be overlapping active rates for the same (jurisdiction_code, tax_class). Violations MUST hard-fail administrative writes (TAX_RATE_OVERLAP)."
+    ],
+    "rounding": [
+      "Rounding mode MUST be the resolved TAXCTX-V2 rounding_mode at minor-unit precision and MUST be one of half_even_minor_units or half_up_minor_units. tax_defaults.rounding_mode=half_even_minor_units is the default and does not prohibit an explicitly resolved half_up_minor_units context.",
+      "Rounding drift allocation across multiple lines MUST be deterministic (e.g., allocate remainder to the last line sorted by stable line_id).",
+      "Tax-inclusive back-calculation MUST use: tax_portion_minor = round_minor(total_minor * rate_basis_points / (10000 + rate_basis_points)) using the TaxContextV2.rounding_mode; net_minor = total_minor - tax_portion_minor.",
+      "For partial refunds where a tax amount must be apportioned across multiple refunded lines, implementations MUST use a deterministic apportionment algorithm: compute each line's exact_fractional_tax = (line_total_minor * rate_bp)/(10000+rate_bp) (inclusive) or (line_total_minor*rate_bp/10000) (exclusive), take floor to minor, then allocate the remaining remainder_minor by descending fractional remainder with stable tie-breakers (line_id, then item_ref) to ensure sums match the target tax_total_minor."
+    ],
+    "single_context_per_snapshot": {
+      "assertion": "TAX-1 supports a single TAXCTX-V2 context per PricingSnapshot.",
+      "details": [
+        "A PricingSnapshot MUST be bound to exactly one TaxContextV2 (via tax_context_digest_sha256).",
+        "All PriceLines within that snapshot MUST be computed under the same TaxContextV2 (same jurisdiction_code, tax_class, inclusion_mode, tax_scope, rounding_mode).",
+        "Mixed-jurisdiction or mixed-tax-class line items within a single order are out-of-scope for TAX-1 and MUST be prevented (split order or future TAX-2)."
+      ]
+    },
+    "snapshot_and_audit": [
+      "OrderTaxRecord MUST be created atomically with order finalization and MUST reference the PRICE snapshot signature used to collect funds.",
+      "OrderTaxRecord MUST be immutable. Corrections MUST be represented as TaxAdjustmentRecord rows."
+    ],
+    "tax_context_digest": {
+      "MUST": [
+        "Implementations MUST compute tax_context_digest_sha256 using the TAXCTX-V2 canonical string described below, then SHA-256 hashing it to lowercase hex.",
+        "OrderTaxRecord MUST persist tax_profile_id, tax_rate_id, tax_scope, rounding_mode, provider_mode/provider_name, jurisdiction fields, and tax_context_digest_sha256 as immutable snapshot fields.",
+        "tax_profile_id MUST refer to an immutable, versioned TaxProfile record whose semantics SHALL NOT change after issuance (including inclusion_mode defaults, rate selection rules, rounding_mode, and reporting requirements for refunds/credit notes). If tax law changes, a NEW tax_profile_id MUST be issued; existing orders/refunds MUST continue to bind to the original tax_profile_id unless an explicit break-glass override is recorded.",
+        "OrderTaxRecord MUST snapshot the TaxProfile's law_version and credit_note_reporting_profile as immutable fields (in addition to the existing snapshot fields) to prevent refund 'time-travel' compliance drift.",
+        "Any refund processed using a different tax_profile_id than the original order MUST be treated as an override and MUST satisfy QUORUM-1 attestation requirements (override evidence binding) and MUST record both the original and override tax_context_digest_sha256 values.",
+        "OrderTaxRecord.tax_context_digest_sha256 MUST equal PRICE-1 PriceSnapshot.tax_context_digest_sha256 for the same priced context (order / line-item scope as defined by PRICE-1).",
+        "If the digest does not match, implementations MUST fail closed with ERR_VALIDATION/TAX_CONTEXT_DIGEST_MISMATCH and MUST NOT persist the record."
+      ],
+      "id": "TAX-INV-CTX-DIGEST-001",
+      "canonical_string_TAXCTX_V2": {
+        "delimiter": "|",
+        "digest": "SHA-256 of UTF-8 canonical bytes, encoded as lowercase hexadecimal.",
+        "encoding_rules": [
+          "Encode each field as key=value in the declared field order.",
+          "Encode missing or null values as an empty value after equals.",
+          "Join fields with vertical bar.",
+          "org_id is mandatory even though its digest component uses the same encoding."
+        ],
+        "field_order": [
+          "org_id",
+          "jurisdiction_code",
+          "inclusion_mode",
+          "rounding_mode",
+          "tax_class",
+          "rate_basis_points",
+          "tax_scope",
+          "tax_basis",
+          "provider_mode",
+          "provider_name",
+          "tax_point_strategy"
+        ]
+      },
+      "test_vectors_TAXCTX_V2": [
+        {
+          "context": {
+            "org_id": "018f1c2e-6c3a-7b6a-9c2f-000000000001",
+            "jurisdiction_code": "ZA",
+            "inclusion_mode": "inclusive",
+            "rounding_mode": "half_even_minor_units",
+            "tax_class": "standard",
+            "rate_basis_points": 1500,
+            "tax_scope": "all_customer_charges",
+            "tax_basis": "event_location",
+            "provider_mode": "internal",
+            "provider_name": null,
+            "tax_point_strategy": "quote_time"
+          },
+          "expected_canonical_string": "org_id=018f1c2e-6c3a-7b6a-9c2f-000000000001|jurisdiction_code=ZA|inclusion_mode=inclusive|rounding_mode=half_even_minor_units|tax_class=standard|rate_basis_points=1500|tax_scope=all_customer_charges|tax_basis=event_location|provider_mode=internal|provider_name=|tax_point_strategy=quote_time",
+          "expected_digest_sha256_hex": "ba1400a36012729597a80c830ab1cda9eae3db71932148f420130f4199553509",
+          "id": "TAXCTX-V2-0001"
+        },
+        {
+          "context": {
+            "org_id": "018f1c2e-6c3a-7b6a-9c2f-000000000002",
+            "jurisdiction_code": "ZA",
+            "inclusion_mode": "exclusive",
+            "rounding_mode": "half_up_minor_units",
+            "tax_class": "zero",
+            "rate_basis_points": 0,
+            "tax_scope": "ticket_only",
+            "tax_basis": "org_location",
+            "provider_mode": "external",
+            "provider_name": "provider_x",
+            "tax_point_strategy": "payment_confirmed_time"
+          },
+          "expected_canonical_string": "org_id=018f1c2e-6c3a-7b6a-9c2f-000000000002|jurisdiction_code=ZA|inclusion_mode=exclusive|rounding_mode=half_up_minor_units|tax_class=zero|rate_basis_points=0|tax_scope=ticket_only|tax_basis=org_location|provider_mode=external|provider_name=provider_x|tax_point_strategy=payment_confirmed_time",
+          "expected_digest_sha256_hex": "211a958157c02160a2fa33225624166a6ac4493ce8e7385f42998ac5110f8098",
+          "id": "TAXCTX-V2-0002"
+        },
+        {
+          "context": {
+            "org_id": "018f1c2e-6c3a-7b6a-9c2f-000000000003",
+            "jurisdiction_code": "ZA",
+            "inclusion_mode": "inclusive",
+            "rounding_mode": "half_even_minor_units",
+            "tax_class": "standard",
+            "rate_basis_points": 1500,
+            "tax_scope": "ticket_only",
+            "tax_basis": "event_location",
+            "provider_mode": "internal",
+            "provider_name": null,
+            "tax_point_strategy": "quote_time"
+          },
+          "expected_canonical_string": "org_id=018f1c2e-6c3a-7b6a-9c2f-000000000003|jurisdiction_code=ZA|inclusion_mode=inclusive|rounding_mode=half_even_minor_units|tax_class=standard|rate_basis_points=1500|tax_scope=ticket_only|tax_basis=event_location|provider_mode=internal|provider_name=|tax_point_strategy=quote_time",
+          "expected_digest_sha256_hex": "2e4e09a17899c09cf952d864eb3814f2c51190a92cd93cefdde0524cd92427e9",
+          "id": "TAXCTX-V2-0003"
+        }
+      ]
+    },
+    "tax_policy_locking": {
+      "assertion": "Resolved tax context MUST be stable once sales exist (no silent drift).",
+      "details": [
+        "For a given occurrence_id, once any Order reaches a completed/paid state for that occurrence, the resolved TaxContextSnapshot fields (jurisdiction_code, tax_class, inclusion_mode, tax_scope, rounding_mode, provider_mode/provider_name, tax_rate_id) MUST NOT change for future quotes/orders for that same occurrence_id.",
+        "If the organizer requires a tax policy change (rate, inclusion, jurisdiction basis), the platform MUST create a new occurrence_id and/or a new PricingProgramRevision for future sales and MUST preserve prior context for already-issued orders for audit.",
+        "Attempted mutation of an active occurrence_id tax posture MUST fail closed with ERR_CONFLICT/TAX_MODE_INVALID (or stricter)."
+      ]
+    },
+    "canonical_string_TAXCTX-V2": {
+      "delimiter": "|",
+      "digest": "SHA-256 of UTF-8 canonical bytes, encoded as lowercase hexadecimal.",
+      "encoding_rules": [
+        "Encode each field as key=value in the declared field order.",
+        "Encode missing or null values as an empty value after equals.",
+        "Join fields with vertical bar."
+      ],
+      "field_order": [
+        "org_id",
+        "jurisdiction_code",
+        "inclusion_mode",
+        "rounding_mode",
+        "tax_class",
+        "rate_basis_points",
+        "tax_scope",
+        "tax_basis",
+        "provider_mode",
+        "provider_name",
+        "tax_point_strategy"
+      ]
+    }
+  },
+  "normative_source": {
+    "format": "json",
+    "refs": [
+      {
+        "doc_id": "V42-0",
+        "min_version": "1.6.0",
+        "reason": "Money invariants + MoR posture; tax MUST not break ledger-grade truth."
+      },
+      {
+        "doc_id": "TEN-1",
+        "min_version": "1.7.0",
+        "reason": "Strict multi-tenancy (org_id) and RLS posture."
+      },
+      {
+        "doc_id": "PRICE-1",
+        "min_version": "3.0.8",
+        "reason": "Tax totals are expressed in PRICE-1 price snapshots/lines."
+      },
+      {
+        "doc_id": "LED-1",
+        "min_version": "3.0.8",
+        "reason": "Tax liability MUST reconcile to immutable ledger postings."
+      },
+      {
+        "doc_id": "ERR-1",
+        "min_version": "1.3.23",
+        "reason": "Canonical error codes/subcodes referenced by TAX-1."
+      }
+    ]
+  },
+  "outbox_events": [],
+  "resource_model": {
+    "notes": [
+      "TAX-1 defines tax configuration + audit records. PRICE-1 remains the canonical carrier of customer-facing totals; TAX-1 provides breakdown + reconciliation.",
+      "All money fields are integer minor units (no floats)."
+    ],
+    "resources": [
+      {
+        "attributes": [
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "tax_profile_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "status",
+            "one_of": [
+              "active",
+              "inactive"
+            ],
+            "type": "enum"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "default_inclusion_mode",
+            "one_of": [
+              "inclusive",
+              "exclusive"
+            ],
+            "type": "enum"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "description": "Determines which location basis is used to resolve the tax jurisdiction for this org profile. customer_location MAY be used only when sufficient evidence exists; raw PII MUST NOT be stored.",
+            "name": "default_tax_basis",
+            "one_of": [
+              "event_location",
+              "org_location",
+              "manual",
+              "customer_location"
+            ],
+            "type": "enum"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "default_tax_scope",
+            "one_of": [
+              "all_customer_charges",
+              "ticket_only"
+            ],
+            "type": "enum"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "default_tax_class",
+            "notes": [
+              "Examples: standard, reduced, zero."
+            ],
+            "type": "string"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "org_home_jurisdiction",
+            "type": "struct:Jurisdiction"
+          },
+          {
+            "constraints": [
+              "optional"
+            ],
+            "name": "vat_registration_number",
+            "notes": [
+              "Format rules are jurisdiction-specific; store as provided + validated where possible."
+            ],
+            "type": "string"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "provider_mode",
+            "one_of": [
+              "internal",
+              "external",
+              "hybrid"
+            ],
+            "type": "enum"
+          },
+          {
+            "constraints": [
+              "optional"
+            ],
+            "name": "provider_name",
+            "notes": [
+              "Examples: stripe_tax, taxjar, avalara."
+            ],
+            "type": "string"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "updated_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Defines which canonical time point SHALL be used to select tax rates (and to record tax point) for an order or pricing snapshot.",
+            "enum": [
+              "quote_time",
+              "payment_confirmed_time",
+              "invoice_issued_time"
+            ],
+            "name": "tax_point_strategy",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "default": 600,
+            "description": "When provider_mode is 'external' or 'hybrid' and the provider does not supply an explicit expiry, the platform SHALL treat external tax quotes as stale after this TTL.",
+            "max": 86400,
+            "min": 60,
+            "name": "external_quote_ttl_seconds",
+            "required": false,
+            "type": "integer"
+          }
+        ],
+        "description": "Per-org tax posture and defaults used for events/tickets unless overridden.",
+        "name": "TaxProfile",
+        "primary_key": [
+          "tax_profile_id"
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "tax_rate_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "jurisdiction_code",
+            "notes": [
+              "Stable code, e.g. ZA-VAT, US-CA-SALES."
+            ],
+            "type": "string"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "tax_class",
+            "type": "string"
+          },
+          {
+            "constraints": [
+              "required",
+              "min:0",
+              "max:10000"
+            ],
+            "name": "rate_basis_points",
+            "notes": [
+              "10000 bp = 100%. SA VAT 15% = 1500."
+            ],
+            "type": "int"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "effective_from_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "constraints": [
+              "optional"
+            ],
+            "name": "effective_to_utc",
+            "notes": [
+              "If null, rate is open-ended."
+            ],
+            "type": "utc_datetime_usec"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "source",
+            "one_of": [
+              "platform",
+              "external_provider"
+            ],
+            "type": "enum"
+          },
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "active",
+            "type": "bool"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "constraints": [
+          "For a given (jurisdiction_code, tax_class), effective date ranges MUST NOT overlap when active=true.",
+          "TaxRate rows are immutable; changes MUST be represented by a new row with a new effective_from_utc (and closing the old row via effective_to_utc).",
+          "Immutable and effective-dated.",
+          "Global platform scope is permitted only under TEN-1 explicit allowlist and isolation constraints."
+        ],
+        "description": "Platform-managed effective-dated tax rates by jurisdiction and tax_class.",
+        "name": "TaxRate",
+        "primary_key": [
+          "tax_rate_id"
+        ],
+        "tenant_scoped": false,
+        "scope": "global_platform"
+      },
+      {
+        "attributes": [
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "order_tax_record_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "order_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "currency",
+            "type": "iso_4217"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "inclusion_mode",
+            "one_of": [
+              "inclusive",
+              "exclusive"
+            ],
+            "type": "enum"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "tax_basis",
+            "one_of": [
+              "event_location",
+              "org_location",
+              "manual"
+            ],
+            "type": "enum"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "jurisdiction",
+            "type": "struct:Jurisdiction"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "jurisdiction_code",
+            "type": "string"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "tax_class",
+            "type": "string"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "rate_basis_points",
+            "type": "int"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable",
+              "min:0"
+            ],
+            "name": "taxable_amount_total_minor",
+            "type": "int"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable",
+              "min:0"
+            ],
+            "name": "tax_total_minor",
+            "type": "int"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable",
+              "min:0"
+            ],
+            "name": "gross_total_minor",
+            "type": "int"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "tax_lines",
+            "type": "array:struct:TaxLine"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "price_snapshot_ref",
+            "type": "struct:PriceSnapshotRef"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "TaxProfile selected/resolved at pricing time.",
+            "immutable": true,
+            "name": "tax_profile_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "TaxRate selected/resolved at pricing time.",
+            "immutable": true,
+            "name": "tax_rate_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "description": "Tax application scope snapshotted at pricing time.",
+            "enum": [
+              "ticket_only",
+              "all_customer_charges"
+            ],
+            "immutable": true,
+            "name": "tax_scope",
+            "required": true,
+            "type": "enum"
+          },
+          {
+            "description": "Rounding mode snapshotted at pricing time.",
+            "enum": [
+              "half_even_minor_units",
+              "half_up_minor_units"
+            ],
+            "immutable": true,
+            "name": "rounding_mode",
+            "required": true,
+            "type": "enum"
+          },
+          {
+            "description": "Tax provider mode snapshotted at pricing time.",
+            "enum": [
+              "internal",
+              "external",
+              "hybrid"
+            ],
+            "immutable": true,
+            "name": "provider_mode",
+            "required": true,
+            "type": "enum"
+          },
+          {
+            "description": "Optional provider identifier snapshotted at pricing time.",
+            "immutable": true,
+            "name": "provider_name",
+            "type": "string"
+          },
+          {
+            "description": "sha256 hex digest of TAXCTX-V2 canonical tax context; MUST match PRICE-1 PriceSnapshot.tax_context_digest_sha256.",
+            "immutable": true,
+            "name": "tax_context_digest_sha256",
+            "required": true,
+            "type": "sha256_hex"
+          },
+          {
+            "description": "Tax point strategy actually used for this order's tax computation. SHALL match the resolved TaxProfile / overrides at time of order finalization.",
+            "enum": [
+              "quote_time",
+              "payment_confirmed_time",
+              "invoice_issued_time"
+            ],
+            "name": "tax_point_strategy",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "description": "Resolved tax point timestamp (UTC, usec). Used for rate selection audit and reporting. Immutable once recorded.",
+            "name": "tax_point_at_utc",
+            "notes": [
+              "Immutable tax point timestamp sourced from ORD-1 order snapshot (sale-time)."
+            ],
+            "required": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "Provider-issued tax quote identifier when provider_mode is external/hybrid.",
+            "max_length": 256,
+            "name": "external_quote_id",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "UTC,usec timestamp when the external provider quote was generated.",
+            "name": "external_quote_generated_at_utc",
+            "required": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "UTC,usec timestamp after which the external quote SHALL be treated as stale and MUST be re-quoted before payment authorization/capture.",
+            "name": "external_quote_expires_at_utc",
+            "required": false,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "description": "SHA-256 digest of the normalized external quote payload used for audit replay.",
+            "name": "external_quote_digest_sha256",
+            "required": false,
+            "type": "sha256_hex"
+          },
+          {
+            "description": "Non-PII derived location key used for jurisdiction resolution (e.g., ISO3166-1 alpha2 + region code). MUST NOT contain street-level data.",
+            "max_length": 128,
+            "name": "customer_location_key",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Reference token to location evidence stored under PII-1 vault primitives (alias/ref). Used when customer_location is the tax basis or jurisdiction source.",
+            "max_length": 128,
+            "name": "customer_location_evidence_ref",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Digest version for tax_context_digest_sha256. New orders MUST use TAXCTX-V2 unless explicitly grandfathered.",
+            "enum_values": [
+              "TAXCTX-V2",
+              "TAXCTX-V2"
+            ],
+            "name": "tax_context_digest_version",
+            "nullable": false,
+            "type": "enum"
+          },
+          {
+            "description": "PITIC digest of the immutable tax law config (rates+rules+reporting) used for this order at the tax point.",
+            "name": "tax_law_config_digest_sha256",
+            "nullable": false,
+            "type": "sha256_hex_lower"
+          },
+          {
+            "description": "PITIC digest of the immutable credit-note reporting profile config used for refunds/credit notes tied to this order.",
+            "name": "credit_note_reporting_profile_digest_sha256",
+            "nullable": false,
+            "type": "sha256_hex_lower"
+          },
+          {
+            "description": "sha256 hex digest of normalized jurisdiction evidence payload (PII-minimized), persisted for audit even if raw PII is purged.",
+            "name": "jurisdiction_evidence_sha256",
+            "nullable": false,
+            "type": "sha256_hex_lower"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "credit_note_template_version_id",
+            "notes": [
+              "Template version identifier included in credit_note_reporting_profile_digest_sha256 to pin legal document format."
+            ],
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "enum": [
+              "tenant_scoped_sequential",
+              "fiscal_year_prefixed_sequential",
+              "fiscal_month_prefixed_sequential",
+              "global_uuid_v7"
+            ],
+            "name": "credit_note_sequence_strategy",
+            "notes": [
+              "Pinned sequence strategy used for credit_note_id generation. Must be covered by reporting profile digest."
+            ],
+            "type": "enum"
+          }
+        ],
+        "constraints": [
+          "OrderTaxRecord.tax_total_minor MUST equal SUM(tax_lines.tax_amount_minor).",
+          "OrderTaxRecord totals MUST reconcile exactly to the referenced PRICE-1 snapshot totals for the same order."
+        ],
+        "description": "Immutable per-order tax breakdown used for audit, invoicing, and ledger reconciliation.",
+        "name": "OrderTaxRecord",
+        "primary_key": [
+          "order_tax_record_id"
+        ],
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "credit_note_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "refund_id",
+            "notes": [
+              "Unique per org; binds 1:1 to REFUND-1 refund_id."
+            ],
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "order_tax_record_id",
+            "notes": [
+              "FK to TAX-1.OrderTaxRecord."
+            ],
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "origin_tax_point_at_utc",
+            "notes": [
+              "Copied from OrderTaxRecord.tax_point_at_utc."
+            ],
+            "type": "utc_datetime_usec"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "issuance_at_utc",
+            "notes": [
+              "Credit note issuance time (posting period anchor). Must be >= origin_tax_point_at_utc."
+            ],
+            "type": "utc_datetime_usec"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "credit_note_number",
+            "notes": [
+              "Human/legal identifier derived by reporting profile sequence strategy."
+            ],
+            "type": "string"
+          },
+          {
+            "default": "pending_ledger",
+            "description": "Legal status of the CreditNote. pending_ledger means not legally valid until ledger_posting_id is set and status becomes finalized.",
+            "enum_values": [
+              "pending_ledger",
+              "finalized"
+            ],
+            "name": "legal_status",
+            "nullable": false,
+            "required": true,
+            "type": "enum"
+          },
+          {
+            "description": "Back-reference to the finalized LED-1 LedgerPosting that journals the fiscal correction for this CreditNote.",
+            "name": "ledger_posting_id",
+            "nullable": true,
+            "required": false,
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "enum": [
+              "tenant_scoped_sequential",
+              "fiscal_year_prefixed_sequential",
+              "fiscal_month_prefixed_sequential",
+              "global_uuid_v7"
+            ],
+            "name": "credit_note_sequence_strategy",
+            "notes": [
+              "Must match OrderTaxRecord.credit_note_sequence_strategy for the order being refunded."
+            ],
+            "type": "enum"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "credit_note_template_version_id",
+            "notes": [
+              "Must match OrderTaxRecord.credit_note_template_version_id."
+            ],
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "credit_note_reporting_profile_digest_sha256",
+            "notes": [
+              "Must match OrderTaxRecord.credit_note_reporting_profile_digest_sha256."
+            ],
+            "type": "sha256_hex_lower"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "tax_law_config_digest_sha256",
+            "notes": [
+              "Must match OrderTaxRecord.tax_law_config_digest_sha256."
+            ],
+            "type": "sha256_hex_lower"
+          }
+        ],
+        "constraints": [
+          {
+            "fields": [
+              "org_id",
+              "refund_id"
+            ],
+            "name": "unique_refund_id_per_org",
+            "type": "unique"
+          },
+          {
+            "fields": [
+              "org_id",
+              "credit_note_number"
+            ],
+            "name": "unique_credit_note_number_per_org",
+            "type": "unique"
+          }
+        ],
+        "description": "Durable, auditable credit note record bridging original tax point liability to current-period issuance for refunds.",
+        "name": "CreditNote",
+        "primary_key": "credit_note_id",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "constraints": [
+              "required"
+            ],
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "tax_adjustment_record_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "order_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "order_tax_record_id",
+            "type": "uuid_v7"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "adjustment_kind",
+            "one_of": [
+              "refund",
+              "void",
+              "chargeback"
+            ],
+            "type": "enum"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "currency",
+            "type": "iso_4217"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "tax_total_delta_minor",
+            "type": "int"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "tax_lines_delta",
+            "type": "array:struct:TaxLineDelta"
+          },
+          {
+            "constraints": [
+              "required",
+              "immutable"
+            ],
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "constraints": [
+          "Tax adjustments MUST be additive (append-only); no updates or deletes.",
+          "Refund/void tax deltas MUST be the exact negative of the portion of the original tax being reversed."
+        ],
+        "description": "Immutable tax delta record for refunds/voids/chargebacks; ties to OrderTaxRecord for audit and ledger adjustments.",
+        "name": "TaxAdjustmentRecord",
+        "primary_key": [
+          "tax_adjustment_record_id"
+        ],
+        "tenant_scoped": true
+      }
+    ],
+    "structs": {
+      "CreditNoteSpec": {
+        "description": "Credit note issuance specification derived from reporting profile snapshot. Separates origin tax point from issuance time to support closed-period adjustments.",
+        "fields": [
+          {
+            "name": "origin_tax_point_at_utc",
+            "required": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "issuance_at_utc",
+            "required": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "enum": [
+              "tenant_scoped_sequential",
+              "fiscal_year_prefixed_sequential",
+              "fiscal_month_prefixed_sequential",
+              "global_uuid_v7"
+            ],
+            "name": "sequence_strategy",
+            "required": true,
+            "type": "enum"
+          },
+          {
+            "name": "template_version_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "reporting_profile_digest_sha256",
+            "required": true,
+            "type": "sha256_hex_lower"
+          },
+          {
+            "name": "jurisdiction_code",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "type": "object"
+      },
+      "Jurisdiction": {
+        "description": "Tax jurisdiction location used for rate selection and reporting.",
+        "fields": [
+          {
+            "name": "country_code",
+            "required": true,
+            "type": "iso_3166_1_alpha2"
+          },
+          {
+            "name": "region_code",
+            "notes": [
+              "Optional ISO 3166-2 region/subdivision code."
+            ],
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "city",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "postal_code",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "type": "object"
+      },
+      "PriceSnapshotRef": {
+        "description": "Pointer to a signed PRICE-1 snapshot that produced the tax totals for the order.",
+        "fields": [
+          {
+            "name": "price_snapshot_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "price_snapshot_signature",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "price_snapshot_version",
+            "notes": [
+              "PRICE-1 signature/version string (e.g. PRICE-SIG-V1)."
+            ],
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "type": "object"
+      },
+      "TaxContextV2": {
+        "description": "Canonical tax context snapshot used for audit and for tax_context_digest_sha256 computation (TAXCTX-V2).",
+        "fields": [
+          {
+            "name": "tax_profile_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "tax_rate_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "enum": [
+              "inclusive",
+              "exclusive"
+            ],
+            "name": "inclusion_mode",
+            "required": true,
+            "type": "enum"
+          },
+          {
+            "enum": [
+              "event_location",
+              "org_location",
+              "manual"
+            ],
+            "name": "tax_basis",
+            "required": true,
+            "type": "enum"
+          },
+          {
+            "enum": [
+              "ticket_only",
+              "all_customer_charges"
+            ],
+            "name": "tax_scope",
+            "required": true,
+            "type": "enum"
+          },
+          {
+            "enum": [
+              "half_even_minor_units",
+              "half_up_minor_units"
+            ],
+            "name": "rounding_mode",
+            "required": true,
+            "type": "enum"
+          },
+          {
+            "name": "jurisdiction",
+            "required": true,
+            "type": "struct:Jurisdiction"
+          },
+          {
+            "name": "jurisdiction_code",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tax_class",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "rate_basis_points",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "enum": [
+              "internal",
+              "external",
+              "hybrid"
+            ],
+            "name": "provider_mode",
+            "required": true,
+            "type": "enum"
+          },
+          {
+            "name": "provider_name",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "type": "object"
+      },
+      "TaxLine": {
+        "description": "A single computed tax component recorded for audit (can support future multi-rate scenarios).",
+        "fields": [
+          {
+            "name": "jurisdiction_code",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tax_class",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tax_rate_id",
+            "required": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "rate_basis_points",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "taxable_amount_minor",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "tax_amount_minor",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "inclusive",
+            "required": true,
+            "type": "bool"
+          },
+          {
+            "name": "display_label",
+            "notes": [
+              "e.g. VAT, Sales Tax. UI may localize."
+            ],
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "type": "object"
+      },
+      "TaxLineDelta": {
+        "description": "Tax line delta for adjustments; mirrors TaxLine but with delta amounts.",
+        "fields": [
+          {
+            "name": "jurisdiction_code",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tax_class",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "rate_basis_points",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "taxable_amount_delta_minor",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "tax_amount_delta_minor",
+            "required": true,
+            "type": "int"
+          }
+        ],
+        "type": "object"
+      },
+      "TaxableLineInput": {
+        "description": "Normalized input used to compute taxes from PRICE-1 line totals.",
+        "fields": [
+          {
+            "name": "quantity",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "unit_price_minor",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "fee_total_minor",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "discount_total_minor",
+            "required": true,
+            "type": "int"
+          },
+          {
+            "name": "currency",
+            "required": true,
+            "type": "iso_4217"
+          }
+        ],
+        "item_ref_type": {
+          "description": "Normalized line reference type used for tax scope decisions and rate application. MUST be mapped from PRICE-1 PriceLine.item_ref_type for taxable customer charges. Discount-only lines MUST NOT be passed to TAX as TaxableLineInput; discounts MUST be represented via discount_total_minor on taxable lines.",
+          "enum": [
+            "ticket_type",
+            "addon",
+            "platform_fee"
+          ],
+          "required": true,
+          "type": "string"
+        },
+        "type": "object"
+      }
+    }
+  },
+  "rules": [
+    {
+      "rule_id": "TAX-P0-INCLUSIVE-DEFAULT",
+      "severity": "P0",
+      "text": "Tax/VAT MUST be INCLUDED in customer-facing prices by default (TaxProfile.default_inclusion_mode='inclusive')."
+    },
+    {
+      "rule_id": "TAX-P0-ORG-OVERRIDE",
+      "severity": "P0",
+      "text": "Org MAY configure exclusive checkout tax addition, but only via explicit TaxProfile setting (allow_event_override=true)."
+    },
+    {
+      "rule_id": "TAX-P0-LOCATION-BASIS",
+      "severity": "P0",
+      "text": "Tax basis MUST default to event_location for physical admission tickets; org_location/manual are explicit overrides only."
+    },
+    {
+      "rule_id": "TAX-P0-NO-CLIENT-TAX",
+      "severity": "P0",
+      "text": "Clients MUST NOT send tax amounts. Server MUST compute taxes from canonical inputs only."
+    },
+    {
+      "rule_id": "TAX-P0-ORDER-AUDIT-RECORD",
+      "severity": "P0",
+      "text": "Order finalization MUST persist OrderTaxRecord with rate/jurisdiction breakdown sufficient for statutory reporting."
+    },
+    {
+      "rule_id": "TAX-P0-LEDGER-RECON",
+      "severity": "P0",
+      "text": "Tax totals MUST reconcile to LED-1 postings; mismatches MUST block settlement/payout (TAX_TOTAL_MISMATCH)."
+    },
+    {
+      "rule_id": "TAX-P1-EXTERNAL-PROVIDER-CACHE",
+      "severity": "P1",
+      "text": "If using external provider_mode, tax quotes MUST be cached by input hash and provider quote_id to avoid drift + rate limits."
+    },
+    {
+      "rule_id": "TAX-P1-VAT-NUMBER",
+      "severity": "P1",
+      "text": "If vat_registration_number is present, invoices/receipts MUST display it for the taxable entity."
+    },
+    {
+      "rule_id": "TAX-P2-MULTI-RATE-FUTURE",
+      "severity": "P2",
+      "text": "TaxLine supports multi-rate scenarios; current baseline MAY emit exactly 1 TaxLine per OrderTaxRecord when only one rate applies."
+    },
+    {
+      "rule_id": "TAX-P0-PRICE-INTEGRATION-NET-UNIT",
+      "severity": "P0",
+      "text": "PRICE-1 PriceLine.unit_price_minor MUST be net-of-tax; gross payable totals MUST be represented via tax_total_minor + line_total_minor (see TAX-1 pricing_integration)."
+    },
+    {
+      "rule_id": "TAX-P0-TAX-POLICY-LOCK-AFTER-SALE",
+      "severity": "P0",
+      "text": "Resolved tax context MUST NOT change for an occurrence_id after the first completed Order for that occurrence_id; changes MUST require a new occurrence_id and/or new PricingProgramRevision and MUST fail closed otherwise."
+    },
+    {
+      "rule_id": "TAX-P0-SINGLE-CONTEXT-PER-SNAPSHOT",
+      "severity": "P0",
+      "text": "A PricingSnapshot MUST be bound to exactly one TAXCTX-V2 (tax_context_digest_sha256); mixed jurisdictions/tax classes inside one snapshot are out-of-scope for TAX-1 and MUST fail closed."
+    },
+    {
+      "rule_id": "TAX-P0-TAX-POINT-STRATEGY",
+      "severity": "P0",
+      "text": "For each order, the platform MUST resolve a single tax_point_strategy and tax_point_at_utc and record both in OrderTaxRecord. Rate selection and reporting SHALL reference this tax point. Strategy MUST be explicit; defaults are allowed only via TaxProfile."
+    },
+    {
+      "rule_id": "TAX-P1-EXTERNAL-QUOTE-STALENESS",
+      "severity": "P1",
+      "text": "When provider_mode is external/hybrid, the platform MUST record external_quote_id and external_quote_generated_at_utc. If external_quote_expires_at_utc is present (provider-supplied or TTL-derived), the platform MUST re-quote before payment authorization/capture when the quote is stale."
+    },
+    {
+      "rule_id": "TAX-P1-TAX-SCOPE-FEE-MAPPING",
+      "severity": "P0",
+      "text": "Tax scope (ticket_only vs all_customer_charges) MUST be enforced using TaxableLineInput.item_ref_type and the canonical registry in TAX-1. Canonical values MUST include: ticket_type, platform_fee, addon. Ticket lines MUST use item_ref_type=ticket_type. Fee lines MUST use item_ref_type=platform_fee. Unknown item_ref_type MUST fail closed with ERR_VALIDATION/TAX_ITEM_REF_TYPE_UNKNOWN. Discount-only lines MUST NOT be passed as TaxableLineInput; discounts MUST be represented via discount_total_minor."
+    },
+    {
+      "rule_id": "TAX-P1-CUSTOMER-LOCATION-MINIMIZATION",
+      "severity": "P1",
+      "text": "When tax_basis or jurisdiction_source requires customer location, the platform MUST store only a derived customer_location_key (non-PII) in tax evidence. Raw address evidence MUST NOT be stored in TAX domain artifacts; it MUST be stored in a dedicated PII vault boundary outside TAX and referenced only via an opaque customer_location_evidence_ref."
+    },
+    {
+      "rule_id": "TAX-1-RULE-TAXCTX-V2-CANONICAL-FIELDS-001",
+      "severity": "P0",
+      "text": "TAXCTX-V2 canonical digest input MUST be a UTF-8 string with fields in this exact order: org_id, jurisdiction_code, inclusion_mode, rounding_mode, tax_class, rate_basis_points, tax_scope, tax_basis, provider_mode, provider_name, tax_point_strategy. Delimiter '|' and key=value format. Missing fields MUST be encoded as empty string, not omitted."
+    },
+    {
+      "rule_id": "TAX-T0-TAX-RATE-SCOPE",
+      "severity": "P0",
+      "text": "A shared immutable effective-dated platform TaxRate MAY be global only under TEN-1 explicit allowlist and isolation constraints. Tenant-specific tax truth, including TaxProfile, remains tenant-scoped."
+    },
+    {
+      "rule_id": "TAX-T0-TAXCTX-V2-QUOTE",
+      "severity": "P0",
+      "text": "Quote resolution returns a deterministic immutable TAXCTX-V2 value. The resolver accepts the exact ProductRevision.tax_profile_id and returns that same tax_profile_id, inclusion_mode, tax_point_strategy, evaluated_at_utc, digest_version, and digest_sha256. applicable_tax_rate_revision_refs and PII evidence outputs remain subject to their separately defined source mappings. TAX-1 does not persist a TaxContext resource. PII-1 owns direct jurisdiction evidence."
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "status": "active",
+  "subcodes_declared": {
+    "TAX_CONTEXT_DIGEST_MISMATCH": {
+      "notes": "Tax context digest mismatch between TAXCTX-V2 recomputation and provided digest / PRICE snapshot binding.",
+      "subcode": "TAX_CONTEXT_DIGEST_MISMATCH",
+      "top_level": "ERR_VALIDATION"
+    },
+    "TAX_ITEM_REF_TYPE_UNKNOWN": {
+      "code": "ERR_VALIDATION",
+      "message": "Tax calculation received a non-canonical item_ref_type.",
+      "subcode": "TAX_ITEM_REF_TYPE_UNKNOWN"
+    },
+    "TAX_JURISDICTION_REQUIRED": {
+      "notes": "Event/ticket tax jurisdiction could not be resolved.",
+      "subcode": "TAX_JURISDICTION_REQUIRED",
+      "top_level": "ERR_PRECONDITION"
+    },
+    "TAX_MODE_INVALID": {
+      "notes": "Invalid inclusion/basis/tax_scope combination requested.",
+      "subcode": "TAX_MODE_INVALID",
+      "top_level": "ERR_VALIDATION"
+    },
+    "TAX_PROFILE_REQUIRED": {
+      "notes": "Org has no active tax profile but is attempting to sell.",
+      "subcode": "TAX_PROFILE_REQUIRED",
+      "top_level": "ERR_PRECONDITION"
+    },
+    "TAX_PROVIDER_UNAVAILABLE": {
+      "notes": "External tax provider not reachable or returned non-retryable error.",
+      "subcode": "TAX_PROVIDER_UNAVAILABLE",
+      "top_level": "ERR_UNAVAILABLE"
+    },
+    "TAX_RATE_OVERLAP": {
+      "notes": "Overlapping effective tax rates detected for same jurisdiction/tax_class.",
+      "subcode": "TAX_RATE_OVERLAP",
+      "top_level": "ERR_CONFLICT"
+    },
+    "TAX_RATE_REQUIRED": {
+      "notes": "No effective tax rate found for resolved jurisdiction/tax_class at sale time.",
+      "subcode": "TAX_RATE_REQUIRED",
+      "top_level": "ERR_PRECONDITION"
+    },
+    "TAX_TOTAL_MISMATCH": {
+      "notes": "Computed tax totals do not match stored snapshot/audit record.",
+      "subcode": "TAX_TOTAL_MISMATCH",
+      "top_level": "ERR_CONFLICT"
+    }
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Defines the platform tax/VAT posture for ticketing: default tax-inclusive pricing to avoid checkout surprises, optional tax-exclusive checkout add-on per org/event, jurisdiction resolution (event vs org location), deterministic calculation + rounding, immutable tax audit records per order, and reconciliation expectations against PRICE-1 snapshots and LED-1 postings under V42 money invariants.",
+  "tax_defaults": {
+    "allow_event_override": true,
+    "allow_org_override_to_exclusive": true,
+    "default_inclusion_mode": "inclusive",
+    "default_jurisdiction_source": "event_location",
+    "default_tax_basis": "event_location",
+    "notes": [
+      "Default posture is VAT/tax INCLUDED in advertised ticket price (conversion protection).",
+      "Org/event MAY switch to tax added separately at checkout when required by local norms/regulation."
+    ],
+    "price_transparency_policy": "no_unknown_costs_after_first_quote",
+    "require_checkout_tax_line_item": true,
+    "require_tax_context_resolved_before_sale": true,
+    "rounding_mode": "half_even_minor_units",
+    "tax_scope_default": "all_customer_charges"
+  },
+  "tenancy": {
+    "enforcement": "postgres_rls",
+    "notes": [
+      "All tenant-scoped TAX resources MUST enforce org_id isolation via Postgres RLS.",
+      "Platform-scoped tax rate tables MUST be writable only through platform.tax_rate.create by an authorized platform principal."
+    ],
+    "rls_session_var": "app.current_org_id",
+    "tenant_key": "org_id"
+  },
+  "tier": 2,
+  "title": "TAX-1 Tax & VAT Inclusion, Calculation, and Audit Contract",
+  "ui_requirements": [
+    "Checkout MUST show a distinct tax line item (e.g., 'VAT') regardless of inclusion mode. Inclusive mode MUST present it as included in the total.",
+    "Ticket creation backend MUST allow setting inclusion_mode (default inclusive) and tax_basis override only when org policy allows it.",
+    "If exclusive mode is used, the UI MUST show 'excluding tax' messaging before add_to_cart and MUST never introduce taxes not included in the quote shown to the user."
+  ],
+  "version": "3.0.1"
+}

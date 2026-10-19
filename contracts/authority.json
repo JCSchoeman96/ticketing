@@ -1,8 +1,0 @@
-{
-  "repository": "JCSchoeman96/ticketing-contracts",
-  "reviewed_commit": "cc335793e7a542e44938883f87cc96f796a4fe32",
-  "canon_doc_id": "CANON-1",
-  "canon_version": "2.0.10",
-  "manifest_path": "contracts/manifest.json",
-  "t0_tracer_path": "planning/tracers/T0-tenant-scoped-ga-pending-sale.md"
-}

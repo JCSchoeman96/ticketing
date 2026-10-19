@@ -1,0 +1,13 @@
+{
+  "doc_id": "SEAT-1",
+  "version": "4.1.0",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-18T12:54:14Z",
+  "release_status": "candidate",
+  "release_intent": "Coordinated checkout replay authority successor SEAT-1@4.1.0.",
+  "source_provenance": {
+    "kind": "installed-release-successor",
+    "path": "provenance.json",
+    "source_zip_sha256": "3ee42fbc6e43e1a58233abb9de8b1cf5b23037d62dcf4add256af750267b07cc"
+  }
+}

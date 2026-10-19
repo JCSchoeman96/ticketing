@@ -1,0 +1,73 @@
+{
+  "bootstrap_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "candidate_preparation_base_commit": "d553983df94166a834f5a27109a9a77b90403c2f",
+  "provenance_statement": "Candidate ORD-1@4.0.0 uses the exact active ORD-1@3.8.4 ZIP as its installed baseline and replaces contract and test-gates content with the frozen authority-staging/t0-hardening/ORD-1 pair. Only release identity, version-bound assertion, and generated timestamp fields were mechanically normalized.",
+  "source_bundle_path": "contracts/ORD-1/ORD-1_bundle_v3.8.4.zip",
+  "source_zip_sha256": "d5b32da612158e47c83a8001df065e7edaf0037139f2c6ae9f2ba056c4bacebd",
+  "source_zip_bytes": 136560,
+  "source_version": "3.8.4",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "authority-staging/t0-hardening/ORD-1/contract.json",
+      "sha256": "58526e986dc6de51baf54c375c5e59f24aa53cc3251b2a196ef42c62291fb716",
+      "bytes": 116081,
+      "frozen_input_sha256": "feebefaf58e59a4e9e9e9129f54b58391c746f6841a7718f778873d5212bed6a",
+      "frozen_input_bytes": 116081
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "authority-staging/t0-hardening/ORD-1/test-gates.json",
+      "sha256": "dd3cd4427f1be1f79401c092902b29f2d730b58a65201bd96b3ef1204b45cf6f",
+      "bytes": 52217,
+      "frozen_input_sha256": "282689b64acefd4b61559c76204a24b99fbebd85b6b662c51bd6d8581e973d7d",
+      "frozen_input_bytes": 52217
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "ORD-1_bundle_v3.8.4/ORD-1_Contract_v3.8.4.json",
+      "sha256": "86de1118f6774cb1ec0d9c274e3e80ba17a813deec045adfb198379e4ee51abd",
+      "bytes": 102023
+    },
+    {
+      "source_member_path": "ORD-1_bundle_v3.8.4/ORD-1_Test_Gates_v3.8.4.json",
+      "sha256": "bde7c41a74a5bbab9a2da946bc39b49e2c977dfe0c021cd1c42fc10bc5b69f69",
+      "bytes": 33395
+    },
+    {
+      "source_member_path": "ORD-1_bundle_v3.8.4/bundle.manifest.json",
+      "sha256": "3a27fbcdacbdacc952a512a80c2fc7f0a84fe54662ec65db3d9354dae9dd988c",
+      "bytes": 624
+    }
+  ],
+  "frozen_authority_sources": [
+    {
+      "path": "authority-staging/t0-hardening/ORD-1/contract.json",
+      "sha256": "feebefaf58e59a4e9e9e9129f54b58391c746f6841a7718f778873d5212bed6a",
+      "bytes": 116081
+    },
+    {
+      "path": "authority-staging/t0-hardening/ORD-1/test-gates.json",
+      "sha256": "282689b64acefd4b61559c76204a24b99fbebd85b6b662c51bd6d8581e973d7d",
+      "bytes": 52217
+    }
+  ],
+  "mechanical_normalization": {
+    "suite_schema": "CS-0@3.0.1",
+    "target_version": "4.0.0",
+    "generated_at_utc": "2026-10-18T09:26:57Z",
+    "contract_json_pointers": [
+      "/artifact_name",
+      "/generated_at_utc",
+      "/version"
+    ],
+    "test_gates_json_pointers": [
+      "/artifact_name",
+      "/contract_ref/version",
+      "/gates/3/assertions/1/details/equals",
+      "/generated_at_utc",
+      "/version"
+    ]
+  }
+}
