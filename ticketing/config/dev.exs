@@ -21,7 +21,7 @@ config :ticketing, TicketingWeb.Endpoint,
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [
     ip: {127, 0, 0, 1},
-    port: String.to_integer(System.get_env("TICKETING_DEV_HTTP_PORT", "4100"))
+    port: String.to_integer(System.get_env("TICKETING_DEV_HTTP_PORT", "4200"))
   ],
   check_origin: false,
   code_reloader: true,

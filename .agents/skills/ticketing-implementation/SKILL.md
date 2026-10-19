@@ -18,5 +18,5 @@ This skill is an operational checklist. The repository root `AGENTS.md` defines 
 9. Implement the smallest coherent change that satisfies the approved work item. Do not add an unapproved dependency, capability, persistence path, or product behavior.
 10. Stop affected work and record the blocker or discovery in Plane if authority is missing, the JIP or ticket is stale, scope must expand, a dependency or capability is unapproved, or a locked invariant cannot be met.
 11. Use Tidewave runtime tools for useful evidence when the DEV application is running. Otherwise prefer a reproducible `mix run -e`; use IEx for genuinely interactive investigation and `dbg` or `pry` for difficult runtime problems. Runtime exploration does not replace automated tests.
-12. Ticketing DEV uses `TICKETING_DEV_HTTP_PORT`, default `4100`, on `127.0.0.1`. Use an available worktree slot from `4101–4119`; Phoenix and Tidewave share the port. Use `mix tidewave.proxy` for worktree-aware MCP access where appropriate.
+12. Ticketing DEV uses `TICKETING_DEV_HTTP_PORT`, default `4200`, on `127.0.0.1`. Reserve `4200` for the primary checkout and use an available worktree slot from `4201–4219`; Phoenix and Tidewave share the port. Use `mix tidewave.proxy` for worktree-aware MCP access where appropriate.
 13. Before PR handoff, load `ticketing-verification` and complete its checklist.

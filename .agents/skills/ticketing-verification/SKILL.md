@@ -38,7 +38,7 @@ git diff --check
 
 `mix usage_rules.sync` writes generated output. Review its changes, then run `mix usage_rules.sync --check` to prove a fresh sync has no drift. Igniter's supported `--check` mode exits nonzero when generated changes are pending and halts before writing files; `mix check` uses this mode so verification never silently rewrites tracked output. The alias runs this drift check under DEV because the generated Phoenix skill includes the DEV-only `phoenix_live_reload` rules; format, compile, and tests run under TEST.
 
-For Tidewave changes, verify the DEV endpoint is loopback-only, Tidewave is dev-only, and the MCP endpoint uses the same port as Phoenix. Check the default `4100` port and an explicit worktree port from `4101–4119`. Confirm Ticketing does not bind port `4000` and production configuration does not enable Tidewave or change.
+For Tidewave changes, verify the DEV endpoint is loopback-only, Tidewave is dev-only, and the MCP endpoint uses the same port as Phoenix. Check the default `4200` port and an explicit worktree port from `4201–4219`. Confirm Ticketing does not bind port `4000` and production configuration does not enable Tidewave or change.
 
 ## Prepare the review handoff
 

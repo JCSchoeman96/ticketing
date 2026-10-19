@@ -96,9 +96,9 @@ Infrastructure-changing implementation MUST prove DEV/TEST separation, clean Pos
 
 ### Development HTTP and Tidewave ports
 
-Ticketing DEV binds only to `127.0.0.1`. Its HTTP port comes from `TICKETING_DEV_HTTP_PORT`, with `4100` as the default. Reserve `4100` for the primary checkout and `4101–4119` for Ticketing worktrees. Do not use generic `PORT` as Ticketing's local development port contract.
+Ticketing DEV binds only to `127.0.0.1`. Its HTTP port comes from `TICKETING_DEV_HTTP_PORT`, with `4200` as the default. Reserve `4200` for the primary checkout and `4201–4219` for Ticketing worktrees. Do not use generic `PORT` as Ticketing's local development port contract.
 
-Tidewave uses the same Phoenix port at `/tidewave/mcp`. For a worktree, set an available Ticketing slot, for example `TICKETING_DEV_HTTP_PORT=4101 mix phx.server`, and use `mix tidewave.proxy` when worktree-aware MCP routing is useful. Do not change another project's port allocation.
+Tidewave uses the same Phoenix port at `/tidewave/mcp`; the primary endpoint is `http://127.0.0.1:4200/tidewave/mcp`. For a worktree, set an available Ticketing slot, for example `TICKETING_DEV_HTTP_PORT=4201 mix phx.server`, and use `mix tidewave.proxy` when worktree-aware MCP routing is useful. Do not change another project's port allocation.
 
 ## Implementation documentation duties
 
