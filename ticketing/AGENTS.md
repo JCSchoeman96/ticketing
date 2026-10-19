@@ -46,7 +46,35 @@ If current official guidance materially changes architecture, persistence, trans
 
 ## Ash Framework rules
 
-Ash is the primary governed application/domain framework.
+Ash is the mandatory governed application/domain framework for canonical application state.
+
+### Non-bypassable Ash application boundary
+
+Canonical application/domain persistence MUST be modeled and operated through the approved Ash architecture, not through a parallel Ecto/Repo persistence layer.
+
+For governed canonical state:
+
+- every resource MUST be an Ash Resource and belong to an approved Ash Domain unless a user-approved JIP explicitly establishes a justified exception;
+- the JIT/JIP MUST establish domain/resource ownership, public code interfaces, allowed cross-domain dependencies, actor/tenant requirements, lifecycle ownership, transaction ownership and event/outbox ownership before implementation;
+- the cumulative Ash Domain/Resource Ownership Map is derived architecture documentation only and MUST NOT invent or override canonical semantics;
+- PostgreSQL-backed resources MUST use `AshPostgres.DataLayer` unless a user-approved JIP, after explicit JIT evaluation, selects another persistence mechanism;
+- ordinary runtime reads and writes MUST pass through approved Ash actions and domain/resource code interfaces with the required actor, tenant and authorization context;
+- controllers, LiveViews, jobs, service modules, provider adapters and other callers MUST use the same governed boundary rather than reaching around it;
+- cross-domain behavior MUST call approved domain/action interfaces rather than couple domains through persistence access.
+
+Direct persistence bypass is prohibited by default. Runtime/application code MUST NOT use `Ticketing.Repo`, direct `Repo` CRUD, `Ecto.Query`, `Ecto.Multi`, `insert_all`/`update_all`/`delete_all`, raw SQL, database execution helpers or equivalent mechanisms as an alternative API for canonical domain state.
+
+Do not use `authorize?: false`, omit required actor/tenant context, bypass RLS, or duplicate Ash policy logic outside Ash merely for convenience or to make an operation succeed. Any trusted/system execution model must be explicitly designed, narrowly scoped, approved and tested.
+
+PostgreSQL remains a defence-in-depth enforcement layer. Required foreign keys, unique/check constraints, indexes, RLS, locks, transaction primitives and other database guarantees MUST support the governed Ash/AshPostgres model; they MUST NOT become a second application persistence interface.
+
+Low-level Repo/Ecto/SQL mechanics are allowed only for narrowly justified infrastructure work such as migrations, DDL, constraints, indexes, RLS, generated-migration correction, isolated test/fixture setup that cannot become a production shortcut, or an explicitly JIP-approved low-level mechanism needed to satisfy a locked concurrency/transaction invariant. Any approved runtime exception MUST remain behind the governed Ash action/interface boundary and preserve actor, tenant, policy, transaction, idempotency and lifecycle semantics.
+
+If implementation appears to require bypassing Ash/AshPostgres for canonical runtime behavior, STOP affected coding. Capture a Plane blocker/discovery, identify why approved Ash mechanisms are insufficient, run targeted JIT re-Grill, and amend/approve the JIP/spec before resuming if an exception is genuinely required.
+
+Convenience, familiarity, speculative performance concerns or shorter code are not sufficient justification for bypass.
+
+PR review MUST scrutinize direct Repo/Ecto/raw-SQL usage and require an explicit classification/justification for every such occurrence outside ordinary Ash/AshPostgres operation.
 
 ### Domain behavior
 
