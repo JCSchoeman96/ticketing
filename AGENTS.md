@@ -162,6 +162,42 @@ Canonical contracts remain authoritative. A newer Ash feature MUST NOT replace c
 
 Coding agents MUST NOT silently add or upgrade architectural dependencies.
 
+## Mandatory Ash-native application boundary
+
+The `ticketing/` application is Ash-native by architectural policy. This is a repository implementation invariant beneath canonical product authority, not a replacement for contract semantics.
+
+For canonical application/domain state:
+
+- every governed resource MUST be implemented as an Ash Resource and registered with an approved Ash Domain unless a user-approved JIP explicitly establishes a justified exception;
+- domain/resource ownership, public interfaces, allowed dependencies, actor/tenancy requirements, lifecycle ownership, transaction ownership and event/outbox ownership MUST be established through JIT/JIP decisions and reflected in the cumulative derived Ash Domain/Resource Ownership Map;
+- that Domain/Resource Ownership Map is derived architecture documentation and MUST NOT create or override canonical semantics;
+- PostgreSQL-backed governed resources MUST use `AshPostgres.DataLayer` unless a user-approved JIP, after explicit JIT evaluation, selects a different persistence mechanism;
+- ordinary runtime reads and writes of canonical domain state MUST flow through approved Ash actions and approved domain/resource code interfaces with the required actor, tenant and authorization context;
+- cross-domain behavior MUST use approved domain/action interfaces rather than persistence-level coupling.
+
+Direct persistence bypass is prohibited by default. Application/runtime code MUST NOT use `Ticketing.Repo`, direct `Repo` CRUD, `Ecto.Query`, `Ecto.Multi`, `insert_all`/`update_all`/`delete_all`, raw SQL, database execution helpers or equivalent mechanisms as an alternative domain API for canonical state.
+
+Likewise, implementation MUST NOT use `authorize?: false`, omit required actor/tenant context, bypass RLS, or reproduce policy logic outside Ash merely for convenience or to make an operation succeed.
+
+PostgreSQL remains a required defence-in-depth enforcement layer. Database constraints, foreign keys, indexes, RLS, checks, locks, transaction primitives and other approved database guarantees SHOULD be used where required by authority/JIP, but they support the governed Ash model rather than form a parallel runtime persistence API.
+
+Low-level Repo/Ecto/SQL mechanics are permitted only for narrowly justified infrastructure concerns such as migrations, DDL, constraints, indexes, RLS, generated-migration correction, isolated test/fixture setup that cannot become a production shortcut, or an explicitly JIP-approved low-level mechanism required to satisfy a locked concurrency/transaction invariant. Any approved runtime exception MUST remain behind the governed Ash action/interface boundary and preserve actor, tenant, policy, transaction, idempotency and lifecycle semantics.
+
+If an implementation appears to require bypassing Ash/AshPostgres for canonical runtime behavior, that is a **STOP condition**:
+
+```text
+stop affected coding
+→ capture discovery/blocker in Plane
+→ identify why approved Ash mechanisms are insufficient
+→ targeted JIT re-Grill
+→ explicitly amend/approve JIP/spec if an exception is genuinely required
+→ only then resume
+```
+
+Convenience, familiarity, speculative performance concerns or shorter code are not sufficient reasons for an exception.
+
+Every material domain JIP/spec MUST state the applicable Ash Domain, Resource, action/interface, policy/actor/tenant, AshPostgres, transaction and direct-database-access posture. Independent review MUST scrutinize direct Repo/Ecto/raw-SQL usage and reject unexplained bypasses.
+
 ## Required implementation references
 
 Reference repositories are implementation evidence, not canonical Ticketing product authority.
@@ -367,8 +403,8 @@ For an approved READY work item:
 - use discretion only for true `IMPLEMENTATION_FREE` choices;
 - use TDD for material behavior;
 - preserve contract ownership boundaries;
-- prefer governed Ash actions over direct Repo bypasses;
-- use Repo/DDL/test-fixture mechanisms only for justified infrastructure or explicit JIP needs;
+- use governed Ash Domain/Resource actions and interfaces for canonical runtime behavior; direct Repo/Ecto/raw-SQL bypass is prohibited except as explicitly allowed by the Mandatory Ash-native application boundary above;
+- use Repo/DDL/test-fixture mechanisms only for justified infrastructure or explicit JIP needs consistent with that boundary;
 - use current official APIs and idioms;
 - avoid unrelated refactors;
 - surface contradictions immediately;
