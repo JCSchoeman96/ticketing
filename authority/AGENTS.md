@@ -236,6 +236,27 @@ Store Blueprint Hardening, LiveFrames, framework documentation, package behavior
 
 If implementation/reference evidence reveals that a canonical requirement is impossible, contradictory or underspecified, open an `AUTHORITY_GAP`; do not silently reshape the contract to match the implementation.
 
+## Downstream Ash-native application boundary
+
+Canonical authority remains technology-neutral unless a technology itself is part of the product/system contract. The active `ticketing/` implementation is nevertheless governed by the repository-wide Ash-native architecture policy in the root `AGENTS.md` and the application rules in `ticketing/AGENTS.md`.
+
+Authority, ROADMAP and tracer work MUST preserve the distinction between product semantics and downstream implementation architecture:
+
+- derive required ownership, lifecycle, actor/tenant, authorization, transaction, concurrency, idempotency, event/outbox and persistence invariants from canonical authority;
+- allow JIT/JIP to map those invariants onto Ash Domains, Ash Resources, Ash actions, policies and AshPostgres;
+- treat the cumulative Ash Domain/Resource Ownership Map as derived implementation architecture, not canonical semantic authority;
+- do not encode a direct Repo/Ecto/raw-SQL bypass into contracts, ROADMAP or tracers merely because it appears easier to implement;
+- do not weaken or reshape canonical semantics to fit a framework limitation.
+
+If the selected Ash/AshPostgres stack cannot safely express a canonical requirement, first determine which kind of problem exists:
+
+- missing, contradictory or insufficient canonical semantics → `AUTHORITY_GAP` and authority repair;
+- clear canonical semantics but an implementation/framework limitation → downstream technical blocker/prerequisite, targeted JIT re-Grill and explicit JIP/spec decision.
+
+A framework limitation by itself is NOT an `AUTHORITY_GAP` and MUST NOT cause canonical authority to be rewritten merely to accommodate the current implementation.
+
+The prohibition on direct persistence bypass applies to canonical runtime application behavior in `ticketing/`. It does not prohibit authority tooling from reading/writing authority artifacts or using implementation mechanisms appropriate to deterministic contract release, validation and provenance work.
+
 ## Decision classes
 
 Use these meanings consistently across authority/planning work.
