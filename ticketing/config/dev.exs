@@ -2,12 +2,20 @@ import Config
 config :ash, policies: [show_policy_breakdowns?: true]
 
 # Configure your database
+dev_db_host = System.get_env("TICKETING_DEV_DB_HOST", "127.0.0.1")
+dev_db_port = String.to_integer(System.get_env("TICKETING_DEV_DB_PORT", "55432"))
+dev_db_user = System.get_env("TICKETING_DEV_DB_USER", "ticketing_dev")
+dev_db_password = System.fetch_env!("TICKETING_DEV_DB_PASSWORD")
+dev_db_name = System.get_env("TICKETING_DEV_DB_NAME", "ticketing_dev")
+
 config :ticketing, Ticketing.Repo,
-  url:
-    System.get_env("DATABASE_URL") ||
-      "postgresql://postgres:postgres@localhost:5433/ticketing_dev",
+  hostname: dev_db_host,
+  port: dev_db_port,
+  username: dev_db_user,
+  password: dev_db_password,
+  database: dev_db_name,
   stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
+  show_sensitive_data_on_connection_error: false,
   pool_size: 10
 
 # For development, we disable any cache and enable
