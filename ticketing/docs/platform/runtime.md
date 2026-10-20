@@ -6,9 +6,9 @@
 >
 > Governing JIP: JIP-T0-00 / Plane TICK-1, approved
 >
-> Plane work: TICK-2, TICK-3, TICK-5, TICK-9, TICK-13
+> Plane work: TICK-2, TICK-3, TICK-4, TICK-5, TICK-9, TICK-13
 >
-> Merged PRs: [#8](https://github.com/JCSchoeman96/ticketing/pull/8), [#10](https://github.com/JCSchoeman96/ticketing/pull/10), [#11](https://github.com/JCSchoeman96/ticketing/pull/11), [#13](https://github.com/JCSchoeman96/ticketing/pull/13)
+> Merged PRs: [#8](https://github.com/JCSchoeman96/ticketing/pull/8), [#10](https://github.com/JCSchoeman96/ticketing/pull/10), [#11](https://github.com/JCSchoeman96/ticketing/pull/11), [#12 (TICK-4)](https://github.com/JCSchoeman96/ticketing/pull/12), [#13](https://github.com/JCSchoeman96/ticketing/pull/13)
 
 ## Runtime and application identity
 

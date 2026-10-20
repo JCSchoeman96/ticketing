@@ -6,9 +6,9 @@
 >
 > Governing JIP: JIP-T0-00 / Plane TICK-1, approved
 >
-> Plane work: TICK-4, TICK-7, TICK-8, TICK-9, TICK-16, TICK-17
+> Plane work: TICK-4, TICK-7, TICK-8, TICK-9, TICK-12, TICK-16, TICK-17
 >
-> Merged PRs: [#9](https://github.com/JCSchoeman96/ticketing/pull/9), [#12](https://github.com/JCSchoeman96/ticketing/pull/12), [#15](https://github.com/JCSchoeman96/ticketing/pull/15)
+> Related PRs: [#9 (TICK-12)](https://github.com/JCSchoeman96/ticketing/pull/9), [#12 (TICK-4)](https://github.com/JCSchoeman96/ticketing/pull/12), [#15](https://github.com/JCSchoeman96/ticketing/pull/15)
 
 ## Current PostgreSQL ownership
 
