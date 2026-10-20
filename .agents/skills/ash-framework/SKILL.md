@@ -24,6 +24,7 @@ metadata:
 - [query_filter](references/ash/query_filter.md)
 - [querying_data](references/ash/querying_data.md)
 - [relationships](references/ash/relationships.md)
+- [signals](references/ash/signals.md)
 - [temporal](references/ash/temporal.md)
 - [testing](references/ash/testing.md)
 
@@ -82,7 +83,9 @@ mix usage_rules.search_docs "search term" -p ash -p ash_phoenix -p ash_postgres
 - `mix ash.rollback` - Runs all rollback tasks for any extension on any resource/domain in your application.
 - `mix ash.set.domains` - Dynamically discovers and updates Ash domains in config.exs
 - `mix ash.setup` - Runs all setup tasks for any extension on any resource/domain in your application.
+- `mix ash.signals` - Prints the signals of your application, and what emits and listens to them
 - `mix ash.tear_down` - Runs all tear_down tasks for any extension on any resource/domain in your application.
+- `mix compile.ash_signals`
 - `mix ash_phoenix.gen.html` - Generates a controller and HTML views for an existing Ash resource.
 - `mix ash_phoenix.gen.live` - Generates liveviews for a given domain and resource.
 - `mix ash_phoenix.install` - Installs AshPhoenix into a project. Should be called with `mix igniter.install ash_phoenix`
