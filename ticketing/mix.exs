@@ -11,6 +11,7 @@ defmodule Ticketing.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
+      dialyzer: [plt_add_apps: [:mix, :ex_unit]],
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
       listeners: [Phoenix.CodeReloader],
       consolidate_protocols: Mix.env() != :dev
@@ -29,7 +30,11 @@ defmodule Ticketing.MixProject do
 
   def cli do
     [
-      preferred_envs: [check: :test, precommit: :test]
+      preferred_envs: [
+        {:check, :test},
+        {:"check.types", :test},
+        {:precommit, :test}
+      ]
     ]
   end
 
@@ -57,6 +62,9 @@ defmodule Ticketing.MixProject do
       {:phoenix_live_view, "~> 1.2.12"},
       {:lazy_html, ">= 0.1.0", only: :test},
       {:phoenix_live_dashboard, "~> 0.8.3"},
+      {:credo, "~> 1.7.19", only: [:dev, :test], runtime: false},
+      {:sobelow, "~> 0.16.0", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4.8", only: [:dev, :test], runtime: false},
       {:esbuild, "~> 0.10.0", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.5.1", runtime: Mix.env() == :dev},
       {:heroicons,
@@ -130,11 +138,23 @@ defmodule Ticketing.MixProject do
       ],
       check: [
         "cmd env MIX_ENV=dev mix usage_rules.sync --check",
+        "hex.audit",
+        "format --check-formatted",
+        "compile --warnings-as-errors",
+        "ash.codegen --check",
+        "contract.authority",
+        "test",
+        "credo --strict",
+        "sobelow --private --exit Medium",
+        "cmd env MIX_ENV=dev mix assets.build"
+      ],
+      "check.types": ["dialyzer --format short"],
+      precommit: [
+        "cmd env MIX_ENV=dev mix usage_rules.sync --check",
         "format --check-formatted",
         "compile --warnings-as-errors",
         "test"
-      ],
-      precommit: ["check"]
+      ]
     ]
   end
 end

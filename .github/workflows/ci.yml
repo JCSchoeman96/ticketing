@@ -35,9 +35,9 @@ jobs:
       TICKETING_TEST_DB_PASSWORD: ticketing_ci
       TICKETING_TEST_DB_NAME: ticketing_test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.13"
       - name: Install authority validation dependencies
@@ -49,12 +49,6 @@ jobs:
       - name: Install and set up the application
         working-directory: ticketing
         run: mix setup
-      - name: Verify in-repository canonical authority
-        working-directory: ticketing
-        run: mix contract.authority
-      - name: Check generated AshPostgres migrations
-        working-directory: ticketing
-        run: mix ash.codegen --check
       - name: Run application verification
         working-directory: ticketing
         run: mix check
@@ -63,3 +57,25 @@ jobs:
         env:
           MIX_TEST_PARTITION: "1"
         run: mix test test/ticketing/repo_smoke_test.exs
+
+  check_types:
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+      TICKETING_TEST_DB_HOST: 127.0.0.1
+      TICKETING_TEST_DB_PORT: "55433"
+      TICKETING_TEST_DB_USER: ticketing_typecheck
+      TICKETING_TEST_DB_PASSWORD: ticketing_typecheck
+      TICKETING_TEST_DB_NAME: ticketing_test
+    steps:
+      - uses: actions/checkout@v7
+      - uses: erlef/setup-beam@v1
+        with:
+          version-file: ".tool-versions"
+          version-type: "strict"
+      - name: Fetch application dependencies
+        working-directory: ticketing
+        run: mix deps.get
+      - name: Run Dialyzer
+        working-directory: ticketing
+        run: mix check.types

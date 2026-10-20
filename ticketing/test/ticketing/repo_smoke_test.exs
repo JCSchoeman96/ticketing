@@ -28,7 +28,7 @@ defmodule Ticketing.RepoConfigTest do
     repo_config = read_repo_config("dev.exs", :dev, environment)
 
     assert repo_config[:hostname] == "127.0.0.1"
-    assert repo_config[:port] == 55432
+    assert repo_config[:port] == 55_432
     assert repo_config[:username] == "ticketing_dev"
     assert repo_config[:database] == "ticketing_dev"
     assert is_binary(repo_config[:password])
@@ -76,7 +76,7 @@ defmodule Ticketing.RepoConfigTest do
     repo_config = read_repo_config("test.exs", :test, empty_env(@test_env_vars, "test"))
 
     assert repo_config[:hostname] == "127.0.0.1"
-    assert repo_config[:port] == 55433
+    assert repo_config[:port] == 55_433
     assert repo_config[:username] == "ticketing_test"
     assert repo_config[:database] == "ticketing_test"
     refute Keyword.has_key?(repo_config, :url)
@@ -167,9 +167,11 @@ end
 defmodule Ticketing.RepoSmokeTest do
   use Ticketing.DataCase, async: false
 
+  alias Ecto.Adapters.SQL
+
   test "the TEST database has all nine Ash helper functions" do
     assert %{rows: [[9]]} =
-             Ecto.Adapters.SQL.query!(
+             SQL.query!(
                Ticketing.Repo,
                """
                SELECT count(*)
@@ -200,7 +202,7 @@ defmodule Ticketing.RepoSmokeTest do
     assert repo_config[:port] ==
              String.to_integer(System.get_env("TICKETING_TEST_DB_PORT", "55433"))
 
-    refute repo_config[:port] == 55432
+    refute repo_config[:port] == 55_432
     assert repo_config[:database] == expected_database
     refute repo_config[:database] == "ticketing_dev"
     assert repo_config[:username] == System.get_env("TICKETING_TEST_DB_USER", "ticketing_test")
@@ -208,7 +210,7 @@ defmodule Ticketing.RepoSmokeTest do
     refute Keyword.has_key?(repo_config, :url)
 
     assert %{rows: [[^expected_database, server_version_num]]} =
-             Ecto.Adapters.SQL.query!(
+             SQL.query!(
                Ticketing.Repo,
                "SELECT current_database(), current_setting('server_version_num')::integer",
                []
