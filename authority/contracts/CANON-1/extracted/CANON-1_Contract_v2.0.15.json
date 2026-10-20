@@ -329,29 +329,29 @@
     {
       "artifacts": [
         {
-          "bytes": 25503,
-          "path": "DSAR-1_bundle_v1.2.2/DSAR-1-GATE_TestGates_v1.2.2.json",
-          "sha256": "702924df77a6037455862af05ff9cd3a944cc14a9c851bc0010624586062ae5b"
-        },
-        {
           "bytes": 24033,
-          "path": "DSAR-1_bundle_v1.2.2/DSAR-1_Contract_v1.2.2.json",
-          "sha256": "bc2d923545bb98435502fef652c2e660cea386f0207b890521c65f3150fdb5b1"
+          "path": "DSAR-1_bundle_v1.2.3/DSAR-1_Contract_v1.2.3.json",
+          "sha256": "feb2cf9076e31a21c27c595bc9495dfcbeac9f64a771ba3ca05f28e2777b90d7"
         },
         {
-          "bytes": 630,
-          "path": "DSAR-1_bundle_v1.2.2/bundle.manifest.json",
-          "sha256": "b1a345bd2522ce4063e1c289f09866b8142057258d279e0d378aae4f437d9525"
+          "bytes": 25499,
+          "path": "DSAR-1_bundle_v1.2.3/DSAR-1_Test_Gates_v1.2.3.json",
+          "sha256": "37da4975b31df20c9c39ea55f5fb84eb13c4ce65123a6e8caf4b233f22a7fdb6"
+        },
+        {
+          "bytes": 627,
+          "path": "DSAR-1_bundle_v1.2.3/bundle.manifest.json",
+          "sha256": "bc08e9b4e42d37177e69523a92df6198861ecf1ca4ee42b5d91f22713357420c"
         }
       ],
-      "bundle_sha256": "9ddc86a9ab88b9a9921ef937f620c462af8bee0679b76565399a810f1652086c",
+      "bundle_sha256": "832448d21c79648497f36b2b5f872e5db1ef8ae460dfb0fc82a44b6e4135ea37",
       "doc_id": "DSAR-1",
       "membership_status": "CANON_MEMBER",
       "selection_basis": [
-        "preserved from validated current CANON pin"
+        "explicit validated successor candidate for DSAR-1"
       ],
-      "version": "1.2.2",
-      "zip_path": "contracts/DSAR-1/DSAR-1_bundle_v1.2.2.zip"
+      "version": "1.2.3",
+      "zip_path": "contracts/DSAR-1/DSAR-1_bundle_v1.2.3.zip"
     },
     {
       "artifacts": [
@@ -438,55 +438,55 @@
       "artifacts": [
         {
           "bytes": 20546,
-          "path": "GOV-0_bundle_v2.1.1/GOV-0_Contract_v2.1.1.json",
-          "sha256": "fec96bf257b3fa822ffcef6510f22a88956cc68d278af1ee05ee1c82ff01287d"
+          "path": "GOV-0_bundle_v2.1.2/GOV-0_Contract_v2.1.2.json",
+          "sha256": "626e68ec65550a9008c1653fc5110ead00607ce13f293e6dfee6dd37e3e1c207"
         },
         {
           "bytes": 9145,
-          "path": "GOV-0_bundle_v2.1.1/GOV-0_Test_Gates_v2.1.1.json",
-          "sha256": "994a00a0b9e89b914b9717fa2bbf4a9977e3b8429e52d37e6effbbaa9351b838"
+          "path": "GOV-0_bundle_v2.1.2/GOV-0_Test_Gates_v2.1.2.json",
+          "sha256": "a9cf4f7f856f69fd810bcbda166ba2ae2d58c82dc59b470a5d84f911ca26ccbe"
         },
         {
           "bytes": 622,
-          "path": "GOV-0_bundle_v2.1.1/bundle.manifest.json",
-          "sha256": "48e817f4d97a5d561d123b76427e4cfbb01e24a64f0276d31419ad9e8db80438"
+          "path": "GOV-0_bundle_v2.1.2/bundle.manifest.json",
+          "sha256": "07540389b76609eedae9b20efdf196f0d1c7b8475289927b09b70d84ebbf50e0"
         }
       ],
-      "bundle_sha256": "95c1e2c2a72c67dfa7422fe2bd5bd94e219df5ef7c4dd89c26a6af94797d0048",
+      "bundle_sha256": "a3dd382469eea7f74b1c11b215c0f027f5e357aaceb6a60e5945f5d021c7b01a",
       "doc_id": "GOV-0",
       "membership_status": "CANON_MEMBER",
       "selection_basis": [
-        "preserved from validated current CANON pin"
+        "explicit validated successor candidate for GOV-0"
       ],
-      "version": "2.1.1",
-      "zip_path": "contracts/GOV-0/GOV-0_bundle_v2.1.1.zip"
+      "version": "2.1.2",
+      "zip_path": "contracts/GOV-0/GOV-0_bundle_v2.1.2.zip"
     },
     {
       "artifacts": [
         {
           "bytes": 54417,
-          "path": "IAM-1_bundle_v4.1.0/IAM-1_Contract_v4.1.0.json",
-          "sha256": "98c542d774621d097d3bd60627fe94b2600af272a09def100b0abc43746735ab"
+          "path": "IAM-1_bundle_v4.1.1/IAM-1_Contract_v4.1.1.json",
+          "sha256": "b71927c521162bc48991354631ec42578ba194d71f2f17748a9c1d997595d97d"
         },
         {
           "bytes": 25086,
-          "path": "IAM-1_bundle_v4.1.0/IAM-1_Test_Gates_v4.1.0.json",
-          "sha256": "f43f130a7f3f215723f495240076614afed3ba44d6dd9151c7df0fa400309ad3"
+          "path": "IAM-1_bundle_v4.1.1/IAM-1_Test_Gates_v4.1.1.json",
+          "sha256": "5a3dc95a690515feac055a0bdddd729a41dbdb7f8b76707f739905707bddb505"
         },
         {
           "bytes": 623,
-          "path": "IAM-1_bundle_v4.1.0/bundle.manifest.json",
-          "sha256": "f8046feb670dac0d8ef2c6d13bf5b6d6c452b26f898ba61a75efbfac35d4697d"
+          "path": "IAM-1_bundle_v4.1.1/bundle.manifest.json",
+          "sha256": "ac6ca134e37458a233e2e8422b6002a638c925b3241dfc366d9e88a7260a7cfd"
         }
       ],
-      "bundle_sha256": "2f663898e4a4b55a54d5f464bb8874d12ad4af2377127838b3f534fb820737d1",
+      "bundle_sha256": "8d6831f9322513da739938fbd06d7de80757414da8927f38b5b1ad23b2585084",
       "doc_id": "IAM-1",
       "membership_status": "CANON_MEMBER",
       "selection_basis": [
         "explicit validated successor candidate for IAM-1"
       ],
-      "version": "4.1.0",
-      "zip_path": "contracts/IAM-1/IAM-1_bundle_v4.1.0.zip"
+      "version": "4.1.1",
+      "zip_path": "contracts/IAM-1/IAM-1_bundle_v4.1.1.zip"
     },
     {
       "artifacts": [
@@ -510,7 +510,7 @@
       "doc_id": "IAM-2",
       "membership_status": "CANON_MEMBER",
       "selection_basis": [
-        "explicit validated successor candidate for IAM-2"
+        "preserved from validated current CANON pin"
       ],
       "version": "1.5.0",
       "zip_path": "contracts/IAM-2/IAM-2_bundle_v1.5.0.zip"
@@ -627,28 +627,28 @@
       "artifacts": [
         {
           "bytes": 10075,
-          "path": "LINT-0_bundle_v2.1.1/LINT-0_Contract_v2.1.1.json",
-          "sha256": "0bbb41276c02428ca7a6340b5da94c97bded997a58e8c8a38f8a823f613ce380"
+          "path": "LINT-0_bundle_v2.1.2/LINT-0_Contract_v2.1.2.json",
+          "sha256": "c620fc7a997daeb8ba12df4205a27e366c33a1364e0f61727e5277f8b638f1b9"
         },
         {
           "bytes": 6746,
-          "path": "LINT-0_bundle_v2.1.1/LINT-0_Test_Gates_v2.1.1.json",
-          "sha256": "feb4b68337effe59e39f0489470c0a069a3eaff9b3515742cebf5158b58250c4"
+          "path": "LINT-0_bundle_v2.1.2/LINT-0_Test_Gates_v2.1.2.json",
+          "sha256": "4cd80b070ac6fad8824cf7bcd1b0e744957a522371a16238ca450cf15798d34c"
         },
         {
           "bytes": 626,
-          "path": "LINT-0_bundle_v2.1.1/bundle.manifest.json",
-          "sha256": "430830cb1ff0642ea47b007a56e12a70f92e50a4516cd8ba737bfe84f07441b0"
+          "path": "LINT-0_bundle_v2.1.2/bundle.manifest.json",
+          "sha256": "e0275fadece3c49bcea2fd2300d1e846db7ad609e9101e5532d62857248f43bd"
         }
       ],
-      "bundle_sha256": "d19790df443a402f5be0af64dff67eca143249afc16e066c67bb3315547eb48f",
+      "bundle_sha256": "b2f6a5229bb1bca01176cc0bfe500fc1bedd25ac0d20188b7bcae044748aba97",
       "doc_id": "LINT-0",
       "membership_status": "CANON_MEMBER",
       "selection_basis": [
-        "preserved from validated current CANON pin"
+        "explicit validated successor candidate for LINT-0"
       ],
-      "version": "2.1.1",
-      "zip_path": "contracts/LINT-0/LINT-0_bundle_v2.1.1.zip"
+      "version": "2.1.2",
+      "zip_path": "contracts/LINT-0/LINT-0_bundle_v2.1.2.zip"
     },
     {
       "artifacts": [
@@ -1534,34 +1534,44 @@
   "dependency_floors": {},
   "doc_id": "CANON-1",
   "emits_events": false,
-  "generated_at_utc": "2026-10-18T20:30:06Z",
+  "generated_at_utc": "2026-10-20T17:59:36Z",
   "generation": {
     "generation_inputs": {
-      "active_manifest_sha256": "c34d62027f2ea0f255e07f84642e6ab84039711ecf5ee2af791f6c2e070b0926",
-      "base_canon_version": "2.0.13",
-      "base_canon_zip_sha256": "0888ec4f5a4bd606680a699fa193d233bb5bf3f6d6a6d405f029fd8546649d24",
+      "active_manifest_sha256": "4a8f19982a25563d93a407a4800c086f530f60575ec11f1b91894f66adaf953c",
+      "base_canon_version": "2.0.14",
+      "base_canon_zip_sha256": "da7e647a752d30ad6db40a3391aba6f7d543aca13f8ede21c7a8c58b31e6eed0",
       "candidate_releases": [
         {
-          "doc_id": "IAM-1",
-          "sha256": "2f663898e4a4b55a54d5f464bb8874d12ad4af2377127838b3f534fb820737d1",
-          "version": "4.1.0"
+          "doc_id": "DSAR-1",
+          "sha256": "832448d21c79648497f36b2b5f872e5db1ef8ae460dfb0fc82a44b6e4135ea37",
+          "version": "1.2.3"
         },
         {
-          "doc_id": "IAM-2",
-          "sha256": "1c2f13612b80ace8a4276ed389524c521ee5c023c840d9550371daf62655400e",
-          "version": "1.5.0"
+          "doc_id": "GOV-0",
+          "sha256": "a3dd382469eea7f74b1c11b215c0f027f5e357aaceb6a60e5945f5d021c7b01a",
+          "version": "2.1.2"
+        },
+        {
+          "doc_id": "IAM-1",
+          "sha256": "8d6831f9322513da739938fbd06d7de80757414da8927f38b5b1ad23b2585084",
+          "version": "4.1.1"
+        },
+        {
+          "doc_id": "LINT-0",
+          "sha256": "b2f6a5229bb1bca01176cc0bfe500fc1bedd25ac0d20188b7bcae044748aba97",
+          "version": "2.1.2"
         }
       ],
-      "dependency_closure_sha256": "8f23984a994f0423bd28bf484016f4b839ce76c5edd24be9c1118948ebcec3eb",
-      "generator_commit": "d678e2b09c424c1c9a324adfd3fac54dadd4637a",
+      "dependency_closure_sha256": "7d0451882d1eb0801a36c7e07e0d34df6a9ea5d6fc3d853333db7f4cf7ccfb5a",
+      "generator_commit": "de3164bfe4b74b16c937b14f073fd87da5f96f6e",
       "generator_version": "2.0.0",
       "manifest_validation_status": "VALID",
       "superseded_identity_defects": []
     },
     "generator": "tools/generate_canon.py",
-    "generator_commit": "d678e2b09c424c1c9a324adfd3fac54dadd4637a",
+    "generator_commit": "de3164bfe4b74b16c937b14f073fd87da5f96f6e",
     "generator_version": "2.0.0",
-    "resolved_selection_sha256": "07ec84ff7a5f6eaf4983a8df447f53a774be424460cf86923df239c1b1f274a2"
+    "resolved_selection_sha256": "5ce3b763bf5e8261934b48ffb3226f0b2640bd3cf88df60956c4a9009205ce66"
   },
   "not_current_versions": [
     {
@@ -1585,5 +1595,5 @@
   "suite_schema": "CS-0@3.0.1",
   "summary": "Generated exact-hash pinset for the resolved current ticketing contract suite.",
   "title": "CANON-1 Contract Suite Canonical Index",
-  "version": "2.0.14"
+  "version": "2.0.15"
 }

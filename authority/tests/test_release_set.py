@@ -245,5 +245,5 @@ def test_current_release_inputs_come_from_manifest() -> None:
 
     assert len(paths) == 58
     canon = next(row for row in records if row["doc_id"] == "CANON-1")
-    assert canon["path"].endswith("contracts/CANON-1/CANON-1_bundle_v2.0.14.zip")
-    assert canon["sha256"] == "da7e647a752d30ad6db40a3391aba6f7d543aca13f8ede21c7a8c58b31e6eed0"
+    assert canon["path"].endswith("contracts/CANON-1/CANON-1_bundle_v2.0.15.zip")
+    assert canon["sha256"] == "e79446900cdbade57cf72bf5278b68c0b1c49fe873b894766b4086c15206ed6b"

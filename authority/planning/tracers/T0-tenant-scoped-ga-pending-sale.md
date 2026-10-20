@@ -5,7 +5,7 @@
 - **Implementation baseline:** `a134aca141321808c51576e385096863e11da603`
 - **Implementation repository:** `JCSchoeman96/ticketing`
 - **Phoenix application directory:** `ticketing/`
-- **Authority snapshot:** CANON-1 2.0.14, read from the active manifest and verified against installed CANON pins
+- **Authority snapshot:** CANON-1 2.0.15, read from the active manifest and verified against installed CANON pins
 
 ## Scope
 
@@ -17,17 +17,17 @@ B0 is COMPLETE. The implementation repository is `JCSchoeman96/ticketing`; its P
 
 ## Current authority snapshot
 
-Versions come from `contracts/manifest.json`. CANON-1 2.0.14 pins 56 CANON members. EXT-1 is a dependency-only record, not a CANON member.
+Versions come from `contracts/manifest.json`. CANON-1 2.0.15 pins 56 CANON members. EXT-1 is a dependency-only record, not a CANON member.
 
 | Authority | Version | Membership | T0 use |
 |---|---:|---|---|
-| CANON-1 | 2.0.14 | CANON_INDEX | Current suite membership and pins |
+| CANON-1 | 2.0.15 | CANON_INDEX | Current suite membership and pins |
 | V42-0 | 1.8.2 | CANON_MEMBER | Constitutional contract baseline |
 | CS-0 | 3.0.1 | CANON_MEMBER | Contract and test-gate structure |
 | BP-0 | 3.0.1 | CANON_MEMBER | Bundle posture |
 | EVT-2 | 3.0.0 | CANON_MEMBER | Event and occurrence identity, status, and sale times |
 | TEN-1 | 2.0.0 | CANON_MEMBER | Explicit tenant context and hide-existence boundaries |
-| IAM-1 | 4.1.0 | CANON_MEMBER | Authenticated actor and organizer authority |
+| IAM-1 | 4.1.1 | CANON_MEMBER | Authenticated actor and organizer authority |
 | IAM-2 | 1.5.0 | CANON_MEMBER | Authorization policy posture where applicable |
 | OFFER-1 | 2.0.0 | CANON_MEMBER | Offer, Product, ProductRevision, quote, and line claims |
 | SEAT-1 | 4.1.0 | CANON_MEMBER | GA bucket inventory, holds, live proof validation, and replay proof possession |

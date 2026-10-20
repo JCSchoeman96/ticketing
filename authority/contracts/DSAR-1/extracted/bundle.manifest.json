@@ -2,23 +2,23 @@
   "artifact_kind": "bundle_manifest",
   "bundle": {
     "bundle_id": "DSAR-1",
-    "bundle_version": "1.2.2"
+    "bundle_version": "1.2.3"
   },
   "doc_id": "DSAR-1",
   "files": [
     {
-      "bytes": 25503,
-      "path": "DSAR-1-GATE_TestGates_v1.2.2.json",
-      "sha256": "702924df77a6037455862af05ff9cd3a944cc14a9c851bc0010624586062ae5b"
+      "bytes": 24033,
+      "path": "DSAR-1_Contract_v1.2.3.json",
+      "sha256": "feb2cf9076e31a21c27c595bc9495dfcbeac9f64a771ba3ca05f28e2777b90d7"
     },
     {
-      "bytes": 24033,
-      "path": "DSAR-1_Contract_v1.2.2.json",
-      "sha256": "bc2d923545bb98435502fef652c2e660cea386f0207b890521c65f3150fdb5b1"
+      "bytes": 25499,
+      "path": "DSAR-1_Test_Gates_v1.2.3.json",
+      "sha256": "37da4975b31df20c9c39ea55f5fb84eb13c4ce65123a6e8caf4b233f22a7fdb6"
     }
   ],
-  "generated_at_utc": "2026-02-06T00:00:00Z",
+  "generated_at_utc": "2026-10-20T17:56:12Z",
   "schema_version": "bundle-manifest/1.0",
-  "suite_schema": "CS-0@3.0.0",
-  "version": "1.2.2"
+  "suite_schema": "CS-0@3.0.1",
+  "version": "1.2.3"
 }

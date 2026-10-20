@@ -162,7 +162,7 @@
       "This GOV-0 governance standard"
     ]
   },
-  "last_updated_utc": "2026-10-09T00:00:00Z",
+  "last_updated_utc": "2026-10-20T17:56:12Z",
   "lock_state": "locked",
   "outbox_events": [],
   "privacy_sensitive_operations_governance": {
@@ -525,5 +525,5 @@
   "tier": 0,
   "title": "Ash 3.x Governance Standard (Project Canon)",
   "updated_at": "2026-02-07T03:40:00.836883Z",
-  "version": "2.1.1"
+  "version": "2.1.2"
 }

@@ -1,0 +1,70 @@
+{
+  "bootstrap_commit": "696200e4e76094de7d7bd0abea75d90302fd45d3",
+  "candidate_preparation_base_commit": "de3164bfe4b74b16c937b14f073fd87da5f96f6e",
+  "provenance_statement": "DSAR-1@1.2.3 derives from the exact selected DSAR-1@1.2.2 ZIP. Only release identity, schema identity where required, generated timestamps, and paired test-gate self-version assertions were mechanically updated.",
+  "source_bundle_path": "contracts/DSAR-1/DSAR-1_bundle_v1.2.2.zip",
+  "source_zip_sha256": "9ddc86a9ab88b9a9921ef937f620c462af8bee0679b76565399a810f1652086c",
+  "source_zip_bytes": 11102,
+  "source_version": "1.2.2",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "DSAR-1_bundle_v1.2.2/DSAR-1_Contract_v1.2.2.json",
+      "sha256": "feb2cf9076e31a21c27c595bc9495dfcbeac9f64a771ba3ca05f28e2777b90d7",
+      "bytes": 24033,
+      "origin_sha256": "bc2d923545bb98435502fef652c2e660cea386f0207b890521c65f3150fdb5b1",
+      "origin_bytes": 24033
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "DSAR-1_bundle_v1.2.2/DSAR-1-GATE_TestGates_v1.2.2.json",
+      "sha256": "37da4975b31df20c9c39ea55f5fb84eb13c4ce65123a6e8caf4b233f22a7fdb6",
+      "bytes": 25499,
+      "origin_sha256": "702924df77a6037455862af05ff9cd3a944cc14a9c851bc0010624586062ae5b",
+      "origin_bytes": 25503
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "DSAR-1_bundle_v1.2.2/DSAR-1_Contract_v1.2.2.json",
+      "sha256": "bc2d923545bb98435502fef652c2e660cea386f0207b890521c65f3150fdb5b1",
+      "bytes": 24033
+    },
+    {
+      "source_member_path": "DSAR-1_bundle_v1.2.2/DSAR-1-GATE_TestGates_v1.2.2.json",
+      "sha256": "702924df77a6037455862af05ff9cd3a944cc14a9c851bc0010624586062ae5b",
+      "bytes": 25503
+    },
+    {
+      "source_member_path": "DSAR-1_bundle_v1.2.2/bundle.manifest.json",
+      "sha256": "b1a345bd2522ce4063e1c289f09866b8142057258d279e0d378aae4f437d9525",
+      "bytes": 630
+    }
+  ],
+  "mechanical_normalization": {
+    "target_version": "1.2.3",
+    "source_version": "1.2.2",
+    "generated_at_utc": "2026-10-20T17:56:12Z",
+    "contract_json_pointers": [
+      "/version",
+      "/artifact_name",
+      "/suite_schema",
+      "/generated_at_utc",
+      "/last_updated_utc"
+    ],
+    "test_gates_json_pointers": [
+      "/version",
+      "/contract_ref/version",
+      "/artifact_name",
+      "/suite_schema",
+      "/gates/0/description",
+      "/gates/0/assertions/0/details/expected",
+      "/gates/0/assertions/1/details/expected",
+      "/gates/0/assertions/2/details/expected",
+      "/gates/2/assertions/4/details/equals/version",
+      "/generated_at_utc"
+    ],
+    "suite_schema_from": "CS-0@3.0.0",
+    "suite_schema_to": "CS-0@3.0.1"
+  }
+}

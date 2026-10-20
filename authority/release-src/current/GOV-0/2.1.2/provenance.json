@@ -1,0 +1,61 @@
+{
+  "bootstrap_commit": "696200e4e76094de7d7bd0abea75d90302fd45d3",
+  "candidate_preparation_base_commit": "de3164bfe4b74b16c937b14f073fd87da5f96f6e",
+  "provenance_statement": "GOV-0@2.1.2 derives from the exact selected GOV-0@2.1.1 ZIP. Only release identity, schema identity where required, generated timestamps, and paired test-gate self-version assertions were mechanically updated.",
+  "source_bundle_path": "contracts/GOV-0/GOV-0_bundle_v2.1.1.zip",
+  "source_zip_sha256": "95c1e2c2a72c67dfa7422fe2bd5bd94e219df5ef7c4dd89c26a6af94797d0048",
+  "source_zip_bytes": 30831,
+  "source_version": "2.1.1",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "GOV-0_bundle_v2.1.1/GOV-0_Contract_v2.1.1.json",
+      "sha256": "626e68ec65550a9008c1653fc5110ead00607ce13f293e6dfee6dd37e3e1c207",
+      "bytes": 20546,
+      "origin_sha256": "fec96bf257b3fa822ffcef6510f22a88956cc68d278af1ee05ee1c82ff01287d",
+      "origin_bytes": 20546
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "GOV-0_bundle_v2.1.1/GOV-0_Test_Gates_v2.1.1.json",
+      "sha256": "a9cf4f7f856f69fd810bcbda166ba2ae2d58c82dc59b470a5d84f911ca26ccbe",
+      "bytes": 9145,
+      "origin_sha256": "994a00a0b9e89b914b9717fa2bbf4a9977e3b8429e52d37e6effbbaa9351b838",
+      "origin_bytes": 9145
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "GOV-0_bundle_v2.1.1/GOV-0_Contract_v2.1.1.json",
+      "sha256": "fec96bf257b3fa822ffcef6510f22a88956cc68d278af1ee05ee1c82ff01287d",
+      "bytes": 20546
+    },
+    {
+      "source_member_path": "GOV-0_bundle_v2.1.1/GOV-0_Test_Gates_v2.1.1.json",
+      "sha256": "994a00a0b9e89b914b9717fa2bbf4a9977e3b8429e52d37e6effbbaa9351b838",
+      "bytes": 9145
+    },
+    {
+      "source_member_path": "GOV-0_bundle_v2.1.1/bundle.manifest.json",
+      "sha256": "48e817f4d97a5d561d123b76427e4cfbb01e24a64f0276d31419ad9e8db80438",
+      "bytes": 622
+    }
+  ],
+  "mechanical_normalization": {
+    "target_version": "2.1.2",
+    "source_version": "2.1.1",
+    "generated_at_utc": "2026-10-20T17:56:12Z",
+    "contract_json_pointers": [
+      "/version",
+      "/last_updated_utc"
+    ],
+    "test_gates_json_pointers": [
+      "/version",
+      "/contract_ref/version",
+      "/gates/0/assertions/6/details/equals",
+      "/generated_at_utc"
+    ],
+    "suite_schema_from": "CS-0@3.0.1",
+    "suite_schema_to": "CS-0@3.0.1"
+  }
+}

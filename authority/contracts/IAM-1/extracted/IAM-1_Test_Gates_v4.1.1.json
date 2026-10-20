@@ -22,7 +22,7 @@
   ],
   "contract_ref": {
     "doc_id": "IAM-1",
-    "version": "4.1.0"
+    "version": "4.1.1"
   },
   "doc_id": "IAM-1-GATE",
   "gates": [
@@ -83,7 +83,7 @@
         {
           "details": {
             "artifact_kind": "test_gates",
-            "equals": "4.0.0",
+            "equals": "4.1.1",
             "json_pointer": "/contract_ref/version"
           },
           "mode": "automated",
@@ -706,12 +706,12 @@
       "title": "T0 platform tax action binding"
     }
   ],
-  "generated_at_utc": "2026-10-18T18:26:20Z",
+  "generated_at_utc": "2026-10-20T17:56:12Z",
   "last_updated_utc": "2026-10-18T18:26:20Z",
   "schema_version": "test-gates/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",
   "title": "IAM-1 Test Gates",
   "updated_at_utc": "2026-10-18T18:26:20Z",
-  "version": "4.1.0"
+  "version": "4.1.1"
 }

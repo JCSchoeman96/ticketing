@@ -1,0 +1,61 @@
+{
+  "bootstrap_commit": "696200e4e76094de7d7bd0abea75d90302fd45d3",
+  "candidate_preparation_base_commit": "de3164bfe4b74b16c937b14f073fd87da5f96f6e",
+  "provenance_statement": "IAM-1@4.1.1 derives from the exact selected IAM-1@4.1.0 ZIP. Only release identity, generated timestamps, and the paired test-gate self-version assertion were mechanically updated.",
+  "source_bundle_path": "contracts/IAM-1/IAM-1_bundle_v4.1.0.zip",
+  "source_zip_sha256": "2f663898e4a4b55a54d5f464bb8874d12ad4af2377127838b3f534fb820737d1",
+  "source_zip_bytes": 80644,
+  "source_version": "4.1.0",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "IAM-1_bundle_v4.1.0/IAM-1_Contract_v4.1.0.json",
+      "sha256": "b71927c521162bc48991354631ec42578ba194d71f2f17748a9c1d997595d97d",
+      "bytes": 54417,
+      "origin_sha256": "98c542d774621d097d3bd60627fe94b2600af272a09def100b0abc43746735ab",
+      "origin_bytes": 54417
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "IAM-1_bundle_v4.1.0/IAM-1_Test_Gates_v4.1.0.json",
+      "sha256": "5a3dc95a690515feac055a0bdddd729a41dbdb7f8b76707f739905707bddb505",
+      "bytes": 25086,
+      "origin_sha256": "f43f130a7f3f215723f495240076614afed3ba44d6dd9151c7df0fa400309ad3",
+      "origin_bytes": 25086
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "IAM-1_bundle_v4.1.0/IAM-1_Contract_v4.1.0.json",
+      "sha256": "98c542d774621d097d3bd60627fe94b2600af272a09def100b0abc43746735ab",
+      "bytes": 54417
+    },
+    {
+      "source_member_path": "IAM-1_bundle_v4.1.0/IAM-1_Test_Gates_v4.1.0.json",
+      "sha256": "f43f130a7f3f215723f495240076614afed3ba44d6dd9151c7df0fa400309ad3",
+      "bytes": 25086
+    },
+    {
+      "source_member_path": "IAM-1_bundle_v4.1.0/bundle.manifest.json",
+      "sha256": "f8046feb670dac0d8ef2c6d13bf5b6d6c452b26f898ba61a75efbfac35d4697d",
+      "bytes": 623
+    }
+  ],
+  "mechanical_normalization": {
+    "target_version": "4.1.1",
+    "source_version": "4.1.0",
+    "generated_at_utc": "2026-10-20T17:56:12Z",
+    "contract_json_pointers": [
+      "/version",
+      "/generated_at_utc",
+      "/last_updated_utc"
+    ],
+    "test_gates_json_pointers": [
+      "/version",
+      "/contract_ref/version",
+      "/gates/3/assertions/0/details/equals",
+      "/generated_at_utc"
+    ],
+    "suite_schema": "CS-0@3.0.1"
+  }
+}

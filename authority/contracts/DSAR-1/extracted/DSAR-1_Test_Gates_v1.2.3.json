@@ -1,9 +1,9 @@
 {
   "artifact_kind": "test_gates",
-  "artifact_name": "DSAR-1-GATE_TestGates_v1.2.2.json",
+  "artifact_name": "DSAR-1_Test_Gates_v1.2.3.json",
   "contract_ref": {
     "doc_id": "DSAR-1",
-    "version": "1.2.2"
+    "version": "1.2.3"
   },
   "doc_id": "DSAR-1-GATE",
   "gates": [
@@ -12,7 +12,7 @@
         {
           "details": {
             "artifact_kind": "contract",
-            "expected": "CS-0@3.0.0"
+            "expected": "CS-0@3.0.1"
           },
           "mode": "automated",
           "type": "suite_schema_matches"
@@ -20,7 +20,7 @@
         {
           "details": {
             "artifact_kind": "test_gates",
-            "expected": "CS-0@3.0.0"
+            "expected": "CS-0@3.0.1"
           },
           "mode": "automated",
           "type": "suite_schema_matches"
@@ -28,7 +28,7 @@
         {
           "details": {
             "artifact_kind": "bundle_manifest",
-            "expected": "CS-0@3.0.0"
+            "expected": "CS-0@3.0.1"
           },
           "mode": "automated",
           "type": "suite_schema_matches"
@@ -106,7 +106,7 @@
             "artifact_kind": "test_gates",
             "equals": {
               "doc_id": "DSAR-1",
-              "version": "1.2.1"
+              "version": "1.2.3"
             },
             "json_pointer": "/contract_ref"
           },
@@ -738,11 +738,11 @@
       "title": "DSAR 1 GATE EVT 1 FLOOR PIN"
     }
   ],
-  "generated_at_utc": "2026-01-30T06:10:36Z",
+  "generated_at_utc": "2026-10-20T17:56:12Z",
   "last_updated_utc": "2026-01-30T06:10:36Z",
   "schema_version": "test-gates/1.0",
   "status": "active",
-  "suite_schema": "CS-0@3.0.0",
+  "suite_schema": "CS-0@3.0.1",
   "title": "DSAR-1 Test Gates",
-  "version": "1.2.2"
+  "version": "1.2.3"
 }
