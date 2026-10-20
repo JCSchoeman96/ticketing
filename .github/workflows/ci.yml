@@ -35,9 +35,9 @@ jobs:
       TICKETING_TEST_DB_PASSWORD: ticketing_ci
       TICKETING_TEST_DB_NAME: ticketing_test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.13"
       - name: Install authority validation dependencies
@@ -68,7 +68,7 @@ jobs:
       TICKETING_TEST_DB_PASSWORD: ticketing_typecheck
       TICKETING_TEST_DB_NAME: ticketing_test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: erlef/setup-beam@v1
         with:
           version-file: ".tool-versions"
