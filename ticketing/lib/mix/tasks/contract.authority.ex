@@ -1,6 +1,8 @@
 defmodule Mix.Tasks.Contract.Authority do
   use Mix.Task
 
+  @moduledoc "Runs canonical authority verification for this repository."
+
   @shortdoc "Verify canonical authority stored in this repository"
 
   @impl Mix.Task

@@ -41,9 +41,9 @@ Ticketing DEV and TEST use the workstation-owned `dev-core` PostgreSQL allocatio
    ```sh
    cd ticketing
    mix setup
-   mix contract.authority
-   mix ash.codegen --check
-   mix precommit
+   mix precommit   # Fast everyday gate
+   mix check       # Full quality, security, and application gate
+   mix check.types # Dedicated Dialyzer gate
    mix phx.server
    ```
 

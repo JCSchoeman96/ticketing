@@ -167,15 +167,8 @@ defmodule Ticketing.ContractAuthority do
       ]
 
       result =
-        Enum.reduce_while(validators, :ok, fn {label, args}, :ok ->
-          case System.cmd(python, args, cd: authority_root, stderr_to_stdout: true) do
-            {_output, 0} ->
-              {:cont, :ok}
-
-            {output, status} ->
-              {:halt,
-               {:error, "#{label} failed with exit code #{status}:\n#{String.trim(output)}"}}
-          end
+        Enum.reduce_while(validators, :ok, fn validator, :ok ->
+          run_validator(validator, python, authority_root)
         end)
 
       File.rm(audit_json)
@@ -185,6 +178,16 @@ defmodule Ticketing.ContractAuthority do
   rescue
     error in ErlangError ->
       {:error, "could not run authority validation: #{Exception.message(error)}"}
+  end
+
+  defp run_validator({label, args}, python, authority_root) do
+    case System.cmd(python, args, cd: authority_root, stderr_to_stdout: true) do
+      {_output, 0} ->
+        {:cont, :ok}
+
+      {output, status} ->
+        {:halt, {:error, "#{label} failed with exit code #{status}:\n#{String.trim(output)}"}}
+    end
   end
 
   defp python_executable do

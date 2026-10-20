@@ -457,7 +457,11 @@ Before claiming implementation complete, run:
 
 ```sh
 mix precommit
+mix check
+mix check.types
 ```
+
+`mix precommit` is the fast everyday gate. `mix check` runs the full non-Dialyzer quality, security, and application checks. `mix check.types` runs the separate Dialyzer gate.
 
 and fix all failures caused by the work.
 
@@ -840,7 +844,7 @@ Before claiming application work complete:
 3. inspect generated migrations and artifacts;
 4. run `mix format --check-formatted`;
 5. run `mix compile --warnings-as-errors`;
-6. run `mix precommit`;
+6. run `mix precommit`, `mix check`, and `mix check.types`;
 7. review the final diff;
 8. report any skipped applicable check and the reason.
 

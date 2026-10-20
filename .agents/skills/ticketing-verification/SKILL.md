@@ -20,19 +20,20 @@ Use this checklist with the repository root `AGENTS.md`, `ticketing/AGENTS.md`, 
 
 ## Run required verification
 
-From `ticketing/`, run the applicable checks and record each result:
+From `ticketing/`, run and record the applicable gates. `mix precommit` is the fast everyday gate, `mix check` is the full non-Dialyzer gate, and `mix check.types` is the dedicated Dialyzer gate.
 
 ```sh
 mix deps.get
-mix hex.audit
+mix format --check-formatted
 mix compile --warnings-as-errors
 MIX_ENV=dev mix usage_rules.list
 MIX_ENV=dev mix usage_rules.sync
 MIX_ENV=dev mix usage_rules.sync --check
+mix precommit
 mix check
+mix check.types
 mix contract.authority
 mix ash.codegen --check
-mix precommit
 git diff --check
 ```
 
