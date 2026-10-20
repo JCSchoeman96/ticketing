@@ -2,23 +2,23 @@
   "artifact_kind": "bundle_manifest",
   "bundle": {
     "bundle_id": "GOV-0",
-    "bundle_version": "2.1.1"
+    "bundle_version": "2.1.2"
   },
   "doc_id": "GOV-0",
   "files": [
     {
       "bytes": 20546,
-      "path": "GOV-0_Contract_v2.1.1.json",
-      "sha256": "fec96bf257b3fa822ffcef6510f22a88956cc68d278af1ee05ee1c82ff01287d"
+      "path": "GOV-0_Contract_v2.1.2.json",
+      "sha256": "626e68ec65550a9008c1653fc5110ead00607ce13f293e6dfee6dd37e3e1c207"
     },
     {
       "bytes": 9145,
-      "path": "GOV-0_Test_Gates_v2.1.1.json",
-      "sha256": "994a00a0b9e89b914b9717fa2bbf4a9977e3b8429e52d37e6effbbaa9351b838"
+      "path": "GOV-0_Test_Gates_v2.1.2.json",
+      "sha256": "a9cf4f7f856f69fd810bcbda166ba2ae2d58c82dc59b470a5d84f911ca26ccbe"
     }
   ],
-  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "generated_at_utc": "2026-10-20T17:56:12Z",
   "schema_version": "bundle-manifest/1.0",
   "suite_schema": "CS-0@3.0.1",
-  "version": "2.1.1"
+  "version": "2.1.2"
 }

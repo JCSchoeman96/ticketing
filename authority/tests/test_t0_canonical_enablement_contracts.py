@@ -517,8 +517,8 @@ def test_t0_planning_snapshot_tracks_active_authority_and_frozen_baselines() -> 
 
     assert canon["version"] == records["CANON-1"]["version"]
     assert len(canon["canonical_bundles"]) == 56
-    assert "**Authority snapshot:** CANON-1 2.0.14" in tracer
-    assert "CANON-1 2.0.14 pins 56 CANON members" in tracer
+    assert "**Authority snapshot:** CANON-1 2.0.15" in tracer
+    assert "CANON-1 2.0.15 pins 56 CANON members" in tracer
     assert "**Contracts baseline:** `ea6ebbb84664aeb383d21ccbd92d30dd1a93939f`" in tracer
     assert "**Implementation baseline:** `a134aca141321808c51576e385096863e11da603`" in tracer
     for doc_id in (
@@ -877,7 +877,7 @@ def test_p0_gate_contract_version_assertions_match_gate_pack_identity() -> None:
             f"{identity} has automated contract /version identity assertions that differ from contract_ref"
         )
 
-    assert candidate_identities == {"IAM-1@4.1.0", "IAM-2@1.5.0"}
+    assert candidate_identities == {"DSAR-1@1.2.3", "GOV-0@2.1.2", "IAM-1@4.1.1", "LINT-0@2.1.2"}
 
 
 def test_installed_tax_rounding_modes_drive_arithmetic_and_keep_t0_lock() -> None:

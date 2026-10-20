@@ -1,0 +1,15 @@
+{
+  "doc_id": "GOV-0",
+  "generated_at_utc": "2026-10-20T17:56:12Z",
+  "proposed_successor_version": "2.1.2",
+  "release_intent": "Patch successor correcting paired test-gate self-version assertions while preserving contract semantics.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "installed-canonical-successor",
+    "path": "provenance.json",
+    "source_zip_sha256": "95c1e2c2a72c67dfa7422fe2bd5bd94e219df5ef7c4dd89c26a6af94797d0048",
+    "source_version": "2.1.1"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.1.2"
+}

@@ -1,0 +1,244 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "LINT-0",
+    "version": "2.1.2"
+  },
+  "doc_id": "LINT-0-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        },
+        {
+          "details": {},
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        },
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "contract-suite/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "active",
+            "json_pointer": "/status"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "LINT-0",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "2.1.2",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Contract, gates, and manifest are mutually consistent and use the current suite schema.",
+      "id": "LINT0-001",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              "\\.\\.\\.",
+              "\\bTBD\\b",
+              "\\bTODO\\b",
+              "\\bFIXME\\b"
+            ],
+            "json_pointers": [
+              "/artifact_kind",
+              "/audience",
+              "/banned_patterns",
+              "/change_log",
+              "/changelog",
+              "/dependencies",
+              "/doc_id",
+              "/enforcement_model",
+              "/purpose",
+              "/references",
+              "/required_baselines",
+              "/schema_version",
+              "/stability",
+              "/status",
+              "/suite_schema",
+              "/tier",
+              "/title",
+              "/waivers"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "No placeholders or ellipsis remain in the machine-read lint contract.",
+      "id": "LINT0-002",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LINT0-P0-ASH2-API-USE",
+            "json_pointer": "/banned_patterns/0/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LINT0-P0-UUIDV4-PRIMARY-KEY",
+            "json_pointer": "/banned_patterns/4/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LINT0-P0-TEST-FOCUS-TAG",
+            "json_pointer": "/banned_patterns/6/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LINT0-P0-MIX-TEST-ONLY",
+            "json_pointer": "/banned_patterns/7/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LINT0-P0-MIX-TEST-EXCLUDE",
+            "json_pointer": "/banned_patterns/8/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "LINT0-P1-TEST-SKIP-TAG",
+            "json_pointer": "/banned_patterns/9/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "P1",
+            "json_pointer": "/banned_patterns/9/severity"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Foundational banned patterns for Ash 3.x, UUIDv7, and QA anti-bypass rules are present with stable IDs.",
+      "id": "LINT0-003",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/waivers/limits/requires_reason"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 3,
+            "json_pointer": "/waivers/limits/max_per_file"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Waiver policy remains strict and machine-enforceable.",
+      "id": "LINT0-004",
+      "level": "P0",
+      "must": true
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "LINT-0 is an explicit non-producer: emits_events must be false and outbox_events must be empty.",
+      "id": "LINT0-NONPROD-001",
+      "level": "P0",
+      "must": true
+    }
+  ],
+  "generated_at_utc": "2026-10-20T17:56:12Z",
+  "last_updated_utc": "2026-03-10T18:40:00Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "LINT-0 Governance Lint Test Gates",
+  "version": "2.1.2"
+}

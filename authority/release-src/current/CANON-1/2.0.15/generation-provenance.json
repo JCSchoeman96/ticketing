@@ -1,0 +1,46 @@
+{
+  "canonical_member_count": 56,
+  "format_version": 1,
+  "generated_release": {
+    "doc_id": "CANON-1",
+    "version": "2.0.15"
+  },
+  "generation_inputs": {
+    "active_manifest_sha256": "4a8f19982a25563d93a407a4800c086f530f60575ec11f1b91894f66adaf953c",
+    "base_canon_version": "2.0.14",
+    "base_canon_zip_sha256": "da7e647a752d30ad6db40a3391aba6f7d543aca13f8ede21c7a8c58b31e6eed0",
+    "candidate_releases": [
+      {
+        "doc_id": "DSAR-1",
+        "sha256": "832448d21c79648497f36b2b5f872e5db1ef8ae460dfb0fc82a44b6e4135ea37",
+        "version": "1.2.3"
+      },
+      {
+        "doc_id": "GOV-0",
+        "sha256": "a3dd382469eea7f74b1c11b215c0f027f5e357aaceb6a60e5945f5d021c7b01a",
+        "version": "2.1.2"
+      },
+      {
+        "doc_id": "IAM-1",
+        "sha256": "8d6831f9322513da739938fbd06d7de80757414da8927f38b5b1ad23b2585084",
+        "version": "4.1.1"
+      },
+      {
+        "doc_id": "LINT-0",
+        "sha256": "b2f6a5229bb1bca01176cc0bfe500fc1bedd25ac0d20188b7bcae044748aba97",
+        "version": "2.1.2"
+      }
+    ],
+    "dependency_closure_sha256": "7d0451882d1eb0801a36c7e07e0d34df6a9ea5d6fc3d853333db7f4cf7ccfb5a",
+    "generator_commit": "de3164bfe4b74b16c937b14f073fd87da5f96f6e",
+    "generator_version": "2.0.0",
+    "manifest_validation_status": "VALID",
+    "superseded_identity_defects": []
+  },
+  "generation_status": "BUILT_CANDIDATE_SOURCE",
+  "generator": "tools/generate_canon.py",
+  "generator_commit": "de3164bfe4b74b16c937b14f073fd87da5f96f6e",
+  "generator_version": "2.0.0",
+  "resolved_selection_path": "release-src/current/CANON-1/2.0.15/resolved-selection.json",
+  "resolved_selection_sha256": "5ce3b763bf5e8261934b48ffb3226f0b2640bd3cf88df60956c4a9009205ce66"
+}

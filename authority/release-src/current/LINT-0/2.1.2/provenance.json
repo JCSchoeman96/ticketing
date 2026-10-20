@@ -1,0 +1,60 @@
+{
+  "bootstrap_commit": "696200e4e76094de7d7bd0abea75d90302fd45d3",
+  "candidate_preparation_base_commit": "de3164bfe4b74b16c937b14f073fd87da5f96f6e",
+  "provenance_statement": "LINT-0@2.1.2 derives from the exact selected LINT-0@2.1.1 ZIP. Only release identity, generated timestamps, and the paired test-gate self-version assertion were mechanically updated.",
+  "source_bundle_path": "contracts/LINT-0/LINT-0_bundle_v2.1.1.zip",
+  "source_zip_sha256": "d19790df443a402f5be0af64dff67eca143249afc16e066c67bb3315547eb48f",
+  "source_zip_bytes": 17975,
+  "source_version": "2.1.1",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "LINT-0_bundle_v2.1.1/LINT-0_Contract_v2.1.1.json",
+      "sha256": "c620fc7a997daeb8ba12df4205a27e366c33a1364e0f61727e5277f8b638f1b9",
+      "bytes": 10075,
+      "origin_sha256": "0bbb41276c02428ca7a6340b5da94c97bded997a58e8c8a38f8a823f613ce380",
+      "origin_bytes": 10075
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "LINT-0_bundle_v2.1.1/LINT-0_Test_Gates_v2.1.1.json",
+      "sha256": "4cd80b070ac6fad8824cf7bcd1b0e744957a522371a16238ca450cf15798d34c",
+      "bytes": 6746,
+      "origin_sha256": "feb4b68337effe59e39f0489470c0a069a3eaff9b3515742cebf5158b58250c4",
+      "origin_bytes": 6746
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "LINT-0_bundle_v2.1.1/LINT-0_Contract_v2.1.1.json",
+      "sha256": "0bbb41276c02428ca7a6340b5da94c97bded997a58e8c8a38f8a823f613ce380",
+      "bytes": 10075
+    },
+    {
+      "source_member_path": "LINT-0_bundle_v2.1.1/LINT-0_Test_Gates_v2.1.1.json",
+      "sha256": "feb4b68337effe59e39f0489470c0a069a3eaff9b3515742cebf5158b58250c4",
+      "bytes": 6746
+    },
+    {
+      "source_member_path": "LINT-0_bundle_v2.1.1/bundle.manifest.json",
+      "sha256": "430830cb1ff0642ea47b007a56e12a70f92e50a4516cd8ba737bfe84f07441b0",
+      "bytes": 626
+    }
+  ],
+  "mechanical_normalization": {
+    "target_version": "2.1.2",
+    "source_version": "2.1.1",
+    "generated_at_utc": "2026-10-20T17:56:12Z",
+    "contract_json_pointers": [
+      "/version",
+      "/last_updated_utc"
+    ],
+    "test_gates_json_pointers": [
+      "/version",
+      "/contract_ref/version",
+      "/gates/0/assertions/6/details/equals",
+      "/generated_at_utc"
+    ],
+    "suite_schema": "CS-0@3.0.1"
+  }
+}

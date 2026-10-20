@@ -177,7 +177,7 @@
       "P2": "Warn only."
     }
   },
-  "last_updated_utc": "2026-10-09T00:00:00Z",
+  "last_updated_utc": "2026-10-20T17:56:12Z",
   "lock_state": "locked",
   "outbox_events": [],
   "purpose": {
@@ -258,7 +258,7 @@
   "title": "Static Governance Lint Rules (Ash 3.x + QA truthfulness)",
   "updated_at": "2026-03-10T18:40:00Z",
   "updated_at_utc": "2026-10-09T00:00:00Z",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "waivers": {
     "format": "lint: waive <RULE_ID> <short_reason>",
     "limits": {

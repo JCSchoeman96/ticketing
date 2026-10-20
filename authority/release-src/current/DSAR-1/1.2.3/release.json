@@ -1,0 +1,13 @@
+{
+  "doc_id": "DSAR-1",
+  "version": "1.2.3",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-20T17:56:12Z",
+  "release_status": "candidate",
+  "release_intent": "Patch successor correcting paired test-gate self-version assertions while preserving contract semantics.",
+  "source_provenance": {
+    "kind": "staging-bundle-bootstrap",
+    "path": "provenance.json",
+    "source_zip_sha256": "9ddc86a9ab88b9a9921ef937f620c462af8bee0679b76565399a810f1652086c"
+  }
+}

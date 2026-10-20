@@ -1690,8 +1690,8 @@
     }
   },
   "emits_events": true,
-  "generated_at_utc": "2026-10-18T18:58:22Z",
-  "last_updated_utc": "2026-10-18T18:58:22Z",
+  "generated_at_utc": "2026-10-20T17:56:12Z",
+  "last_updated_utc": "2026-10-20T17:56:12Z",
   "normative_source": {
     "format": "json"
   },
@@ -1829,5 +1829,5 @@
   },
   "tier": 1,
   "title": "Identity and Access Management Contract",
-  "version": "4.1.0"
+  "version": "4.1.1"
 }

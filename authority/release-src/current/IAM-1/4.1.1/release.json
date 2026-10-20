@@ -1,0 +1,14 @@
+{
+  "doc_id": "IAM-1",
+  "generated_at_utc": "2026-10-20T17:56:12Z",
+  "release_intent": "Patch successor correcting paired test-gate self-version assertions while preserving contract semantics.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "installed-canonical-successor",
+    "path": "provenance.json",
+    "source_version": "4.1.0",
+    "source_zip_sha256": "2f663898e4a4b55a54d5f464bb8874d12ad4af2377127838b3f534fb820737d1"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "4.1.1"
+}

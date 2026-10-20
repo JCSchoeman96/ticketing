@@ -2,7 +2,7 @@
   "artifact_kind": "test_gates",
   "contract_ref": {
     "doc_id": "GOV-0",
-    "version": "2.1.1"
+    "version": "2.1.2"
   },
   "doc_id": "GOV-0-GATE",
   "gates": [
@@ -57,7 +57,7 @@
         {
           "details": {
             "artifact_kind": "test_gates",
-            "equals": "2.1.0",
+            "equals": "2.1.2",
             "json_pointer": "/contract_ref/version"
           },
           "mode": "automated",
@@ -288,11 +288,11 @@
       "title": "GOV0-NONPROD-001"
     }
   ],
-  "generated_at_utc": "2026-03-10T18:40:00Z",
+  "generated_at_utc": "2026-10-20T17:56:12Z",
   "last_updated_utc": "2026-03-10T18:40:00Z",
   "schema_version": "test-gates/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",
   "title": "GOV-0 Governance Test Gates",
-  "version": "2.1.1"
+  "version": "2.1.2"
 }
