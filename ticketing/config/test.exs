@@ -6,10 +6,28 @@ config :ash, policies: [show_policy_breakdowns?: true]
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
+test_db_host = System.get_env("TICKETING_TEST_DB_HOST", "127.0.0.1")
+test_db_port = String.to_integer(System.get_env("TICKETING_TEST_DB_PORT", "55433"))
+test_db_user = System.get_env("TICKETING_TEST_DB_USER", "ticketing_test")
+test_db_password = System.fetch_env!("TICKETING_TEST_DB_PASSWORD")
+test_db_base = System.get_env("TICKETING_TEST_DB_NAME", "ticketing_test")
+test_db_partition = System.get_env("MIX_TEST_PARTITION", "")
+test_db_name = test_db_base <> test_db_partition
+
+if test_db_port == 55432 do
+  raise ArgumentError, "TEST Repo cannot use the DEV PostgreSQL port 55432"
+end
+
+if test_db_name == "ticketing_dev" do
+  raise ArgumentError, "TEST Repo cannot use the DEV database ticketing_dev"
+end
+
 config :ticketing, Ticketing.Repo,
-  url:
-    System.get_env("DATABASE_URL_TEST") ||
-      "postgresql://postgres:postgres@localhost:5433/ticketing_test#{System.get_env("MIX_TEST_PARTITION")}",
+  hostname: test_db_host,
+  port: test_db_port,
+  username: test_db_user,
+  password: test_db_password,
+  database: test_db_name,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: System.schedulers_online() * 2
 
