@@ -59,3 +59,18 @@ Local ports:
 | Worktree HTTP | `127.0.0.1:4201` to `4219` | Use one available port per worktree |
 
 Redis is N/A for Ticketing. Do not start a repository-local database or Redis service for application development.
+
+## Deployment
+
+The deployment Compose file runs the Ticketing application and expects an external database. Copy the tracked template to the ignored `.env.deploy`, set its deployment values, and keep the populated file out of commits:
+
+```sh
+cp .env.deploy.example .env.deploy
+chmod 600 .env.deploy
+# Edit .env.deploy with deployment values.
+docker compose --env-file .env.deploy config
+docker compose --env-file .env.deploy build
+docker compose --env-file .env.deploy up -d
+```
+
+The Compose contract requires `DATABASE_URL`, `SECRET_KEY_BASE`, and `PHX_HOST`. `.env.deploy.example` remains the tracked template; `.env.deploy` is ignored.

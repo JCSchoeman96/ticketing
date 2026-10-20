@@ -82,6 +82,14 @@ defmodule Ticketing.RepoConfigTest do
     refute Keyword.has_key?(repo_config, :url)
   end
 
+  test "TEST config rejects a database base outside the Ticketing namespace" do
+    environment = empty_env(@test_env_vars, "test", nil, nil, "some_other_database")
+
+    assert_raise ArgumentError, ~r/TICKETING_TEST_DB_NAME.*ticketing_test/, fn ->
+      read_repo_config("test.exs", :test, environment)
+    end
+  end
+
   test "TEST Repo requires its local password variable" do
     environment =
       empty_env(@test_env_vars, "test")

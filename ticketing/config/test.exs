@@ -22,6 +22,10 @@ if test_db_name == "ticketing_dev" do
   raise ArgumentError, "TEST Repo cannot use the DEV database ticketing_dev"
 end
 
+if test_db_base != "ticketing_test" do
+  raise ArgumentError, "TICKETING_TEST_DB_NAME must be exactly ticketing_test"
+end
+
 config :ticketing, Ticketing.Repo,
   hostname: test_db_host,
   port: test_db_port,
