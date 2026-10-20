@@ -6,6 +6,12 @@
 @source "../js";
 @source "../../lib/ticketing_web";
 
+/* Keep the existing default font stack across the Tailwind 4.3.3 upgrade. */
+@theme {
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+    "Noto Color Emoji";
+}
+
 /* A Tailwind plugin that makes "hero-#{ICON}" classes available.
    The heroicons installation itself is managed by your mix.exs */
 @plugin "../vendor/heroicons";
