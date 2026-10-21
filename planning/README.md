@@ -10,6 +10,7 @@ authority/contracts/CANON-1 + installed canonical contracts
 → active tracer under authority/planning/tracers/
 → user-approved JIP under planning/jips/
 → derived implementation spec under planning/specs/
+→ ticket-scoped execution plan under planning/plans/
 → Plane execution work
 → ticketing/ implementation
 ```
@@ -28,8 +29,14 @@ JIP filenames include their SemVer so amendments do not silently overwrite histo
 
 Specs are reviewed planning artifacts, not implementation authority independent of their governing JIP.
 
+## Plans
+
+`planning/plans/` stores executable implementation handoffs derived from an approved JIP and reviewed spec. Plans decompose work into the already-governed Plane tickets and their TDD/review steps; they do not grant READY status, authorize future tickets early, or create product semantics.
+
+A plan is subordinate to the JIP/spec and to Plane freshness/dependency state. Implement only the single ticket currently marked `READY`; later plan sections remain inactive until their native dependencies are closed and freshness is rechecked.
+
 ## Plane and implementation documentation
 
 Plane is the execution ledger for dependencies, blockers, evidence and closure; it is not semantic authority.
 
-`ticketing/docs/` is reserved for **derived documentation of merged implementation state**. Do not place speculative future architecture, JIPs or pre-implementation specs there.
+`ticketing/docs/` is reserved for **derived documentation of merged implementation state**. Do not place speculative future architecture, JIPs, pre-implementation specs, or execution plans there.
