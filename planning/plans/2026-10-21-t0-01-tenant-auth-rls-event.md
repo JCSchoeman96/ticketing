@@ -2,21 +2,22 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` only for the single Plane ticket currently marked READY. Do **not** execute this whole plan in one branch. Each task below maps to one Plane child and requires its own freshness check, TDD cycle, PR, independent review, merge, and dependency release before the next task may become READY.
 
-**Goal:** Implement JIP-T0-01 v0.1.1 as a secure Ash/PostgreSQL foundation through governed Event creation/publication and atomic durable publication outbox, stopping before Occurrence.
+**Goal:** Implement approved JIP-T0-01 v0.1.2 as a secure Ash/PostgreSQL foundation through governed Event creation/publication and atomic durable publication outbox, stopping before Occurrence.
 
 **Architecture:** `Ticketing.Identity` owns persisted organizer authorization state; `Ticketing.Events` owns Event lifecycle and its private publication outbox; platform infrastructure owns only database-role/bootstrap and the narrow tenant-GUC seam. Tenant resources use Ash attribute multitenancy and PostgreSQL FORCE RLS as independent guards. Normal application database access uses a least-privilege runtime role, while migrations/bootstrap use a distinct owner identity.
 
 **Tech Stack:** Elixir 1.20.4, OTP 29.1.2, PostgreSQL 18.6, Phoenix 1.8.16, LiveView 1.2.13, Ash 3.36.1, AshPhoenix 2.3.25, AshPostgres 2.15.1, Postgrex 0.22.4.
 
-**Spec:** `planning/specs/SPEC-T0-01_v0.1.0.md`
+**Spec:** `planning/specs/SPEC-T0-01_v0.1.1.md`
 
-**Governing JIP:** `planning/jips/JIP-T0-01_v0.1.1.md`
+**Governing JIP:** `planning/jips/JIP-T0-01_v0.1.2.md`
 
 ## Global Constraints
 
 - Canonical authority + ROADMAP + active tracer outrank this plan, the spec, Plane, and code.
 - Root namespace is `Ticketing`; OTP app is `:ticketing`; never introduce `V42.*` application modules/examples.
 - No dependency upgrade is authorized inside T0-01.
+- TICK-31 records the superseded v0.1.1 planning drift; v0.1.2 is approved and is the governing JIP for this plan.
 - No Occurrence, commerce, payment, ticketing, ledger, admission, auth-provider/login UI, outbox dispatcher, or later-horizon work.
 - Governed application persistence is Ash-native; direct Repo/Ecto/raw SQL is prohibited as a domain API.
 - Narrow low-level DB calls are allowed only for migration/DDL/RLS/test-fixture infrastructure and the JIP-approved tenant-context seam.
@@ -147,52 +148,54 @@
 
 **Plane:** `TICK-25` — `[IMPL] T0-01.3 Implement minimum IAM organizer authorization substrate`
 
+**Resources in scope:**
+- Global `Ticketing.Identity.User`.
+- Tenant `Ticketing.Identity.OrgMembership`.
+- Tenant `Ticketing.Identity.OrgRoleAssignment`.
+- A typed internal organizer actor and resolver only if the governed Ash interface requires them.
+
 **Files:**
-- Create: `ticketing/lib/ticketing/identity.ex`
-- Create: `ticketing/lib/ticketing/identity/user.ex`
-- Create: `ticketing/lib/ticketing/identity/auth_identity.ex`
-- Create: `ticketing/lib/ticketing/identity/org_membership.ex`
-- Create: `ticketing/lib/ticketing/identity/org_role_assignment.ex`
-- Create: `ticketing/lib/ticketing/identity/organizer_actor.ex` if a typed actor struct is useful
-- Create: `ticketing/lib/ticketing/identity/resolve_organizer.ex` or equivalent private Ash-interface orchestration
-- Create generated migrations/snapshots through supported AshPostgres tooling
-- Create tests under: `ticketing/test/ticketing/identity/`
+- Create `Ticketing.Identity` Ash Domain.
+- Create the three resources listed above.
+- Add the minimum private actor/resolver support needed by governed Ash interfaces.
+- Create generated migrations/snapshots through supported AshPostgres tooling.
+- Create tests under `ticketing/test/ticketing/identity/`.
 
 **Interfaces:**
-- Consumes: TICK-24 tenant/RLS seam.
-- Produces: `Ticketing.Identity` code interface capable of resolving an organizer actor from persisted `(org_id, user_id)` state; later Events code consumes only that actor/interface, not IAM tables directly.
+- Consumes: TICK-24 tenant/RLS seam and an already-authenticated human `user_id` from the trusted upstream boundary.
+- Requires explicit target `org_id` for each organizer action.
+- Produces: governed Identity interfaces that derive organizer authority from persisted same-tenant membership and active role assignments. Later Events code consumes only the resolved actor/interface, not IAM tables directly.
 
-- [ ] **Step 1: Re-read exact installed IAM-1 4.1.2 / IAM-2 1.5.0 / TEN-1 2.0.0 resource fields and identities.**
-  - Copy no fields from chat/spec when the canonical JSON is more precise.
+- [ ] **Step 1: Re-read installed IAM-1 4.1.2, IAM-2 1.5.0, and TEN-1 2.0.0 resource fields and identities.**
+  - Canonical artifacts determine resource shape and lifecycle semantics.
 
-- [ ] **Step 2: Write RED resource/actor-resolution tests.**
-  - Owner and admin positive cases.
-  - no membership; inactive/revoked membership; missing/revoked role.
-  - forged externally supplied role does not grant authority.
-  - cross-tenant membership/roles remain hidden.
-  - actor carries the persisted selected `org_membership_id`.
+- [ ] **Step 2: Write RED resource and actor-resolution tests.**
+  - Active owner and admin positive cases.
+  - Missing, inactive, or revoked membership denial.
+  - Missing, inactive, or revoked qualifying role denial.
+  - Forged caller-supplied role does not grant authority.
+  - Cross-tenant membership/role rows remain hidden.
+  - Actor uses the persisted selected `org_membership_id`.
+  - Trusted `user_id` without explicit `org_id` does not resolve an organizer for a different tenant.
 
-- [ ] **Step 3: Implement the two Ash domains/resources minimally.**
-  - `User`/`AuthIdentity` global; membership/role tenant-scoped.
-  - Attribute multitenancy on `org_id`, `global? false`.
-  - For canonical tenant identities such as `(org_id, org_membership_id)` and `(org_id, user_id)`, use current Ash tenant-aware identity semantics so the generated database uniqueness is exactly canonical. Do not blindly list `org_id` twice if Ash automatically injects the tenant attribute; inspect the generated migration.
-  - No login/session/provider behavior.
+- [ ] **Step 3: Implement only `User`, `OrgMembership`, and `OrgRoleAssignment`.**
+  - `User` is global; membership and role assignment are tenant-scoped.
+  - Use attribute multitenancy on `org_id`, `global? false` for tenant resources.
+  - Preserve the canonical tenant identities and current Ash tenant-aware identity behavior. Inspect generated uniqueness and do not duplicate `org_id` if Ash adds the tenant attribute.
+  - Do not implement `AuthIdentity`, authentication providers, credentials, sessions, or login flows.
 
-- [ ] **Step 4: Generate migrations/snapshots, then inspect before applying.**
-  - Tenant-first unique indexes/FKs.
-  - required nullability/immutability.
-  - ENABLE/FORCE RLS and policies.
-  - runtime owner/grant posture.
+- [ ] **Step 4: Generate migrations/snapshots and inspect before applying.**
+  - Review tenant-first identities/FKs, required nullability, RLS policies, and runtime grants against installed contracts.
 
-- [ ] **Step 5: Implement organizer resolution using governed Identity actions/code interfaces.**
-  - Resolve membership + active roles from persisted state under explicit tenant/RLS context.
+- [ ] **Step 5: Resolve organizer authority from persisted state through governed Identity actions/interfaces.**
+  - Require active same-tenant membership and active qualifying `org_owner` or `org_admin` role.
+  - Ignore caller-supplied roles; fabricated roles cannot authorize.
+  - Keep explicit actor and tenant context through each governed action.
   - Events must not query IAM tables directly.
 
-- [ ] **Step 6: Run focused, cross-tenant and direct-runtime-role tests; then full gates.**
+- [ ] **Step 6: Run focused authorization, negative, cross-tenant, and runtime-role tests, then the required gates.**
 
-- [ ] **Step 7: Open TICK-25 PR and stop.**
-
----
+- [ ] **Step 7: Open the TICK-25 PR and stop.**
 
 ## Task 4 — TICK-26: Event resource + `create_event`
 
@@ -316,32 +319,32 @@
 
 **Plane:** `TICK-29` — `[IMPL] T0-01.7 Update modular implementation docs and T0-01 handoff`
 
-**Files:**
-- Create: `ticketing/docs/platform/tenancy-and-authorization.md`
-- Create: `ticketing/docs/domains/identity/README.md`
-- Create: `ticketing/docs/domains/events/README.md`
-- Create: `ticketing/docs/handoffs/T0-01.md`
-- Modify: `ticketing/docs/README.md` only if navigation requires it
+**Files to update after implementation merges:**
+- `ticketing/docs/README.md`
+- `ticketing/docs/platform/runtime.md`
+- `ticketing/docs/platform/database.md`
+- `ticketing/docs/platform/testing-and-quality-gates.md`
+
+**Files to create after implementation merges:**
+- `ticketing/docs/platform/tenancy-and-authorization.md`
+- `ticketing/docs/domains/identity/README.md`
+- `ticketing/docs/domains/events/README.md`
+- `ticketing/docs/handoffs/T0-01.md`
 
 **Interfaces:**
 - Consumes: exact merged implementation from TICK-23 through TICK-28.
-- Produces: truthful derived current-state documentation and closeout record for review.
+- Produces: truthful derived current-state documentation and the T0-01 closeout record.
 
-- [ ] **Step 1: Verify the current merged main SHA and exact implemented boundaries before writing.**
+- [ ] **Step 1: Verify the current merged main SHA and implemented boundaries before writing.**
 
-- [ ] **Step 2: Draft only current-state docs.**
-  - Domain ownership/interfaces.
-  - owner/runtime DB posture.
-  - tenant propagation/RLS.
-  - Event lifecycle/CAS/outbox actually implemented.
-  - test/verification posture and explicit deferrals.
-  - Do not document Occurrence/later T0 as current.
+- [ ] **Step 2: Update and create only the JIP-listed docs.**
+  - Describe actual runtime roles, tenant propagation, RLS, IAM ownership, Event lifecycle/CAS/outbox, and test evidence.
+  - Keep `ticketing/docs/README.md` concise navigation.
+  - Do not describe Occurrence or later T0 work as implemented.
 
-- [ ] **Step 3: Write `T0-01.md` handoff with governing JIP/spec, Plane tickets, PRs, known warnings/deferrals and verification evidence.**
+- [ ] **Step 3: Write the T0-01 handoff with governing JIP/spec, Plane tickets, PRs, known warnings/deferrals, and verification evidence.**
 
-- [ ] **Step 4: Verify every substantive statement against merged code/migrations/tests; run doc/repo gates; open TICK-29 PR and stop.**
-
----
+- [ ] **Step 4: Verify every substantive statement against merged code, migrations, and tests; run applicable doc/repo gates; open the TICK-29 PR and stop.**
 
 ## Task 8 — TICK-30: Independent implementation + closeout review
 

@@ -2,8 +2,9 @@
 
 - **ID:** JIP-T0-01
 - **Version:** 0.1.2
-- **Status:** DRAFT — explicit user approval required
-- **Supersedes after approval:** JIP-T0-01 v0.1.1
+- **Status:** APPROVED
+- **Approved:** user instruction on 2026-10-21 identifies v0.1.2 as approved and directs downstream reconciliation
+- **Supersedes for implementation planning:** JIP-T0-01 v0.1.1
 - **Nature of change from v0.1.1:** planning-drift correction only; restores the originally approved v0.1.0 IAM scope and documentation impact while retaining the accepted v0.1.1 technical baseline; current reference evidence is refreshed without importing reference semantics
 - **Roadmap horizon:** T0 — Tenant-scoped GA pending sale
 - **Increment boundary:** tenant/auth/RLS foundation through Event create/publish; stops before Occurrence
@@ -37,7 +38,7 @@ v0.1.1 correctly incorporated that technical baseline, but independent review of
 
 Those changes were not produced by the TICK-20 re-Grill and contradicted the stated baseline-only purpose of v0.1.1. TICK-31 records this downstream planning defect. No implementation child became READY and no application code consumed the drift.
 
-### v0.1.2 — this candidate
+### v0.1.2 — approved correction
 
 v0.1.2 retains the accepted v0.1.1 technical baseline and all settled T0-01 product/domain/architecture decisions, while restoring the original scope/documentation boundary:
 
@@ -197,7 +198,7 @@ Provided governed semantics do not change:
 
 ### AUTHORITY_GAP
 
-None identified at approval-candidate time.
+None identified at approval time.
 
 ## 6. Ash capability decisions
 
@@ -507,7 +508,7 @@ Documentation describes merged implementation state only, identifies its derived
 
 `to-spec`: REQUIRED because this increment crosses DB identities, migrations, RLS, tenant propagation, IAM persistence, Ash policies, Event lifecycle, concurrency and atomic outbox persistence.
 
-After explicit approval of v0.1.2:
+For approved v0.1.2:
 
 - update SPEC-T0-01 to derive from v0.1.2 and remove `AuthIdentity` implementation;
 - restore the existing platform-doc updates in the execution plan and TICK-29;
@@ -526,7 +527,7 @@ Stop/re-Grill if:
 6. governing CANON/contracts/tracer/baseline/prerequisites materially change;
 7. an unapproved dependency upgrade becomes necessary.
 
-TICK-21 remains an independent CI-process defect. TICK-31 blocks this JIP parent until this correction is explicitly approved and propagated through the planning artifacts.
+TICK-21 remains an independent CI-process defect. TICK-31 records the v0.1.1 planning drift and remains open through the reconciliation PR closeout. Its native blocking relation remains in place; no implementation child is READY.
 
 ## 19. Definition of Done
 
@@ -553,8 +554,8 @@ T0-01 closes only when:
 
 ## 20. Approval gate
 
-**DRAFT.**
+**APPROVED.**
 
-Only explicit user acceptance makes `JIP-T0-01 v0.1.2` APPROVED.
+Approval record: the user instruction dated 2026-10-21 identifies `JIP-T0-01 v0.1.2` as approved and directs the durable spec, execution plan, Plane, and planning navigation to reconcile to it.
 
-Approval confirms that this packet is a narrow correction of planning drift: it retains the accepted Phoenix/LiveView baseline from v0.1.1, restores v0.1.0's minimum IAM scope (`User` + `OrgMembership` + `OrgRoleAssignment`), defers `AuthIdentity`, and restores updates to the existing runtime/database/testing implementation docs. The Store_Blueprint_Hardening pin was freshness-refreshed as `REFERENCE_ONLY` evidence only; it does not alter Ticketing semantics. All other settled T0-01 decisions remain unchanged.
+This packet is a narrow correction of planning drift: it retains the accepted Phoenix/LiveView baseline from v0.1.1, restores v0.1.0's minimum IAM scope (`User` + `OrgMembership` + `OrgRoleAssignment`), defers `AuthIdentity`, and restores updates to the existing runtime/database/testing implementation docs. The Store_Blueprint_Hardening pin was freshness-refreshed as `REFERENCE_ONLY` evidence only; it does not alter Ticketing semantics. All other settled T0-01 decisions remain unchanged.

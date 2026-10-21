@@ -1,6 +1,6 @@
 # Ticketing downstream implementation planning
 
-This directory contains **downstream implementation-planning artifacts**. It is not canonical product authority and it does not describe merged implementation state.
+This directory holds implementation-planning artifacts. It is not canonical product authority and does not describe merged implementation state.
 
 Authority and execution precedence is:
 
@@ -15,28 +15,40 @@ authority/contracts/CANON-1 + installed canonical contracts
 → ticketing/ implementation
 ```
 
-Higher authority always wins.
+Higher authority wins.
 
-## JIPs
+## Current T0-01 planning set
 
-`planning/jips/` stores versioned JIT Implementation Packets. Only explicit user acceptance makes a JIP `APPROVED`. A material change to its governing authority, tracer, baseline, prerequisite, scope, or locked decisions can make it `STALE` and requires targeted JIT review before implementation continues.
+- **Approved JIP:** [JIP-T0-01 v0.1.2](jips/JIP-T0-01_v0.1.2.md). It corrects the downstream planning drift while retaining the accepted Phoenix/LiveView baseline.
+- **Current reconciled spec:** [SPEC-T0-01 v0.1.1](specs/SPEC-T0-01_v0.1.1.md), derived from JIP v0.1.2 and pending independent review of PR #21.
+- **Execution plan:** [T0-01 implementation plan](plans/2026-10-21-t0-01-tenant-auth-rls-event.md), derived from JIP v0.1.2 and SPEC v0.1.1.
+- **Plane parent:** TICK-22. TICK-31 records the earlier planning drift and remains open until its closeout requirements are met.
 
-JIP filenames include their SemVer so amendments do not silently overwrite history.
+No implementation child becomes READY through this planning reconciliation.
 
-## Specs
+## JIP history
 
-`planning/specs/` stores durable implementation specifications derived from an approved JIP. A spec may choose implementation mechanics within the JIP's allowed decision space, but it cannot create or override product semantics.
+JIP filenames use SemVer so amendments do not silently erase history.
 
-Specs are reviewed planning artifacts, not implementation authority independent of their governing JIP.
+- JIP v0.1.0 was the original approved packet. Its scope and approval history remain recorded in the amendment history of v0.1.1 and v0.1.2.
+- [JIP-T0-01 v0.1.1](jips/JIP-T0-01_v0.1.1.md) was approved as a technical-baseline update. It is now superseded for implementation planning because downstream planning drift added AuthIdentity and narrowed the documentation impact.
+- [JIP-T0-01 v0.1.2](jips/JIP-T0-01_v0.1.2.md) is the current approved packet.
 
-## Plans
+A material change to canonical authority, tracer, baseline, prerequisite, scope, or locked decisions can make a JIP stale. Recheck freshness before implementation.
 
-`planning/plans/` stores executable implementation handoffs derived from an approved JIP and reviewed spec. Plans decompose work into the already-governed Plane tickets and their TDD/review steps; they do not grant READY status, authorize future tickets early, or create product semantics.
+## Spec history
 
-A plan is subordinate to the JIP/spec and to Plane freshness/dependency state. Implement only the single ticket currently marked `READY`; later plan sections remain inactive until their native dependencies are closed and freshness is rechecked.
+Specs derive from an approved JIP. They cannot create or override product semantics.
+
+- [SPEC-T0-01 v0.1.0](specs/SPEC-T0-01_v0.1.0.md) is historical and superseded for implementation planning. It derives from the drifted v0.1.1 JIP.
+- [SPEC-T0-01 v0.1.1](specs/SPEC-T0-01_v0.1.1.md) is the current reconciled spec for approved JIP v0.1.2, pending independent review of PR #21.
+
+## Execution plans
+
+Plans decompose JIP/spec decisions into existing Plane work. They do not grant READY status or add product semantics. Follow one child at a time, using its native dependency state and a fresh authority check.
 
 ## Plane and implementation documentation
 
-Plane is the execution ledger for dependencies, blockers, evidence and closure; it is not semantic authority.
+Plane tracks execution, dependencies, blockers, evidence, and closure. It is not semantic authority.
 
-`ticketing/docs/` is reserved for **derived documentation of merged implementation state**. Do not place speculative future architecture, JIPs, pre-implementation specs, or execution plans there.
+`ticketing/docs/` is derived documentation of merged implementation state. Do not put speculative future architecture, pre-implementation specs, JIPs, or execution plans there.
