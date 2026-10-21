@@ -1230,6 +1230,10 @@
             "type": "uuid_v7"
           },
           {
+            "name": "org_membership_id",
+            "type": "uuid_v7"
+          },
+          {
             "name": "user_id",
             "type": "uuid_v7"
           },
@@ -1258,6 +1262,12 @@
             "fields": [
               "org_id",
               "user_id"
+            ]
+          },
+          {
+            "fields": [
+              "org_id",
+              "org_membership_id"
             ]
           }
         ],
@@ -1608,6 +1618,7 @@
         "IAM-2 consumer OTP/email flows MUST set verification_flags/consumer_otp_verified_at_utc, NEVER assurance_level.",
         "Only IAM-3 StepUpGrant issuance may transition assurance_level to aal2/aal3 within a session."
       ],
+      "org_membership_identity_rule": "When an active org persona is selected, auth_context.actor.org_membership_id MUST equal the stable, server-generated, immutable UUIDv7 identifier of that selected active OrgMembership row. When no active org persona is selected, auth_context.actor.org_membership_id MUST be nil.",
       "org_owner_superset_of_org_admin": true,
       "orgs_must_not_grant_platform_roles": true,
       "platform_roles_must_not_be_assigned_by_org_admin": true,
@@ -1690,8 +1701,8 @@
     }
   },
   "emits_events": true,
-  "generated_at_utc": "2026-10-20T17:56:12Z",
-  "last_updated_utc": "2026-10-20T17:56:12Z",
+  "generated_at_utc": "2026-10-21T04:34:04Z",
+  "last_updated_utc": "2026-10-21T04:34:04Z",
   "normative_source": {
     "format": "json"
   },
@@ -1829,5 +1840,5 @@
   },
   "tier": 1,
   "title": "Identity and Access Management Contract",
-  "version": "4.1.1"
+  "version": "4.1.2"
 }
