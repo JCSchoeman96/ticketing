@@ -4,7 +4,7 @@
 - **Version:** 0.1.2
 - **Status:** DRAFT — explicit user approval required
 - **Supersedes after approval:** JIP-T0-01 v0.1.1
-- **Nature of change from v0.1.1:** planning-drift correction only; restores the originally approved v0.1.0 IAM scope and documentation impact while retaining the accepted v0.1.1 technical baseline
+- **Nature of change from v0.1.1:** planning-drift correction only; restores the originally approved v0.1.0 IAM scope and documentation impact while retaining the accepted v0.1.1 technical baseline; current reference evidence is refreshed without importing reference semantics
 - **Roadmap horizon:** T0 — Tenant-scoped GA pending sale
 - **Increment boundary:** tenant/auth/RLS foundation through Event create/publish; stops before Occurrence
 
@@ -45,6 +45,8 @@ v0.1.2 retains the accepted v0.1.1 technical baseline and all settled T0-01 prod
 - T0-01 receives an already-authenticated human `user_id` at its trusted boundary;
 - persisted authorization/persona derivation uses `User`, `OrgMembership`, and `OrgRoleAssignment` only;
 - the existing runtime/database/testing docs are updated because this increment materially changes those implementation areas.
+
+The Store_Blueprint_Hardening reference pin is also freshness-refreshed from `02cade1bbad64a1c49fc859bfd605c604eba37fa` to current `main` `da0dfa9b022f26872efe1f17277e62769c6c0808`. That reference remains `REFERENCE_ONLY`; its runtime-resource-safety review guidance is evidence for implementation review and creates no Ticketing product semantics or additional acceptance requirement by itself.
 
 No lifecycle, tenancy, authorization meaning, persistence invariant, concurrency rule, error, event, outbox, observability or tracer boundary is otherwise changed.
 
@@ -108,7 +110,7 @@ No dependency upgrade is authorized inside T0-01 implementation.
 
 ### References
 
-- Store_Blueprint_Hardening `02cade1bbad64a1c49fc859bfd605c604eba37fa` — `REFERENCE_ONLY` for durable outbox/transaction/idempotency implementation evidence.
+- Store_Blueprint_Hardening `da0dfa9b022f26872efe1f17277e62769c6c0808` — `REFERENCE_ONLY` for durable outbox/transaction/idempotency and relevant runtime-resource-safety review evidence; Ticketing authority and this JIP control semantics and acceptance.
 - LiveFrames `bd8bc4daae8b0b3b0ad79c1711a798b5028b7784` — `NOT_APPLICABLE`; no material UI work.
 
 ## 4. Scope
@@ -555,4 +557,4 @@ T0-01 closes only when:
 
 Only explicit user acceptance makes `JIP-T0-01 v0.1.2` APPROVED.
 
-Approval confirms that this packet is a narrow correction of planning drift: it retains the accepted Phoenix/LiveView baseline from v0.1.1, restores v0.1.0's minimum IAM scope (`User` + `OrgMembership` + `OrgRoleAssignment`), defers `AuthIdentity`, and restores updates to the existing runtime/database/testing implementation docs. All other settled T0-01 decisions remain unchanged.
+Approval confirms that this packet is a narrow correction of planning drift: it retains the accepted Phoenix/LiveView baseline from v0.1.1, restores v0.1.0's minimum IAM scope (`User` + `OrgMembership` + `OrgRoleAssignment`), defers `AuthIdentity`, and restores updates to the existing runtime/database/testing implementation docs. The Store_Blueprint_Hardening pin was freshness-refreshed as `REFERENCE_ONLY` evidence only; it does not alter Ticketing semantics. All other settled T0-01 decisions remain unchanged.
