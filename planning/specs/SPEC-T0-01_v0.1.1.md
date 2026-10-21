@@ -318,7 +318,7 @@ The successful mutation atomically:
 - sets DB publication time;
 - increments version;
 - increments lock_version;
-- persists the publication outbox resource/action.
+- inserts exactly one durable `ticketing.event.published.v1` outbox record for the committed Event version in the same PostgreSQL transaction.
 
 The exact Ash atomic/update API is selected during T0-01.5 using installed-version UsageRules/HexDocs. A read-then-write sequence is not acceptable as the concurrency guarantee.
 
@@ -336,10 +336,10 @@ Model fields necessary to preserve the JIP/EVT envelope, including:
 
 - internal outbox row identity;
 - `org_id`;
-- registered event type;
+- registered event type `ticketing.event.published.v1`;
 - Event identity;
 - Event version;
-- canonical payload containing exactly `event_id` and `version`;
+- canonical payload containing exactly `event_id` and the committed `version`;
 - `request_id`/`trace_id` and required event registry/envelope metadata;
 - immutable enqueue timestamp from DB;
 - future-delivery bookkeeping only if required to make the row dispatchable without inventing worker semantics.
@@ -348,13 +348,13 @@ Do not add speculative broker/provider fields.
 
 ### Dedupe
 
-Back publication identity with a DB unique constraint semantically equivalent to:
+Back the registered publication identity with a DB unique constraint semantically equivalent to:
 
 ```text
-(event_type, org_id, event_id, version)
+(org_id, event_id, version)
 ```
 
-If the resource is structurally limited to one event type, a documented fixed event-type component may make a three-column unique key equivalent; the implementation review must make that equivalence obvious.
+If a generic outbox table stores multiple event types, its physical unique key may include the event-type discriminator without changing this semantic identity.
 
 ### Same transaction
 
