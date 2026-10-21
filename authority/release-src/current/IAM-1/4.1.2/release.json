@@ -1,0 +1,14 @@
+{
+  "doc_id": "IAM-1",
+  "generated_at_utc": "2026-10-21T04:34:04Z",
+  "release_intent": "Patch successor defining the IAM-1 OrgMembership UUIDv7 identity used by auth context while preserving existing tenant membership uniqueness.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "installed-canonical-successor",
+    "path": "provenance.json",
+    "source_version": "4.1.1",
+    "source_zip_sha256": "8d6831f9322513da739938fbd06d7de80757414da8927f38b5b1ad23b2585084"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "4.1.2"
+}

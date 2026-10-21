@@ -1,0 +1,1844 @@
+{
+  "approved_authority_corrections": {
+    "actor_kinds": [
+      "human",
+      "service",
+      "system"
+    ],
+    "capability_action_map": {
+      "evt.event.create": "EVT-2.create_event",
+      "evt.event.publish": "EVT-2.publish_event",
+      "evt.occurrence.create": "EVT-2.create_occurrence",
+      "evt.occurrence.sales_close": "EVT-2.close_occurrence_sales",
+      "evt.occurrence.sales_open": "EVT-2.open_occurrence_sales",
+      "offer.offer.activate": "OFFER-1.activate_offer",
+      "offer.offer.create": "OFFER-1.create_offer",
+      "offer.offer_window.create": "OFFER-1.create_offer_window",
+      "offer.product.activate": "OFFER-1.activate_product",
+      "offer.product.create": "OFFER-1.create_product",
+      "offer.product_revision.create": "OFFER-1.create_product_revision",
+      "offer.quote.create": "OFFER-1.build_cart_quote",
+      "ord.checkout.create": "ORD-1.create_checkout",
+      "platform.tax_rate.create": "TAX-1.create_platform_tax_rate",
+      "price.program.create": "PRICE-1.create_program",
+      "price.program.phase.create": "PRICE-1.create_phase",
+      "price.program.revision.activate": "PRICE-1.activate_revision",
+      "price.program.revision.create": "PRICE-1.create_revision",
+      "price.program.rule.create": "PRICE-1.create_rule",
+      "seat.inventory_bucket.claim": "SEAT-1.claim_bucket_inventory",
+      "seat.inventory_bucket.create": "SEAT-1.create_inventory_bucket",
+      "tax.profile.activate": "TAX-1.activate_tax_profile",
+      "tax.profile.create": "TAX-1.create_tax_profile"
+    },
+    "constraints": [
+      "evt.occurrence.sales_close is authorized only for an authorized human organizer",
+      "offer.quote.create grants no buyer access to PRICE actions",
+      "Do not add price.quote.create; PRICE snapshot actions are subordinate governed invocations from OFFER",
+      "System automatic sales close is an EVT-2 system initiator policy and is not an IAM organizer capability; never authorize system through a human capability",
+      "Every capability_action_map key MUST resolve to exactly one capability_definitions entry with non-empty, schema-valid allowed_actor_kinds and allowed_roles; every role in those mapped definitions MUST resolve to exactly one role_definitions entry.",
+      "T0 tenant capabilities MUST be evaluated against an active org persona and MUST NOT accept a platform or support persona unless a separately governed support-mode policy names that capability.",
+      "T0 platform.tax_rate.create MUST be evaluated against an active platform persona with platform scope and org_id=nil.",
+      "Buyer capability grants MUST NOT confer access to subordinate PRICE actions.",
+      "Customer role assignments MUST be created through IAM-2 invite acceptance only; IAM-1 iam.role.assign MUST NOT create a customer assignment directly."
+    ],
+    "identity": {
+      "AuthIdentity": {
+        "authentication_methods": [
+          "password",
+          "magic_link",
+          "oauth",
+          "service_token"
+        ],
+        "email_equality_merges_principals": false,
+        "key": [
+          "issuer",
+          "provider_subject"
+        ],
+        "prohibited_attributes": [
+          "email",
+          "phone",
+          "email_address",
+          "phone_number"
+        ],
+        "provider_subject": "Opaque, stable, non-PII identifier supplied by trusted provider; never an email address or phone number.",
+        "resolution": "before organization selection",
+        "resolution_order": [
+          "trusted_provider_authentication",
+          "AuthIdentity_lookup",
+          "principal_resolution",
+          "organization_selection"
+        ],
+        "resolution_requirement": "resolve through a trusted provider to AuthIdentity",
+        "same_principal_across_organizations": true,
+        "scope": "global",
+        "value": "principal_id"
+      },
+      "User": "Global non-PII principal identity only; no direct email or phone attributes.",
+      "pii_boundary": "PII-1 alone owns direct identifiers and tenant-bound PII evidence. IAM MUST NOT expose or use PII-1 subject_lookup_key_hash."
+    },
+    "roles": {
+      "OrgMembership": "tenant-scoped membership",
+      "OrgRoleAssignment": "tenant-scoped organization role assignments",
+      "PlatformRoleAssignment": "separately governed platform role assignments",
+      "shared_nullable_org_role_assignment_forbidden": true
+    }
+  },
+  "artifact_kind": "contract",
+  "authorization_model": {
+    "actor_kinds": [
+      {
+        "kind": "human",
+        "scope": "org"
+      },
+      {
+        "kind": "service",
+        "scope": "global"
+      },
+      {
+        "kind": "system",
+        "scope": "system"
+      }
+    ],
+    "assurance_policy": {
+      "assurance_levels": [
+        {
+          "description": "Single factor or baseline session.",
+          "level": "aal1"
+        },
+        {
+          "description": "Step-up verified (e.g., TOTP, WebAuthn).",
+          "level": "aal2"
+        },
+        {
+          "description": "High assurance (e.g., hardware-backed + strict reauth).",
+          "level": "aal3"
+        }
+      ],
+      "assurance_requirements": [
+        {
+          "capability": "bi.metric.drilldown",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "data.export.c3",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "data.export.c4",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "dsar.break_glass",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "iam.break_glass",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "iam.impersonate.start",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "iam.mfa.factor.revoke",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "iam.mfa.reset.approve",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "iam.mfa.reset.execute",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "iam.role.assign",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "iam.role.revoke",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "iam.session.revoke_all",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "iam.step_up.revoke",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "iam.step_up.verify",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "pii.analytics_override",
+          "min_assurance": "aal2"
+        },
+        {
+          "capability": "pii.export",
+          "min_assurance": "aal2"
+        }
+      ]
+    },
+    "auth_context_shape": {
+      "actor": {
+        "actor_kind": "human|service|system",
+        "org_id": "uuid_v7|nil",
+        "org_membership_id": "uuid_v7|nil",
+        "roles": "string[]",
+        "scopes": "object",
+        "user_id": "uuid_v7|nil"
+      },
+      "assurance_level": "atom (aal1|aal2|aal3) default=aal1",
+      "assurance_source": {
+        "constraints": [
+          "none",
+          "iam3_step_up"
+        ],
+        "default": "none",
+        "type": "atom"
+      },
+      "consumer_otp_verified_at_utc": "utc_datetime_usec | nil",
+      "impersonator_info": "map{actor_id:uuid_v7, reason_code:atom} | nil",
+      "primary_auth_method": {
+        "constraints": [
+          "password",
+          "magic_link",
+          "oauth",
+          "api_key",
+          "service_token"
+        ],
+        "default": "password",
+        "type": "atom"
+      },
+      "request": {
+        "ip_hash": "string",
+        "request_id": "uuid_v7",
+        "user_agent_hash": "string"
+      },
+      "session_id": "uuid_v7",
+      "step_up_grant_id": "uuid_v7 | nil",
+      "step_up_verified_at_utc": "utc_datetime_usec | nil",
+      "verification_flags": "atom[]"
+    },
+    "capability_definitions": [
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "org_owner",
+          "org_admin",
+          "org_finance_manager",
+          "platform_support",
+          "platform_finance_admin",
+          "super_admin",
+          "system"
+        ],
+        "capability": "bi.dashboard.view",
+        "description": "View aggregated dashboards."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "org_owner",
+          "org_admin",
+          "org_finance_manager",
+          "platform_finance_admin",
+          "super_admin",
+          "system"
+        ],
+        "capability": "bi.metric.drilldown",
+        "description": "Drill down into metric dimensions (subject to PII-1 and BI privacy thresholds)."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "system",
+          "super_admin",
+          "platform_support",
+          "org_owner",
+          "org_admin"
+        ],
+        "capability": "data.export",
+        "description": "Authorize exports that are capped at data_class c0–c2 (no restricted PII). Requires projection allowlists, async authorization re-check, and audited delivery."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "org_owner",
+          "org_admin",
+          "org_finance_manager",
+          "platform_support",
+          "platform_finance_admin",
+          "super_admin",
+          "system"
+        ],
+        "capability": "data.export.c0_c2",
+        "description": "Request exports of non-sensitive aggregate data (C0-C2)."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "system",
+          "super_admin",
+          "org_owner",
+          "platform_support"
+        ],
+        "capability": "data.export.c3",
+        "description": "Authorize exports that may include data_class c3 (restricted PII). Requires elevated reason code, strict projection allowlists, async authorization re-check, and redaction-safe audit logging."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "system",
+          "super_admin"
+        ],
+        "capability": "data.export.c4",
+        "description": "Authorize exports that may include data_class c4 (regulated/high-risk). Reserved for platform super_admin workflows (e.g., DSAR execution / regulator response) and requires break-glass governance."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner",
+          "super_admin"
+        ],
+        "capability": "dsar.approve_org",
+        "description": "Approve execution of an org-scoped DSAR after validation."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "platform_support",
+          "super_admin"
+        ],
+        "capability": "dsar.approve_platform_wide_batch",
+        "description": "Approve a platform-wide DSAR batch execution (explicit multi_org_scope required)."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin"
+        ],
+        "capability": "dsar.break_glass",
+        "description": "Break-glass DSAR override; requires step-up auth, mandatory reason, enhanced monitoring."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "system",
+          "super_admin"
+        ],
+        "capability": "dsar.execute",
+        "description": "Execute DSAR actions asynchronously as background jobs using least privilege."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner",
+          "platform_support",
+          "super_admin"
+        ],
+        "capability": "dsar.submit",
+        "description": "Submit a DSAR case (org-scoped default; platform_support may submit platform-wide batch with explicit scope)."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_support",
+          "platform_support",
+          "super_admin"
+        ],
+        "capability": "dsar.validate",
+        "description": "Validate DSAR requestor identity evidence and mark case as verified."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "evt.event.create",
+        "description": "Create an organization-scoped Event."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "evt.event.publish",
+        "description": "Publish an organization-scoped Event."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin"
+        ],
+        "capability": "evt.experiment_start",
+        "description": "Start an A/B test experiment for an event surface.",
+        "notes": "EVT-2: only super_admin can start/stop experiments. System may propose stop; human confirms."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin"
+        ],
+        "capability": "evt.experiment_stop_confirm",
+        "description": "Confirm stopping an experiment (after system proposal or manual decision)."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "evt.occurrence.create",
+        "description": "Create an organization-scoped Occurrence."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "evt.occurrence.sales_close",
+        "description": "Close sales for an organization-scoped Occurrence as a human organizer."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "evt.occurrence.sales_open",
+        "description": "Open sales for an organization-scoped Occurrence."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "super_admin",
+          "platform_tenant_manager"
+        ],
+        "capability": "evt.private_access_grant",
+        "description": "Grant private access (invite/membership/ACL hook) for event/occurrence."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "super_admin",
+          "platform_tenant_manager"
+        ],
+        "capability": "evt.private_access_revoke",
+        "description": "Revoke private access grant for event/occurrence."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin"
+        ],
+        "capability": "evt.redirect_override_retention",
+        "description": "Override default redirect retention for evergreen landing pages."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin"
+        ],
+        "capability": "iam.break_glass",
+        "description": "Execute a break-glass administrative action (restricted).",
+        "notes": [
+          "Reserved for infrastructure-level recovery; requires explicit audit trail."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_support"
+        ],
+        "capability": "iam.impersonate.start",
+        "description": "Start an impersonation session for support/debug (must record reason).",
+        "notes": [
+          "Must set auth_context.impersonator_info and be fully audited."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_support"
+        ],
+        "capability": "iam.impersonate.stop",
+        "description": "Stop an impersonation session and return to the original actor."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_tenant_manager",
+          "org_owner",
+          "org_admin"
+        ],
+        "capability": "iam.member.invite",
+        "description": "Invite a user to join an organization.",
+        "notes": [
+          "Invitation issuance belongs to IAM-2; policy atom lives here."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_tenant_manager",
+          "org_owner",
+          "org_admin"
+        ],
+        "capability": "iam.member.remove",
+        "description": "Remove a user from an organization.",
+        "notes": [
+          "Must revoke org grants and invalidate org-scoped sessions where applicable."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_tenant_manager",
+          "platform_finance_admin",
+          "org_owner",
+          "org_admin",
+          "org_finance_manager"
+        ],
+        "capability": "iam.mfa.factor.enroll",
+        "description": "Enroll a high-assurance MFA factor (TOTP/WebAuthn) for admin use.",
+        "notes": [
+          "Enrollment and verification state machine is defined in IAM-3."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_support",
+          "platform_tenant_manager",
+          "org_owner"
+        ],
+        "capability": "iam.mfa.factor.revoke",
+        "description": "Revoke a high-assurance MFA factor for an actor.",
+        "notes": [
+          "Must trigger immediate StepUpGrant invalidation and session re-evaluation."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_owner",
+          "org_admin"
+        ],
+        "capability": "iam.mfa.reset.approve",
+        "description": "Approve an MFA reset request for another actor within org scope.",
+        "notes": [
+          "Recommended time-lock activation. Reset flow belongs to IAM-3."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_support"
+        ],
+        "capability": "iam.mfa.reset.execute",
+        "description": "Execute an MFA reset (support/nuclear option).",
+        "notes": [
+          "Must be manually verified and audited; should revoke all sessions immediately."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_owner",
+          "org_admin",
+          "org_finance_manager",
+          "platform_finance_admin",
+          "platform_tenant_manager",
+          "super_admin"
+        ],
+        "capability": "iam.mfa.reset.request",
+        "description": "Request an MFA reset for the current actor (self-service)."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_tenant_manager",
+          "org_owner"
+        ],
+        "capability": "iam.role.assign",
+        "description": "Assign a role to an actor within scope (org/platform).",
+        "notes": [
+          "Must be audited. Requires IAM-3 step-up for admin actors."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_tenant_manager",
+          "org_owner"
+        ],
+        "capability": "iam.role.revoke",
+        "description": "Revoke a role from an actor within scope (org/platform).",
+        "notes": [
+          "Must be audited. Requires IAM-3 step-up for admin actors."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_support",
+          "platform_tenant_manager",
+          "org_owner"
+        ],
+        "capability": "iam.session.revoke_all",
+        "description": "Revoke all active sessions for a target actor (force re-login).",
+        "notes": [
+          "Used for account takeover response, MFA reset, or critical role change."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "customer",
+          "org_worker",
+          "org_admin",
+          "org_owner",
+          "org_finance_manager",
+          "platform_support",
+          "platform_tenant_manager",
+          "platform_finance_admin",
+          "super_admin"
+        ],
+        "capability": "iam.session.revoke_self",
+        "description": "Revoke the current session (logout)."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_support",
+          "platform_tenant_manager",
+          "org_owner"
+        ],
+        "capability": "iam.step_up.revoke",
+        "description": "Revoke an elevated step-up grant (invalidate assurance for the session).",
+        "notes": [
+          "Used for incident response or after sensitive operations."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin",
+          "platform_support",
+          "platform_tenant_manager",
+          "platform_finance_admin",
+          "org_owner",
+          "org_admin",
+          "org_finance_manager"
+        ],
+        "capability": "iam.step_up.verify",
+        "description": "Perform a step-up verification to obtain an elevated session assurance grant.",
+        "notes": [
+          "Verification methods are defined by IAM-3."
+        ]
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "offer.offer.activate",
+        "description": "Activate an organization-scoped Offer."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "offer.offer.create",
+        "description": "Create an organization-scoped Offer."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "offer.offer_window.create",
+        "description": "Create an organization-scoped OfferWindow."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "offer.product.activate",
+        "description": "Activate an organization-scoped Product."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "offer.product.create",
+        "description": "Create an organization-scoped Product."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "offer.product_revision.create",
+        "description": "Create an organization-scoped ProductRevision."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "customer"
+        ],
+        "capability": "offer.quote.create",
+        "description": "Build a buyer-facing cart quote for the active customer in the same organization."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "customer"
+        ],
+        "capability": "ord.checkout.create",
+        "description": "Create an Order checkout for the active customer in the same organization."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "system",
+          "super_admin"
+        ],
+        "capability": "pii.analytics_override",
+        "description": "Override anonymization threshold for approved export-only workflows; results treated as PII export."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "system",
+          "super_admin"
+        ],
+        "capability": "pii.export",
+        "description": "Generate a PII export artifact with mandatory audit reason and time-limited retrieval token."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "system",
+          "super_admin",
+          "org_owner"
+        ],
+        "capability": "pii.vault.alias_read",
+        "description": "Read PII vault alias mappings for approved workflows. NOT granted to support by default."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "super_admin"
+        ],
+        "capability": "pii_vault.break_glass",
+        "description": "Emergency access to PII vault with step-up auth, mandatory reason, extra monitoring and post-facto governance review."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "platform_finance_admin",
+          "super_admin"
+        ],
+        "capability": "platform.tax_rate.create",
+        "description": "Create a platform-scoped TaxRate."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "price.program.create",
+        "description": "Create an organization-scoped pricing program."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "price.program.phase.create",
+        "description": "Create a phase in an organization-scoped pricing program revision."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "price.program.revision.activate",
+        "description": "Activate an organization-scoped pricing program revision."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "price.program.revision.create",
+        "description": "Create an organization-scoped pricing program revision."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "price.program.rule.create",
+        "description": "Create a rule in an organization-scoped pricing program revision."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner",
+          "super_admin",
+          "system"
+        ],
+        "capability": "scan.device.hydrate",
+        "description": "Generate and distribute offline hydration manifests to scanner devices."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "org_scanner",
+          "org_admin",
+          "org_owner",
+          "super_admin",
+          "system"
+        ],
+        "capability": "scan.ticket.redeem",
+        "description": "Redeem/consume ticket credential at entry (online or offline)."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human",
+          "system"
+        ],
+        "allowed_roles": [
+          "org_scanner",
+          "org_admin",
+          "org_owner",
+          "super_admin",
+          "system"
+        ],
+        "capability": "scan.ticket.validate",
+        "description": "Validate ticket credential at entry (online or offline)."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "customer"
+        ],
+        "capability": "seat.inventory_bucket.claim",
+        "description": "Claim inventory in an organization-scoped bucket as the active customer."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "seat.inventory_bucket.create",
+        "description": "Create an organization-scoped inventory bucket."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_finance_manager",
+          "org_owner"
+        ],
+        "capability": "tax.profile.activate",
+        "description": "Activate an organization-scoped TaxProfile."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_finance_manager",
+          "org_owner"
+        ],
+        "capability": "tax.profile.create",
+        "description": "Create an organization-scoped TaxProfile."
+      }
+    ],
+    "decision_api": {
+      "decision_enum": [
+        "allow",
+        "deny"
+      ],
+      "fail_closed": true,
+      "inputs_required": [
+        "actor_kind",
+        "user_id",
+        "org_id",
+        "capability",
+        "resource_kind",
+        "resource_id"
+      ],
+      "outputs_required": [
+        "decision",
+        "effective_permissions_hash_sha256",
+        "evaluated_at_utc"
+      ],
+      "purpose": "Deterministic authorization evaluation for synchronous requests and async workers."
+    },
+    "liveness_rules": {
+      "membership_status_required": "active",
+      "notes": [
+        "If any required status is not met, authorization MUST fail closed as ERR_FORBIDDEN/ERR_UNAUTHENTICATED per IAM-1 error policy.",
+        "Workers MUST treat liveness as time-of-use, not time-of-schedule."
+      ],
+      "session_status_required": "active",
+      "user_status_required": "active"
+    },
+    "resource_grants": {
+      "default_private_access_requires_explicit_grant": true,
+      "enabled": true,
+      "grant_record_resource": "AccessGrant",
+      "resource_kinds": [
+        "bi_dashboard",
+        "bi_metric",
+        "event",
+        "export_artifact",
+        "export_job",
+        "iam_credential",
+        "iam_invite_token",
+        "iam_mfa_factor",
+        "iam_session",
+        "iam_step_up_grant",
+        "iam_user",
+        "occurrence",
+        "other",
+        "pricing_surface",
+        "seat_map"
+      ]
+    },
+    "role_definitions": [
+      {
+        "assignable_by": [
+          "org_admin",
+          "super_admin",
+          "platform_tenant_manager"
+        ],
+        "role": "org_worker",
+        "scope": "org"
+      },
+      {
+        "assignable_by": [
+          "super_admin",
+          "platform_tenant_manager"
+        ],
+        "role": "org_admin",
+        "scope": "org"
+      },
+      {
+        "assignable_by": [
+          "super_admin"
+        ],
+        "role": "platform_tenant_manager",
+        "scope": "platform"
+      },
+      {
+        "assignable_by": [
+          "super_admin"
+        ],
+        "role": "super_admin",
+        "scope": "platform"
+      },
+      {
+        "assignable_by": [
+          "super_admin",
+          "platform_tenant_manager"
+        ],
+        "role": "org_owner",
+        "scope": "org"
+      },
+      {
+        "assignable_by": [
+          "org_owner",
+          "super_admin",
+          "platform_tenant_manager"
+        ],
+        "role": "org_support",
+        "scope": "org"
+      },
+      {
+        "assignable_by": [
+          "org_owner",
+          "org_admin",
+          "super_admin",
+          "platform_tenant_manager"
+        ],
+        "role": "org_scanner",
+        "scope": "org"
+      },
+      {
+        "assignable_by": [
+          "super_admin"
+        ],
+        "role": "platform_support",
+        "scope": "platform"
+      },
+      {
+        "assignable_by": [
+          "super_admin"
+        ],
+        "role": "platform_scanner",
+        "scope": "platform"
+      },
+      {
+        "assignable_by": [
+          "super_admin"
+        ],
+        "description": "Platform operator responsible for payouts, tax configurations, and ledger reconciliation.",
+        "role": "platform_finance_admin",
+        "scope": "platform"
+      },
+      {
+        "assignable_by": [
+          "org_owner",
+          "super_admin",
+          "platform_tenant_manager"
+        ],
+        "description": "Organization member responsible for banking details, refunds, and financial reporting.",
+        "role": "org_finance_manager",
+        "scope": "org"
+      },
+      {
+        "assignable_by": [
+          "org_owner",
+          "org_admin"
+        ],
+        "description": "Organization-scoped buyer persona assigned through IAM-2 invite acceptance only.",
+        "grant_via": [
+          "IAM-2.accept_invite_intent"
+        ],
+        "role": "customer",
+        "scope": "org"
+      }
+    ]
+  },
+  "data_model": {
+    "resources": [
+      {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "status",
+            "type": "string"
+          },
+          {
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "verified_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "disabled_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "deleted_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "description": "Global non-PII principal identity only.",
+        "global": true,
+        "name": "User",
+        "tenant_scoped": false
+      },
+      {
+        "attributes": [
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_membership_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "user_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "status",
+            "type": "string"
+          },
+          {
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "revoked_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "revocation_reason",
+            "nullable": true,
+            "type": "string"
+          }
+        ],
+        "global": false,
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "user_id"
+            ]
+          },
+          {
+            "fields": [
+              "org_id",
+              "org_membership_id"
+            ]
+          }
+        ],
+        "name": "OrgMembership",
+        "tenant_key": "org_id",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "user_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "token_hash",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": "string"
+          },
+          {
+            "name": "created_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "expires_at_utc",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "revoked_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "last_seen_at_utc",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "name": "Session",
+        "tenant_key": "org_id",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "role_assignment_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "user_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "role",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": "string"
+          },
+          {
+            "name": "granted_by_user_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "granted_at",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "revoked_at",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "description": "Tenant-scoped organization role assignments.",
+        "global": false,
+        "identities": [
+          {
+            "fields": [
+              "user_id",
+              "role",
+              "org_id"
+            ],
+            "name": "by_user_role_org",
+            "unique": true
+          }
+        ],
+        "name": "OrgRoleAssignment",
+        "tenant_key": "org_id",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "access_grant_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "org_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "subject_user_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "resource_kind",
+            "type": "string"
+          },
+          {
+            "name": "resource_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "capability",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": "string"
+          },
+          {
+            "name": "granted_by_actor_kind",
+            "type": "string"
+          },
+          {
+            "name": "granted_by_user_id",
+            "nullable": true,
+            "type": "uuid_v7"
+          },
+          {
+            "name": "granted_at",
+            "type": "utc_datetime_usec"
+          },
+          {
+            "name": "revoked_at",
+            "nullable": true,
+            "type": "utc_datetime_usec"
+          }
+        ],
+        "description": "Optional org-managed access grants (ACL hooks) for private events/occurrences and other resources.",
+        "identities": [
+          {
+            "fields": [
+              "org_id",
+              "subject_user_id",
+              "resource_kind",
+              "resource_id",
+              "capability"
+            ],
+            "name": "by_subject_resource_capability",
+            "unique": true
+          }
+        ],
+        "name": "AccessGrant",
+        "tenant_key": "org_id",
+        "tenant_scoped": true
+      },
+      {
+        "attributes": [
+          {
+            "name": "issuer",
+            "type": "string"
+          },
+          {
+            "name": "provider_subject",
+            "type": "string"
+          },
+          {
+            "name": "principal_id",
+            "type": "uuid_v7"
+          }
+        ],
+        "description": "Global mapping keyed by the exact pair (issuer, provider_subject). provider_subject is an opaque, stable, non-PII identifier supplied by a trusted authentication provider. It is not an email address or phone number. Resolve this mapping for password, magic-link, OAuth, and service-token authentication before organization selection. The same mapped principal_id applies across all organizations.",
+        "global": true,
+        "identities": [
+          {
+            "fields": [
+              "issuer",
+              "provider_subject"
+            ],
+            "name": "issuer_provider_subject",
+            "unique": true
+          }
+        ],
+        "name": "AuthIdentity",
+        "prohibited_attributes": [
+          "email",
+          "phone",
+          "email_address",
+          "phone_number"
+        ],
+        "provider_subject_semantics": {
+          "direct_pii": false,
+          "opaque": true,
+          "provider_supplied": true,
+          "stable_for_issuer_identity": true
+        },
+        "resolution_order": [
+          "trusted_provider_authentication",
+          "AuthIdentity_lookup",
+          "principal_resolution",
+          "organization_selection"
+        ],
+        "tenant_scoped": false
+      },
+      {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "principal_id",
+            "type": "uuid_v7"
+          },
+          {
+            "name": "role",
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "type": "string"
+          }
+        ],
+        "description": "Separately governed platform role assignment; never carries org role semantics.",
+        "global": true,
+        "name": "PlatformRoleAssignment",
+        "tenant_scoped": false
+      }
+    ]
+  },
+  "dependencies": [
+    {
+      "doc_id": "CS-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "Schema baseline"
+    },
+    {
+      "doc_id": "ERR-1",
+      "edge_type": "requires",
+      "min_version": "1.4.10",
+      "reason": "Error envelope"
+    },
+    {
+      "doc_id": "EVT-1",
+      "edge_type": "registry_floor",
+      "min_version": "2.16.4",
+      "reason": "Phase-5 registry head parity; outbox required_keys must match EVT-1 required_data_keys exactly (ordered)."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "2.4.0",
+      "reason": "Phase-5 schema_ref normalization token authority."
+    },
+    {
+      "doc_id": "OBS-1",
+      "edge_type": "governance_floor",
+      "min_version": "2.7.6",
+      "reason": "Telemetry compliance"
+    },
+    {
+      "doc_id": "RP-0",
+      "edge_type": "requires",
+      "min_version": "3.0.0",
+      "reason": "V42 types"
+    },
+    {
+      "doc_id": "SEC-1",
+      "edge_type": "governance_floor",
+      "min_version": "3.3.1",
+      "reason": "Security invariants"
+    },
+    {
+      "doc_id": "TEN-1",
+      "edge_type": "requires",
+      "min_version": "1.7.4",
+      "reason": "Tenant isolation"
+    },
+    {
+      "doc_id": "TG-0",
+      "edge_type": "governance_floor",
+      "min_version": "2.3.0",
+      "reason": "Gate authoring"
+    }
+  ],
+  "dependency_floors": {
+    "API-0": "1.1.1",
+    "EVT-1": "2.16.4",
+    "EVT-2": "2.4.0",
+    "SEC-1": "3.3.1"
+  },
+  "dependency_pins": {
+    "API-0": {
+      "artifact": "API-0_Contract_v1.1.1.json",
+      "sha256": "99bc7b23159458a48192c8dcbb1c6384656b370af9048d4636071dbbeace8991",
+      "version": "1.1.1"
+    },
+    "PROD-1": {
+      "artifact": "PROD-1_Contract_v1.1.1.json",
+      "sha256": "bbba4a2d4832759bb1d7b4d81c6379cc38b277fe4e6a80fb42fd4ef350941eb0",
+      "version": "1.1.1"
+    },
+    "PSC-1": {
+      "artifact": "PSC-1_Contract_v1.8.2.json",
+      "sha256": "d29f4e93d95677713d2b16d6e2e60a5916f5f3a99da1ff24e70b50303f10c9a1",
+      "version": "1.8.2"
+    }
+  },
+  "doc_id": "IAM-1",
+  "domain_invariants": {
+    "anti_enumeration": {
+      "rule": "sign_in and sign_up and account_lookup failures MUST return ERR_UNAUTHENTICATED with uniform timing/messaging; public recovery flows MUST use uniform 202-accepted responses (password_reset_request, magic_link_request) and uniform invalid/expired for token consumption (password_reset_consume, magic_link_consume, email_verify_consume)."
+    },
+    "authorization": {
+      "active_persona_required": true,
+      "active_persona_rule": "When actor has multiple roles across org/platform, each request SHALL carry an explicit active_scope and active_role; authorization MUST be evaluated against the active persona only.",
+      "assurance_level_is_iam3_only": true,
+      "assurance_level_is_not_role_bound": true,
+      "assurance_level_is_session_bound": true,
+      "assurance_semantics": "aal1=authenticated session; aal2=step-up grant issued by IAM-3; aal3=hardware-backed step-up (future).",
+      "banned_ambient_assurance": true,
+      "consumer_verification_flags_must_not_upgrade_assurance_level": true,
+      "customer_role_requires_iam2_invite": true,
+      "default_policy_private_access_requires_grant_or_membership": true,
+      "multi_role_allowed": true,
+      "notes": [
+        "EVT-2: experiments may only be started/stopped by super_admin.",
+        "EVT-2: private access uses invite + account + membership, plus optional org-managed grants stored in IAM-1 as hooks.",
+        "Do not interpret assurance_level using >= comparisons. Treat it as an exact policy gate.",
+        "IAM-2 consumer OTP/email flows MUST set verification_flags/consumer_otp_verified_at_utc, NEVER assurance_level.",
+        "Only IAM-3 StepUpGrant issuance may transition assurance_level to aal2/aal3 within a session."
+      ],
+      "org_membership_identity_rule": "When an active org persona is selected, auth_context.actor.org_membership_id MUST equal the stable, server-generated, immutable UUIDv7 identifier of that selected active OrgMembership row. When no active org persona is selected, auth_context.actor.org_membership_id MUST be nil.",
+      "org_owner_superset_of_org_admin": true,
+      "orgs_must_not_grant_platform_roles": true,
+      "platform_roles_must_not_be_assigned_by_org_admin": true,
+      "principle_of_least_privilege": true,
+      "t0_platform_tax_rate_requires_active_platform_persona": true,
+      "t0_tenant_capabilities_exclude_platform_and_support_roles": true,
+      "t0_tenant_capabilities_require_active_org_persona": true
+    },
+    "org_selection": {
+      "active_scope_binding": "Requests MUST include org_id for org-scoped actions; platform-scoped actions MUST have org_id=nil. Mixed-scope requests MUST be rejected.",
+      "rule": "Sessions bind org_id via sign_in_with_org validating active OrgMembership. Pre-auth context does not persist."
+    },
+    "pseudonymization": {
+      "resolution_rule": {
+        "rule_id": "IAM-1-INV-SUBJECT-PSEUDONYM-002",
+        "text": "IAM MUST be able to compute subject_key_hash from (org_id, subject_id) deterministically and MUST treat the mapping as tenant-scoped."
+      },
+      "subject_key_hash_derivation": {
+        "algorithm": "sha256",
+        "algorithm_version": 1,
+        "canonical_inputs": [
+          "org_id",
+          "subject_id",
+          "algorithm_version"
+        ],
+        "canonicalization": {
+          "delimiter": "\n",
+          "encoding": "utf8",
+          "field_order": "fixed",
+          "format": "kv_lines",
+          "lines": [
+            "org_id={org_id}",
+            "subject_id={subject_id}",
+            "algorithm_version={algorithm_version}"
+          ],
+          "org_id_normalization": "lowercase",
+          "template": "org_id={org_id}\nsubject_id={subject_id}\nalgorithm_version={algorithm_version}\n",
+          "trailing_delimiter": "required",
+          "unicode_normalization": "none (uuid-only); NFC required if non-UUID inputs are introduced",
+          "uuid_normalization": "lowercase"
+        },
+        "change_strategy_post_phase6": "COLD_REINDEX_REQUIRED",
+        "derivation_test_vectors": [
+          {
+            "canonical_input_text": "org_id=018f3e2d-7f20-7b9e-8b8c-3b3d8e2d6c5a\nsubject_id=0190a1b2-c3d4-7e5f-8123-456789abcdef\nalgorithm_version=1\n",
+            "expected_output_encoding": "hex_lower",
+            "expected_sha256_hex": "77706975e361673280e8fd9e3ee891d370d008f6e3a51807c7a805600d47fdc1",
+            "inputs": {
+              "algorithm_version": 1,
+              "org_id": "018f3e2d-7f20-7b9e-8b8c-3b3d8e2d6c5a",
+              "subject_id": "0190a1b2-c3d4-7e5f-8123-456789abcdef"
+            },
+            "vector_id": "IAM-1-SUBJECT-KEY-HASH-TV-0001"
+          }
+        ],
+        "key_scope": "none",
+        "output_encoding": "hex_lower",
+        "output_field": "subject_key_hash",
+        "rotation_policy": "FORBIDDEN_PRE_PHASE6",
+        "rule_id": "IAM-1-INV-SUBJECT-PSEUDONYM-001",
+        "stability_rule": "MUST remain stable; algorithm_version MUST NOT change before Phase 6; canonicalization MUST be byte-identical across implementations."
+      },
+      "tombstone_policy": {
+        "rule_id": "IAM-1-INV-SUBJECT-PSEUDONYM-003",
+        "text": "If a subject_id is purged, systems that store subject_key_hash for indexing MUST retain a tombstone keyed by subject_key_hash for the retention window to prevent ghost re-collection."
+      }
+    },
+    "telemetry": {
+      "forbidden_tags": [
+        "org_id",
+        "user_id",
+        "session_id"
+      ],
+      "org_id_sentinel": "anonymous",
+      "required_tags": [
+        "tenant_tier",
+        "auth_strategy",
+        "result"
+      ]
+    }
+  },
+  "emits_events": true,
+  "generated_at_utc": "2026-10-21T04:34:04Z",
+  "last_updated_utc": "2026-10-21T04:34:04Z",
+  "normative_source": {
+    "format": "json"
+  },
+  "offline_hydration_slot_production": {
+    "owned_slots": [
+      {
+        "description": "IAM-owned allow-list slot for offline scanning. Produces the actor_ids permitted to operate scanner flows for a specific occurrence at snapshot time.",
+        "determinism_rules": [
+          "The produced list MUST be a set derived from AccessGrant rows and then deterministically ordered (lex_asc) after UUID lowercase normalization.",
+          "In offline contexts, actor_id is the principal identifier; for human principals it MUST equal user_id. This slot treats AccessGrant.subject_user_id as actor_id."
+        ],
+        "fields": {
+          "active_allow_list_actor_ids": {
+            "extraction": {
+              "extract_field": "subject_user_id",
+              "treat_as": "actor_id"
+            },
+            "filters": {
+              "capability_prefix": "scan.",
+              "resource_kind": "occurrence",
+              "status": "active",
+              "time_window": {
+                "granted_at_lte_snapshot": true,
+                "revoked_at_gt_snapshot_or_null": true
+              }
+            },
+            "ordering": {
+              "dedupe": true,
+              "sort": "lex_asc",
+              "uuid_normalization": "lowercase"
+            },
+            "output_type": "array(actor_id)",
+            "snapshot_time_field": "snapshot_at_utc",
+            "source_kind": "resource_query",
+            "source_resource": "AccessGrant"
+          }
+        },
+        "slot_id": "allow_lists"
+      }
+    ],
+    "schema_id": "SEC-1.HYDRATION_MANIFEST.v1"
+  },
+  "outbox_events": [
+    {
+      "event_name": "ticketing.iam.session.created.v1",
+      "idempotency": "event_id derived from (org_id, session_id, version)",
+      "ordering": "per org_id + user_id",
+      "required_keys": [
+        "session_id",
+        "user_id",
+        "actor_id",
+        "tenant_tier",
+        "auth_strategy",
+        "result",
+        "occurred_at_utc",
+        "version"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.iam.session"
+    },
+    {
+      "event_name": "ticketing.iam.session.revoked.v1",
+      "idempotency": "event_id derived from (org_id, session_id, version)",
+      "ordering": "per org_id + user_id",
+      "required_keys": [
+        "session_id",
+        "user_id",
+        "actor_id",
+        "tenant_tier",
+        "reason",
+        "occurred_at_utc",
+        "version"
+      ],
+      "schema_ref": "EVT-2",
+      "topic": "ticketing.iam.session"
+    }
+  ],
+  "schema_version": "contract-suite/1.0",
+  "security": {
+    "enumeration_hardening": {
+      "applies_to_flows": [
+        "sign_in",
+        "sign_up",
+        "account_lookup",
+        "password_reset_request",
+        "password_reset_consume",
+        "magic_link_request",
+        "magic_link_consume",
+        "email_verify_request",
+        "email_verify_consume",
+        "invite_request",
+        "invite_accept"
+      ],
+      "audit_events": {
+        "enumeration_suspected": {
+          "name": "ticketing.iam.enumeration.suspected",
+          "required_payload_keys": [
+            "request_id",
+            "ip_hash",
+            "identifier_hash",
+            "flow",
+            "occurred_at_utc"
+          ]
+        }
+      },
+      "enabled": true,
+      "rate_limit_policy": {
+        "enabled": true,
+        "lockout_on_abuse": true,
+        "per_identifier_per_hour": 10,
+        "per_ip_per_minute": 30
+      },
+      "response_policy": {
+        "hide_existence": true,
+        "invalid_token_code": "ERR_UNAUTHENTICATED",
+        "invalid_token_subcode": "IAM_SESSION_EXPIRED",
+        "request_flows_success_code": "OK_ACCEPTED",
+        "sign_in_failure_code": "ERR_UNAUTHENTICATED",
+        "uniform_error_envelope": true
+      },
+      "timing_policy": {
+        "constant_time_compare_required": true,
+        "jitter_ms": 120,
+        "min_response_time_ms": 350
+      }
+    }
+  },
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "summary": "Secure user authentication, session management, and org-scoped access with deterministic org binding, UUIDv7 IDs, utc_datetime_usec timestamps, and bounded telemetry.",
+  "tenancy": {
+    "leakage_policy": "hide_existence",
+    "strategy": "attribute",
+    "tenant_key": "org_id"
+  },
+  "tier": 1,
+  "title": "Identity and Access Management Contract",
+  "version": "4.1.2"
+}

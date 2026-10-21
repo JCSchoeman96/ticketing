@@ -1,0 +1,44 @@
+{
+  "bootstrap_commit": "696200e4e76094de7d7bd0abea75d90302fd45d3",
+  "candidate_preparation_base_commit": "f3e44f55054f930da0757fe019880998c15d8067",
+  "provenance_statement": "IAM-1@4.1.2 derives from the exact selected IAM-1@4.1.1 ZIP. It defines OrgMembership.org_membership_id as the stable server-generated immutable UUIDv7 row identifier used by auth_context.actor.org_membership_id, adds tenant identity (org_id, org_membership_id), and preserves (org_id, user_id) unchanged.",
+  "source_bundle_path": "contracts/IAM-1/IAM-1_bundle_v4.1.1.zip",
+  "source_zip_sha256": "8d6831f9322513da739938fbd06d7de80757414da8927f38b5b1ad23b2585084",
+  "source_zip_bytes": 80644,
+  "source_version": "4.1.1",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "IAM-1_bundle_v4.1.2/IAM-1_Contract_v4.1.2.json",
+      "sha256": "0f2adb824bcb7a65a8bac1062fc4702cf6b58136bcb88f4873030d6809e5bdba",
+      "bytes": 54954,
+      "origin_sha256": "b71927c521162bc48991354631ec42578ba194d71f2f17748a9c1d997595d97d",
+      "origin_bytes": 54417
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "IAM-1_bundle_v4.1.2/IAM-1_Test_Gates_v4.1.2.json",
+      "sha256": "afef6b69ad94b6f026365295f9f18edc1a4a9e9db2e9421fb60d7cc9dc3d0c5d",
+      "bytes": 25086,
+      "origin_sha256": "5a3dc95a690515feac055a0bdddd729a41dbdb7f8b76707f739905707bddb505",
+      "origin_bytes": 25086
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "IAM-1_bundle_v4.1.1/IAM-1_Contract_v4.1.1.json",
+      "sha256": "b71927c521162bc48991354631ec42578ba194d71f2f17748a9c1d997595d97d",
+      "bytes": 54417
+    },
+    {
+      "source_member_path": "IAM-1_bundle_v4.1.1/IAM-1_Test_Gates_v4.1.1.json",
+      "sha256": "5a3dc95a690515feac055a0bdddd729a41dbdb7f8b76707f739905707bddb505",
+      "bytes": 25086
+    },
+    {
+      "source_member_path": "IAM-1_bundle_v4.1.1/bundle.manifest.json",
+      "sha256": "ac6ca134e37458a233e2e8422b6002a638c925b3241dfc366d9e88a7260a7cfd",
+      "bytes": 623
+    }
+  ]
+}
