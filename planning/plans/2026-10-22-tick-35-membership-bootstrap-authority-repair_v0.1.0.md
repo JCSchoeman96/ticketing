@@ -4,7 +4,8 @@
 
 - **Plan ID:** PLAN-AUTH-TICK-35
 - **Version:** 0.1.0
-- **Status:** DRAFT — derived from approved SPEC-AUTH-TICK-35 v0.1.0; pending user review before authority release execution
+- **Status:** APPROVED
+- **Approved:** user instruction on 2026-10-22 — `Approve PLAN-AUTH-TICK-35 v0.1.0`
 - **Baseline:** `71fe96e24f87f89418719e0f56252a633a8550e8`
 - **Baseline tree:** `95e966a168205db06f9c6f7135be14e29366289a`
 
