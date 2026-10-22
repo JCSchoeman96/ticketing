@@ -1,0 +1,14 @@
+{
+  "doc_id": "IAM-1",
+  "generated_at_utc": "2026-10-22T14:40:00Z",
+  "release_intent": "Patch successor defining the T0 trusted active-Session consumption boundary for organizer authorization after TEN-1 org membership proof, with explicit auth-context active_scope and active_role persona fields; no Session issuance, mutation or session-event emission.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "installed-canonical-successor",
+    "path": "provenance.json",
+    "source_version": "4.1.2",
+    "source_zip_sha256": "4f89ac0e9e859351087be9349ef8f9f4e4c97f6eb5171cbe49e57b1440d2fada"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "4.1.3"
+}

@@ -1,0 +1,44 @@
+{
+  "bootstrap_commit": "696200e4e76094de7d7bd0abea75d90302fd45d3",
+  "candidate_preparation_base_commit": "8412bd85b97f7f4014f9afedc7c7fb0f28536ba6",
+  "provenance_statement": "IAM-1@4.1.3 derives from the exact installed IAM-1@4.1.2 ZIP. It adds the T0 trusted active-Session consumption policy (authorization_model.t0_trusted_active_session), explicit auth_context_shape active_scope and active_role fields, and paired gate IAM-1-GATE-370-T0-TRUSTED-SESSION-CONSUMPTION. All other IAM-1@4.1.2 semantics, identities, tenancy and registered IAM Session event declarations are preserved.",
+  "source_bundle_path": "contracts/IAM-1/IAM-1_bundle_v4.1.2.zip",
+  "source_zip_sha256": "4f89ac0e9e859351087be9349ef8f9f4e4c97f6eb5171cbe49e57b1440d2fada",
+  "source_zip_bytes": 81181,
+  "source_version": "4.1.2",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "IAM-1_bundle_v4.1.3/IAM-1_Contract_v4.1.3.json",
+      "sha256": "cfcb3f9ca6eb672bbd53ba824c79b50d61efc1c9d3b7ccae11fbac2a4dfe19ff",
+      "bytes": 59048,
+      "origin_sha256": "0f2adb824bcb7a65a8bac1062fc4702cf6b58136bcb88f4873030d6809e5bdba",
+      "origin_bytes": 54954
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "IAM-1_bundle_v4.1.3/IAM-1_Test_Gates_v4.1.3.json",
+      "sha256": "405dc596b746147e7e76e94d920b7136f2e950f8cafc9ed87320fe50a14445fb",
+      "bytes": 37783,
+      "origin_sha256": "afef6b69ad94b6f026365295f9f18edc1a4a9e9db2e9421fb60d7cc9dc3d0c5d",
+      "origin_bytes": 25086
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "IAM-1_bundle_v4.1.2/IAM-1_Contract_v4.1.2.json",
+      "sha256": "0f2adb824bcb7a65a8bac1062fc4702cf6b58136bcb88f4873030d6809e5bdba",
+      "bytes": 54954
+    },
+    {
+      "source_member_path": "IAM-1_bundle_v4.1.2/IAM-1_Test_Gates_v4.1.2.json",
+      "sha256": "afef6b69ad94b6f026365295f9f18edc1a4a9e9db2e9421fb60d7cc9dc3d0c5d",
+      "bytes": 25086
+    },
+    {
+      "source_member_path": "IAM-1_bundle_v4.1.2/bundle.manifest.json",
+      "sha256": "b29991fe92cbbd62f20cf58711321ef37b767430524a0a245e9feea6da9feab2",
+      "bytes": 623
+    }
+  ]
+}

@@ -86,6 +86,17 @@ ACTIVE_PERSONA_RULE = (
     "active_scope and active_role; authorization MUST be evaluated against the active persona only."
 )
 
+ACTIVE_ROLE_BINDING_NOTE = (
+    "The requested active_role MUST match exactly one active, non-revoked OrgRoleAssignment "
+    "for the authoritative user_id and proven org_id."
+)
+AUTH_CONTEXT_BINDING_NOTE = (
+    "The constructed auth_context.actor.org_membership_id MUST equal the proven active "
+    "OrgMembership id; auth_context.actor.org_id MUST equal the proven org_id; "
+    "auth_context.actor.user_id MUST equal the authoritative user_id; and "
+    "auth_context.session_id MUST equal the validated persisted Session id."
+)
+
 
 def _manifest() -> dict:
     return json.loads((ROOT / "contracts" / "manifest.json").read_text())
@@ -134,6 +145,8 @@ def test_selected_iam1_defines_t0_trusted_active_session_policy() -> None:
     assert set(policy) == set(EXPECTED_POLICY) | {"notes"}
     assert isinstance(policy["notes"], list) and policy["notes"]
     assert all(isinstance(note, str) and note.strip() for note in policy["notes"])
+    assert ACTIVE_ROLE_BINDING_NOTE in policy["notes"]
+    assert AUTH_CONTEXT_BINDING_NOTE in policy["notes"]
 
     comparable = {key: value for key, value in policy.items() if key != "notes"}
     assert comparable == EXPECTED_POLICY
