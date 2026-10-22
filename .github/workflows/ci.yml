@@ -7,7 +7,7 @@ on:
 
 jobs:
   bootstrap:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       postgres:
         image: postgres:18.6-alpine
@@ -90,7 +90,7 @@ jobs:
         run: mix test test/ticketing/repo_smoke_test.exs
 
   check_types:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       MIX_ENV: test
       TICKETING_TEST_DB_HOST: 127.0.0.1
