@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from io import BytesIO
+import json
 from pathlib import Path
 import hashlib
 import zipfile
@@ -245,5 +246,7 @@ def test_current_release_inputs_come_from_manifest() -> None:
 
     assert len(paths) == 58
     canon = next(row for row in records if row["doc_id"] == "CANON-1")
-    assert canon["path"].endswith("contracts/CANON-1/CANON-1_bundle_v2.0.16.zip")
-    assert canon["sha256"] == "8bd64c2db86c4611340941cb6db391f8cfa6a506b3c2d2fa99e26bc0d1fefde7"
+    manifest = json.loads((REPOSITORY_ROOT / "contracts/manifest.json").read_text())
+    selected = next(row for row in manifest["contracts"] if row["doc_id"] == "CANON-1")
+    assert Path(canon["path"]) == REPOSITORY_ROOT / selected["zip_path"]
+    assert canon["sha256"] == selected["zip_sha256"]

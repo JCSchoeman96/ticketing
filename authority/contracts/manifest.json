@@ -148,21 +148,21 @@
     {
       "artifacts": [
         {
-          "archive_path": "CANON-1_bundle_v2.0.16/CANON-1_Contract_v2.0.16.json",
-          "extracted_path": "CANON-1_Contract_v2.0.16.json",
-          "sha256": "3a06a23c6da20f804fa8358aac07c0f842f1910bc1fb2402096bb8a295454a1d",
+          "archive_path": "CANON-1_bundle_v2.0.17/CANON-1_Contract_v2.0.17.json",
+          "extracted_path": "CANON-1_Contract_v2.0.17.json",
+          "sha256": "19fc76ab89772239c26163a7372cd2475b8f7480af1151b489c9defdd04650f8",
           "size": 57674
         },
         {
-          "archive_path": "CANON-1_bundle_v2.0.16/CANON-1_Test_Gates_v2.0.16.json",
-          "extracted_path": "CANON-1_Test_Gates_v2.0.16.json",
-          "sha256": "324fb38be962dc19751d7b109d8fcb8e331a4067a255a3aea64473f901851d37",
+          "archive_path": "CANON-1_bundle_v2.0.17/CANON-1_Test_Gates_v2.0.17.json",
+          "extracted_path": "CANON-1_Test_Gates_v2.0.17.json",
+          "sha256": "de3f89f1144df710e068a7885c40fbf9f3904e751cf5db83dfa4129259e1c47b",
           "size": 90469
         },
         {
-          "archive_path": "CANON-1_bundle_v2.0.16/bundle.manifest.json",
+          "archive_path": "CANON-1_bundle_v2.0.17/bundle.manifest.json",
           "extracted_path": "bundle.manifest.json",
-          "sha256": "cb68f5a838f4be31cf323de4ac0dcb3216caa44033d69d4629e7b69d3ca92049",
+          "sha256": "9bd0e292cfcd83f6412e91d31a1384b2c6b1b8a8a08918e60e1c6a59dc828ba6",
           "size": 635
         }
       ],
@@ -170,9 +170,9 @@
       "doc_id": "CANON-1",
       "extracted_path": "contracts/CANON-1/extracted",
       "membership": "CANON_INDEX",
-      "version": "2.0.16",
-      "zip_path": "contracts/CANON-1/CANON-1_bundle_v2.0.16.zip",
-      "zip_sha256": "8bd64c2db86c4611340941cb6db391f8cfa6a506b3c2d2fa99e26bc0d1fefde7"
+      "version": "2.0.17",
+      "zip_path": "contracts/CANON-1/CANON-1_bundle_v2.0.17.zip",
+      "zip_sha256": "5552a6aab4044eb6db5f448c8d610a8f349417c8f4a371605f99014db23bbaec"
     },
     {
       "artifacts": [
@@ -1540,21 +1540,21 @@
     {
       "artifacts": [
         {
-          "archive_path": "TEN-1_bundle_v2.0.0/TEN-1_Contract_v2.0.0.json",
-          "extracted_path": "TEN-1_Contract_v2.0.0.json",
-          "sha256": "0384ab11eb1efbf345352a5b590fca7b4d4192152049a3a2c50115e2fbd61c77",
-          "size": 44552
+          "archive_path": "TEN-1_bundle_v2.0.1/TEN-1_Contract_v2.0.1.json",
+          "extracted_path": "TEN-1_Contract_v2.0.1.json",
+          "sha256": "48fbbf7c2324fdf9526b6a958d46338fce453ef28b6001da66309a690dfc2d72",
+          "size": 46935
         },
         {
-          "archive_path": "TEN-1_bundle_v2.0.0/TEN-1_Test_Gates_v2.0.0.json",
-          "extracted_path": "TEN-1_Test_Gates_v2.0.0.json",
-          "sha256": "c70479461b54c402c0527f6a037493a610aaab67f8306ddb5f9daa04a0b8bb4e",
-          "size": 31012
+          "archive_path": "TEN-1_bundle_v2.0.1/TEN-1_Test_Gates_v2.0.1.json",
+          "extracted_path": "TEN-1_Test_Gates_v2.0.1.json",
+          "sha256": "63f23cf27fca20f5dfef93606c438fcc9c6e6af5b5c58edd90602081cbb7790e",
+          "size": 41205
         },
         {
-          "archive_path": "TEN-1_bundle_v2.0.0/bundle.manifest.json",
+          "archive_path": "TEN-1_bundle_v2.0.1/bundle.manifest.json",
           "extracted_path": "bundle.manifest.json",
-          "sha256": "37dc2f419eda6fef40cb594dd931fc2fa717ab587769269b8e88a38cd412a8ab",
+          "sha256": "1b726d726a53550a545b1941fa9deb2585384394c410f2e6403b6646ef88dde4",
           "size": 623
         }
       ],
@@ -1562,9 +1562,9 @@
       "doc_id": "TEN-1",
       "extracted_path": "contracts/TEN-1/extracted",
       "membership": "CANON_MEMBER",
-      "version": "2.0.0",
-      "zip_path": "contracts/TEN-1/TEN-1_bundle_v2.0.0.zip",
-      "zip_sha256": "11db8e130cfe63d4f32cf0dfd61356f27a69232899b872b082f5d9dd2008d8c8"
+      "version": "2.0.1",
+      "zip_path": "contracts/TEN-1/TEN-1_bundle_v2.0.1.zip",
+      "zip_sha256": "d115fc5102abc37cf259c9e78dfe28d22f2603374cd8cb9f859c36112ecee476"
     },
     {
       "artifacts": [

@@ -175,11 +175,18 @@
       ],
       "date_utc": "2026-01-30T10:11:10Z",
       "version": "1.7.11"
+    },
+    {
+      "version": "2.0.1",
+      "date_utc": "2026-10-22T11:30:00Z",
+      "changes": [
+        "TICK-35: Define the system-internal org_membership_probe policy for read-only active OrgMembership proof in transaction-local candidate organization scope under constrained runtime FORCE RLS, while preserving ordinary membership-before-tenant resolution and hide-existence failure behavior."
+      ]
     }
   ],
   "contract_ref": {
     "doc_id": "TEN-1",
-    "version": "2.0.0"
+    "version": "2.0.1"
   },
   "dependencies": [
     {
@@ -265,8 +272,8 @@
     "TEN_TENANT_CONTEXT_MISSING",
     "TEN_TENANT_MISMATCH"
   ],
-  "generated_at_utc": "2026-10-18T09:26:57Z",
-  "last_updated_utc": "2026-01-30T10:11:10Z",
+  "generated_at_utc": "2026-10-22T11:30:00Z",
+  "last_updated_utc": "2026-10-22T11:30:00Z",
   "normative_source": "json",
   "outbox_events": [],
   "references": [
@@ -909,7 +916,47 @@
         "public_object_key",
         "subdomain_mapping",
         "request_path_param"
-      ]
+      ],
+      "system_internal_membership_probe": {
+        "enabled": true,
+        "policy_id": "org_membership_probe",
+        "caller_boundary": "system_internal_only",
+        "public_clients_allowed": false,
+        "requires_authenticated_human": true,
+        "authoritative_user_id_required": true,
+        "candidate_org_authoritative_before_proof": false,
+        "preproof_candidate_scope_allowed": true,
+        "transaction_local_required": true,
+        "same_backend_transaction_required": true,
+        "constrained_runtime_role_required": true,
+        "force_rls_required": true,
+        "superuser_forbidden": true,
+        "bypassrls_forbidden": true,
+        "table_owner_execution_forbidden": true,
+        "allowed_resource": "IAM-1.OrgMembership",
+        "allowed_operation": "read_membership_proof",
+        "read_only": true,
+        "membership_match_fields": [
+          "org_id",
+          "user_id"
+        ],
+        "active_membership_required": true,
+        "role_lookup_before_proof_allowed": false,
+        "other_tenant_resource_access_before_proof_allowed": false,
+        "writes_allowed": false,
+        "event_capability_authorization_allowed": false,
+        "persona_promotion_on_failure_allowed": false,
+        "session_promotion_on_failure_allowed": false,
+        "persist_candidate_org_on_failure_allowed": false,
+        "hide_existence_on_failure_required": true,
+        "org_membership_id_is_proof_output": true,
+        "role_resolution_after_success_allowed": true,
+        "notes": [
+          "Candidate org scope exists only to prove the already-authenticated human's active membership and is not the human's resolved tenant or active persona.",
+          "Successful membership proof permits downstream IAM-1 organization-persona/session establishment; the probe itself grants no role or tenant capability.",
+          "Failure discards candidate scope and MUST preserve TEN-1 hide-existence behavior."
+        ]
+      }
     },
     "tenant_scope_model": {
       "authoritative": true,
@@ -944,9 +991,9 @@
   },
   "tier": "enterprise",
   "title": "TEN-1 — Tenancy Isolation, RLS, Index Isolation, and Sequencing (v1.7.7)",
-  "updated_at": "2026-01-30T10:11:10Z",
-  "updated_at_utc": "2026-01-30T10:11:10Z",
-  "version": "2.0.0",
+  "updated_at": "2026-10-22T11:30:00Z",
+  "updated_at_utc": "2026-10-22T11:30:00Z",
+  "version": "2.0.1",
   "approved_authority_corrections": {
     "external_errors": {
       "missing_tenant": "HTTP 404 ERR_NOT_FOUND",

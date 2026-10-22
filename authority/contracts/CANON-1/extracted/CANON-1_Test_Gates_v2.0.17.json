@@ -2,7 +2,7 @@
   "artifact_kind": "test_gates",
   "contract_ref": {
     "doc_id": "CANON-1",
-    "version": "2.0.16"
+    "version": "2.0.17"
   },
   "doc_id": "CANON-1-GATE",
   "gates": [
@@ -2256,10 +2256,10 @@
         },
         {
           "details": {
-            "accepted_path": "contracts/TEN-1/TEN-1_bundle_v2.0.0.zip",
+            "accepted_path": "contracts/TEN-1/TEN-1_bundle_v2.0.1.zip",
             "doc_id": "TEN-1",
-            "expected_sha256": "11db8e130cfe63d4f32cf0dfd61356f27a69232899b872b082f5d9dd2008d8c8",
-            "version": "2.0.0"
+            "expected_sha256": "d115fc5102abc37cf259c9e78dfe28d22f2603374cd8cb9f859c36112ecee476",
+            "version": "2.0.1"
           },
           "mode": "automated",
           "type": "canon_bundle_sha_match"
@@ -2267,10 +2267,10 @@
         {
           "details": {
             "doc_id": "TEN-1",
-            "expected_bytes": 44552,
-            "expected_sha256": "0384ab11eb1efbf345352a5b590fca7b4d4192152049a3a2c50115e2fbd61c77",
-            "path": "TEN-1_bundle_v2.0.0/TEN-1_Contract_v2.0.0.json",
-            "version": "2.0.0"
+            "expected_bytes": 46935,
+            "expected_sha256": "48fbbf7c2324fdf9526b6a958d46338fce453ef28b6001da66309a690dfc2d72",
+            "path": "TEN-1_bundle_v2.0.1/TEN-1_Contract_v2.0.1.json",
+            "version": "2.0.1"
           },
           "mode": "automated",
           "type": "canon_artifact_sha_match"
@@ -2278,10 +2278,10 @@
         {
           "details": {
             "doc_id": "TEN-1",
-            "expected_bytes": 31012,
-            "expected_sha256": "c70479461b54c402c0527f6a037493a610aaab67f8306ddb5f9daa04a0b8bb4e",
-            "path": "TEN-1_bundle_v2.0.0/TEN-1_Test_Gates_v2.0.0.json",
-            "version": "2.0.0"
+            "expected_bytes": 41205,
+            "expected_sha256": "63f23cf27fca20f5dfef93606c438fcc9c6e6af5b5c58edd90602081cbb7790e",
+            "path": "TEN-1_bundle_v2.0.1/TEN-1_Test_Gates_v2.0.1.json",
+            "version": "2.0.1"
           },
           "mode": "automated",
           "type": "canon_artifact_sha_match"
@@ -2290,9 +2290,9 @@
           "details": {
             "doc_id": "TEN-1",
             "expected_bytes": 623,
-            "expected_sha256": "37dc2f419eda6fef40cb594dd931fc2fa717ab587769269b8e88a38cd412a8ab",
-            "path": "TEN-1_bundle_v2.0.0/bundle.manifest.json",
-            "version": "2.0.0"
+            "expected_sha256": "1b726d726a53550a545b1941fa9deb2585384394c410f2e6403b6646ef88dde4",
+            "path": "TEN-1_bundle_v2.0.1/bundle.manifest.json",
+            "version": "2.0.1"
           },
           "mode": "automated",
           "type": "canon_artifact_sha_match"
@@ -2489,10 +2489,10 @@
       "title": "Every current member has one accepted exact-hash pin."
     }
   ],
-  "generated_at_utc": "2026-10-21T04:34:04Z",
+  "generated_at_utc": "2026-10-22T11:30:00Z",
   "schema_version": "test-gates/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",
   "title": "CANON-1 Test Gates",
-  "version": "2.0.16"
+  "version": "2.0.17"
 }
