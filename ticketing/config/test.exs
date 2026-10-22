@@ -1,5 +1,7 @@
 import Config
 config :ash, policies: [show_policy_breakdowns?: true]
+# Ash's resource transformer requires an explicit string length unit.
+config :ash, default_string_length_count: :codepoints
 
 # Configure your database
 #
