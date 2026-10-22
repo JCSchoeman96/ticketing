@@ -47,7 +47,7 @@ v0.1.2 retains the accepted v0.1.1 technical baseline and all settled T0-01 prod
 - persisted authorization/persona derivation uses `User`, `OrgMembership`, and `OrgRoleAssignment` only;
 - the existing runtime/database/testing docs are updated because this increment materially changes those implementation areas.
 
-The Store_Blueprint_Hardening reference pin is also freshness-refreshed from `02cade1bbad64a1c49fc859bfd605c604eba37fa` to current `main` `da0dfa9b022f26872efe1f17277e62769c6c0808`. That reference remains `REFERENCE_ONLY`; its runtime-resource-safety review guidance is evidence for implementation review and creates no Ticketing product semantics or additional acceptance requirement by itself.
+The approved packet refreshed the Store_Blueprint_Hardening reference from `02cade1bbad64a1c49fc859bfd605c604eba37fa` to `da0dfa9b022f26872efe1f17277e62769c6c0808`. Current accepted `main` is now `1d2947fcc506c071c26fdd5e063b35c32c13356e` after merged PR #174. This non-semantic freshness correction imports no Ticketing semantics or acceptance requirements and requires no re-Grill or JIP reapproval.
 
 No lifecycle, tenancy, authorization meaning, persistence invariant, concurrency rule, error, event, outbox, observability or tracer boundary is otherwise changed.
 
@@ -111,7 +111,7 @@ No dependency upgrade is authorized inside T0-01 implementation.
 
 ### References
 
-- Store_Blueprint_Hardening `da0dfa9b022f26872efe1f17277e62769c6c0808` — `REFERENCE_ONLY` for durable outbox/transaction/idempotency and relevant runtime-resource-safety review evidence; Ticketing authority and this JIP control semantics and acceptance.
+- Store_Blueprint_Hardening current accepted `main` SHA `1d2947fcc506c071c26fdd5e063b35c32c13356e`. The applicable PostgreSQL transaction, durable outbox, idempotency, and runtime-resource-safety evidence at prior pin `da0dfa9b022f26872efe1f17277e62769c6c0808` remains `REFERENCE_ONLY`; PR #174's two-document entitlement temporal-read delta is `NOT_APPLICABLE` to T0-01.
 - LiveFrames `bd8bc4daae8b0b3b0ad79c1711a798b5028b7784` — `NOT_APPLICABLE`; no material UI work.
 
 ## 4. Scope

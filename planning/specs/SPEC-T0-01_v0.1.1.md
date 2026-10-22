@@ -700,7 +700,9 @@ Reference repositories provide implementation evidence only; they do not supply 
 
 ### Store_Blueprint_Hardening
 
-Fresh `main` SHA: `da0dfa9b022f26872efe1f17277e62769c6c0808`.
+Fresh `main` SHA: `1d2947fcc506c071c26fdd5e063b35c32c13356e`.
+
+The applicable evidence at prior pin `da0dfa9b022f26872efe1f17277e62769c6c0808` remains classified as shown below.
 
 | Applicable material | Classification | Boundary |
 |---|---|---|
@@ -708,8 +710,9 @@ Fresh `main` SHA: `da0dfa9b022f26872efe1f17277e62769c6c0808`.
 | Durable outbox patterns | `REFERENCE_ONLY` | Review evidence only; Ticketing uses the Event publication identity, payload, and atomicity required by installed authority and the JIP. |
 | Idempotency patterns | `REFERENCE_ONLY` | Checkout/payment/webhook semantics do not define Event publication replay behavior. |
 | Runtime-resource-safety review evidence | `REFERENCE_ONLY` | Review evidence only; it does not change Ticketing credential, infrastructure ownership, or cleanup rules. |
+| PR #174 entitlement temporal-read plan and design docs | `NOT_APPLICABLE` | The delta concerns entitlement temporal evaluation, Cachex, and LiveView projection refresh, outside T0-01. |
 
-No code or product semantics are imported from this repository.
+The delta adds only `docs/superpowers/plans/2026-10-21-entitlements-temporal-read-boundary-implementation-plan.md` and `docs/superpowers/specs/2026-10-21-entitlements-temporal-read-boundary-design.md`. No Ticketing semantics or acceptance requirements are imported. This non-semantic reference update requires no re-Grill or JIP/spec reapproval.
 
 ### LiveFrames
 
