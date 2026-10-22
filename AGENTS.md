@@ -211,6 +211,18 @@ Ticketing local PostgreSQL uses these shared endpoints and roles:
 | DEV | `SHARED_LOCAL` | `127.0.0.1:55432` | `ticketing_dev` | `ticketing_dev` |
 | TEST | `SHARED_LOCAL` | `127.0.0.1:55433` | `ticketing_test` | `ticketing_test` base database |
 
+Do not ask the user for local database passwords or `dev-core`-managed database variables. If `.devcore/project.conf` exists, DevCore manages all local DEV and TEST database credentials.
+
+Before requesting credentials, follow this sequence:
+
+1. Read `.devcore/project.conf`.
+2. Read `.devcore/render-map.tsv`.
+3. Run `devcore-project doctor`.
+4. If local state is missing or stale, run `devcore-project activate`.
+5. Run database-dependent commands through `devcore-project run dev -- <command>` or `devcore-project run test -- <command>`.
+
+Report a bootstrap or service failure only if these steps fail. Never request or print a password value.
+
 DEV and TEST MUST be separate physical PostgreSQL clusters. Tests MUST NOT connect to or mutate DEV. The TEST role may have `CREATEDB` only to create deterministic `MIX_TEST_PARTITION` test databases. Do not broaden its privileges for convenience.
 
 PostgreSQL 18.6 is the approved T0-00 baseline. Ordinary local Ticketing work MUST NOT create a repository-owned `pgdata18` service or volume.
