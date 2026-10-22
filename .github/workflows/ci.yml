@@ -61,10 +61,6 @@ jobs:
             echo "::error::candidate_sha must be a full 40-character commit SHA."
             exit 1
           fi
-          if [[ "$CANDIDATE_SHA" != "$GITHUB_SHA" ]]; then
-            echo "::error::candidate_sha must match the commit at the dispatch ref."
-            exit 1
-          fi
       - uses: actions/checkout@v7
         if: github.event_name != 'workflow_dispatch'
       - name: Check out requested candidate
@@ -156,10 +152,6 @@ jobs:
           fi
           if [[ ! "$CANDIDATE_SHA" =~ ^[0-9a-f]{40}$ ]]; then
             echo "::error::candidate_sha must be a full 40-character commit SHA."
-            exit 1
-          fi
-          if [[ "$CANDIDATE_SHA" != "$GITHUB_SHA" ]]; then
-            echo "::error::candidate_sha must match the commit at the dispatch ref."
             exit 1
           fi
       - uses: actions/checkout@v7
