@@ -2,7 +2,7 @@
   "artifact_kind": "test_gates",
   "contract_ref": {
     "doc_id": "TEN-1",
-    "version": "2.0.0"
+    "version": "2.0.1"
   },
   "doc_id": "TEN-1-GATE",
   "gates": [
@@ -409,6 +409,294 @@
       "id": "TEN-1-GATE-140",
       "level": "P0",
       "must": true
+    },
+    {
+      "id": "TEN-1-GATE-145",
+      "level": "P0",
+      "must": true,
+      "enforced_by": "ci_contract_gate_strict_v2.7.0",
+      "description": "System-internal membership proof is read-only and membership-only in transaction-local constrained-runtime FORCE-RLS candidate scope; ordinary membership-before-tenant resolution remains required.",
+      "assertions": [
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/enabled",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/policy_id",
+            "equals": "org_membership_probe"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/caller_boundary",
+            "equals": "system_internal_only"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/public_clients_allowed",
+            "equals": false
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/requires_authenticated_human",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/authoritative_user_id_required",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/candidate_org_authoritative_before_proof",
+            "equals": false
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/preproof_candidate_scope_allowed",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/transaction_local_required",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/same_backend_transaction_required",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/constrained_runtime_role_required",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/force_rls_required",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/superuser_forbidden",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/bypassrls_forbidden",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/table_owner_execution_forbidden",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/allowed_resource",
+            "equals": "IAM-1.OrgMembership"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/allowed_operation",
+            "equals": "read_membership_proof"
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/read_only",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/active_membership_required",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/role_lookup_before_proof_allowed",
+            "equals": false
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/other_tenant_resource_access_before_proof_allowed",
+            "equals": false
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/writes_allowed",
+            "equals": false
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/event_capability_authorization_allowed",
+            "equals": false
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/persona_promotion_on_failure_allowed",
+            "equals": false
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/session_promotion_on_failure_allowed",
+            "equals": false
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/persist_candidate_org_on_failure_allowed",
+            "equals": false
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/hide_existence_on_failure_required",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/org_membership_id_is_proof_output",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/system_internal_membership_probe/role_resolution_after_success_allowed",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/membership_validation/required",
+            "equals": true
+          }
+        },
+        {
+          "type": "json_pointer_equals",
+          "mode": "automated",
+          "details": {
+            "artifact_kind": "contract",
+            "json_pointer": "/tenancy/tenant_resolution/membership_validation/enforced_before_setting_tenant",
+            "equals": true
+          }
+        }
+      ]
     },
     {
       "assertions": [
@@ -929,14 +1217,14 @@
       "must": true
     }
   ],
-  "generated_at_utc": "2026-10-18T09:26:57Z",
-  "last_updated_utc": "2026-01-30T10:11:10Z",
+  "generated_at_utc": "2026-10-22T11:30:00Z",
+  "last_updated_utc": "2026-10-22T11:30:00Z",
   "schema_version": "test-gates/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",
   "title": "TEN-1 Test Gates (Self-Validation) (v1.7.7)",
-  "updated_at_utc": "2026-01-30T10:11:10Z",
-  "version": "2.0.0",
+  "updated_at_utc": "2026-10-22T11:30:00Z",
+  "version": "2.0.1",
   "authority_review_gates": [
     {
       "id": "TEN-1-FPP-CORRECTION-REVIEW",

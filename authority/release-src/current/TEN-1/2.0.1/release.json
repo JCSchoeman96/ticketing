@@ -1,0 +1,14 @@
+{
+  "doc_id": "TEN-1",
+  "version": "2.0.1",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-22T11:30:00Z",
+  "release_status": "candidate",
+  "release_intent": "TICK-35 semantic successor defining the bounded system-internal membership probe while preserving ordinary membership-before-tenant authority.",
+  "source_provenance": {
+    "kind": "installed-canonical-successor",
+    "path": "provenance.json",
+    "source_version": "2.0.0",
+    "source_zip_sha256": "11db8e130cfe63d4f32cf0dfd61356f27a69232899b872b082f5d9dd2008d8c8"
+  }
+}

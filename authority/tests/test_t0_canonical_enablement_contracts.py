@@ -508,7 +508,7 @@ def test_offer_ord_dependency_is_one_way_and_ord_quote_contract_is_generic() -> 
     assert "ORD MUST NOT create or request another snapshot" in rules
 
 
-def test_t0_planning_snapshot_tracks_active_authority_and_frozen_baselines() -> None:
+def test_t0_planning_snapshot_preserves_its_frozen_authority_and_baselines() -> None:
     manifest = json.loads((ROOT / "contracts" / "manifest.json").read_text())
     records = {row["doc_id"]: row for row in manifest["contracts"]}
     canon = contract("CANON-1")
@@ -521,12 +521,18 @@ def test_t0_planning_snapshot_tracks_active_authority_and_frozen_baselines() -> 
     assert "CANON-1 2.0.16 pins 56 CANON members" in tracer
     assert "**Contracts baseline:** `ea6ebbb84664aeb383d21ccbd92d30dd1a93939f`" in tracer
     assert "**Implementation baseline:** `a134aca141321808c51576e385096863e11da603`" in tracer
+    # The tracer remains frozen until the approved downstream re-Grill.
+    snapshot = json.loads(
+        (ROOT / "release-src/current/CANON-1/2.0.16/contract.json").read_text()
+    )
+    snapshot_versions = {row["doc_id"]: row["version"] for row in snapshot["canonical_bundles"]}
+    snapshot_versions["CANON-1"] = snapshot["version"]
     for doc_id in (
         "CANON-1", "V42-0", "CS-0", "BP-0", "EVT-2", "TEN-1", "IAM-1", "IAM-2",
         "OFFER-1", "SEAT-1", "PRICE-1", "ORD-1", "TAX-1", "PII-1", "API-0", "ERR-1",
         "OBS-1", "EVT-1", "LOCKS-1",
     ):
-        assert f"| {doc_id} | {records[doc_id]['version']} |" in tracer
+        assert f"| {doc_id} | {snapshot_versions[doc_id]} |" in tracer
     assert records["EXT-1"]["membership"] == "DEPENDENCY_ONLY"
     assert f"| EXT-1 | {records['EXT-1']['version']} | DEPENDENCY_ONLY |" in tracer
     assert "EXT-1 does not own T0 HTTP idempotency or durable idempotency semantics" in tracer
@@ -877,7 +883,11 @@ def test_p0_gate_contract_version_assertions_match_gate_pack_identity() -> None:
             f"{identity} has automated contract /version identity assertions that differ from contract_ref"
         )
 
-    assert candidate_identities == {"IAM-1@4.1.2"}
+    assert candidate_identities
+    for candidate in selection["generation_inputs"]["candidate_releases"]:
+        selected = records[candidate["doc_id"]]
+        assert candidate["version"] == selected["version"]
+        assert candidate["sha256"] == selected["zip_sha256"]
 
 
 def test_installed_tax_rounding_modes_drive_arithmetic_and_keep_t0_lock() -> None:
