@@ -2,10 +2,10 @@
 
 - **Roadmap status:** NEXT
 - **Contracts baseline:** `ea6ebbb84664aeb383d21ccbd92d30dd1a93939f`
-- **Implementation baseline:** `a134aca141321808c51576e385096863e11da603`
+- **Implementation baseline:** `9bbec7e5c926f8036ef32e261fbeb8ae9377e0ac`
 - **Implementation repository:** `JCSchoeman96/ticketing`
 - **Phoenix application directory:** `ticketing/`
-- **Authority snapshot:** CANON-1 2.0.16, read from the active manifest and verified against installed CANON pins
+- **Authority snapshot:** CANON-1 2.0.18, read from the active manifest and verified against installed CANON pins
 
 ## Scope
 
@@ -17,17 +17,17 @@ B0 is COMPLETE. The implementation repository is `JCSchoeman96/ticketing`; its P
 
 ## Current authority snapshot
 
-Versions come from `contracts/manifest.json`. CANON-1 2.0.16 pins 56 CANON members. EXT-1 is a dependency-only record, not a CANON member.
+Versions come from `contracts/manifest.json`. CANON-1 2.0.18 pins 56 CANON members. EXT-1 is an accepted dependency-only record, not a CANON member.
 
 | Authority | Version | Membership | T0 use |
 |---|---:|---|---|
-| CANON-1 | 2.0.16 | CANON_INDEX | Current suite membership and pins |
+| CANON-1 | 2.0.18 | CANON_INDEX | Current suite membership and pins |
 | V42-0 | 1.8.2 | CANON_MEMBER | Constitutional contract baseline |
 | CS-0 | 3.0.1 | CANON_MEMBER | Contract and test-gate structure |
 | BP-0 | 3.0.1 | CANON_MEMBER | Bundle posture |
 | EVT-2 | 3.0.0 | CANON_MEMBER | Event and occurrence identity, status, and sale times |
-| TEN-1 | 2.0.0 | CANON_MEMBER | Explicit tenant context and hide-existence boundaries |
-| IAM-1 | 4.1.2 | CANON_MEMBER | Authenticated actor and organizer authority |
+| TEN-1 | 2.0.1 | CANON_MEMBER | Membership proof before tenant context and hide-existence boundaries |
+| IAM-1 | 4.1.3 | CANON_MEMBER | Trusted active Session and explicit organizer persona |
 | IAM-2 | 1.5.0 | CANON_MEMBER | Authorization policy posture where applicable |
 | OFFER-1 | 2.0.0 | CANON_MEMBER | Offer, Product, ProductRevision, quote, and line claims |
 | SEAT-1 | 4.1.0 | CANON_MEMBER | GA bucket inventory, holds, live proof validation, and replay proof possession |
@@ -46,7 +46,12 @@ EXT-1 does not own T0 HTTP idempotency or durable idempotency semantics.
 
 ## End-to-end sequence
 
-1. An authenticated organizer supplies explicit `org_id` and authenticated actor context. The application carries `request_id` and `trace_id` where the owning action requires them.
+1. Resolve the organizer context before tenant-scoped Session or role reads:
+   - Trusted authentication/session infrastructure authenticates the underlying session credential, then supplies authoritative `user_id` and authoritative `session_id`. The caller supplies candidate `org_id`, requested `active_scope = org`, and requested `active_role`; these selectors grant no tenant or role authority by themselves.
+   - First, TEN-1 `org_membership_probe` uses its system-internal, transaction-local candidate-org scope to read only the matching `OrgMembership`. Require active, non-revoked membership for the authoritative user and retain its persisted `org_membership_id`. Failed proof discards candidate scope, does not establish tenant context, and preserves hide-existence behavior as external `ERR_NOT_FOUND`.
+   - Only after proof, apply IAM-1 `t0_trusted_active_session` under the proven organization tenant. Require an active `User`; load the persisted Session by authoritative `session_id`; and require `Session.id = session_id`, `Session.user_id = user_id`, `Session.org_id = proven org_id`, `status = active`, `revoked_at_utc = null`, and `expires_at_utc > evaluated_at_utc` using authoritative database UTC time.
+   - Require an active, non-revoked same-org `OrgRoleAssignment` for the authoritative user and requested role. Build the active organization persona from authoritative `user_id`, validated `session_id`, proven `org_id`, persisted `org_membership_id`, `active_scope = org`, and verified `active_role`. Evaluate T0 organizer capabilities against that persona only. After membership proof, invalid or mismatched Session state returns uniform `ERR_UNAUTHENTICATED`; a missing, inactive, revoked, or incapable requested role returns `ERR_FORBIDDEN`.
+   - The application carries `request_id` and `trace_id` where the owning action requires them.
 2. The organizer calls `EVT-2.create_event` for a tenant-owned Event.
 3. The organizer calls `EVT-2.create_occurrence` for a real Occurrence in that Event.
 4. The organizer calls `EVT-2.publish_event`, then `EVT-2.open_occurrence_sales` when the parent Event is published and database UTC is inside the configured sale window.
@@ -65,6 +70,10 @@ EXT-1 does not own T0 HTTP idempotency or durable idempotency semantics.
 17. The result is a persisted tenant-scoped `draft` Order for ORD-1 with immutable price and line snapshots, authoritative hold IDs, and bounded expiry.
 18. The buyer retrieves the Order through same-tenant retrieval using explicit `org_id` and authorized actor context.
 19. A completed-identical replay follows the separate proof-possession path below before ORD releases the stored original outcome.
+
+### T0 Session boundary
+
+T0 is a read-only consumer of an already-issued canonical Session. It does not issue a Session or implement `sign_in_with_org` issuance, receive a raw session credential or token, derive or verify `token_hash`, refresh Session expiry, rebind Session user or organization, revoke a Session, write `last_seen_at_utc`, or emit `ticketing.iam.session.created.v1` or `ticketing.iam.session.revoked.v1`.
 
 ## Buyer quote authorization and T0 eligibility
 

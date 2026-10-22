@@ -508,7 +508,7 @@ def test_offer_ord_dependency_is_one_way_and_ord_quote_contract_is_generic() -> 
     assert "ORD MUST NOT create or request another snapshot" in rules
 
 
-def test_t0_planning_snapshot_preserves_its_frozen_authority_and_baselines() -> None:
+def test_t0_planning_snapshot_matches_current_installed_authority() -> None:
     manifest = json.loads((ROOT / "contracts" / "manifest.json").read_text())
     records = {row["doc_id"]: row for row in manifest["contracts"]}
     canon = contract("CANON-1")
@@ -517,16 +517,12 @@ def test_t0_planning_snapshot_preserves_its_frozen_authority_and_baselines() -> 
 
     assert canon["version"] == records["CANON-1"]["version"]
     assert len(canon["canonical_bundles"]) == 56
-    assert "**Authority snapshot:** CANON-1 2.0.16" in tracer
-    assert "CANON-1 2.0.16 pins 56 CANON members" in tracer
+    assert f"**Authority snapshot:** CANON-1 {canon['version']}" in tracer
+    assert f"CANON-1 {canon['version']} pins {len(canon['canonical_bundles'])} CANON members" in tracer
     assert "**Contracts baseline:** `ea6ebbb84664aeb383d21ccbd92d30dd1a93939f`" in tracer
-    assert "**Implementation baseline:** `a134aca141321808c51576e385096863e11da603`" in tracer
-    # The tracer remains frozen until the approved downstream re-Grill.
-    snapshot = json.loads(
-        (ROOT / "release-src/current/CANON-1/2.0.16/contract.json").read_text()
-    )
-    snapshot_versions = {row["doc_id"]: row["version"] for row in snapshot["canonical_bundles"]}
-    snapshot_versions["CANON-1"] = snapshot["version"]
+    assert "**Implementation baseline:** `9bbec7e5c926f8036ef32e261fbeb8ae9377e0ac`" in tracer
+    snapshot_versions = {row["doc_id"]: row["version"] for row in canon["canonical_bundles"]}
+    snapshot_versions["CANON-1"] = canon["version"]
     for doc_id in (
         "CANON-1", "V42-0", "CS-0", "BP-0", "EVT-2", "TEN-1", "IAM-1", "IAM-2",
         "OFFER-1", "SEAT-1", "PRICE-1", "ORD-1", "TAX-1", "PII-1", "API-0", "ERR-1",
@@ -768,7 +764,17 @@ def test_t0_tracer_end_to_end_sequence_and_boundary_match_installed_authority() 
     sequence = tracer[sequence_start:sequence_end if sequence_end >= 0 else len(tracer)]
 
     required_sequence = (
-        "authenticated organizer", "explicit `org_id`", "EVT-2.create_event", "EVT-2.create_occurrence",
+        "Trusted authentication/session infrastructure", "underlying session credential",
+        "authoritative `user_id`", "authoritative `session_id`", "candidate `org_id`",
+        "requested `active_scope = org`", "requested `active_role`", "TEN-1 `org_membership_probe`",
+        "system-internal, transaction-local candidate-org scope", "read only the matching `OrgMembership`",
+        "active, non-revoked membership", "persisted `org_membership_id`", "external `ERR_NOT_FOUND`",
+        "IAM-1 `t0_trusted_active_session`", "active `User`", "persisted Session",
+        "Session.id = session_id", "Session.user_id = user_id", "Session.org_id = proven org_id",
+        "revoked_at_utc = null", "expires_at_utc > evaluated_at_utc", "active, non-revoked same-org",
+        "Build the active organization persona", "persisted `org_membership_id`, `active_scope = org`, and verified `active_role`",
+        "ERR_UNAUTHENTICATED", "ERR_FORBIDDEN",
+        "EVT-2.create_event", "EVT-2.create_occurrence",
         "EVT-2.publish_event", "open_occurrence_sales", "PricingProgramRevision",
         "OFFER-1.create_offer", "OFFER-1.create_product_revision", "pricing_program_revision_id",
         "T0-compatible pinned TaxProfile", "SEAT-1.create_inventory_bucket", "buyer sellability",
@@ -792,6 +798,11 @@ def test_t0_tracer_end_to_end_sequence_and_boundary_match_installed_authority() 
     assert "provider payment confirmation" in tracer
     assert "ticket issuance" in tracer
     assert "ledger work" in tracer
+    assert "read-only consumer of an already-issued canonical Session" in tracer
+    assert "does not issue a Session or implement `sign_in_with_org` issuance" in tracer
+    assert "derive or verify `token_hash`" in tracer
+    assert "ticketing.iam.session.created.v1" in tracer
+    assert "ticketing.iam.session.revoked.v1" in tracer
     tenant_rules = {row["rule_id"]: row["text"] for row in ten["rules"]}
     assert "hide existence" in tenant_rules["TEN-1-HIDE-001"]
     assert "MUST NOT include the optional 'subcode'" in tenant_rules["TEN-1-BOUNDARY-OMIT-SUBCODE"]
