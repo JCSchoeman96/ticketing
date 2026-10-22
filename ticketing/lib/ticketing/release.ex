@@ -5,26 +5,41 @@ defmodule Ticketing.Release do
   """
   @app :ticketing
 
+  alias Ticketing.Platform.DatabasePrivileges
+
   def migrate do
     load_app()
+    migration_repo = migration_repo!()
 
-    for repo <- repos() do
-      {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
-    end
+    {:ok, :ok, _} =
+      Ecto.Migrator.with_repo(migration_repo, fn repo ->
+        Ecto.Migrator.run(repo, :up, all: true)
+        DatabasePrivileges.apply!(repo)
+      end)
   end
 
-  def rollback(repo, version) do
+  def rollback(_repo, version) do
     load_app()
-    {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
-  end
+    migration_repo = migration_repo!()
 
-  defp repos do
-    Application.fetch_env!(@app, :ecto_repos)
+    {:ok, _, _} =
+      Ecto.Migrator.with_repo(migration_repo, fn repo ->
+        Ecto.Migrator.run(repo, :down, to: version)
+        DatabasePrivileges.apply!(repo)
+      end)
   end
 
   defp load_app do
     # Many platforms require SSL when connecting to the database
     Application.ensure_all_started(:ssl)
     Application.ensure_loaded(@app)
+  end
+
+  defp migration_repo! do
+    if Application.get_env(@app, Ticketing.MigrationRepo) do
+      Ticketing.MigrationRepo
+    else
+      raise "Ticketing.MigrationRepo is not configured. Set MIGRATION_DATABASE_URL for release migrations."
+    end
   end
 end

@@ -34,6 +34,32 @@ if config_env() == :prod do
       For example: ecto://USER:PASS@HOST/DATABASE
       """
 
+  migration_database_url = System.get_env("MIGRATION_DATABASE_URL")
+
+  if migration_database_url do
+    runtime_userinfo = URI.parse(database_url).userinfo
+    migration_userinfo = URI.parse(migration_database_url).userinfo
+
+    if is_nil(runtime_userinfo) or is_nil(migration_userinfo) do
+      raise ArgumentError,
+            "DATABASE_URL and MIGRATION_DATABASE_URL must include distinct PostgreSQL role credentials"
+    end
+
+    runtime_username = runtime_userinfo |> String.split(":", parts: 2) |> hd() |> URI.decode()
+    migration_username = migration_userinfo |> String.split(":", parts: 2) |> hd() |> URI.decode()
+
+    if runtime_username == migration_username do
+      raise ArgumentError,
+            "DATABASE_URL and MIGRATION_DATABASE_URL must use different PostgreSQL roles"
+    end
+
+    config :ticketing, Ticketing.MigrationRepo,
+      url: migration_database_url,
+      priv: "priv/repo",
+      pool_size: 2,
+      show_sensitive_data_on_connection_error: false
+  end
+
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
   config :ticketing, Ticketing.Repo,

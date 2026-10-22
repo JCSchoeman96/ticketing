@@ -7,16 +7,37 @@ dev_db_port = String.to_integer(System.get_env("TICKETING_DEV_DB_PORT", "55432")
 dev_db_user = System.get_env("TICKETING_DEV_DB_USER", "ticketing_dev")
 dev_db_password = System.fetch_env!("TICKETING_DEV_DB_PASSWORD")
 dev_db_name = System.get_env("TICKETING_DEV_DB_NAME", "ticketing_dev")
+dev_runtime_db_user = System.get_env("TICKETING_DEV_RUNTIME_DB_USER", "ticketing_dev_runtime")
+dev_runtime_db_password = System.fetch_env!("TICKETING_DEV_RUNTIME_DB_PASSWORD")
+dev_migration_db_user = System.get_env("TICKETING_DEV_MIGRATION_DB_USER", dev_db_user)
+
+dev_migration_db_password =
+  System.get_env("TICKETING_DEV_MIGRATION_DB_PASSWORD", dev_db_password)
+
+if dev_runtime_db_user == dev_migration_db_user do
+  raise ArgumentError,
+        "TICKETING_DEV_RUNTIME_DB_USER and TICKETING_DEV_MIGRATION_DB_USER must be different"
+end
 
 config :ticketing, Ticketing.Repo,
   hostname: dev_db_host,
   port: dev_db_port,
-  username: dev_db_user,
-  password: dev_db_password,
+  username: dev_runtime_db_user,
+  password: dev_runtime_db_password,
   database: dev_db_name,
   stacktrace: true,
   show_sensitive_data_on_connection_error: false,
   pool_size: 10
+
+config :ticketing, Ticketing.MigrationRepo,
+  hostname: dev_db_host,
+  port: dev_db_port,
+  username: dev_migration_db_user,
+  password: dev_migration_db_password,
+  database: dev_db_name,
+  priv: "priv/repo",
+  show_sensitive_data_on_connection_error: false,
+  pool_size: 2
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

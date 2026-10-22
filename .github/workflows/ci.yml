@@ -29,11 +29,17 @@ jobs:
       TICKETING_DEV_DB_USER: ticketing_ci
       TICKETING_DEV_DB_PASSWORD: ticketing_ci
       TICKETING_DEV_DB_NAME: ticketing_dev
+      TICKETING_DEV_MIGRATION_DB_USER: ticketing_ci
+      TICKETING_DEV_MIGRATION_DB_PASSWORD: ticketing_ci
+      TICKETING_DEV_RUNTIME_DB_USER: ticketing_dev_runtime
       TICKETING_TEST_DB_HOST: 127.0.0.1
       TICKETING_TEST_DB_PORT: 5432
       TICKETING_TEST_DB_USER: ticketing_ci
       TICKETING_TEST_DB_PASSWORD: ticketing_ci
       TICKETING_TEST_DB_NAME: ticketing_test
+      TICKETING_TEST_MIGRATION_DB_USER: ticketing_ci
+      TICKETING_TEST_MIGRATION_DB_PASSWORD: ticketing_ci
+      TICKETING_TEST_RUNTIME_DB_USER: ticketing_test_runtime
     steps:
       - uses: actions/checkout@v7
       - name: Set up Python
@@ -46,6 +52,31 @@ jobs:
         with:
           version-file: ".tool-versions"
           version-type: "strict"
+      - name: Create constrained runtime roles
+        shell: bash
+        run: |
+          dev_runtime_password="$(openssl rand -hex 32)"
+          test_runtime_password="$(openssl rand -hex 32)"
+          echo "::add-mask::$dev_runtime_password"
+          echo "::add-mask::$test_runtime_password"
+          {
+            echo "TICKETING_DEV_RUNTIME_DB_PASSWORD=$dev_runtime_password"
+            echo "TICKETING_TEST_RUNTIME_DB_PASSWORD=$test_runtime_password"
+          } >> "$GITHUB_ENV"
+
+          TICKETING_DEV_RUNTIME_DB_PASSWORD="$dev_runtime_password" \
+          TICKETING_TEST_RUNTIME_DB_PASSWORD="$test_runtime_password" \
+          PGPASSWORD="$TICKETING_DEV_MIGRATION_DB_PASSWORD" \
+            psql -h "$TICKETING_DEV_DB_HOST" -p "$TICKETING_DEV_DB_PORT" \
+              -U "$TICKETING_DEV_MIGRATION_DB_USER" -d "$TICKETING_DEV_DB_NAME" \
+              -v ON_ERROR_STOP=1 <<'SQL'
+          \getenv dev_runtime_password TICKETING_DEV_RUNTIME_DB_PASSWORD
+          \getenv test_runtime_password TICKETING_TEST_RUNTIME_DB_PASSWORD
+          CREATE ROLE ticketing_dev_runtime LOGIN PASSWORD :'dev_runtime_password'
+            NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;
+          CREATE ROLE ticketing_test_runtime LOGIN PASSWORD :'test_runtime_password'
+            NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;
+          SQL
       - name: Install and set up the application
         working-directory: ticketing
         run: mix setup
@@ -67,6 +98,10 @@ jobs:
       TICKETING_TEST_DB_USER: ticketing_typecheck
       TICKETING_TEST_DB_PASSWORD: ticketing_typecheck
       TICKETING_TEST_DB_NAME: ticketing_test
+      TICKETING_TEST_MIGRATION_DB_USER: ticketing_typecheck
+      TICKETING_TEST_MIGRATION_DB_PASSWORD: ticketing_typecheck
+      TICKETING_TEST_RUNTIME_DB_USER: ticketing_test_runtime
+      TICKETING_TEST_RUNTIME_DB_PASSWORD: ticketing_typecheck_runtime
     steps:
       - uses: actions/checkout@v7
       - uses: erlef/setup-beam@v1
