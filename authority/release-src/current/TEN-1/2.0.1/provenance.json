@@ -1,0 +1,40 @@
+{
+  "bootstrap_commit": "9c3b5cf9622224412e20a5c997beb1925d1a2863",
+  "candidate_preparation_base_commit": "9c3b5cf9622224412e20a5c997beb1925d1a2863",
+  "provenance_statement": "TEN-1@2.0.1 is a semantic successor of the installed accepted TEN-1@2.0.0 release. TICK-35 adds the narrowly bounded system-internal org_membership_probe and paired Gate 145 while preserving Gate 140, ordinary membership-before-tenant resolution, tenant-scoped OrgMembership, and hide-existence behavior.",
+  "source_bundle_path": "contracts/TEN-1/TEN-1_bundle_v2.0.0.zip",
+  "source_zip_sha256": "11db8e130cfe63d4f32cf0dfd61356f27a69232899b872b082f5d9dd2008d8c8",
+  "source_zip_bytes": 76705,
+  "source_version": "2.0.0",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "TEN-1_bundle_v2.0.1/TEN-1_Contract_v2.0.1.json",
+      "sha256": "48fbbf7c2324fdf9526b6a958d46338fce453ef28b6001da66309a690dfc2d72",
+      "bytes": 46935
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "TEN-1_bundle_v2.0.1/TEN-1_Test_Gates_v2.0.1.json",
+      "sha256": "63f23cf27fca20f5dfef93606c438fcc9c6e6af5b5c58edd90602081cbb7790e",
+      "bytes": 41205
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "TEN-1_bundle_v2.0.0/TEN-1_Contract_v2.0.0.json",
+      "sha256": "0384ab11eb1efbf345352a5b590fca7b4d4192152049a3a2c50115e2fbd61c77",
+      "bytes": 44552
+    },
+    {
+      "source_member_path": "TEN-1_bundle_v2.0.0/TEN-1_Test_Gates_v2.0.0.json",
+      "sha256": "c70479461b54c402c0527f6a037493a610aaab67f8306ddb5f9daa04a0b8bb4e",
+      "bytes": 31012
+    },
+    {
+      "source_member_path": "TEN-1_bundle_v2.0.0/bundle.manifest.json",
+      "sha256": "37dc2f419eda6fef40cb594dd931fc2fa717ab587769269b8e88a38cd412a8ab",
+      "bytes": 623
+    }
+  ]
+}
