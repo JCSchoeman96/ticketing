@@ -7,6 +7,10 @@ defmodule Ticketing.RepoConfigTest do
     TICKETING_DEV_DB_USER
     TICKETING_DEV_DB_PASSWORD
     TICKETING_DEV_DB_NAME
+    TICKETING_DEV_RUNTIME_DB_USER
+    TICKETING_DEV_RUNTIME_DB_PASSWORD
+    TICKETING_DEV_MIGRATION_DB_USER
+    TICKETING_DEV_MIGRATION_DB_PASSWORD
     DATABASE_URL
   )
 
@@ -16,11 +20,17 @@ defmodule Ticketing.RepoConfigTest do
     TICKETING_TEST_DB_USER
     TICKETING_TEST_DB_PASSWORD
     TICKETING_TEST_DB_NAME
+    TICKETING_TEST_RUNTIME_DB_USER
+    TICKETING_TEST_RUNTIME_DB_PASSWORD
+    TICKETING_TEST_MIGRATION_DB_USER
+    TICKETING_TEST_MIGRATION_DB_PASSWORD
     DATABASE_URL_TEST
     MIX_TEST_PARTITION
   )
 
-  test "development Repo defaults to the documented DEV allocation" do
+  @prod_env_vars ~w(DATABASE_URL MIGRATION_DATABASE_URL SECRET_KEY_BASE)
+
+  test "development Repo defaults to the documented DEV runtime allocation" do
     environment =
       empty_env(@dev_env_vars, "dev")
       |> Map.put("DATABASE_URL", "postgresql://ignored.invalid/ignored")
@@ -29,17 +39,92 @@ defmodule Ticketing.RepoConfigTest do
 
     assert repo_config[:hostname] == "127.0.0.1"
     assert repo_config[:port] == 55_432
-    assert repo_config[:username] == "ticketing_dev"
+    assert repo_config[:username] == "ticketing_dev_runtime"
     assert repo_config[:database] == "ticketing_dev"
-    assert is_binary(repo_config[:password])
+    assert repo_config[:password] == "runtime-test-password"
     refute repo_config[:show_sensitive_data_on_connection_error]
     refute Keyword.has_key?(repo_config, :url)
+  end
+
+  test "development migration Repo stays owner-scoped with separate credentials" do
+    environment =
+      empty_env(@dev_env_vars, "dev")
+      |> Map.put("TICKETING_DEV_MIGRATION_DB_USER", "ticketing_dev")
+      |> Map.put("TICKETING_DEV_MIGRATION_DB_PASSWORD", "migration-test-password")
+
+    configs = read_repo_configs("dev.exs", :dev, environment)
+
+    assert configs.runtime[:username] == "ticketing_dev_runtime"
+    assert configs.runtime[:password] == "runtime-test-password"
+    assert configs.migration[:username] == "ticketing_dev"
+    assert configs.migration[:password] == "migration-test-password"
+    refute configs.runtime[:password] == configs.migration[:password]
+  end
+
+  test "local Repo config rejects the same owner and runtime role" do
+    for {file, config_env, environment, prefix, owner_user} <- [
+          {"dev.exs", :dev, empty_env(@dev_env_vars, "dev"), "DEV", "ticketing_dev"},
+          {"test.exs", :test, empty_env(@test_env_vars, "test"), "TEST", "ticketing_test"}
+        ] do
+      environment =
+        environment
+        |> Map.put("TICKETING_#{prefix}_RUNTIME_DB_USER", owner_user)
+        |> Map.put("TICKETING_#{prefix}_MIGRATION_DB_USER", owner_user)
+
+      assert_raise ArgumentError, ~r/must be different/, fn ->
+        read_repo_config(file, config_env, environment)
+      end
+    end
+  end
+
+  test "production runtime and migration Repos have separate database URLs" do
+    environment =
+      Map.new(@prod_env_vars, &{&1, nil})
+      |> Map.put("DATABASE_URL", "ecto://ticketing_runtime:runtime-test@localhost/ticketing_prod")
+      |> Map.put(
+        "MIGRATION_DATABASE_URL",
+        "ecto://ticketing_owner:migration-test@localhost/ticketing_prod"
+      )
+      |> Map.put("SECRET_KEY_BASE", String.duplicate("s", 64))
+
+    configs = read_runtime_repo_configs(environment)
+
+    assert configs.runtime[:url] == environment["DATABASE_URL"]
+    assert configs.migration[:url] == environment["MIGRATION_DATABASE_URL"]
+    refute configs.runtime[:url] == configs.migration[:url]
+  end
+
+  test "production runtime config does not require migration credentials" do
+    environment =
+      Map.new(@prod_env_vars, &{&1, nil})
+      |> Map.put("DATABASE_URL", "ecto://ticketing_runtime:runtime-test@localhost/ticketing_prod")
+      |> Map.put("SECRET_KEY_BASE", String.duplicate("s", 64))
+
+    configs = read_runtime_repo_configs(environment)
+
+    assert configs.runtime[:url] == environment["DATABASE_URL"]
+    assert configs.migration == nil
+  end
+
+  test "production rejects migration URLs that use the runtime role" do
+    environment =
+      Map.new(@prod_env_vars, &{&1, nil})
+      |> Map.put("DATABASE_URL", "ecto://ticketing_runtime:runtime-test@localhost/ticketing_prod")
+      |> Map.put(
+        "MIGRATION_DATABASE_URL",
+        "ecto://ticketing_runtime:migration-test@localhost/ticketing_prod"
+      )
+      |> Map.put("SECRET_KEY_BASE", String.duplicate("s", 64))
+
+    assert_raise ArgumentError, ~r/must use different PostgreSQL roles/, fn ->
+      read_runtime_repo_configs(environment)
+    end
   end
 
   test "development Repo requires its local password variable" do
     environment =
       empty_env(@dev_env_vars, "dev")
-      |> Map.put("TICKETING_DEV_DB_PASSWORD", nil)
+      |> Map.put("TICKETING_DEV_RUNTIME_DB_PASSWORD", nil)
 
     assert_raise System.EnvError, fn ->
       read_repo_config("dev.exs", :dev, environment)
@@ -57,7 +142,28 @@ defmodule Ticketing.RepoConfigTest do
         read_repo_config("test.exs", :test, empty_env(@test_env_vars, "test", partition))
 
       assert repo_config[:database] == database
+      assert repo_config[:username] == "ticketing_test_runtime"
       refute Keyword.has_key?(repo_config, :url)
+    end
+  end
+
+  test "TEST migration Repo uses owner credentials and the same partition database" do
+    for {partition, database} <- [{"", "ticketing_test"}, {"17", "ticketing_test17"}] do
+      environment =
+        empty_env(@test_env_vars, "test", partition)
+        |> Map.put("TICKETING_TEST_MIGRATION_DB_USER", "ticketing_test")
+        |> Map.put("TICKETING_TEST_MIGRATION_DB_PASSWORD", "migration-test-password")
+
+      configs =
+        read_repo_configs("test.exs", :test, environment)
+
+      assert configs.runtime[:database] == database
+      assert configs.migration[:database] == database
+      assert configs.runtime[:username] == "ticketing_test_runtime"
+      assert configs.migration[:username] == "ticketing_test"
+      assert configs.runtime[:password] == "runtime-test-password"
+      assert configs.migration[:password] == "migration-test-password"
+      refute configs.runtime[:password] == configs.migration[:password]
     end
   end
 
@@ -77,7 +183,7 @@ defmodule Ticketing.RepoConfigTest do
 
     assert repo_config[:hostname] == "127.0.0.1"
     assert repo_config[:port] == 55_433
-    assert repo_config[:username] == "ticketing_test"
+    assert repo_config[:username] == "ticketing_test_runtime"
     assert repo_config[:database] == "ticketing_test"
     refute Keyword.has_key?(repo_config, :url)
   end
@@ -93,7 +199,7 @@ defmodule Ticketing.RepoConfigTest do
   test "TEST Repo requires its local password variable" do
     environment =
       empty_env(@test_env_vars, "test")
-      |> Map.put("TICKETING_TEST_DB_PASSWORD", nil)
+      |> Map.put("TICKETING_TEST_RUNTIME_DB_PASSWORD", nil)
 
     assert_raise System.EnvError, fn ->
       read_repo_config("test.exs", :test, environment)
@@ -125,7 +231,8 @@ defmodule Ticketing.RepoConfigTest do
   defp empty_env(vars, profile, partition \\ nil, port \\ nil, database \\ nil) do
     vars
     |> Map.new(&{&1, nil})
-    |> Map.put("TICKETING_#{String.upcase(profile)}_DB_PASSWORD", "not-a-real-password")
+    |> Map.put("TICKETING_#{String.upcase(profile)}_DB_PASSWORD", "owner-test-password")
+    |> Map.put("TICKETING_#{String.upcase(profile)}_RUNTIME_DB_PASSWORD", "runtime-test-password")
     |> maybe_put("MIX_TEST_PARTITION", partition)
     |> maybe_put("TICKETING_#{String.upcase(profile)}_DB_PORT", port)
     |> maybe_put("TICKETING_#{String.upcase(profile)}_DB_NAME", database)
@@ -135,12 +242,32 @@ defmodule Ticketing.RepoConfigTest do
   defp maybe_put(environment, key, value), do: Map.put(environment, key, value)
 
   defp read_repo_config(file, config_env, environment) do
+    read_repo_configs(file, config_env, environment).runtime
+  end
+
+  defp read_repo_configs(file, config_env, environment) do
     config_path = Path.expand("../../config/#{file}", __DIR__)
 
     with_system_env(environment, fn ->
-      config_path
-      |> Config.Reader.read!(env: config_env)
-      |> get_in([:ticketing, Ticketing.Repo])
+      config = Config.Reader.read!(config_path, env: config_env)
+
+      %{
+        runtime: get_in(config, [:ticketing, Ticketing.Repo]),
+        migration: get_in(config, [:ticketing, Ticketing.MigrationRepo])
+      }
+    end)
+  end
+
+  defp read_runtime_repo_configs(environment) do
+    config_path = Path.expand("../../config/runtime.exs", __DIR__)
+
+    with_system_env(environment, fn ->
+      config = Config.Reader.read!(config_path, env: :prod)
+
+      %{
+        runtime: get_in(config, [:ticketing, Ticketing.Repo]),
+        migration: get_in(config, [:ticketing, Ticketing.MigrationRepo])
+      }
     end)
   end
 
@@ -191,7 +318,7 @@ defmodule Ticketing.RepoSmokeTest do
              )
   end
 
-  test "Repo uses the TEST components and reaches the expected PostgreSQL 18 database" do
+  test "runtime Repo uses the TEST allocation and reaches PostgreSQL 18" do
     repo_config = Application.fetch_env!(:ticketing, Ticketing.Repo)
     test_base = System.get_env("TICKETING_TEST_DB_NAME", "ticketing_test")
     partition = System.get_env("MIX_TEST_PARTITION", "")
@@ -205,7 +332,10 @@ defmodule Ticketing.RepoSmokeTest do
     refute repo_config[:port] == 55_432
     assert repo_config[:database] == expected_database
     refute repo_config[:database] == "ticketing_dev"
-    assert repo_config[:username] == System.get_env("TICKETING_TEST_DB_USER", "ticketing_test")
+
+    assert repo_config[:username] ==
+             System.get_env("TICKETING_TEST_RUNTIME_DB_USER", "ticketing_test_runtime")
+
     assert is_binary(repo_config[:password])
     refute Keyword.has_key?(repo_config, :url)
 

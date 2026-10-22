@@ -122,13 +122,21 @@ defmodule Ticketing.MixProject do
     [
       setup: [
         "deps.get",
-        "ecto.migrate",
+        "ecto.migrate -r Ticketing.MigrationRepo",
         "run priv/repo/seeds.exs",
         "assets.setup",
         "assets.build"
       ],
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-      test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
+      "ecto.setup": [
+        "ecto.create -r Ticketing.MigrationRepo",
+        "ecto.migrate -r Ticketing.MigrationRepo",
+        "run priv/repo/seeds.exs"
+      ],
+      test: [
+        "ecto.create -r Ticketing.MigrationRepo --quiet",
+        "ecto.migrate -r Ticketing.MigrationRepo --quiet",
+        "test"
+      ],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind ticketing", "esbuild ticketing"],
       "assets.deploy": [
