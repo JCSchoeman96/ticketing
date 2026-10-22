@@ -4,9 +4,13 @@
 
 - **Plan ID:** PLAN-AUTH-TICK-36
 - **Version:** 0.1.0
-- **Status:** DRAFT
-- **Baseline:** `c3068a7c3f5f7192d1bc354d8bd6f4f138b01540`
-- **Baseline tree:** `843023aed0f56356dee877d4d1480afc28e88578`
+- **Status:** APPROVED
+- **Approved:** user instruction on 2026-10-22 — `Approve PLAN-AUTH-TICK-36 v0.1.0`
+- **Execution baseline:** `d54696e15481ca14c91b70f9fa6a1ca648a28031`
+- **Execution baseline tree:** `cc9ef915a7a251b06c0e048d9aecce7fefb0d6d3`
+- **Execution baseline evidence:** PR #26 merge (TICK-38 `ubuntu-24.04` runner pin); Authority checks run `39794394538` SUCCESS and CI run `39794394459` SUCCESS on that exact SHA. The intervening delta from the plan-creation baseline is limited to `.github/workflows/authority.yml` and `.github/workflows/ci.yml` runner pins, reviewed and recorded as nonsemantic to TICK-36.
+- **Plan-creation baseline (historical, preserved):** `c3068a7c3f5f7192d1bc354d8bd6f4f138b01540`
+- **Plan-creation baseline tree (historical, preserved):** `843023aed0f56356dee877d4d1480afc28e88578`
 - **Approved spec commit:** `7d7c214afd2f5f92394ff554f8d012c23eb6b482`
 - **Working branch:** `authority/tick-36-session-consumption`
 
