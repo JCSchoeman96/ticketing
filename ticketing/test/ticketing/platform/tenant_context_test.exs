@@ -150,7 +150,7 @@ defmodule Ticketing.Platform.TenantContextTest do
     assert server_version =~ ~r/^18\.6(?:\s|$)/
 
     assert %Postgrex.Result{
-             rows: [["ticketing_test_runtime", false, false, false, false, "ticketing_test"]]
+             rows: [[runtime_user, false, false, false, false, fixture_owner]]
            } =
              runtime_query!(
                """
@@ -167,6 +167,10 @@ defmodule Ticketing.Platform.TenantContextTest do
                """,
                ["public.#{@fixture_table}"]
              )
+
+    assert runtime_user == "ticketing_test_runtime"
+    refute runtime_user == fixture_owner
+    assert fixture_owner == migration_fixture_owner!()
 
     assert %Postgrex.Result{rows: [[true, true]]} =
              runtime_query!(
@@ -288,17 +292,23 @@ defmodule Ticketing.Platform.TenantContextTest do
     end
   end
 
-  test "FORCE RLS applies to the non-bypass migration owner" do
+  test "FORCE RLS constrains an ordinary migration owner and catalogs the flag for every owner" do
     assert {:ok, _, _} =
              Migrator.with_repo(MigrationRepo, fn repo ->
-               assert %Postgrex.Result{rows: [[owner, false, false, fixture_owner]]} =
+               assert %Postgrex.Result{
+                        rows: [
+                          [owner, owner_superuser, owner_bypass_rls, fixture_owner, true, true]
+                        ]
+                      } =
                         SQL.query!(
                           repo,
                           """
                           SELECT current_user,
                                  role.rolsuper,
                                  role.rolbypassrls,
-                                 relation.relowner::regrole::text
+                                 relation.relowner::regrole::text,
+                                 relation.relrowsecurity,
+                                 relation.relforcerowsecurity
                           FROM pg_catalog.pg_roles AS role
                           CROSS JOIN pg_catalog.pg_class AS relation
                           WHERE role.rolname = current_user
@@ -307,15 +317,19 @@ defmodule Ticketing.Platform.TenantContextTest do
                           ["public.#{@fixture_table}"]
                         )
 
-               assert owner == "ticketing_test"
                assert fixture_owner == owner
 
-               assert %Postgrex.Result{rows: [[0]]} =
-                        SQL.query!(
-                          repo,
-                          "SELECT count(*)::integer FROM public.#{@fixture_table}",
-                          []
-                        )
+               visible_rows =
+                 SQL.query!(
+                   repo,
+                   "SELECT count(*)::integer FROM public.#{@fixture_table}",
+                   []
+                 )
+
+               case {owner_superuser, owner_bypass_rls} do
+                 {false, false} -> assert %Postgrex.Result{rows: [[0]]} = visible_rows
+                 _bypass_role -> assert %Postgrex.Result{rows: [[2]]} = visible_rows
+               end
              end)
   end
 
@@ -333,7 +347,7 @@ defmodule Ticketing.Platform.TenantContextTest do
                pid
              end)
 
-    assert_same_backend_has_no_tenant(pid_after_set)
+    assert_same_backend_has_no_tenant_and_rejects_writes(pid_after_set)
   end
 
   test "rollback clears tenant authority before a later pooled borrower" do
@@ -350,26 +364,61 @@ defmodule Ticketing.Platform.TenantContextTest do
                Ticketing.Repo.rollback({:rolled_back, pid})
              end)
 
-    assert_same_backend_has_no_tenant(pid_after_set)
+    assert_same_backend_has_no_tenant_and_rejects_writes(pid_after_set)
   end
 
-  defp assert_same_backend_has_no_tenant(previous_pid) do
+  defp assert_same_backend_has_no_tenant_and_rejects_writes(previous_pid) do
     borrower =
       Task.async(fn ->
         Ticketing.Repo.put_dynamic_repo(TenantContextTestRepo)
 
-        runtime_query!(
-          """
-          SELECT pg_backend_pid(),
-                 current_setting('app.current_org_id', true),
-                 count(*)::integer
-          FROM public.#{@fixture_table}
-          """,
-          []
-        )
+        Ticketing.Repo.transaction(fn ->
+          assert %Postgrex.Result{rows: [[backend_pid, setting, visible_rows]]} =
+                   runtime_query!(
+                     """
+                     SELECT pg_backend_pid(),
+                            current_setting('app.current_org_id', true),
+                            count(*)::integer
+                     FROM public.#{@fixture_table}
+                     """,
+                     []
+                   )
+
+          insert_result =
+            runtime_query(
+              "INSERT INTO public.#{@fixture_table} (id, org_id, value) VALUES ($1::uuid, $2::uuid, $3)",
+              [
+                uuid!("cccccccc-cccc-4ccc-8ccc-cccccccccccc"),
+                uuid!(@tenant_a),
+                3
+              ]
+            )
+
+          rollback_expired_context_write(backend_pid, setting, visible_rows, insert_result)
+        end)
       end)
 
-    assert %Postgrex.Result{rows: [[^previous_pid, "", 0]]} = Task.await(borrower)
+    assert {:error,
+            {:expired_empty_context_write_denied, ^previous_pid, "", 0,
+             %Postgrex.Error{postgres: %{code: :insufficient_privilege, message: message}}}} =
+             Task.await(borrower)
+
+    assert message =~ "row-level security policy"
+  end
+
+  defp rollback_expired_context_write(backend_pid, setting, visible_rows, insert_result) do
+    case insert_result do
+      {:error, error} ->
+        Ticketing.Repo.rollback(
+          {:expired_empty_context_write_denied, backend_pid, setting, visible_rows, error}
+        )
+
+      {:ok, result} ->
+        Ticketing.Repo.rollback(
+          {:expired_empty_context_write_allowed, backend_pid, setting, visible_rows,
+           result.num_rows}
+        )
+    end
   end
 
   defp put_current_org!(org_id) do
@@ -386,6 +435,28 @@ defmodule Ticketing.Platform.TenantContextTest do
 
   defp uuid!(value), do: Ecto.UUID.dump!(value)
   defp uuid_load!(value), do: Ecto.UUID.load!(value)
+
+  defp migration_fixture_owner! do
+    assert {:ok, {migration_user, fixture_owner}, _repo} =
+             Migrator.with_repo(MigrationRepo, fn repo ->
+               assert %Postgrex.Result{rows: [[migration_user, fixture_owner]]} =
+                        SQL.query!(
+                          repo,
+                          """
+                          SELECT current_user,
+                                 relation.relowner::regrole::text
+                          FROM pg_catalog.pg_class AS relation
+                          WHERE relation.oid = to_regclass($1)::oid
+                          """,
+                          ["public.#{@fixture_table}"]
+                        )
+
+               {migration_user, fixture_owner}
+             end)
+
+    assert migration_user == fixture_owner
+    fixture_owner
+  end
 
   defp create_fixture_table! do
     assert {:ok, _, _} =
