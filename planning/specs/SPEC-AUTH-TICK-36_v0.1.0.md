@@ -2,7 +2,8 @@
 
 - **ID:** SPEC-AUTH-TICK-36
 - **Version:** 0.1.0
-- **Status:** DRAFT
+- **Status:** APPROVED
+- **Approved:** user instruction on 2026-10-22 — `Accepted`
 - **Nature:** noncanonical authority-repair design record; this document does not create Ticketing semantics
 - **Plane:** TICK-36 — `[AUTHORITY GAP] Define minimal org Session bootstrap after membership proof`
 - **Affected downstream work:** TICK-25 and downstream TICK-26+
@@ -12,7 +13,7 @@
 - **Installed governing contracts:** TEN-1 `2.0.1`, IAM-1 `4.1.2`, IAM-2 `1.5.0`, EVT-1 `3.0.0`
 - **Current downstream packet:** JIP-T0-01 `0.1.2` / SPEC-T0-01 `0.1.1` (stale for implementation)
 - **Prior authority repair:** TICK-35 / TEN-1 `2.0.1` / PR #25
-- **Freshness caveat:** PR #25 is merged and the merge signature/tree are verified, but post-merge Authority/CI runs `39775803069` and `39775803389` failed before any job step executed on two attempts. This design may proceed as DRAFT analysis only until a fresh post-merge run actually executes and passes.
+- **Freshness caveat:** PR #25 is merged and the merge signature/tree are verified, but post-merge Authority/CI runs `39775803069` and `39775803389` failed before any job step executed on two attempts. Approval permits writing the execution plan, but authority implementation and downstream READY remain gated on fresh execution evidence under the approved plan.
 
 ## 1. Problem statement
 
@@ -364,4 +365,4 @@ TICK-36 is complete only when:
 - JIP-T0-01 `0.1.3` and SPEC-T0-01 successor are then prepared for explicit user approval;
 - TICK-25 and TICK-26 remain non-READY until those approvals and freshness gates pass.
 
-This DRAFT spec itself changes no canonical Ticketing semantics and grants no downstream READY status.
+This APPROVED spec itself changes no canonical Ticketing semantics and grants no downstream READY status.
