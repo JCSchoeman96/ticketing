@@ -2,23 +2,23 @@
   "artifact_kind": "bundle_manifest",
   "bundle": {
     "bundle_id": "IAM-1",
-    "bundle_version": "4.1.2"
+    "bundle_version": "4.1.3"
   },
   "doc_id": "IAM-1",
   "files": [
     {
-      "bytes": 54954,
-      "path": "IAM-1_Contract_v4.1.2.json",
-      "sha256": "0f2adb824bcb7a65a8bac1062fc4702cf6b58136bcb88f4873030d6809e5bdba"
+      "bytes": 59048,
+      "path": "IAM-1_Contract_v4.1.3.json",
+      "sha256": "cfcb3f9ca6eb672bbd53ba824c79b50d61efc1c9d3b7ccae11fbac2a4dfe19ff"
     },
     {
-      "bytes": 25086,
-      "path": "IAM-1_Test_Gates_v4.1.2.json",
-      "sha256": "afef6b69ad94b6f026365295f9f18edc1a4a9e9db2e9421fb60d7cc9dc3d0c5d"
+      "bytes": 37783,
+      "path": "IAM-1_Test_Gates_v4.1.3.json",
+      "sha256": "405dc596b746147e7e76e94d920b7136f2e950f8cafc9ed87320fe50a14445fb"
     }
   ],
-  "generated_at_utc": "2026-10-21T04:34:04Z",
+  "generated_at_utc": "2026-10-22T14:40:00Z",
   "schema_version": "bundle-manifest/1.0",
   "suite_schema": "CS-0@3.0.1",
-  "version": "4.1.2"
+  "version": "4.1.3"
 }
