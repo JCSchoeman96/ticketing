@@ -123,6 +123,7 @@ defmodule Ticketing.MixProject do
       setup: [
         "deps.get",
         "ecto.migrate -r Ticketing.MigrationRepo",
+        "ticketing.db.grant_runtime_privileges",
         "run priv/repo/seeds.exs",
         "assets.setup",
         "assets.build"
@@ -130,11 +131,13 @@ defmodule Ticketing.MixProject do
       "ecto.setup": [
         "ecto.create -r Ticketing.MigrationRepo",
         "ecto.migrate -r Ticketing.MigrationRepo",
+        "ticketing.db.grant_runtime_privileges",
         "run priv/repo/seeds.exs"
       ],
       test: [
         "ecto.create -r Ticketing.MigrationRepo --quiet",
         "ecto.migrate -r Ticketing.MigrationRepo --quiet",
+        "ticketing.db.grant_runtime_privileges",
         "test"
       ],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],

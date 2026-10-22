@@ -5,10 +5,17 @@ defmodule Ticketing.Release do
   """
   @app :ticketing
 
+  alias Ticketing.Platform.DatabasePrivileges
+
   def migrate do
     load_app()
     migration_repo = migration_repo!()
-    {:ok, _, _} = Ecto.Migrator.with_repo(migration_repo, &Ecto.Migrator.run(&1, :up, all: true))
+
+    {:ok, :ok, _} =
+      Ecto.Migrator.with_repo(migration_repo, fn repo ->
+        Ecto.Migrator.run(repo, :up, all: true)
+        DatabasePrivileges.apply!(repo)
+      end)
   end
 
   def rollback(_repo, version) do
@@ -16,7 +23,10 @@ defmodule Ticketing.Release do
     migration_repo = migration_repo!()
 
     {:ok, _, _} =
-      Ecto.Migrator.with_repo(migration_repo, &Ecto.Migrator.run(&1, :down, to: version))
+      Ecto.Migrator.with_repo(migration_repo, fn repo ->
+        Ecto.Migrator.run(repo, :down, to: version)
+        DatabasePrivileges.apply!(repo)
+      end)
   end
 
   defp load_app do
