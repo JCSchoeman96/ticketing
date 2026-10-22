@@ -1,0 +1,33 @@
+{
+  "doc_id": "CANON-1",
+  "generated_at_utc": "2026-10-22T11:30:00Z",
+  "release_intent": "Generated exact-hash suite pinset from current CANON, manifest, and validated candidates.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "generation_inputs": {
+      "active_manifest_sha256": "8c976c2c37964adcc0861ad1019e2cc5d88ffebf2102830b17f834e0fc7edf9a",
+      "base_canon_version": "2.0.16",
+      "base_canon_zip_sha256": "8bd64c2db86c4611340941cb6db391f8cfa6a506b3c2d2fa99e26bc0d1fefde7",
+      "candidate_releases": [
+        {
+          "doc_id": "TEN-1",
+          "sha256": "d115fc5102abc37cf259c9e78dfe28d22f2603374cd8cb9f859c36112ecee476",
+          "version": "2.0.1"
+        }
+      ],
+      "dependency_closure_sha256": "e8b111fc549ffe0503338442d76da7d7cc13d05006b34597c58a8af41adb525c",
+      "generator_commit": "56dda5875bd02173abb1d5f06c5c261a0e4b1662",
+      "generator_version": "2.0.0",
+      "manifest_validation_status": "VALID",
+      "superseded_identity_defects": []
+    },
+    "generator": "tools/generate_canon.py",
+    "generator_commit": "56dda5875bd02173abb1d5f06c5c261a0e4b1662",
+    "generator_version": "2.0.0",
+    "kind": "manifest-backed-canonical-successor",
+    "path": "generation-provenance.json",
+    "selection_sha256": "140ccdb33cd4d6934e2deaa827cd6ca11862ad220c6574d47a29db2e26500c01"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.0.17"
+}
