@@ -2,7 +2,7 @@
   "artifact_kind": "test_gates",
   "contract_ref": {
     "doc_id": "CANON-1",
-    "version": "2.0.17"
+    "version": "2.0.18"
   },
   "doc_id": "CANON-1-GATE",
   "gates": [
@@ -794,10 +794,10 @@
         },
         {
           "details": {
-            "accepted_path": "contracts/IAM-1/IAM-1_bundle_v4.1.2.zip",
+            "accepted_path": "contracts/IAM-1/IAM-1_bundle_v4.1.3.zip",
             "doc_id": "IAM-1",
-            "expected_sha256": "4f89ac0e9e859351087be9349ef8f9f4e4c97f6eb5171cbe49e57b1440d2fada",
-            "version": "4.1.2"
+            "expected_sha256": "6ce59be209da4396cd8c5f02d43622d7999e10632aef806d7883301377c04ff5",
+            "version": "4.1.3"
           },
           "mode": "automated",
           "type": "canon_bundle_sha_match"
@@ -805,10 +805,10 @@
         {
           "details": {
             "doc_id": "IAM-1",
-            "expected_bytes": 54954,
-            "expected_sha256": "0f2adb824bcb7a65a8bac1062fc4702cf6b58136bcb88f4873030d6809e5bdba",
-            "path": "IAM-1_bundle_v4.1.2/IAM-1_Contract_v4.1.2.json",
-            "version": "4.1.2"
+            "expected_bytes": 59048,
+            "expected_sha256": "cfcb3f9ca6eb672bbd53ba824c79b50d61efc1c9d3b7ccae11fbac2a4dfe19ff",
+            "path": "IAM-1_bundle_v4.1.3/IAM-1_Contract_v4.1.3.json",
+            "version": "4.1.3"
           },
           "mode": "automated",
           "type": "canon_artifact_sha_match"
@@ -816,10 +816,10 @@
         {
           "details": {
             "doc_id": "IAM-1",
-            "expected_bytes": 25086,
-            "expected_sha256": "afef6b69ad94b6f026365295f9f18edc1a4a9e9db2e9421fb60d7cc9dc3d0c5d",
-            "path": "IAM-1_bundle_v4.1.2/IAM-1_Test_Gates_v4.1.2.json",
-            "version": "4.1.2"
+            "expected_bytes": 37783,
+            "expected_sha256": "405dc596b746147e7e76e94d920b7136f2e950f8cafc9ed87320fe50a14445fb",
+            "path": "IAM-1_bundle_v4.1.3/IAM-1_Test_Gates_v4.1.3.json",
+            "version": "4.1.3"
           },
           "mode": "automated",
           "type": "canon_artifact_sha_match"
@@ -828,9 +828,9 @@
           "details": {
             "doc_id": "IAM-1",
             "expected_bytes": 623,
-            "expected_sha256": "b29991fe92cbbd62f20cf58711321ef37b767430524a0a245e9feea6da9feab2",
-            "path": "IAM-1_bundle_v4.1.2/bundle.manifest.json",
-            "version": "4.1.2"
+            "expected_sha256": "6b563cebad274acae3a050fac3e8c4665561dab314b0e19d6f73704d7a954a5e",
+            "path": "IAM-1_bundle_v4.1.3/bundle.manifest.json",
+            "version": "4.1.3"
           },
           "mode": "automated",
           "type": "canon_artifact_sha_match"
@@ -2489,10 +2489,10 @@
       "title": "Every current member has one accepted exact-hash pin."
     }
   ],
-  "generated_at_utc": "2026-10-22T11:30:00Z",
+  "generated_at_utc": "2026-10-22T14:40:00Z",
   "schema_version": "test-gates/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",
   "title": "CANON-1 Test Gates",
-  "version": "2.0.17"
+  "version": "2.0.18"
 }
