@@ -7,44 +7,46 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PROBE_PATH = "/tenancy/tenant_resolution/system_internal_membership_probe"
-EXPECTED_PROBE = {'enabled': True,
- 'policy_id': 'org_membership_probe',
- 'caller_boundary': 'system_internal_only',
- 'public_clients_allowed': False,
- 'requires_authenticated_human': True,
- 'authoritative_user_id_required': True,
- 'candidate_org_authoritative_before_proof': False,
- 'preproof_candidate_scope_allowed': True,
- 'transaction_local_required': True,
- 'same_backend_transaction_required': True,
- 'constrained_runtime_role_required': True,
- 'force_rls_required': True,
- 'superuser_forbidden': True,
- 'bypassrls_forbidden': True,
- 'table_owner_execution_forbidden': True,
- 'allowed_resource': 'IAM-1.OrgMembership',
- 'allowed_operation': 'read_membership_proof',
- 'read_only': True,
- 'membership_match_fields': ['org_id', 'user_id'],
- 'active_membership_required': True,
- 'role_lookup_before_proof_allowed': False,
- 'other_tenant_resource_access_before_proof_allowed': False,
- 'writes_allowed': False,
- 'event_capability_authorization_allowed': False,
- 'persona_promotion_on_failure_allowed': False,
- 'session_promotion_on_failure_allowed': False,
- 'persist_candidate_org_on_failure_allowed': False,
- 'hide_existence_on_failure_required': True,
- 'org_membership_id_is_proof_output': True,
- 'role_resolution_after_success_allowed': True,
- 'notes': ["Candidate org scope exists only to prove the already-authenticated human's "
-           "active membership and is not the human's resolved tenant or active "
-           'persona.',
-           'Successful membership proof permits downstream IAM-1 '
-           'organization-persona/session establishment; the probe itself grants no '
-           'role or tenant capability.',
-           'Failure discards candidate scope and MUST preserve TEN-1 hide-existence '
-           'behavior.']}
+EXPECTED_PROBE = {
+    "enabled": True,
+    "policy_id": "org_membership_probe",
+    "caller_boundary": "system_internal_only",
+    "public_clients_allowed": False,
+    "requires_authenticated_human": True,
+    "authoritative_user_id_required": True,
+    "candidate_org_authoritative_before_proof": False,
+    "preproof_candidate_scope_allowed": True,
+    "transaction_local_required": True,
+    "same_backend_transaction_required": True,
+    "constrained_runtime_role_required": True,
+    "force_rls_required": True,
+    "superuser_forbidden": True,
+    "bypassrls_forbidden": True,
+    "table_owner_execution_forbidden": True,
+    "allowed_resource": "IAM-1.OrgMembership",
+    "allowed_operation": "read_membership_proof",
+    "read_only": True,
+    "membership_match_fields": [
+        "org_id",
+        "user_id"
+    ],
+    "active_membership_required": True,
+    "role_lookup_before_proof_allowed": False,
+    "other_tenant_resource_access_before_proof_allowed": False,
+    "writes_allowed": False,
+    "event_capability_authorization_allowed": False,
+    "persona_promotion_on_failure_allowed": False,
+    "session_promotion_on_failure_allowed": False,
+    "persist_candidate_org_on_failure_allowed": False,
+    "hide_existence_on_failure_required": True,
+    "org_membership_id_is_proof_output": True,
+    "role_resolution_after_success_allowed": True,
+    "notes": [
+        "Candidate org scope exists only to prove the already-authenticated human's active membership and is not the human's resolved tenant or active persona.",
+        "Successful membership proof permits downstream IAM-1 organization-persona/session establishment; the probe itself grants no role or tenant capability.",
+        "Failure discards candidate scope and MUST preserve TEN-1 hide-existence behavior."
+    ]
+}
 
 
 def _manifest() -> dict:
@@ -84,12 +86,14 @@ def _bundle_payloads(doc_id: str) -> tuple[dict, dict]:
     return contract, gates
 
 
-
 def test_selected_ten1_defines_system_internal_membership_probe_policy() -> None:
     contract, _ = _bundle_payloads("TEN-1")
     resolution = contract["tenancy"]["tenant_resolution"]
     assert "system_internal_membership_probe" in resolution
-    assert resolution["system_internal_membership_probe"] == EXPECTED_PROBE
+    probe = resolution["system_internal_membership_probe"]
+    assert probe == EXPECTED_PROBE
+    for key, value in EXPECTED_PROBE.items():
+        assert type(probe[key]) is type(value)
     assert resolution["membership_validation"]["required"] is True
     assert resolution["membership_validation"]["enforced_before_setting_tenant"] is True
 
