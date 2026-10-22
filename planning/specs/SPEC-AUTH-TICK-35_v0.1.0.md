@@ -2,7 +2,8 @@
 
 - **ID:** SPEC-AUTH-TICK-35
 - **Version:** 0.1.0
-- **Status:** DRAFT — in-chat architecture approved by the user on 2026-10-22; this written artifact is pending user review
+- **Status:** APPROVED
+- **Approved:** user instruction on 2026-10-22 — `Approve SPEC-AUTH-TICK-35 v0.1.0`
 - **Nature:** noncanonical authority-repair design record; this document does not itself create Ticketing semantics
 - **Plane:** TICK-35 — `[AUTHORITY GAP] TICK-25 organizer membership proof precedes tenant context`
 - **Affected implementation work:** TICK-25 and downstream TICK-26+
