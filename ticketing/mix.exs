@@ -121,8 +121,8 @@ defmodule Ticketing.MixProject do
   defp aliases do
     [
       setup: [
-        "ticketing.test_database.guard",
         "deps.get",
+        "ticketing.test_database.guard",
         "ecto.migrate -r Ticketing.MigrationRepo",
         "ticketing.db.grant_runtime_privileges",
         "run priv/repo/seeds.exs",

@@ -23,9 +23,18 @@ defmodule Ticketing.TestDatabaseSafetyContractTest do
 
     for {alias_name, mutation_steps} <- @database_mutations do
       steps = Keyword.fetch!(aliases, alias_name)
+      guard_index = Enum.find_index(steps, &(&1 == "ticketing.test_database.guard"))
 
-      assert hd(steps) == "ticketing.test_database.guard",
-             "#{alias_name} must fail closed before any TEST database work"
+      assert is_integer(guard_index), "#{alias_name} must include the TEST database guard"
+
+      if alias_name == :setup do
+        assert hd(steps) == "deps.get", "setup must fetch dependencies before loading local tasks"
+
+        assert Enum.find_index(steps, &(&1 == "deps.get")) < guard_index
+      else
+        assert hd(steps) == "ticketing.test_database.guard",
+               "#{alias_name} must fail closed before any TEST database work"
+      end
 
       mutation_indexes =
         Enum.map(mutation_steps, &Enum.find_index(steps, fn step -> step == &1 end))
@@ -33,7 +42,7 @@ defmodule Ticketing.TestDatabaseSafetyContractTest do
       assert Enum.all?(mutation_indexes, &is_integer/1),
              "#{alias_name} must retain its database steps"
 
-      assert Enum.all?(mutation_indexes, &(&1 > 0)),
+      assert Enum.all?(mutation_indexes, &(&1 > guard_index)),
              "#{alias_name} must guard before database work"
     end
   end
