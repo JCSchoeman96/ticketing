@@ -11,7 +11,7 @@ Use this checklist with root `AGENTS.md`, the effective scoped `AGENTS.md`, `pla
 
 - Record `git status --short`, the base SHA, and the current head SHA.
 - Review the exact final diff and list every changed file.
-- Compare the diff with the Plane item and JIP scope, non-goals, and locked decisions.
+- Compare the diff with the Plane item and, when applicable, its JIP scope, non-goals, and locked decisions.
 - Confirm `Documentation Impact` and update only its specified paths. If it is `UNAFFECTED`, verify that no implementation documentation changed.
 - Review `mix.exs` and the exact `mix.lock` diff. Explain every added, removed, upgraded, or downgraded dependency. Reject unexplained resolver changes.
 - Review all migrations and generated files. Confirm generated UsageRules skills are under repo-root `.agents/skills/`, and human-maintained Ticketing skills remain intact after sync.
@@ -45,7 +45,7 @@ For Tidewave changes, verify the DEV endpoint is loopback-only, Tidewave is dev-
 
 - Push the implementation branch and open a PR against current `main`.
 - Link the PR to the assigned Plane item and, when applicable, its actual parent JIP. Include the current approved JIP and accepted spec, when applicable, in the handoff. Do not assume a fixed JIP identifier.
-- Verify the PR base and head SHA, exact changed-file list, assigned Plane item, governing JIP/spec, dependency and lock changes, checks, warnings, deferrals, and blockers.
+- Verify the PR base and head SHA, exact changed-file list, assigned Plane item, and governing JIP/spec when applicable, plus dependency and lock changes, checks, warnings, deferrals, and blockers.
 - Hand the exact PR head and fresh CI evidence to ChatGPT acting as the independent control tower. Leave the PR open. A control-tower `PASS` is not merge authorization; merge only after explicit user authorization.
 
 Return `READY FOR REVIEW` only when the branch is pushed, the PR is open, all applicable checks pass, and the handoff includes the required evidence. Otherwise return `NOT READY` with the failed checks or blockers.

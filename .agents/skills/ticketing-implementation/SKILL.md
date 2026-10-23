@@ -5,16 +5,16 @@ description: Use when implementing an approved Ticketing work item in Plane's Re
 
 # Ticketing implementation workflow
 
-This skill is an implementation checklist. Root `AGENTS.md` governs repository authority, JIP approval, Plane readiness, blockers, and completion. `planning/WORKFLOW.md` governs the control-tower process. Follow both, the effective scoped `AGENTS.md`, the current approved JIP/spec, and the assigned Plane item. This skill does not add or change product semantics.
+This skill is an implementation checklist. Root `AGENTS.md` governs repository authority, JIP approval, Plane readiness, blockers, and completion. `planning/WORKFLOW.md` governs the control-tower process. Follow both, the effective scoped `AGENTS.md`, and the assigned Plane item. For material JIP-governed product/domain work, also follow the current approved JIP and accepted spec when one exists. For a mechanical exception allowed by root `AGENTS.md`, do not require or invent a JIP. This skill does not add or change product semantics.
 
 ## Confirm dispatch readiness
 
-1. Read root `AGENTS.md`, the effective scoped `AGENTS.md` for the application files in scope, `planning/WORKFLOW.md`, the assigned Plane item, and its current approved JIP and accepted spec when one exists.
-2. Verify current GitHub `main`, canonical authority, active tracer, technical and implementation baselines, JIP/spec approval, and ticket freshness. Treat only explicit user acceptance as JIP/spec approval; do not self-approve or infer approval from a review `PASS`.
-3. Dispatch only when the assigned Plane item's state is exactly `Ready`, its approved current JIP and scope are verified, and all dependencies and blockers are clear. A `READY` label does not make an item dispatchable. Implement exactly one Ready item at a time.
+1. Read root `AGENTS.md`, the effective scoped `AGENTS.md` for the application files in scope, `planning/WORKFLOW.md`, and the assigned Plane item. For material JIP-governed product/domain work, also read its current approved JIP and accepted spec when one exists. Do not require or invent a JIP for a mechanical exception allowed by root `AGENTS.md`.
+2. Verify current GitHub `main`, canonical authority, active tracer, technical and implementation baselines, and ticket freshness against the applicable records. For material JIP-governed product/domain work, verify that the current JIP has explicit user approval and the spec is accepted when one exists. Do not self-approve or infer approval from a review `PASS`. A mechanical exception allowed by root `AGENTS.md` does not require a JIP.
+3. Dispatch only when the assigned Plane item's state is exactly `Ready`, its scope is verified, and all dependencies and blockers are clear. For material JIP-governed product/domain work, also verify the current approved JIP and accepted spec when one exists. Do not require or invent a JIP for a mechanical exception allowed by root `AGENTS.md`. A `READY` label does not make an item dispatchable. Implement exactly one Ready item at a time.
 4. Read the item's exact `Context Docs`. If required Context Docs are missing or unclear, stop and request Plane reconciliation or the missing scoped documents before implementation. Inspect only the authority, code, and tests needed for the assigned scope.
 
-If any gate is unclear or fails, do not start implementation. Stop when authority, JIP/spec, or ticket is stale; a blocker or authority gap exists; a dependency is unresolved or unapproved; or the scope must expand. Capture the blocker or discovery in Plane and return it to the control tower.
+If any gate is unclear or fails, do not start implementation. Stop when authority or ticket is stale, or an applicable JIP/spec is stale; a blocker or authority gap exists; a dependency is unresolved or unapproved; or the scope must expand. Capture the blocker or discovery in Plane and return it to the control tower.
 
 ## Implement within scope
 
@@ -26,5 +26,5 @@ If any gate is unclear or fails, do not start implementation. Stop when authorit
 
 ## Hand off for review
 
-10. Before PR handoff, load `ticketing-verification` and complete its checklist. Report the exact Plane item, approved JIP/spec, branch, PR, diff, and verification evidence.
+10. Before PR handoff, load `ticketing-verification` and complete its checklist. Report the exact Plane item, governing approved JIP/spec when applicable, branch, PR, diff, and verification evidence.
 11. The implementation agent cannot approve its own JIP/spec, declare its work independently reviewed, or merge. A control-tower `PASS` is not merge authorization. Leave the PR open and wait for explicit user merge authorization after independent review.
