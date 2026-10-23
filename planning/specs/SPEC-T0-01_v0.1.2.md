@@ -14,11 +14,13 @@ This spec derives from the approved JIP and records its implementation boundary.
 
 ## 1. Objective and current baseline
 
-Implement canonical organizer authorization for one `EVT-2.create_event` operation. The trusted authentication/session boundary supplies authoritative `user_id` and `session_id`. Ticketing proves organization membership, validates the persisted Session and requested role, constructs an active organization persona, authorizes `evt.event.create`, and inserts one tenant-owned draft Event in one outer Ash/PostgreSQL effect transaction.
+Implement canonical organizer authorization for one `EVT-2.create_event` operation. The trusted authentication/session boundary supplies authoritative `user_id` and `session_id`. Ticketing proves organization membership, validates the persisted Session and requested role, constructs an active organization persona, authorizes IAM-1 4.1.3's `evt.event.create` capability, and inserts one tenant-owned draft Event inside one outer `Ash.transact/3` effect transaction. All stages must use the same PostgreSQL backend and transaction.
 
 The following are already merged baseline and are not new T0-01 work: separate migration-owner/runtime DB identities, runtime grants, transaction-local `TenantContext`, the Repo transaction hook, and reusable FORCE-RLS infrastructure. This increment must use those facilities.
 
-Locked technical baseline: Elixir 1.20.4, OTP 29.1.2, PostgreSQL 18.6, Phoenix 1.8.16, LiveView 1.2.13, Ash 3.36.1, AshPhoenix 2.3.25, AshPostgres 2.15.1, and Postgrex 0.22.4. No upgrades are authorized.
+Locked technical baseline: Elixir 1.20.4, OTP 29.1.2, PostgreSQL 18.6, Phoenix 1.8.16, LiveView 1.2.13, Ash 3.36.1, AshPhoenix 2.3.25, AshPostgres 2.15.1, and Postgrex 0.22.4. Adopt Ash core, AshPostgres, Ash policies/attribute multitenancy, and `Ash.transact/3` for this effect. Defer AshPhoenix 2.3.25 for new work because this increment has no Phoenix/LiveView/API boundary; retain the installed package without upgrade. No dependency or runtime upgrade is authorized.
+
+IAM-1 4.1.3 owns `evt.event.create` mapping and its allowed organization roles (`org_owner`, `org_admin`). IAM-2 1.5.0 does not authorize this capability; its invitation/customer-role-grant sovereignty boundary is outside this increment.
 
 ## 2. Owned Ash domains and interfaces
 
@@ -30,7 +32,7 @@ Owns the canonical global `User` and tenant `OrgMembership`, read-only T0 `Sessi
 
 Owns the canonical tenant-scoped Event and the governed `create_event` action/code interface. That action coordinates the entire effect and calls the approved Identity interface inside the same outer transaction.
 
-No public resolver may return an organizer persona from one completed transaction for later use as `create_event` authority. A transient persona exists only within the current proof-to-insert transaction.
+No public resolver may return an organizer persona from one completed transaction for later use as `create_event` authority. A transient persona exists only within the current proof-to-insert transaction. The outer effect uses `Ash.transact/3`; test-only instrumentation must prove the membership probe, post-proof reads, capability authorization, and Event insert share the same PostgreSQL backend PID and transaction identity. Stop and re-Grill if installed Ash/AshPostgres cannot demonstrate this continuity.
 
 Every canonical resource is an Ash Resource registered with its approved Ash Domain and uses `AshPostgres.DataLayer`. Ordinary runtime reads and writes go through Ash actions/interfaces with actor, tenant, and authorization context. No direct Repo/Ecto/raw-SQL domain API is allowed.
 
@@ -38,42 +40,49 @@ Every canonical resource is an Ash Resource registered with its approved Ash Dom
 
 Trusted authentication/session infrastructure authenticates the underlying session credential and supplies authoritative `user_id` and `session_id`. It does not pass a raw credential or token hash to the T0 organizer effect.
 
-The caller may select candidate `org_id`, requested `active_scope = org`, and requested `active_role`. These are selectors only and do not establish tenant or role authority.
+The caller may select candidate `org_id`, requested `active_scope = org`, and requested `active_role`. These are selectors only and do not establish tenant or role authority. Reject any `active_scope` other than exactly `org`, including mixed scopes. Platform and support personas cannot satisfy the T0 tenant Event-create capability.
 
 The required order inside one outer transaction is:
 
-1. Run TEN-1 `org_membership_probe` using its system-internal candidate-organization scope. It reads only the matching OrgMembership. Require that it belongs to authoritative `user_id`, is active, and is not revoked. Retain its persisted `org_membership_id`.
-2. If membership proof fails, stop without promoting candidate scope to resolved tenant authority. Do not read resolved-tenant Session, role, or Event state.
-3. After proof, establish the proven organization as the tenant for remaining reads. Require an active User. Read Session by authoritative `session_id` and require exact Session ID, user ID, and proven `org_id` matches.
+1. Start the outer `Ash.transact/3` boundary. Set the transaction-local candidate-org GUC only for TEN-1's system-internal membership probe. Run `org_membership_probe` against only the matching OrgMembership; require authoritative `user_id`, active status, and no revocation. Retain persisted `org_membership_id`.
+2. Before successful membership proof, no User, Session, role-assignment, or Event business-row read may occur. If proof fails, stop without logical promotion of candidate scope to resolved tenant authority and perform no later business-row reads.
+3. After proof, logically promote the tenant context/GUC to the proven organization. Require an active User. Read Session by authoritative `session_id` and require exact Session ID, user ID, and proven `org_id` matches.
 4. Require Session `status = active`, `revoked_at_utc = null`, and `expires_at_utc > evaluated_at_utc`, with expiry checked against authoritative database UTC time.
-5. Require an active, non-revoked same-org OrgRoleAssignment for authoritative `user_id` and the requested `active_role`.
-6. Construct the explicit active organization persona only from the persisted proof: authoritative `user_id`, validated `session_id`, proven `org_id`, persisted `org_membership_id`, `active_scope = org`, and verified `active_role`.
-7. Authorize `evt.event.create` under IAM-1/IAM-2 for the verified persona. IAM-1 permits human `org_owner` and `org_admin` roles for this capability. Caller-supplied roles never grant authority.
-8. Insert one Event through the governed Events action and commit. Any failure rolls back the outer transaction.
+5. Require an active, non-revoked same-org OrgRoleAssignment for authoritative `user_id` and requested `active_role`.
+6. Construct the active organization persona only from exact persisted proof: authoritative `user_id` and `session_id`, proven `org_id`, persisted `org_membership_id`, `active_scope = org`, and the verified same-org assignment/`active_role`. Do not accept caller-supplied persona fields.
+7. Authorize `evt.event.create` under IAM-1 4.1.3 for the verified human organization persona. IAM-1 permits `org_owner` and `org_admin`. Caller-supplied roles and platform/support personas never grant authority. IAM-2 is not Event-create authorization authority.
+8. Insert one Event through the governed Events action and commit. Any failure rolls back the outer transaction. Test-only instrumentation proves all stages share the same PostgreSQL backend PID and transaction identity.
 
 Candidate organization scope is not reusable authorization context. The complete flow must not be split across transactions.
 
 ## 4. Session posture
 
-T0 consumes an already-issued canonical Session as read-only state. It does not issue or create a Session; implement `sign_in_with_org`; accept raw Session credentials; derive or compare token hashes; refresh expiry; rebind user or organization; revoke Session; write `last_seen_at_utc`; or emit Session-created/revoked events.
+T0 consumes an already-issued canonical Session as read-only state. T0 never receives, returns, derives, reads, or compares a raw Session token or `token_hash`. It does not issue or create a Session; implement `sign_in_with_org`; refresh expiry; rebind user or organization; revoke Session; write `last_seen_at_utc`; or emit Session-created/revoked events. Test fixtures may prepare pre-existing Session state through a narrow test-only owner boundary; no production Session or role issuance convenience API is permitted.
 
 Session attributes, tenant identity, and liveness follow installed IAM-1. The existing authentication/session owner remains responsible for providing the authoritative identifiers and for any Session issuance lifecycle.
 
 ## 5. Event creation boundary
 
-The only Event transition in this increment is `absent → draft`. Use the exact EVT-2 3.0.0 resource shape and `create_event` semantics. Set tenant ownership to the proven organization. Preserve canonical initial status, DB-owned timestamps, initial version/fence values, and null `published_at_utc`. Do not let a caller supply the verified persona or author the concurrency fence.
+The only Event transition in this increment is `absent → draft`. Use the exact EVT-2 3.0.0 resource shape and `create_event` semantics. The action generates Event UUIDv7 and `public_event_key`, sets tenant ownership to the proven organization, and writes the canonical initial status `draft`, database-owned timestamps, `version = 1`, `lock_version = 1`, and null `published_at_utc`. The caller cannot author tenant ownership, generated identity/public-key, status, timestamp, version, or fence fields, or supply the verified persona.
+
+Preserve tenant-scoped Event identity, public-key, and slug uniqueness. Verify concurrent duplicate attempts and the contract-defined result for the losing operation; do not invent a new error mapping.
 
 The Event insert is the final effect within the same transaction that performed the proof and authorization. Rejected authorization, invalid input, or failed insert leaves no Event row. Do not add a generic lifecycle update.
 
 ## 6. Transaction, tenancy, and database posture
 
-- The one outer Ash/PostgreSQL transaction starts before membership proof and ends after the Event insert or rollback.
-- TEN-1's candidate-org probe is system-internal and limited to matching OrgMembership proof. Candidate `org_id` is not resolved tenant authority.
-- Only after proof may the operation read resolved-tenant Session, role, or Event state.
+- One outer `Ash.transact/3` starts before membership proof and ends after Event insert or rollback.
+- The candidate-org GUC is set before proof only to scope the system-internal TEN-1 membership probe. Logical promotion to proven tenant scope follows successful proof; the candidate value itself never establishes authority.
+- Deterministic query-order instrumentation proves no User/Session/role/Event business-row read before successful proof. Backend PID and transaction identity evidence proves the probe, liveness/persona work, authorization, and insert share one PostgreSQL backend transaction.
+- Prove candidate/proven tenant-context GUC cleanup after commit, rollback, exception, and pool reuse.
+- Runtime role remains a non-owner with `NOBYPASSRLS`. Verify direct runtime SQL cannot read/write across tenants; this is an isolation test, not a product persistence interface.
+- Use only narrow test-only owner/fixture setup for pre-existing User, Membership, Session, and role state. Production exposes no convenience API to issue Session or activate/grant organizer roles.
 - Use existing `Ticketing.Platform.TenantContext`, Repo transaction hook, migration-owner path, grants, and FORCE-RLS facilities. Do not add a second GUC or runtime persistence path.
 - Tenant resources use Ash attribute multitenancy and PostgreSQL RLS with `ENABLE` and `FORCE`; canonical identities and tenant-aware relations follow installed contracts.
-- Session reads, User reads, membership proof, role reads, authorization, and Event insert all use approved Ash domain/resource interfaces. Infrastructure-only database mechanics remain behind the approved boundary.
+- Session/User/membership/role reads, authorization, and Event insert all use approved Ash domain/resource interfaces. Infrastructure-only database mechanics remain behind the approved boundary.
 - No publication CAS, publication event, outbox, or idempotency/replay contract is introduced.
+- Telemetry must not tag raw `org_id`, `user_id`, or `session_id`.
+- Do not invent stronger concurrent Session/role-revocation linearization. If implementation requires it, stop and capture an `AUTHORITY_GAP` for authority resolution.
 
 ## 7. Errors and information hiding
 
@@ -84,17 +93,24 @@ Preserve installed TEN-1, IAM-1, EVT-2, and ERR-1 behavior. Failed membership pr
 Use TDD for implementation. Tests must cover:
 
 - successful creation for an active persisted owner/admin persona;
-- membership proof before resolved-tenant Session/role/Event reads;
-- candidate org/scope/role selectors do not grant authority;
+- deterministic query-order instrumentation proves no User, Session, role-assignment, or Event business-row read before successful membership proof;
+- candidate/proven tenant GUC ordering, logical promotion only after proof, and cleanup after commit, rollback, exception, and pool reuse;
+- same PostgreSQL backend PID and transaction identity from membership probe through liveness/persona/capability to Event insert;
+- candidate org/scope/role selectors do not grant authority; invalid or mixed `active_scope` fails; platform/support personas fail the T0 capability;
 - missing, inactive, revoked, or other-user membership cannot proceed;
-- exact Session ID/user/org matching and active, unrevoked, unexpired Session using DB UTC;
+- exact Session ID/user/org matching and active, unrevoked, unexpired Session using DB UTC; T0 never receives, returns, derives, reads, or compares raw token/token_hash;
+- no Session issuance, refresh, rebind, revocation, last-seen mutation, or lifecycle event; test-only owner fixtures create pre-existing proof state without a production issuance/grant API;
 - missing, mismatched, inactive, revoked, or expired Session denial;
 - requested role matches an active/non-revoked same-org persisted assignment;
 - fabricated caller roles do not grant the capability;
-- cross-tenant rows remain hidden with the runtime role and FORCE RLS;
-- one canonical tenant-owned draft Event is written only after authorization;
+- cross-tenant rows remain hidden with a runtime role that is non-owner and `NOBYPASSRLS`; direct runtime SQL cannot cross tenants;
+- exact persona binding to trusted user/session, proven organization/membership, and persisted same-org role assignment; caller and platform/support roles cannot satisfy `evt.event.create`;
+- one canonical tenant-owned draft Event with action-generated UUIDv7 and `public_event_key`, draft state, null publication time, version/lock version 1, and DB timestamps;
+- caller cannot set protected tenant, generated identity/public-key, status, timestamp, version, or fence fields;
+- tenant-scoped identity/public-key/slug uniqueness and concurrent duplicate-race behavior;
 - failure at proof, liveness, role, authorization, validation, or insertion leaves no Event and no Session mutation;
-- transaction-local tenant context clears on commit/rollback and pool reuse;
+- telemetry has no raw `org_id`, `user_id`, or `session_id` tags;
+- no invented stronger concurrent Session/role-revocation linearization; if required, stop with `AUTHORITY_GAP`;
 - generated AshPostgres migrations preserve canonical fields, identities, tenant relations, RLS, and grants;
 - normal and partitioned PostgreSQL 18.6 TEST paths use the established owner/runtime model.
 
@@ -137,4 +153,4 @@ This order follows the active tracer: `create_event → create_occurrence → pu
 
 ## 12. Stop conditions
 
-Stop affected implementation if TEN-1 membership proof cannot precede resolved-tenant reads, if candidate scope becomes treated as resolved authority before proof, if Session issuance/mutation is required, if the full effect cannot remain one governed Ash/PostgreSQL transaction, or if installed authority does not settle a required shape, authorization rule, or error. Capture the blocker in Plane and return through the authority/JIP process. Do not widen this spec to work around a gap.
+Stop affected implementation if TEN-1 membership proof cannot precede all User/Session/role/Event business-row reads, if candidate scope becomes treated as resolved authority before proof, or if GUC ordering/cleanup cannot be proved. Stop if `Ash.transact/3` cannot keep every stage on the same PostgreSQL backend transaction; capture a blocker and require targeted re-Grill before considering another orchestration mechanism. Stop if Session issuance/mutation, stronger Session/role-revocation linearization, or any other authority-undefined behavior is required. Capture authority gaps in Plane and resolve them through the authority workflow; do not widen this spec to work around a gap.
