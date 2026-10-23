@@ -5,7 +5,7 @@ description: Use before handing repository-changing Ticketing implementation to 
 
 # Ticketing verification workflow
 
-Use this checklist with the repository root `AGENTS.md`, `ticketing/AGENTS.md`, the approved JIP, and the current Plane item. Report `READY FOR REVIEW` or `NOT READY`. Never report `READY TO MERGE`; independent review and current CI own that decision.
+Use this checklist with root `AGENTS.md`, the effective scoped `AGENTS.md`, `planning/WORKFLOW.md`, the current approved JIP/spec when applicable, and the assigned Plane item. Report `READY FOR REVIEW` or `NOT READY`. Never report `READY TO MERGE`; independent review and current CI own that decision.
 
 ## Review the worktree and scope
 
@@ -44,8 +44,8 @@ For Tidewave changes, verify the DEV endpoint is loopback-only, Tidewave is dev-
 ## Prepare the review handoff
 
 - Push the implementation branch and open a PR against current `main`.
-- Link the PR to the current T0-00.2A / JIP-T0-00 work in Plane.
-- Verify the PR base and head SHA, exact changed-file list, dependency and lock changes, checks, warnings, deferrals, and blockers.
-- Leave the PR open for independent review of the exact head diff and fresh CI. Do not merge it without explicit user authorization.
+- Link the PR to the assigned Plane item and, when applicable, its actual parent JIP. Include the current approved JIP and accepted spec, when applicable, in the handoff. Do not assume a fixed JIP identifier.
+- Verify the PR base and head SHA, exact changed-file list, assigned Plane item, governing JIP/spec, dependency and lock changes, checks, warnings, deferrals, and blockers.
+- Hand the exact PR head and fresh CI evidence to ChatGPT acting as the independent control tower. Leave the PR open. A control-tower `PASS` is not merge authorization; merge only after explicit user authorization.
 
 Return `READY FOR REVIEW` only when the branch is pushed, the PR is open, all applicable checks pass, and the handoff includes the required evidence. Otherwise return `NOT READY` with the failed checks or blockers.
