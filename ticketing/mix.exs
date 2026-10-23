@@ -122,6 +122,7 @@ defmodule Ticketing.MixProject do
     [
       setup: [
         "deps.get",
+        "ticketing.test_database.guard",
         "ecto.migrate -r Ticketing.MigrationRepo",
         "ticketing.db.grant_runtime_privileges",
         "run priv/repo/seeds.exs",
@@ -129,12 +130,14 @@ defmodule Ticketing.MixProject do
         "assets.build"
       ],
       "ecto.setup": [
+        "ticketing.test_database.guard",
         "ecto.create -r Ticketing.MigrationRepo",
         "ecto.migrate -r Ticketing.MigrationRepo",
         "ticketing.db.grant_runtime_privileges",
         "run priv/repo/seeds.exs"
       ],
       test: [
+        "ticketing.test_database.guard",
         "ecto.create -r Ticketing.MigrationRepo --quiet",
         "ecto.migrate -r Ticketing.MigrationRepo --quiet",
         "ticketing.db.grant_runtime_privileges",
