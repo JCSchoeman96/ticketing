@@ -74,6 +74,38 @@ The coding agent MUST NOT recreate the planning process to grant itself implemen
 
 It may inspect authority and references to validate the supplied JIP/work item, but may not self-approve missing or contradictory semantics.
 
+## Control-tower role separation
+
+The durable cross-session operating protocol is `planning/WORKFLOW.md`. Read it whenever work involves material planning, JIP/spec authoring, `to-tickets`, readiness, implementation handoff, independent review, merge progression, or post-merge advancement.
+
+This is repository process governance, not canonical product authority. It MUST NOT override CANON, installed contracts, ROADMAP, the active tracer, or an approved JIP.
+
+For material work, preserve these role boundaries:
+
+- the **planning/architecture agent** authors and reconciles freshness evidence, `grill-with-docs`, decision classifications, draft JIPs, derivative specs, `to-tickets`, Plane planning state, and planning PRs;
+- the planning agent MUST NOT self-approve a JIP/spec, self-authorize implementation readiness, silently resolve an authority gap, or begin product implementation while its packet is awaiting independent review;
+- **ChatGPT acting as the control tower** independently challenges/reviews planning, re-verifies freshness, reviews JIP/spec fidelity and Plane decomposition, gates readiness, independently reviews exact PR heads and fresh CI, and verifies merged `main` before downstream progression;
+- the **user** remains the explicit semantic/JIP approval authority and the default merge-authorization authority;
+- the **implementation agent** executes exactly one approved dependency-clear `READY` work item at a time and returns a PR/evidence packet for independent review;
+- **Plane** is the execution ledger only and never semantic authority;
+- verified GitHub **`main`** is the durable accepted repository baseline for freshness and post-merge checks.
+
+The default merge gate is:
+
+```text
+fresh exact-head evidence
+→ independent control-tower PASS
+→ explicit user merge authorization
+→ merge
+→ post-merge main verification
+```
+
+A planning agent may produce a `DRAFT` JIP, but only explicit user acceptance makes it `APPROVED`. Material changes to an approved JIP require re-Grill/reapproval as applicable.
+
+After `to-tickets`, implementation children remain non-READY until independent control-tower review passes. After a planning or implementation PR merges, do not advance dependent work from memory or from the old PR head: verify actual merged `main`, applicable checks, freshness, blockers, and dependency state first.
+
+A new chat or agent session MUST be able to reconstruct this workflow from the repository without relying on hidden or prior chat context.
+
 ## Technology freshness policy
 
 Ticketing is greenfield development and SHOULD begin new work on the newest practical stable stack.
