@@ -114,6 +114,10 @@ jobs:
           CREATE ROLE ticketing_test_runtime LOGIN PASSWORD :'test_runtime_password'
             NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;
           SQL
+      - name: Test Tailwind acquisition failure safety
+        run: bash scripts/ci/test-tailwind-acquisition.sh
+      - name: Acquire checksum-verified Tailwind binary
+        run: bash scripts/ci/ensure-tailwind-binary.sh "$GITHUB_WORKSPACE"
       - name: Install and set up the application
         working-directory: ticketing
         run: mix setup
