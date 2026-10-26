@@ -2,10 +2,10 @@ defmodule Ticketing.Identity.IndexIsolationTest do
   @moduledoc """
   TEN-1 index-isolation evidence for TICK-25 Identity tables.
 
-  Composite IAM/JIP identities are enforced as org_id-first (or IAM-specified) unique
-  indexes. Single-column UUIDv7 primary keys on tenant tables remain subject to an
-  explicit TEN-1 `index_isolation.exceptions` pin in the governing JIP; no such pin
-  exists in JIP-T0-01 v0.1.4 today (governance follow-up, not silently assumed here).
+  Composite IAM/JIP identities are enforced with org_id as the leading index column
+  where tenant isolation requires it. Single-column UUIDv7 primary keys on tenant
+  tables remain subject to an explicit TEN-1 `index_isolation.exceptions` pin in the
+  governing JIP; no such pin exists in JIP-T0-01 v0.1.4 today (governance follow-up).
   """
 
   use ExUnit.Case, async: false
@@ -44,58 +44,65 @@ defmodule Ticketing.Identity.IndexIsolationTest do
              end)
   end
 
-  test "IAM composite unique indexes include org_id for tenant-scoped identifiers" do
+  test "IAM composite unique indexes use org_id-first column order in PostgreSQL" do
     assert {:ok, _, _} =
              Migrator.with_repo(MigrationRepo, fn repo ->
-               assert index_exists?(repo, "identity_org_memberships_unique_user_per_org_index")
+               assert_index_columns!(
+                 repo,
+                 "identity_org_memberships_unique_user_per_org_index",
+                 ["org_id", "user_id"]
+               )
 
-               assert index_exists?(
-                        repo,
-                        "identity_org_memberships_unique_membership_id_per_org_index"
-                      )
+               assert_index_columns!(
+                 repo,
+                 "identity_org_memberships_unique_membership_id_per_org_index",
+                 ["org_id", "org_membership_id"]
+               )
 
-               assert index_exists?(repo, "identity_org_role_assignments_by_user_role_org_index")
-               assert index_exists?(repo, "identity_sessions_unique_id_per_org_index")
+               assert_index_columns!(
+                 repo,
+                 "identity_org_role_assignments_by_user_role_org_index",
+                 ["org_id", "user_id", "role"]
+               )
 
-               assert org_id_leads_index?(
-                        repo,
-                        "identity_org_memberships_unique_user_per_org_index"
-                      )
-
-               assert org_id_leads_index?(
-                        repo,
-                        "identity_org_memberships_unique_membership_id_per_org_index"
-                      )
-
-               assert org_id_leads_index?(repo, "identity_sessions_unique_id_per_org_index")
+               assert_index_columns!(
+                 repo,
+                 "identity_sessions_unique_id_per_org_index",
+                 ["org_id", "id"]
+               )
              end)
   end
 
-  defp index_exists?(repo, name) do
-    match?(
-      %Postgrex.Result{rows: [[true]]},
-      SQL.query!(
-        repo,
-        "SELECT to_regclass($1) IS NOT NULL",
-        ["public.#{name}"]
-      )
-    )
+  defp assert_index_columns!(repo, index_name, expected_columns) do
+    columns = index_column_names(repo, index_name)
+
+    assert columns == expected_columns,
+           "expected index #{index_name} columns #{inspect(expected_columns)}, got #{inspect(columns)}"
+
+    assert List.first(columns) == "org_id",
+           "expected org_id as first column on tenant isolation index #{index_name}"
   end
 
-  defp org_id_leads_index?(repo, index_name) do
+  defp index_column_names(repo, index_name) do
     %Postgrex.Result{rows: rows} =
       SQL.query!(
         repo,
         """
-        SELECT pg_get_indexdef(c.oid)
-        FROM pg_catalog.pg_class AS c
-        WHERE c.relname = $1
-          AND c.relkind = 'i'
+        SELECT a.attname
+        FROM pg_catalog.pg_class AS ic
+        JOIN pg_catalog.pg_index AS idx ON idx.indexrelid = ic.oid
+        JOIN LATERAL unnest(idx.indkey) WITH ORDINALITY AS key(attnum, ord) ON true
+        JOIN pg_catalog.pg_attribute AS a
+          ON a.attrelid = idx.indrelid
+         AND a.attnum = key.attnum
+         AND NOT a.attisdropped
+        WHERE ic.relname = $1
+          AND ic.relkind = 'i'
+        ORDER BY key.ord
         """,
         [index_name]
       )
 
-    [[definition]] = rows
-    String.downcase(definition) =~ "org_id"
+    Enum.map(rows, fn [name] -> name end)
   end
 end
