@@ -3,9 +3,10 @@ defmodule Ticketing.Identity.IndexIsolationTest do
   TEN-1 index-isolation evidence for TICK-25 Identity tables.
 
   Composite IAM/JIP identities are enforced with org_id as the leading index column
-  where tenant isolation requires it. Single-column UUIDv7 primary keys on tenant
-  tables remain subject to an explicit TEN-1 `index_isolation.exceptions` pin in the
-  governing JIP; no such pin exists in JIP-T0-01 v0.1.4 today (governance follow-up).
+  where tenant isolation requires it. JIP-T0-01 v0.1.5 and SPEC-T0-01 v0.1.4
+  explicitly select the narrow TEN-1 physical-primary-key exception for
+  `identity_org_memberships(org_membership_id)`, `identity_sessions(id)`, and
+  `identity_org_role_assignments(role_assignment_id)` only.
   """
 
   use ExUnit.Case, async: false
@@ -20,7 +21,7 @@ defmodule Ticketing.Identity.IndexIsolationTest do
     identity_sessions
   )
 
-  test "tenant tables use UUIDv7 single-column primary keys pending explicit TEN-1 exception pin" do
+  test "tenant tables retain the UUIDv7 single-column physical primary keys selected under TEN-1" do
     assert {:ok, _, _} =
              Migrator.with_repo(MigrationRepo, fn repo ->
                for table <- @tenant_tables do
@@ -39,7 +40,7 @@ defmodule Ticketing.Identity.IndexIsolationTest do
                           )
 
                  refute column_name == "org_id",
-                        "expected non-composite primary key on #{table} until JIP pins TEN-1 exception"
+                        "expected the selected single-column TEN-1 physical primary key on #{table}"
                end
              end)
   end
