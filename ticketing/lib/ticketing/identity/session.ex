@@ -118,4 +118,8 @@ defmodule Ticketing.Identity.Session do
       define_attribute? false
     end
   end
+
+  identities do
+    identity :unique_id_per_org, [:org_id, :id]
+  end
 end

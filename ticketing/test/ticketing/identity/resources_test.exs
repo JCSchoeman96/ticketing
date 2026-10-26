@@ -135,9 +135,9 @@ defmodule Ticketing.Identity.ResourcesTest do
   end
 
   test "tenant resources use attribute multitenancy on org_id" do
-    assert Ash.Resource.Info.multitenancy_attribute(OrgMembership) == :org_id
-    assert Ash.Resource.Info.multitenancy_attribute(Session) == :org_id
-    assert Ash.Resource.Info.multitenancy_attribute(OrgRoleAssignment) == :org_id
-    refute Ash.Resource.Info.multitenancy_attribute(User)
+    assert Info.multitenancy_attribute(OrgMembership) == :org_id
+    assert Info.multitenancy_attribute(Session) == :org_id
+    assert Info.multitenancy_attribute(OrgRoleAssignment) == :org_id
+    refute Info.multitenancy_attribute(User)
   end
 end

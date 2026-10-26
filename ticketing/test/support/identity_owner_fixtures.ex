@@ -19,14 +19,19 @@ defmodule Ticketing.Identity.OwnerFixtures do
     id = Map.fetch!(attrs, :id)
     status = Map.get(attrs, :status, "active")
     now = utc_now_usec()
+    verified_at = Map.get(attrs, :verified_at_utc)
+    disabled_at = Map.get(attrs, :disabled_at_utc)
+    deleted_at = Map.get(attrs, :deleted_at_utc)
 
     owner_insert!(
       @user_table,
       """
-      INSERT INTO #{@user_table} (id, status, created_at_utc)
-      VALUES ($1::uuid, $2, $3::timestamptz)
+      INSERT INTO #{@user_table} (
+        id, status, created_at_utc, verified_at_utc, disabled_at_utc, deleted_at_utc
+      )
+      VALUES ($1::uuid, $2, $3::timestamptz, $4::timestamptz, $5::timestamptz, $6::timestamptz)
       """,
-      [id, status, now]
+      [id, status, now, verified_at, disabled_at, deleted_at]
     )
 
     %{id: id, status: status, created_at_utc: now}
@@ -38,6 +43,8 @@ defmodule Ticketing.Identity.OwnerFixtures do
     user_id = Map.fetch!(attrs, :user_id)
     status = Map.get(attrs, :status, "active")
     now = utc_now_usec()
+    revoked_at = Map.get(attrs, :revoked_at_utc)
+    revocation_reason = Map.get(attrs, :revocation_reason)
 
     owner_insert_tenant!(
       org_id,
@@ -45,9 +52,9 @@ defmodule Ticketing.Identity.OwnerFixtures do
       INSERT INTO #{@membership_table} (
         org_membership_id, org_id, user_id, status, created_at_utc, revoked_at_utc, revocation_reason
       )
-      VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5::timestamptz, NULL, NULL)
+      VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5::timestamptz, $6::timestamptz, $7)
       """,
-      [org_membership_id, org_id, user_id, status, now]
+      [org_membership_id, org_id, user_id, status, now, revoked_at, revocation_reason]
     )
 
     %{
@@ -66,6 +73,8 @@ defmodule Ticketing.Identity.OwnerFixtures do
     status = Map.get(attrs, :status, "active")
     now = utc_now_usec()
     expires_at = Map.get(attrs, :expires_at_utc, DateTime.add(now, 3600, :second))
+    revoked_at = Map.get(attrs, :revoked_at_utc)
+    last_seen_at = Map.get(attrs, :last_seen_at_utc)
 
     owner_insert_tenant!(
       org_id,
@@ -74,9 +83,9 @@ defmodule Ticketing.Identity.OwnerFixtures do
         id, org_id, user_id, token_hash, status, created_at_utc, expires_at_utc,
         revoked_at_utc, last_seen_at_utc
       )
-      VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5, $6::timestamptz, $7::timestamptz, NULL, NULL)
+      VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5, $6::timestamptz, $7::timestamptz, $8::timestamptz, $9::timestamptz)
       """,
-      [id, org_id, user_id, token_hash, status, now, expires_at]
+      [id, org_id, user_id, token_hash, status, now, expires_at, revoked_at, last_seen_at]
     )
 
     %{id: id, org_id: org_id, user_id: user_id, status: status, expires_at_utc: expires_at}
@@ -89,6 +98,8 @@ defmodule Ticketing.Identity.OwnerFixtures do
     role = Map.fetch!(attrs, :role)
     status = Map.get(attrs, :status, "active")
     now = utc_now_usec()
+    granted_by = Map.get(attrs, :granted_by_user_id)
+    revoked_at = Map.get(attrs, :revoked_at)
 
     owner_insert_tenant!(
       org_id,
@@ -96,9 +107,9 @@ defmodule Ticketing.Identity.OwnerFixtures do
       INSERT INTO #{@role_table} (
         role_assignment_id, org_id, user_id, role, status, granted_by_user_id, granted_at, revoked_at
       )
-      VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5, NULL, $6::timestamptz, NULL)
+      VALUES ($1::uuid, $2::uuid, $3::uuid, $4, $5, $6::uuid, $7::timestamptz, $8::timestamptz)
       """,
-      [role_assignment_id, org_id, user_id, role, status, now]
+      [role_assignment_id, org_id, user_id, role, status, granted_by, now, revoked_at]
     )
 
     %{role_assignment_id: role_assignment_id, org_id: org_id, user_id: user_id, role: role}
@@ -157,6 +168,7 @@ defmodule Ticketing.Identity.OwnerFixtures do
 
   defp encode_uuids(params) do
     Enum.map(params, fn
+      nil -> nil
       value when is_binary(value) and byte_size(value) == 36 -> Ecto.UUID.dump!(value)
       %DateTime{} = dt -> dt
       other -> other
