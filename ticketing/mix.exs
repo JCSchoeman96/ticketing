@@ -49,9 +49,9 @@ defmodule Ticketing.MixProject do
     [
       {:tidewave, "~> 0.9.1", only: :dev},
       {:usage_rules, ">= 1.2.8 and < 2.0.0", only: [:dev, :test]},
-      {:ash, "~> 3.36.1"},
+      {:ash, "~> 3.37.2"},
       {:ash_phoenix, "~> 2.3.25"},
-      {:ash_postgres, "~> 2.15.1"},
+      {:ash_postgres, "~> 2.15.2"},
       {:simple_sat, "~> 0.1.4"},
       {:igniter, "~> 0.8.4", only: [:dev, :test]},
       {:phoenix, "~> 1.8.15"},
