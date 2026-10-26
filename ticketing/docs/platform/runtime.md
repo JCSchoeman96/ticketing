@@ -2,13 +2,13 @@
 
 > Nature and status: Derived implementation documentation. This document describes merged implementation state and does not define product semantics.
 >
-> Last verified main SHA: `342e2c1af89296753a31e70056dcf5d6c466ac3a`
+> Last verified main SHA: `c6979779a33ca2e4f84573bab7211bb800cf45cb`
 >
-> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.5 / Plane TICK-54 for the secure Ash/AshPostgres baseline.
+> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.5 / Plane TICK-25 for the merged Identity authorization substrate and TICK-54 for the secure Ash/AshPostgres baseline.
 >
-> Plane work: TICK-2, TICK-3, TICK-4, TICK-5, TICK-9, TICK-13, TICK-53, TICK-54
+> Plane work: TICK-2, TICK-3, TICK-4, TICK-5, TICK-9, TICK-13, TICK-53, TICK-54, TICK-25
 >
-> Merged PRs: [#8](https://github.com/JCSchoeman96/ticketing/pull/8), [#10](https://github.com/JCSchoeman96/ticketing/pull/10), [#11](https://github.com/JCSchoeman96/ticketing/pull/11), [#12 (TICK-4)](https://github.com/JCSchoeman96/ticketing/pull/12), [#13](https://github.com/JCSchoeman96/ticketing/pull/13), [#39 (TICK-53)](https://github.com/JCSchoeman96/ticketing/pull/39), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42)
+> Merged PRs: [#8](https://github.com/JCSchoeman96/ticketing/pull/8), [#10](https://github.com/JCSchoeman96/ticketing/pull/10), [#11](https://github.com/JCSchoeman96/ticketing/pull/11), [#12 (TICK-4)](https://github.com/JCSchoeman96/ticketing/pull/12), [#13](https://github.com/JCSchoeman96/ticketing/pull/13), [#39 (TICK-53)](https://github.com/JCSchoeman96/ticketing/pull/39), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42), [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40)
 
 ## Runtime and application identity
 
@@ -26,6 +26,19 @@
 | Postgrex | 0.22.4 |
 
 The root application namespace is `Ticketing`. Its OTP application identity is `:ticketing`.
+
+## Merged domain runtime
+
+`Ticketing.Identity` is a merged Ash domain. Its current resource boundary is:
+
+- global `Ticketing.Identity.User`;
+- tenant `Ticketing.Identity.OrgMembership`;
+- tenant read-only T0 `Ticketing.Identity.Session`;
+- tenant `Ticketing.Identity.OrgRoleAssignment`.
+
+The domain exposes only the governed reads needed by the T0 organizer flow: User liveness, matching membership proof, Session liveness, and active role-assignment reads. Session has no create, update, or destroy Ash action in this baseline, and its liveness read deliberately excludes the sensitive `token_hash` field.
+
+`Ticketing.Events` and `create_event` are not part of the merged runtime yet. They remain downstream TICK-26 work.
 
 ## Ash capability posture
 
