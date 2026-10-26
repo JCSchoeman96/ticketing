@@ -6,23 +6,27 @@
 >
 > Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.5 / Plane TICK-25 for the merged Identity persistence and tenant-isolation posture.
 >
-> Related merged PRs include [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40).
+> Plane work: TICK-4, TICK-7, TICK-8, TICK-9, TICK-12, TICK-16, TICK-17, TICK-25.
+>
+> Related merged PRs include [#9 (TICK-12)](https://github.com/JCSchoeman96/ticketing/pull/9), [#12 (TICK-4)](https://github.com/JCSchoeman96/ticketing/pull/12), [#15](https://github.com/JCSchoeman96/ticketing/pull/15), and [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40).
 
 ## PostgreSQL ownership and environments
 
-| Environment | Owner / migration connection | Endpoint | Version and notes |
-| --- | --- | --- | --- |
-| DEV | configured Ticketing DEV owner/migration role | `127.0.0.1:55432` | PostgreSQL 18.6 |
-| TEST | configured Ticketing TEST owner/migration role | `127.0.0.1:55433` | PostgreSQL 18.6; partitioned test databases are supported |
-| CI bootstrap | job-local owner/migration role | ephemeral PostgreSQL service | `postgres:18.6-alpine` |
+| Environment | Owner | Endpoint | Role and database | Version and notes |
+| --- | --- | --- | --- | --- |
+| DEV | `SHARED_LOCAL` | `127.0.0.1:55432` | `ticketing_dev` / `ticketing_dev` | PostgreSQL 18.6 |
+| TEST | `SHARED_LOCAL` | `127.0.0.1:55433` | `ticketing_test` / base database `ticketing_test` | PostgreSQL 18.6; Repo pool size is 10 |
+| CI bootstrap | `TOOL_OWNED` | Job-local service | Ephemeral PostgreSQL service | `postgres:18.6-alpine`; no dependency on workstation `dev-core` |
 
-DEV and TEST use separate PostgreSQL endpoints. The repository does not lifecycle-manage the workstation-owned shared database services. The deployment [`compose.yaml`](../../../compose.yaml) contains only the application service and has no PostgreSQL or Redis service.
+DEV and TEST use separate physical PostgreSQL clusters. The TEST role has `CREATEDB` only to create deterministic `MIX_TEST_PARTITION` databases. The TEST configuration appends the partition suffix to the `ticketing_test` base database and rejects the DEV port and database name.
 
-Redis is N/A for Ticketing. The current application does not depend on Redis.
+`dev-core` is workstation-owned. Ticketing configuration uses its shared endpoints; repository code and workflows do not lifecycle-manage those services. The repository does not define a `pgdata18` service or volume. The deployment [`compose.yaml`](../../../compose.yaml) contains only the application service and has no PostgreSQL or Redis service.
+
+Redis is N/A for Ticketing. The DEV allocation contract sets `USE_REDIS=no`; the current application does not depend on Redis.
 
 ## Owner/runtime role split
 
-Ticketing uses a privileged owner/migration connection for schema ownership and migration work and a distinct constrained runtime role for application data access. `Ticketing.Platform.DatabasePrivileges` applies the runtime grants after migrations. The runtime role receives database connect, schema usage, application-table DML privileges and sequence usage as required, while `schema_migrations` remains outside the application-table grant set.
+Ticketing uses the configured owner/migration connection for schema ownership and migration work and a distinct constrained runtime role for application data access. `Ticketing.Platform.DatabasePrivileges` applies the runtime grants after migrations. The runtime role receives database connect, schema usage, application-table DML privileges and sequence usage as required, while `schema_migrations` remains outside the application-table grant set.
 
 The runtime role is not the migration owner. Runtime-role tests verify that application DML can operate only within the intended database controls and that schema-changing operations are denied.
 
@@ -74,4 +78,4 @@ The constrained runtime test matrix verifies that a tenant row is hidden with no
 
 ## Legacy rollback evidence
 
-TICK-16 records preserved PostgreSQL 16 worktree containers and named volumes from earlier bootstrap work. That evidence remains historical rollback/context information and is not the active PostgreSQL 18 runtime baseline. No claim is made that a Ticketing Redis asset existed.
+TICK-16 records two preserved PostgreSQL 16 worktree containers and their named volumes: `refresh-contract-authority-pin-db-1` with `refresh-contract-authority-pin_pgdata`, and `b0-bootstrap-db-1` with `b0-bootstrap_pgdata`. The investigation found no evidence that a Ticketing Redis container or volume had been instantiated. This document makes no claim that a Redis asset was preserved. Those assets are historical rollback/context evidence and are not the active PostgreSQL 18 baseline.
