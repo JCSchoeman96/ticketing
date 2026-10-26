@@ -2,13 +2,13 @@
 
 > Nature and status: Derived implementation documentation. This document describes merged implementation state and does not define product semantics.
 >
-> Last verified main SHA: `ebf0018d18fd4422707551a2b391d92f7ad52246`
+> Last verified main SHA: `342e2c1af89296753a31e70056dcf5d6c466ac3a`
 >
-> Governing JIP: JIP-T0-00 / Plane TICK-1, approved
+> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.5 / Plane TICK-54 for the secure Ash/AshPostgres baseline.
 >
-> Plane work: TICK-2, TICK-3, TICK-4, TICK-5, TICK-9, TICK-13
+> Plane work: TICK-2, TICK-3, TICK-4, TICK-5, TICK-9, TICK-13, TICK-53, TICK-54
 >
-> Merged PRs: [#8](https://github.com/JCSchoeman96/ticketing/pull/8), [#10](https://github.com/JCSchoeman96/ticketing/pull/10), [#11](https://github.com/JCSchoeman96/ticketing/pull/11), [#12 (TICK-4)](https://github.com/JCSchoeman96/ticketing/pull/12), [#13](https://github.com/JCSchoeman96/ticketing/pull/13)
+> Merged PRs: [#8](https://github.com/JCSchoeman96/ticketing/pull/8), [#10](https://github.com/JCSchoeman96/ticketing/pull/10), [#11](https://github.com/JCSchoeman96/ticketing/pull/11), [#12 (TICK-4)](https://github.com/JCSchoeman96/ticketing/pull/12), [#13](https://github.com/JCSchoeman96/ticketing/pull/13), [#39 (TICK-53)](https://github.com/JCSchoeman96/ticketing/pull/39), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42)
 
 ## Runtime and application identity
 
@@ -16,32 +16,36 @@
 | --- | --- |
 | Elixir | 1.20.4 |
 | Erlang/OTP | 29.1.2 |
-| Phoenix | 1.8.15 |
-| Phoenix LiveView | 1.2.12 |
-| Ash | 3.36.1 |
+| Phoenix | 1.8.16 |
+| Phoenix LiveView | 1.2.13 |
+| Ash | 3.37.2 |
 | AshPhoenix | 2.3.25 |
-| AshPostgres | 2.15.1 |
+| AshPostgres | 2.15.2 |
+| ash_sql | 0.8.4 (transitive) |
+| SimpleSat | 0.1.4 |
 | Postgrex | 0.22.4 |
 
 The root application namespace is `Ticketing`. Its OTP application identity is `:ticketing`.
 
 ## Ash capability posture
 
-JIP-T0-00 records `ADOPT` for Ash core, AshPhoenix, and AshPostgres. The merged application pins those packages at the versions above. This does not imply that every Ash extension or product-domain resource is implemented.
+JIP-T0-00 records `ADOPT` for Ash core, AshPhoenix, and AshPostgres. JIP-T0-01 v0.1.5 updates the merged implementation baseline to Ash 3.37.2 and AshPostgres 2.15.2 as a security prerequisite; `ash_sql` 0.8.4 is the required transitive resolution. That prerequisite does not adopt new Ash 3.37 APIs, DSL constructs, authorization mechanisms, transaction mechanisms, or product/domain behavior.
 
-The JIP defers Ash Signals, Temporal Resources, AshStateMachine, AshOban, AshAuthentication, AshPaperTrail, Ash Storage, and Ash JSON:API. Reactor is present transitively through Ash, but Ticketing has not adopted it as an architectural capability. The JIP rejects AshArchival as a substitute for canonical lifecycle transitions. These decisions do not add or change product semantics.
+SimpleSat 0.1.4 is a direct runtime dependency used as the approved Ash policy SAT backend. PicoSAT remains unselected. The merged dependency baseline must continue to satisfy the repository security gate; known-vulnerable Ash 3.36.1 / AshPostgres 2.15.1 are not an accepted rollback target.
+
+The existing JIP posture still defers Ash Signals, Temporal Resources, AshStateMachine, AshOban, AshAuthentication, AshPaperTrail, Ash Storage, and Ash JSON:API unless a later approved JIP adopts them. Reactor is present transitively through Ash, but Ticketing has not adopted it as an architectural capability. AshArchival remains rejected as a substitute for canonical lifecycle transitions. These decisions do not add or change product semantics.
 
 ## Development and agent tooling
 
 Tidewave 0.9.1 is a DEV-only dependency. The development endpoint binds to `127.0.0.1` and uses `TICKETING_DEV_HTTP_PORT`, which defaults to `4200`. Tidewave is mounted at `/tidewave/mcp` on that endpoint.
 
-UsageRules is available in DEV and TEST. It supplies version-matched package guidance and generates framework skills under the repository-root `.agents/skills/` directory. The repository `AGENTS.md` files remain the source of implementation governance.
+UsageRules is available in DEV and TEST. It supplies version-matched package guidance and generates framework skills under the repository-root `.agents/skills/` directory. The repository `AGENTS.md` files remain the source of implementation governance. The Ash UsageRules material was mechanically resynced for the merged Ash 3.37.2 baseline in TICK-54.
 
 ## Frontend tooling
 
 | Tool | Baseline |
 | --- | --- |
-| Phoenix LiveView | 1.2.12 |
+| Phoenix LiveView | 1.2.13 |
 | Phoenix HTML | 4.3.0 |
 | Tailwind Elixir wrapper | 0.5.1 |
 | Tailwind CSS binary | 4.3.3 |
