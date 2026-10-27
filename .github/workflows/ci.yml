@@ -185,6 +185,25 @@ jobs:
         env:
           MIX_TEST_PARTITION: "1"
         run: mix test test/ticketing/repo_smoke_test.exs
+      - name: Run TICK-56 handoff verification
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd ticketing
+          mix deps.get
+          mix format --check-formatted
+          mix compile --warnings-as-errors
+          MIX_ENV=dev mix usage_rules.list
+          MIX_ENV=dev mix usage_rules.sync
+          cd ..
+          git diff --exit-code
+          cd ticketing
+          MIX_ENV=dev mix usage_rules.sync --check
+          mix precommit
+          mix contract.authority
+          mix ash.codegen --check
+          cd ..
+          git diff --check
 
   check_types:
     runs-on: ubuntu-24.04
