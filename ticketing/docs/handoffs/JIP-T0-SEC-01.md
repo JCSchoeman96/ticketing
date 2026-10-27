@@ -77,7 +77,7 @@ That run verified the restored standard workflow after temporary implementation-
 - PostgreSQL 18 partition verification;
 - `mix check.types` / Dialyzer.
 
-The merged implementation commit is the signed GitHub merge `77ebe45e3d99789b279f7fb5f3b3b106fb660475`. Merged-main [CI run #189](https://github.com/JCSchoeman96/ticketing/actions/runs/40535358726) is the final post-merge verification gate and must complete successfully before TICK-56 or JIP-T0-SEC-01 closes.
+The merged implementation commit is the signed GitHub merge `77ebe45e3d99789b279f7fb5f3b3b106fb660475`. Merged-main [CI run #189](https://github.com/JCSchoeman96/ticketing/actions/runs/40535358726) completed successfully on that exact SHA: the `bootstrap` job passed application verification and PostgreSQL 18 partition verification, and `check_types` passed Dialyzer. This satisfies the JIP's merged-main implementation verification gate.
 
 ## Review and authorization
 
@@ -89,7 +89,7 @@ Security regression is not an acceptable rollback strategy. Do not restore Bandi
 
 ## Downstream handoff to TICK-26
 
-TICK-56 remains the native prerequisite blocking TICK-26 until this closeout is complete. After merged-main CI is green and the required documentation closeout is reviewed and merged:
+TICK-56 remains the native prerequisite blocking TICK-26 until this closeout is complete. After the required documentation closeout is reviewed and merged:
 
 1. close TICK-56 only after its evidence is recorded;
 2. close parent TICK-57 only after the JIP closeout evidence is complete;
@@ -102,10 +102,9 @@ The pre-security-upgrade TICK-26 CI result must not be reused as merge evidence.
 
 ## Closeout state
 
-Implementation merge: complete at `77ebe45e3d99789b279f7fb5f3b3b106fb660475`.
+Implementation merge and merged-main verification are complete at `77ebe45e3d99789b279f7fb5f3b3b106fb660475`.
 
-Remaining closeout gates at the time this handoff is drafted:
+Remaining closeout gates at the time this handoff is frozen for review:
 
-- merged-main CI #189 must complete successfully;
-- this documentation-only closeout must receive its required review/CI and explicit merge authorization;
+- this documentation-only closeout must receive its required exact-head CI, review, and explicit merge authorization;
 - Plane must record final execution evidence before TICK-56/TICK-57 are closed.
