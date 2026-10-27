@@ -11,11 +11,6 @@ on:
         required: true
         type: string
 
-# Temporary TICK-56 branch helper: allows the PR workflow to persist the
-# resolver-produced Bandit-only lock update. Removed before final review.
-permissions:
-  contents: write
-
 jobs:
   bootstrap:
     runs-on: ubuntu-24.04
@@ -126,57 +121,6 @@ jobs:
       - name: Install and set up the application
         working-directory: ticketing
         run: mix setup
-      - name: Persist resolver-produced Bandit lock
-        if: github.event_name == 'pull_request' && github.head_ref == 'impl/tick-56-bandit-security'
-        shell: bash
-        run: |
-          set -euo pipefail
-          if git diff --quiet -- ticketing/mix.lock; then
-            echo "mix.lock already matches the manifest resolution; nothing to persist."
-            exit 0
-          fi
-
-          git diff -- ticketing/mix.lock | tee /tmp/tick56-lock.diff
-
-          lock_numstat="$(git diff --numstat -- ticketing/mix.lock)"
-          expected_numstat=$'2\t2\tticketing/mix.lock'
-          if [[ "$lock_numstat" != "$expected_numstat" ]]; then
-            echo "::error::Expected one Bandit line replacement plus EOF newline normalization; got: $lock_numstat"
-            exit 1
-          fi
-
-          removed_dep_lines="$(grep -c '^-  "[^"]*": {:hex' /tmp/tick56-lock.diff || true)"
-          added_dep_lines="$(grep -c '^+  "[^"]*": {:hex' /tmp/tick56-lock.diff || true)"
-          if [[ "$removed_dep_lines" != "1" || "$added_dep_lines" != "1" ]]; then
-            echo "::error::Expected exactly one removed and one added dependency entry."
-            exit 1
-          fi
-          if ! grep -Fq -- '-  "bandit": {:hex, :bandit, "1.13.1"' /tmp/tick56-lock.diff; then
-            echo "::error::Expected the old Bandit 1.13.1 lock entry to be the only removed dependency."
-            exit 1
-          fi
-          if ! grep -Fq -- '+  "bandit": {:hex, :bandit, "1.14.0"' /tmp/tick56-lock.diff; then
-            echo "::error::Expected the approved Bandit 1.14.0 lock entry to be the only added dependency."
-            exit 1
-          fi
-          if ! grep -Fq '\ No newline at end of file' /tmp/tick56-lock.diff; then
-            echo "::error::Expected the only additional lock change to be EOF newline normalization."
-            exit 1
-          fi
-
-          cp ticketing/mix.lock /tmp/tick56-mix.lock
-          git fetch origin "$GITHUB_HEAD_REF"
-          git checkout -B "$GITHUB_HEAD_REF" "origin/$GITHUB_HEAD_REF"
-          cp /tmp/tick56-mix.lock ticketing/mix.lock
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ticketing/mix.lock
-          git commit -m "fix: lock Bandit 1.14.0"
-          git push origin HEAD:"$GITHUB_HEAD_REF"
-      - name: Verify Bandit runtime smoke
-        working-directory: ticketing
-        run: mix test test/ticketing_web/bandit_runtime_smoke_test.exs
       - name: Run application verification
         working-directory: ticketing
         run: mix check
@@ -185,25 +129,6 @@ jobs:
         env:
           MIX_TEST_PARTITION: "1"
         run: mix test test/ticketing/repo_smoke_test.exs
-      - name: Run TICK-56 handoff verification
-        shell: bash
-        run: |
-          set -euo pipefail
-          cd ticketing
-          mix deps.get
-          mix format --check-formatted
-          mix compile --warnings-as-errors
-          MIX_ENV=dev mix usage_rules.list
-          MIX_ENV=dev mix usage_rules.sync
-          cd ..
-          git diff --exit-code
-          cd ticketing
-          MIX_ENV=dev mix usage_rules.sync --check
-          mix precommit
-          mix contract.authority
-          mix ash.codegen --check
-          cd ..
-          git diff --check
 
   check_types:
     runs-on: ubuntu-24.04
