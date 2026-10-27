@@ -136,17 +136,31 @@ jobs:
             exit 0
           fi
 
-          echo "Resolver-produced lock diff:"
-          git diff -- ticketing/mix.lock
+          git diff -- ticketing/mix.lock | tee /tmp/tick56-lock.diff
 
           lock_numstat="$(git diff --numstat -- ticketing/mix.lock)"
-          expected_numstat=$'1\t1\tticketing/mix.lock'
+          expected_numstat=$'2\t2\tticketing/mix.lock'
           if [[ "$lock_numstat" != "$expected_numstat" ]]; then
-            echo "::error::Expected exactly one Bandit lock-line replacement; got: $lock_numstat"
+            echo "::error::Expected one Bandit line replacement plus EOF newline normalization; got: $lock_numstat"
             exit 1
           fi
-          if ! grep -Fq '"bandit": {:hex, :bandit, "1.14.0"' ticketing/mix.lock; then
-            echo "::error::Resolver did not produce the approved Bandit 1.14.0 lock."
+
+          removed_dep_lines="$(grep -c '^-  "[^"]*": {:hex' /tmp/tick56-lock.diff || true)"
+          added_dep_lines="$(grep -c '^+  "[^"]*": {:hex' /tmp/tick56-lock.diff || true)"
+          if [[ "$removed_dep_lines" != "1" || "$added_dep_lines" != "1" ]]; then
+            echo "::error::Expected exactly one removed and one added dependency entry."
+            exit 1
+          fi
+          if ! grep -Fq -- '-  "bandit": {:hex, :bandit, "1.13.1"' /tmp/tick56-lock.diff; then
+            echo "::error::Expected the old Bandit 1.13.1 lock entry to be the only removed dependency."
+            exit 1
+          fi
+          if ! grep -Fq -- '+  "bandit": {:hex, :bandit, "1.14.0"' /tmp/tick56-lock.diff; then
+            echo "::error::Expected the approved Bandit 1.14.0 lock entry to be the only added dependency."
+            exit 1
+          fi
+          if ! grep -Fq '\ No newline at end of file' /tmp/tick56-lock.diff; then
+            echo "::error::Expected the only additional lock change to be EOF newline normalization."
             exit 1
           fi
 
