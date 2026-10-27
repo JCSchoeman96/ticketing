@@ -2,13 +2,13 @@
 
 > Nature and status: Derived implementation documentation. This document describes merged implementation state and does not define product semantics.
 >
-> Last verified main SHA: `c6979779a33ca2e4f84573bab7211bb800cf45cb`
+> Last verified main SHA: `77ebe45e3d99789b279f7fb5f3b3b106fb660475`
 >
-> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.5 / Plane TICK-25 for the merged Identity authorization substrate and TICK-54 for the secure Ash/AshPostgres baseline.
+> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.5 / Plane TICK-25 for the merged Identity authorization substrate and TICK-54 for the secure Ash/AshPostgres baseline; JIP-T0-SEC-01 v0.1.0 / Plane TICK-57 and TICK-56 for the secure Bandit runtime prerequisite.
 >
-> Plane work: TICK-2, TICK-3, TICK-4, TICK-5, TICK-9, TICK-13, TICK-53, TICK-54, TICK-25
+> Plane work: TICK-2, TICK-3, TICK-4, TICK-5, TICK-9, TICK-13, TICK-53, TICK-54, TICK-25, TICK-56, TICK-57
 >
-> Merged PRs: [#8](https://github.com/JCSchoeman96/ticketing/pull/8), [#10](https://github.com/JCSchoeman96/ticketing/pull/10), [#11](https://github.com/JCSchoeman96/ticketing/pull/11), [#12 (TICK-4)](https://github.com/JCSchoeman96/ticketing/pull/12), [#13](https://github.com/JCSchoeman96/ticketing/pull/13), [#39 (TICK-53)](https://github.com/JCSchoeman96/ticketing/pull/39), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42), [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40)
+> Merged PRs: [#8](https://github.com/JCSchoeman96/ticketing/pull/8), [#10](https://github.com/JCSchoeman96/ticketing/pull/10), [#11](https://github.com/JCSchoeman96/ticketing/pull/11), [#12 (TICK-4)](https://github.com/JCSchoeman96/ticketing/pull/12), [#13](https://github.com/JCSchoeman96/ticketing/pull/13), [#39 (TICK-53)](https://github.com/JCSchoeman96/ticketing/pull/39), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42), [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40), [#47 (TICK-56)](https://github.com/JCSchoeman96/ticketing/pull/47)
 
 ## Runtime and application identity
 
@@ -18,6 +18,7 @@
 | Erlang/OTP | 29.1.2 |
 | Phoenix | 1.8.16 |
 | Phoenix LiveView | 1.2.13 |
+| Bandit | 1.14.0; manifest floor `>= 1.14.0 and < 2.0.0-0` |
 | Ash | 3.37.2 |
 | AshPhoenix | 2.3.25 |
 | AshPostgres | 2.15.2 |
@@ -26,6 +27,14 @@
 | Postgrex | 0.22.4 |
 
 The root application namespace is `Ticketing`. Its OTP application identity is `:ticketing`.
+
+## HTTP server security baseline
+
+JIP-T0-SEC-01 v0.1.0 / TICK-56 establishes Bandit 1.14.0 as the merged HTTP server baseline. The direct dependency requirement is `>= 1.14.0 and < 2.0.0-0`, so the manifest itself cannot resolve back to the advisory-affected 1.13.1 baseline. The resolver movement for the prerequisite was limited to Bandit 1.13.1 -> 1.14.0; no other package version moved.
+
+The merged runtime smoke verifies the approved Bandit floor, a real TCP HTTP request through `TicketingWeb.Endpoint`, and a real WebSocket upgrade through the Phoenix LiveView `/live` socket. This prerequisite changes the network server security baseline only. It does not add or change Ticketing product/domain semantics, authorization, tenancy/RLS, persistence, lifecycle, or endpoint design.
+
+Advisory-affected Bandit versions below 1.14.0 are not an accepted rollback target. A later Bandit 1.x resolution remains subject to ordinary dependency review and the repository security gate.
 
 ## Merged domain runtime
 
