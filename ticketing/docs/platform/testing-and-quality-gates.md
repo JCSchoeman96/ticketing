@@ -2,13 +2,13 @@
 
 > Nature and status: Derived implementation documentation. This document records current verification mechanics and merged baseline evidence; it does not define product semantics.
 >
-> Last verified main SHA: `c6979779a33ca2e4f84573bab7211bb800cf45cb`
+> Last verified main SHA: `77ebe45e3d99789b279f7fb5f3b3b106fb660475`
 >
-> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.5 / Plane TICK-25 and TICK-54.
+> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.5 / Plane TICK-25 and TICK-54; JIP-T0-SEC-01 v0.1.0 / Plane TICK-57 and TICK-56.
 >
-> Plane work includes TICK-6, TICK-7, TICK-8, TICK-9, TICK-13, TICK-14, TICK-17, TICK-53, TICK-54, TICK-25.
+> Plane work includes TICK-6, TICK-7, TICK-8, TICK-9, TICK-13, TICK-14, TICK-17, TICK-53, TICK-54, TICK-25, TICK-56, TICK-57.
 >
-> Merged PRs include [#39 (TICK-53)](https://github.com/JCSchoeman96/ticketing/pull/39), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42), and [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40).
+> Merged PRs include [#39 (TICK-53)](https://github.com/JCSchoeman96/ticketing/pull/39), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42), [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40), and [#47 (TICK-56)](https://github.com/JCSchoeman96/ticketing/pull/47).
 
 ## Mix aliases
 
@@ -31,6 +31,10 @@ The path-filtered [authority workflow](../../../.github/workflows/authority.yml)
 `mix hex.audit` is part of the ordinary `mix check` gate and therefore part of application CI. A dependency baseline subject to a known Hex security advisory is not an acceptable green baseline. Security-driven dependency movement still follows the repository's JIT/JIP prerequisite discipline; the audit gate does not authorize unrelated upgrades or feature adoption.
 
 JIP-T0-01 v0.1.5 established Ash 3.37.2, AshPostgres 2.15.2, and required transitive `ash_sql` 0.8.4 as the merged secure baseline. Downgrading to the advisory-affected Ash 3.36.1 / AshPostgres 2.15.1 combination is not an accepted rollback path.
+
+JIP-T0-SEC-01 v0.1.0 establishes Bandit 1.14.0 as the merged secure HTTP server baseline and requires the manifest floor `>= 1.14.0 and < 2.0.0-0`. Bandit 1.13.1 and other advisory-affected versions below 1.14.0 are not accepted rollback targets. The TICK-56 resolver diff moved only Bandit 1.13.1 -> 1.14.0; the only other `mix.lock` textual change was final-newline normalization.
+
+The permanent Bandit runtime smoke asserts the approved version floor, sends a real TCP HTTP request through `TicketingWeb.Endpoint`, and performs a real WebSocket upgrade against the Phoenix LiveView `/live` socket. The application owns compatibility smoke; upstream Bandit owns protocol-level exploit regression coverage for the published advisories.
 
 ## Identity verification coverage
 
@@ -67,6 +71,14 @@ These tests verify the merged Identity substrate only. They do not claim that th
 - Dialyzer: Total errors 0, Skipped 0, Unnecessary Skips 0.
 
 The bootstrap run also applied the merged TICK-25 migrations and runtime grants successfully before exercising the application and constrained-runtime database tests.
+
+### Bandit security prerequisite evidence
+
+PR #47 merged the reviewed TICK-56 implementation to `main` as `77ebe45e3d99789b279f7fb5f3b3b106fb660475`. The exact merge delta from its base contains only `ticketing/mix.exs`, `ticketing/mix.lock`, and `ticketing/test/ticketing_web/bandit_runtime_smoke_test.exs`.
+
+[CI run 40514946850](https://github.com/JCSchoeman96/ticketing/actions/runs/40514946850) completed successfully on the exact cleaned PR head `b128626fb050805d7d2ae80cdb57575a5feb0ac4` before merge. Its `bootstrap` job passed application verification and PostgreSQL 18 partition verification, and its `check_types` job passed Dialyzer.
+
+Merged-main [CI run 40535358726](https://github.com/JCSchoeman96/ticketing/actions/runs/40535358726) is the required post-merge verification for `77ebe45e3d99789b279f7fb5f3b3b106fb660475`. This documentation closeout must not merge until that run completes successfully.
 
 ## Warning posture
 
