@@ -121,6 +121,9 @@ jobs:
       - name: Install and set up the application
         working-directory: ticketing
         run: mix setup
+      - name: Verify Bandit runtime smoke
+        working-directory: ticketing
+        run: mix test test/ticketing_web/bandit_runtime_smoke_test.exs
       - name: Run application verification
         working-directory: ticketing
         run: mix check
