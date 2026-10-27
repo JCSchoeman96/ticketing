@@ -6,21 +6,16 @@ defmodule TicketingWeb.BanditRuntimeSmokeTest do
   @recv_timeout 5_000
 
   setup do
-    {:ok, server} =
-      Bandit.start_link(
-        plug: TicketingWeb.Endpoint,
-        ip: {127, 0, 0, 1},
-        port: 0,
-        startup_log: false
+    server =
+      start_supervised!(
+        {Bandit,
+         plug: TicketingWeb.Endpoint,
+         ip: {127, 0, 0, 1},
+         port: 0,
+         startup_log: false}
       )
 
     {:ok, {_address, port}} = ThousandIsland.listener_info(server)
-
-    on_exit(fn ->
-      if Process.alive?(server) do
-        Supervisor.stop(server)
-      end
-    end)
 
     {:ok, port: port}
   end
