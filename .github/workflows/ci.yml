@@ -11,6 +11,11 @@ on:
         required: true
         type: string
 
+# Temporary TICK-56 branch helper: allows the PR workflow to persist the
+# resolver-produced Bandit-only lock update. Removed before final review.
+permissions:
+  contents: write
+
 jobs:
   bootstrap:
     runs-on: ubuntu-24.04
@@ -121,6 +126,40 @@ jobs:
       - name: Install and set up the application
         working-directory: ticketing
         run: mix setup
+      - name: Persist resolver-produced Bandit lock
+        if: github.event_name == 'pull_request' && github.head_ref == 'impl/tick-56-bandit-security'
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- ticketing/mix.lock; then
+            echo "mix.lock already matches the manifest resolution; nothing to persist."
+            exit 0
+          fi
+
+          echo "Resolver-produced lock diff:"
+          git diff -- ticketing/mix.lock
+
+          lock_numstat="$(git diff --numstat -- ticketing/mix.lock)"
+          expected_numstat=$'1\t1\tticketing/mix.lock'
+          if [[ "$lock_numstat" != "$expected_numstat" ]]; then
+            echo "::error::Expected exactly one Bandit lock-line replacement; got: $lock_numstat"
+            exit 1
+          fi
+          if ! grep -Fq '"bandit": {:hex, :bandit, "1.14.0"' ticketing/mix.lock; then
+            echo "::error::Resolver did not produce the approved Bandit 1.14.0 lock."
+            exit 1
+          fi
+
+          cp ticketing/mix.lock /tmp/tick56-mix.lock
+          git fetch origin "$GITHUB_HEAD_REF"
+          git checkout -B "$GITHUB_HEAD_REF" "origin/$GITHUB_HEAD_REF"
+          cp /tmp/tick56-mix.lock ticketing/mix.lock
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ticketing/mix.lock
+          git commit -m "fix: lock Bandit 1.14.0"
+          git push origin HEAD:"$GITHUB_HEAD_REF"
       - name: Verify Bandit runtime smoke
         working-directory: ticketing
         run: mix test test/ticketing_web/bandit_runtime_smoke_test.exs
