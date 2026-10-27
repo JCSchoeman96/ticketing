@@ -8,11 +8,7 @@ defmodule TicketingWeb.BanditRuntimeSmokeTest do
   setup do
     server =
       start_supervised!(
-        {Bandit,
-         plug: TicketingWeb.Endpoint,
-         ip: {127, 0, 0, 1},
-         port: 0,
-         startup_log: false}
+        {Bandit, plug: TicketingWeb.Endpoint, ip: {127, 0, 0, 1}, port: 0, startup_log: false}
       )
 
     {:ok, {_address, port}} = ThousandIsland.listener_info(server)
