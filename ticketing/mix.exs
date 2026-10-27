@@ -82,7 +82,7 @@ defmodule Ticketing.MixProject do
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
-      {:bandit, "~> 1.5"}
+      {:bandit, ">= 1.14.0 and < 2.0.0-0"}
     ]
   end
 
@@ -113,12 +113,12 @@ defmodule Ticketing.MixProject do
     ]
   end
 
-  # Aliases are shortcuts or tasks specific to the current project.
+  # Aliases are shortcuts or tasks specific to this project.
   # For example, to install project dependencies and perform other setup tasks, run:
   #
   #     $ mix setup
   #
-  # See the documentation for `Mix` for more info on aliases.
+  # See the `Mix` docs for more info on aliases.
   defp aliases do
     [
       setup: [
