@@ -78,7 +78,7 @@ PR #47 merged the reviewed TICK-56 implementation to `main` as `77ebe45e3d99789b
 
 [CI run 40514946850](https://github.com/JCSchoeman96/ticketing/actions/runs/40514946850) completed successfully on the exact cleaned PR head `b128626fb050805d7d2ae80cdb57575a5feb0ac4` before merge. Its `bootstrap` job passed application verification and PostgreSQL 18 partition verification, and its `check_types` job passed Dialyzer.
 
-Merged-main [CI run 40535358726](https://github.com/JCSchoeman96/ticketing/actions/runs/40535358726) completed successfully on `77ebe45e3d99789b279f7fb5f3b3b106fb660475`. Its `bootstrap` job passed the full application verification and PostgreSQL 18 partition verification, and its `check_types` job passed Dialyzer. This is the required post-merge verification for the TICK-56 implementation baseline.
+Merged-main [CI run 40535358726](https://github.com/JCSchoeman96/ticketing/actions/runs/40535358726) completed successfully on `77ebe45e3d99789b279f7fb5f3b3b106fb660475`. Its `bootstrap` job passed application verification and PostgreSQL 18 partition verification, and its `check_types` job passed Dialyzer. This is the required post-merge verification for the Bandit security prerequisite.
 
 ## Warning posture
 
