@@ -104,7 +104,9 @@ The pre-security-upgrade TICK-26 CI result must not be reused as merge evidence.
 
 Implementation merge and merged-main verification are complete at `77ebe45e3d99789b279f7fb5f3b3b106fb660475`.
 
+The documentation-only closeout candidate `ea06528b85cf4a72939c381ca4115c22edf07986` passed exact-head CI run #192 (`40536839177`), including application verification, PostgreSQL 18 partition verification, and Dialyzer.
+
 Remaining closeout gates at the time this handoff is frozen for review:
 
-- this documentation-only closeout must receive its required exact-head CI, review, and explicit merge authorization;
+- explicit user authorization is required before PR #48 may merge;
 - Plane must record final execution evidence before TICK-56/TICK-57 are closed.
