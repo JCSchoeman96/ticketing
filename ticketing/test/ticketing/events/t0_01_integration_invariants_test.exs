@@ -261,9 +261,7 @@ defmodule Ticketing.Events.T001IntegrationInvariantsTest do
                    )
 
                  {:ok, result} ->
-                   Ticketing.Repo.rollback(
-                     {:rls_write_unexpectedly_allowed, result.num_rows}
-                   )
+                   Ticketing.Repo.rollback({:rls_write_unexpectedly_allowed, result.num_rows})
                end
              end)
 
