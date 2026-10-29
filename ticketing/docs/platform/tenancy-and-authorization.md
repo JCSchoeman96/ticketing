@@ -54,7 +54,8 @@ TICK-26 exercises Event insertion through the same tenant-scoped runtime boundar
 - after Membership proof, the same UUID remains in `app.current_org_id` through Event insertion;
 - test instrumentation observes the Membership query and Event INSERT on the same PostgreSQL backend PID, with one tenant-context transition;
 - cleanup is verified after commit, proof rollback and exception, followed by reuse of the pooled backend without tenant bleed;
-- direct SQL under the constrained runtime role cannot read or write cross-tenant rows, including when the caller knows globally unique physical UUIDs;
+- direct-SQL cross-tenant reads of Membership, Session and RoleAssignment rows return no rows, including when the caller knows globally unique physical UUIDs;
+- direct-SQL write probes target Event rows: updating another tenant's Event affects zero rows, and changing an Event's `org_id` is rejected by RLS; TICK-28 does not directly test Identity-table writes, although those tables have RLS `WITH CHECK` policies;
 - runtime-role tests verify the role is not the table owner, is not a superuser and has `NOBYPASSRLS` posture.
 
 These are test observations of the approved transaction and RLS behavior. They do not create a new authorization mechanism or make a UUID an authorization credential.
