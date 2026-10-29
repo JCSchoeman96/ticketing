@@ -25,5 +25,7 @@ defmodule Ticketing.Identity do
         args: [:user_id, :role],
         get?: true
     end
+
+    resource Ticketing.Identity.Authorization
   end
 end
