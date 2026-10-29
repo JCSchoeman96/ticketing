@@ -173,8 +173,8 @@ Logs/telemetry MUST NOT expose raw `org_id`, `user_id`, `session_id`, credential
 
 1. merge JIP-T0-01 v0.1.6 and this derivative spec after independent planning review, successful planning CI and explicit user merge authorization;
 2. verify merged `main` freshness;
-3. refresh TICK-63 and TICK-26 Plane references;
-4. move TICK-26 from Blocked to Ready only if TICK-63 has an approved recovery path and no new blocker exists;
+3. record the merged planning evidence on TICK-63 and close TICK-63 specifically as the resolved **governance blocker disposition**; that closure MUST explicitly state that the staged candidate code defect remains unresolved until TICK-26 fixes and verifies it;
+4. refresh TICK-26 against the exact merged main and move it from Blocked to Ready only if no other blocker/staleness exists;
 5. issue a new Builder dispatch from that exact main SHA;
 6. reconcile the local/PR #45 candidate without preserving the forgeable two-action boundary;
 7. start from the failing forged-persona regression and implement the minimum boundary correction;
@@ -182,6 +182,8 @@ Logs/telemetry MUST NOT expose raw `org_id`, `user_id`, `session_id`, credential
 9. require fresh exact-head CI and independent exact-diff review;
 10. merge implementation only after explicit user authorization;
 11. verify post-merge `main` and update derived implementation docs before closure.
+
+TICK-63 closure at step 3 resolves the control-tower/governance stop condition only. It is not implementation-completion evidence; the forged-persona test remains a mandatory TICK-26 gate until the code is corrected.
 
 ## 14. Stop conditions
 
