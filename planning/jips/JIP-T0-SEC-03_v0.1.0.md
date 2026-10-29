@@ -53,7 +53,7 @@ No canonical product authority, roadmap, or tracer amendment is required. This i
 
 ## 4. Technical baseline and dependency decisions
 
-Current declarations are in [ticketing/mix.exs](/home/jcschoeman96/projects/current/ticketing/ticketing/mix.exs:50); current resolutions are in [ticketing/mix.lock](/home/jcschoeman96/projects/current/ticketing/ticketing/mix.lock:6).
+Current declarations are in [ticketing/mix.exs](../../ticketing/mix.exs); current resolutions are in [ticketing/mix.lock](../../ticketing/mix.lock).
 
 **Bandit decision, `IMPLEMENTATION_LOCKED`:**
 
@@ -86,7 +86,7 @@ The combined target’s `mix hex.audit` result was `No retired or security advis
 
 ## 5. Runtime compatibility and ownership
 
-The endpoint uses `Bandit.PhoenixAdapter`, mounts Tidewave only when `Mix.env() == :dev`, and places `Plug.Parsers` before the router. The LiveView socket is `/live`. [Endpoint]( /home/jcschoeman96/projects/current/ticketing/ticketing/lib/ticketing_web/endpoint.ex:14) [Endpoint configuration](/home/jcschoeman96/projects/current/ticketing/ticketing/config/config.exs:52) [DEV endpoint](/home/jcschoeman96/projects/current/ticketing/ticketing/config/dev.exs:48) [runtime configuration](/home/jcschoeman96/projects/current/ticketing/ticketing/config/runtime.exs:85)
+The endpoint uses `Bandit.PhoenixAdapter`, mounts Tidewave only when `Mix.env() == :dev`, and places `Plug.Parsers` before the router. The LiveView socket is `/live`. [Endpoint](../../ticketing/lib/ticketing_web/endpoint.ex) [Endpoint configuration](../../ticketing/config/config.exs) [DEV endpoint](../../ticketing/config/dev.exs) [runtime configuration](../../ticketing/config/runtime.exs)
 
 Bandit owns HTTP and HTTP/2 ingress parsing beneath Plug. Tidewave owns development tooling routes and toolbar metadata within the DEV endpoint. No Ticketing Ash Domain, Resource, action, or public domain interface is introduced or changed.
 
@@ -229,7 +229,7 @@ Do not update implementation documentation during planning. After the implementa
 - **CREATE** `ticketing/docs/handoffs/JIP-T0-SEC-03.md` with the exact merge SHA, dependency diff, advisory evidence, verification, and downstream handoff.
 - **UNAFFECTED** the historical SEC-01 handoff facts, assuming they remain recorded against their exact historical baseline. Reconcile PR #48’s current-state documentation against the SEC-03 merge before that PR proceeds.
 
-The current docs are [runtime.md](/home/jcschoeman96/projects/current/ticketing/ticketing/docs/platform/runtime.md) and [testing-and-quality-gates.md](/home/jcschoeman96/projects/current/ticketing/ticketing/docs/platform/testing-and-quality-gates.md).
+The current docs are [runtime.md](../../ticketing/docs/platform/runtime.md) and [testing-and-quality-gates.md](../../ticketing/docs/platform/testing-and-quality-gates.md).
 
 ## 18. Proposed Plane and PR posture
 
@@ -267,6 +267,6 @@ SEC-02 should **not** become v0.2.0 if SEC-03 is accepted. Keep v0.1.0 unchanged
 
 If a separate SEC-02 execution path is required because SEC-03 is rejected, it needs a versioned amendment that refreshes its baseline SHA, records Bandit 1.14.1 as the prerequisite baseline, replaces the old dependency graph and TICK-60 sequencing, updates CI expectations to account for the global audit cycle, and revises its DoD to require the globally clean audit after both advisories are fixed. Its Tidewave range and `only: :dev` decision remain unchanged. That is not the recommended path.
 
-## Completion statement
+## Pre-approval planning-agent completion statement
 
-The disposable worktree was removed. The original checkout has no tracked changes from this work; its pre-existing untracked files remain untouched. **No implementation, Plane mutation, PR mutation, merge, or READY transition was performed.**
+At the end of the disposable planning-agent simulation that produced this packet, the worktree was removed and the original checkout had no tracked changes from that run. **That planning-agent run performed no implementation, Plane mutation, PR mutation, merge, or READY transition.** Subsequent governed persistence and Plane reconciliation are recorded outside this provenance statement.
