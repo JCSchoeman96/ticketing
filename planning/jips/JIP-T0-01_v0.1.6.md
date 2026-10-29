@@ -263,8 +263,10 @@ Retain and freshly prove:
 
 ## 13. Plane and execution impact
 
-- TICK-63 remains a native blocker of TICK-26 until the corrected implementation passes the forged-persona regression and all TICK-26 gates.
-- TICK-26 remains Blocked until this approved amendment and its derivative spec merge to verified `main`, then receives a fresh readiness gate.
+- TICK-63 remains the native blocker of TICK-26 **while the governance/action-boundary decision is unresolved**.
+- After this approved amendment/spec merge to verified `main`, record the exact merged SHA and review/CI evidence on TICK-63 and close TICK-63 as the **governance blocker disposition**. That closure means the control-tower decision and safe recovery path are resolved; it MUST NOT be represented as proof that the staged TICK-26 code defect is already fixed.
+- With TICK-63's governance blocker resolved, perform a fresh TICK-26 readiness check. TICK-26 may return to Ready only if no other blocker/staleness exists.
+- The forged-persona failure remains a mandatory TICK-26 implementation/acceptance gate until the candidate code is corrected and freshly verified.
 - PR #45 remains draft and its old head/CI/review evidence remains stale.
 - The locally reconciled candidate must not be committed/pushed before the planning amendment is merged and Builder dispatch is refreshed.
 - TICK-28 remains downstream and must not be pulled forward.
@@ -282,7 +284,7 @@ Retain and freshly prove:
 
 - TICK-22 governing packet reference if it names v0.1.5;
 - TICK-26 governing packet/readiness reference;
-- TICK-63 recovery criteria;
+- TICK-63 closure/disposition evidence;
 - PR #45 planning references where necessary.
 
 ### Derived implementation docs after implementation merge
@@ -320,6 +322,7 @@ This planning amendment is complete when:
 - the planning PR merges only after explicit user merge authorization;
 - merged `main` is freshly verified;
 - Plane references are refreshed;
-- TICK-26 is re-readied only if TICK-63 recovery conditions are unblocked.
+- TICK-63 is closed only as the governance blocker disposition with wording that the implementation defect remains to be fixed in TICK-26;
+- TICK-26 is re-readied only if no further blocker/staleness exists.
 
-T0-01 implementation is not complete until corrected TICK-26 implementation, exact-head review/CI, explicit user merge authorization, merged-main verification and required derived documentation all pass.
+T0-01 implementation is not complete until corrected TICK-26 implementation, the permanent forged-persona regression, exact-head review/CI, explicit user merge authorization, merged-main verification and required derived documentation all pass.
