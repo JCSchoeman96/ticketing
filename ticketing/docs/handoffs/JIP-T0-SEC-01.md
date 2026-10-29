@@ -52,13 +52,13 @@ This was the correct secure floor for the advisory set known when SEC-01 was app
 
 ## Runtime compatibility evidence
 
-The permanent `TicketingWeb.BanditRuntimeSmokeTest` introduced by SEC-01 verifies:
+The permanent `TicketingWeb.BanditRuntimeSmokeTest` introduced by SEC-01 currently verifies:
 
-- the resolved Bandit version satisfies the governed secure range in force for the current implementation;
+- the resolved Bandit version remains within the historical SEC-01 range `>= 1.14.0 and < 2.0.0-0`;
 - a real TCP HTTP request through `TicketingWeb.Endpoint` returns a successful response;
 - a real WebSocket upgrade through the Phoenix LiveView `/live` socket succeeds.
 
-The smoke is application compatibility evidence, not a local reimplementation of upstream Bandit CVE exploit tests. Upstream protocol fixes remain owned by Bandit.
+The smoke's version assertion was not changed by SEC-03 and therefore is not the enforcement point for the newer 1.14.1 security floor. The current SEC-03 floor is enforced by the direct manifest requirement and lock resolution together with the mandatory clean global `mix hex.audit`. The smoke remains compatibility evidence and a historical floor guard, not a local reimplementation of upstream Bandit CVE exploit tests or the sole current security gate.
 
 ## SEC-01 verification evidence
 
