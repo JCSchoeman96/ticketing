@@ -41,7 +41,7 @@ defmodule Ticketing.Platform.ObservabilityPrivacyTest do
     handler_id = attach_metric_probe(metrics)
 
     log_output =
-      capture_log([level: :info], fn ->
+      capture_log([level: :info, metadata: :all, format: "$metadata $message\n"], fn ->
         assert {:ok, event} =
                  create_event(actor,
                    slug: "tick28-observability-success",
@@ -147,13 +147,16 @@ defmodule Ticketing.Platform.ObservabilityPrivacyTest do
 
   defp sensitive_needles do
     uuid_needles =
-      Enum.flat_map([@org_id, @user_id, @session_id], fn uuid ->
-        [
-          uuid,
-          String.replace(uuid, "-", ""),
-          inspect(Ecto.UUID.dump!(uuid), limit: :infinity, printable_limit: :infinity)
-        ]
-      end)
+      Enum.flat_map(
+        [@org_id, @user_id, @session_id, @membership_id, @role_assignment_id],
+        fn uuid ->
+          [
+            uuid,
+            String.replace(uuid, "-", ""),
+            inspect(Ecto.UUID.dump!(uuid), limit: :infinity, printable_limit: :infinity)
+          ]
+        end
+      )
 
     [@token_hash | uuid_needles]
   end
