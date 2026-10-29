@@ -2,11 +2,11 @@
 
 > Nature and status: Derived implementation documentation. This dossier describes the merged `Ticketing.Identity` implementation and does not define product semantics.
 >
-> Last verified main SHA: `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`
+> Last verified main SHA: `25a6a0956d7bb81214e348c7511132f5297d0fc5`
 >
 > Governing JIP: JIP-T0-01 v0.1.6 / Plane TICK-25 and TICK-26.
 >
-> Relevant merged implementation PRs: [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40) and [#45 (TICK-26)](https://github.com/JCSchoeman96/ticketing/pull/45).
+> Relevant merged implementation PRs: [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40), [#45 (TICK-26)](https://github.com/JCSchoeman96/ticketing/pull/45), and [#55 (TICK-28 verification)](https://github.com/JCSchoeman96/ticketing/pull/55).
 
 ## Ownership and boundary
 
@@ -128,4 +128,4 @@ Identity still does not implement:
 - production organization-role grant/activation convenience APIs;
 - occurrence creation, publication, sales, pricing, offers, inventory, orders, payments, tickets, or ledger behavior.
 
-TICK-28 remains the downstream supplemental T0-01 integration-evidence item; it does not change Identity ownership or the merged authorization semantics.
+TICK-28 supplements the Membership, Session and RoleAssignment failure-path evidence and verifies direct-SQL tenant isolation, tenant-context lifecycle and observability privacy across the integrated Event-create boundary. It changes no Identity ownership, authorization semantics, or production behavior. See the [T0-01 implementation handoff](../../handoffs/T0-01.md).

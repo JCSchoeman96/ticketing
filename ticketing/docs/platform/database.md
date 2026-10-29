@@ -2,7 +2,7 @@
 
 > Nature and status: Derived implementation documentation. This document describes merged infrastructure and database state; it does not define product semantics.
 >
-> Last verified main SHA: `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`
+> Last verified main SHA: `25a6a0956d7bb81214e348c7511132f5297d0fc5`
 >
 > Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.6 / Plane TICK-25 and TICK-26 for the merged Identity persistence, tenant isolation, and draft Event persistence posture.
 >
@@ -88,7 +88,7 @@ These constraints are the authoritative arbiter for duplicate/concurrent uniquen
 
 The constrained runtime Identity matrix verifies that a tenant row is hidden with no tenant context, hidden under a mismatched tenant, and visible under the matching tenant. Session and RoleAssignment are also queried by their globally unique physical primary keys in those tests, demonstrating that knowledge of the UUID alone does not bypass tenant isolation.
 
-TICK-26 additionally verifies the Event create path under the tenant transaction and proves cross-tenant or fabricated-organizer attempts cannot use the Event action as an alternate authorization path. TICK-28 remains responsible for the supplemental integrated direct-SQL, pool-reuse, tenant-context-cleanup, and failure-path matrix beyond the core TICK-26 TDD coverage.
+TICK-26 verifies the Event create path under the tenant transaction and proves cross-tenant or fabricated-organizer attempts cannot use the Event action as an alternate authorization path. TICK-28 adds test evidence that direct SQL under the constrained runtime role cannot read or mutate cross-tenant Event and Identity rows, even when globally unique physical UUIDs are known. The same evidence checks runtime ownership and `NOBYPASSRLS` posture, observes tenant GUC continuity on one backend through proof and insert, and verifies cleanup/pool reuse. This supplements TICK-26 tests and changes no database architecture or schema. See the [T0-01 implementation handoff](../handoffs/T0-01.md).
 
 `identity_users` is global and is not protected by tenant RLS semantics.
 
