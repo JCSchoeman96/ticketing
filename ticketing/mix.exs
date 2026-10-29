@@ -47,7 +47,7 @@ defmodule Ticketing.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:tidewave, "~> 0.9.1", only: :dev},
+      {:tidewave, ">= 0.9.2 and < 1.0.0", only: :dev},
       {:usage_rules, ">= 1.2.8 and < 2.0.0", only: [:dev, :test]},
       {:ash, "~> 3.37.2"},
       {:ash_phoenix, "~> 2.3.25"},
@@ -82,7 +82,7 @@ defmodule Ticketing.MixProject do
       {:gettext, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.2.0"},
-      {:bandit, ">= 1.14.0 and < 2.0.0-0"}
+      {:bandit, ">= 1.14.1 and < 2.0.0-0"}
     ]
   end
 
