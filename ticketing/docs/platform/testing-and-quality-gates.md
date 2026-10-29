@@ -114,7 +114,7 @@ Exact-head CI run [40880231442](https://github.com/JCSchoeman96/ticketing/action
 
 Builder-local evidence on the same implementation tree additionally recorded 31 focused Event tests passing, `mix precommit` passing, `mix hex.audit` clean, `mix ash.codegen --check` clean, PostgreSQL 18.6, and `git diff --check` passing.
 
-PR #45 merged as signed GitHub main commit `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`. Post-merge push CI run [40883731325](https://github.com/JCSchoeman96/ticketing/actions/runs/40883731325) is the merged-main closure verification for that exact SHA. At the point this documentation closeout branch was created, its `bootstrap` job had completed successfully and its `check_types` / Dialyzer job was still in progress. TICK-26 must not close until that full run succeeds and the documentation closeout itself is reviewed, merged, and freshly verified.
+PR #45 merged as signed GitHub main commit `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`. Post-merge push CI run [40883731325](https://github.com/JCSchoeman96/ticketing/actions/runs/40883731325) completed successfully on that exact SHA. Its `bootstrap` job passed application setup, `mix check`, and the partitioned PostgreSQL 18.6 smoke; its separate `check_types` job also completed successfully, including Dialyzer. This is the merged-main verification for the TICK-26 implementation code. TICK-26 still remains open until this documentation closeout is independently reviewed, merged, and freshly verified.
 
 ## Reviewed SEC-03 implementation evidence
 
