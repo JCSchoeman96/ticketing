@@ -66,7 +66,7 @@ defmodule Ticketing.Events.T001TenantContextContinuityTest do
             stage ->
               assert %Postgrex.Result{rows: [[backend_pid, tenant_setting]]} =
                        SQL.query!(
-                         Ticketing.Repo,
+                         Ticketing.Repo.get_dynamic_repo(),
                          "SELECT pg_backend_pid(), current_setting('app.current_org_id', true)",
                          []
                        )
