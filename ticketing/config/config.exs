@@ -46,7 +46,7 @@ config :spark,
 
 config :ticketing,
   ecto_repos: [Ticketing.Repo],
-  ash_domains: [Ticketing.Identity],
+  ash_domains: [Ticketing.Identity, Ticketing.Events],
   generators: [timestamp_type: :utc_datetime]
 
 # Configure the endpoint
