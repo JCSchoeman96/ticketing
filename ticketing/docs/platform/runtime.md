@@ -2,13 +2,13 @@
 
 > Nature and status: Derived implementation documentation. This document describes merged implementation state and does not define product semantics.
 >
-> Last verified implementation main SHA: `2bfb68d579d39f05cd626e8c36a365d588cb8cbc`
+> Last verified implementation main SHA: `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`
 >
-> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.5 / Plane TICK-25 for the merged Identity authorization substrate and TICK-54 for the secure Ash/AshPostgres baseline; JIP-T0-SEC-01 v0.1.0 / Plane TICK-57 as the historical Bandit security restoration; JIP-T0-SEC-03 v0.1.0 / Plane TICK-61 as the current Bandit + Tidewave security baseline.
+> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.6 / Plane TICK-25 and TICK-26 for the merged organizer-to-draft-Event path and TICK-54 for the secure Ash/AshPostgres baseline; JIP-T0-SEC-01 v0.1.0 / Plane TICK-57 as the historical Bandit security restoration; JIP-T0-SEC-03 v0.1.0 / Plane TICK-61 as the current Bandit + Tidewave security baseline.
 >
-> Plane work includes TICK-2, TICK-3, TICK-4, TICK-5, TICK-9, TICK-13, TICK-25, TICK-53, TICK-54, TICK-56, TICK-57, TICK-60, TICK-61, and TICK-62.
+> Plane work includes TICK-2, TICK-3, TICK-4, TICK-5, TICK-9, TICK-13, TICK-25, TICK-26, TICK-53, TICK-54, TICK-56, TICK-57, TICK-60, TICK-61, and TICK-62.
 >
-> Relevant merged PRs include [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42), [#47 (SEC-01)](https://github.com/JCSchoeman96/ticketing/pull/47), and [#51 (SEC-03)](https://github.com/JCSchoeman96/ticketing/pull/51).
+> Relevant merged PRs include [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42), [#45 (TICK-26)](https://github.com/JCSchoeman96/ticketing/pull/45), [#47 (SEC-01)](https://github.com/JCSchoeman96/ticketing/pull/47), and [#51 (SEC-03)](https://github.com/JCSchoeman96/ticketing/pull/51).
 
 ## Runtime and application identity
 
@@ -35,15 +35,18 @@ The root application namespace is `Ticketing`. Its OTP application identity is `
 - global `Ticketing.Identity.User`;
 - tenant `Ticketing.Identity.OrgMembership`;
 - tenant read-only T0 `Ticketing.Identity.Session`;
-- tenant `Ticketing.Identity.OrgRoleAssignment`.
+- tenant `Ticketing.Identity.OrgRoleAssignment`;
+- non-persistent `Ticketing.Identity.Authorization` for the current organizer capability check.
 
-The domain exposes only the governed reads needed by the T0 organizer flow: User liveness, matching membership proof, Session liveness, and active role-assignment reads. Session has no create, update, or destroy Ash action in this baseline, and its liveness read deliberately excludes the sensitive `token_hash` field.
+The domain exposes governed reads for User liveness, matching membership proof, Session liveness, and active role-assignment evidence. Session has no create, update, or destroy Ash action in this baseline, and its liveness read deliberately excludes the sensitive `token_hash` field. The private `authorize_event_create` action returns only boolean success for the current orchestration; it does not produce a reusable organizer persona or bearer capability.
 
-`Ticketing.Events` and `create_event` are not part of the merged runtime yet. They remain downstream TICK-26 work.
+`Ticketing.Events` is now a merged Ash domain with `Ticketing.Events.Event` as its current resource. Its production create boundary is `Ticketing.Events.create_event/2`, which wraps the `Event.create_event` action in one `Ash.transact/3` tenant transaction. The action first consumes the persisted Identity evidence and IAM authorization, then assigns the protected tenant/Event identifiers and performs the single Event insert. There is no second `persist_draft` or equivalent Event write action.
+
+The merged TICK-26 slice ends at creation of one tenant-owned draft Event. Occurrence creation, publication, sales, pricing, inventory, orders, payments, tickets and ledger behavior are not part of this runtime yet.
 
 ## Ash capability posture
 
-JIP-T0-00 records `ADOPT` for Ash core, AshPhoenix, and AshPostgres. JIP-T0-01 v0.1.5 updates the merged implementation baseline to Ash 3.37.2 and AshPostgres 2.15.2 as a security prerequisite; `ash_sql` 0.8.4 is the required transitive resolution. That prerequisite does not adopt new Ash 3.37 APIs, DSL constructs, authorization mechanisms, transaction mechanisms, or product/domain behavior.
+JIP-T0-00 records `ADOPT` for Ash core, AshPhoenix, and AshPostgres. JIP-T0-01 v0.1.5 updated the merged implementation baseline to Ash 3.37.2 and AshPostgres 2.15.2 as a security prerequisite; `ash_sql` 0.8.4 is the required transitive resolution. JIP-T0-01 v0.1.6 changes only the TICK-26 action boundary and does not adopt new dependencies or Ash extensions.
 
 SimpleSat 0.1.4 is a direct runtime dependency used as the approved Ash policy SAT backend. PicoSAT remains unselected. The merged dependency baseline must continue to satisfy the repository security gate; known-vulnerable Ash 3.36.1 / AshPostgres 2.15.1 are not an accepted rollback target.
 

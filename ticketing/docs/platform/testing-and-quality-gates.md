@@ -2,13 +2,13 @@
 
 > Nature and status: Derived implementation documentation. This document records current verification mechanics and merged baseline evidence; it does not define product semantics.
 >
-> Last verified implementation main SHA: `2bfb68d579d39f05cd626e8c36a365d588cb8cbc`
+> Last verified implementation main SHA: `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`
 >
-> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.5 / Plane TICK-25 and TICK-54; JIP-T0-SEC-01 v0.1.0 / Plane TICK-57 as historical security evidence; JIP-T0-SEC-03 v0.1.0 / Plane TICK-61 as the current dependency-security restoration.
+> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.6 / Plane TICK-25, TICK-26 and TICK-54; JIP-T0-SEC-01 v0.1.0 / Plane TICK-57 as historical security evidence; JIP-T0-SEC-03 v0.1.0 / Plane TICK-61 as the current dependency-security restoration.
 >
-> Plane work includes TICK-6, TICK-7, TICK-8, TICK-9, TICK-13, TICK-14, TICK-17, TICK-25, TICK-53, TICK-54, TICK-56, TICK-57, TICK-60, TICK-61, and TICK-62.
+> Plane work includes TICK-6, TICK-7, TICK-8, TICK-9, TICK-13, TICK-14, TICK-17, TICK-25, TICK-26, TICK-53, TICK-54, TICK-56, TICK-57, TICK-60, TICK-61, and TICK-62.
 >
-> Relevant merged PRs include [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42), [#47 (SEC-01)](https://github.com/JCSchoeman96/ticketing/pull/47), and [#51 (SEC-03)](https://github.com/JCSchoeman96/ticketing/pull/51).
+> Relevant merged PRs include [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42), [#45 (TICK-26)](https://github.com/JCSchoeman96/ticketing/pull/45), [#47 (SEC-01)](https://github.com/JCSchoeman96/ticketing/pull/47), and [#51 (SEC-03)](https://github.com/JCSchoeman96/ticketing/pull/51).
 
 ## Mix aliases
 
@@ -30,7 +30,7 @@ The path-filtered [authority workflow](../../../.github/workflows/authority.yml)
 
 `mix hex.audit` is part of the ordinary `mix check` gate and therefore part of application CI. A dependency baseline subject to a known Hex security advisory is not an acceptable green baseline. Security-driven dependency movement still follows the repository's JIT/JIP prerequisite discipline; the audit gate does not authorize unrelated upgrades or feature adoption.
 
-JIP-T0-01 v0.1.5 established Ash 3.37.2, AshPostgres 2.15.2, and required transitive `ash_sql` 0.8.4 as the merged secure Ash baseline. Downgrading to the advisory-affected Ash 3.36.1 / AshPostgres 2.15.1 combination is not an accepted rollback path.
+JIP-T0-01 v0.1.5 established Ash 3.37.2, AshPostgres 2.15.2, and required transitive `ash_sql` 0.8.4 as the merged secure Ash baseline. JIP-T0-01 v0.1.6 did not change dependencies. Downgrading to the advisory-affected Ash 3.36.1 / AshPostgres 2.15.1 combination is not an accepted rollback path.
 
 JIP-T0-SEC-01 v0.1.0 historically established Bandit 1.14.0 after the October 26 advisory set. JIP-T0-SEC-03 v0.1.0 supersedes that version as current runtime state after the October 28 Bandit advisory and the Tidewave advisory. The current requirements/resolutions are:
 
@@ -55,7 +55,7 @@ The approved JIP treated a separate bounded Ticketing HTTP/2 body smoke as optio
 
 ## Identity verification coverage
 
-The merged TICK-25 test suite covers the implemented Identity boundary, including:
+The merged TICK-25 test suite covers the implemented Identity substrate, including:
 
 - canonical resource shapes, nullability, identities and relationships;
 - governed liveness/probe interface scope;
@@ -69,7 +69,52 @@ The merged TICK-25 test suite covers the implemented Identity boundary, includin
 - no-tenant, wrong-tenant and correct-tenant visibility cases;
 - global physical UUID lookup not bypassing tenant RLS for Session and RoleAssignment.
 
-These tests verify the merged Identity substrate only. They do not claim that the downstream organizer-to-Event transaction has been implemented; that remains TICK-26.
+TICK-26 consumes this substrate through governed interfaces; it does not replace the TICK-25 persistence/RLS evidence.
+
+## Event-create verification coverage
+
+The merged TICK-26 suite covers the organizer-to-draft-Event boundary, including:
+
+- `org_owner` success;
+- `org_admin` success;
+- Membership proof before every other organizer business-row read;
+- the same PostgreSQL backend transaction through the Event insert;
+- authoritative user/session/organization/membership/role binding;
+- active Session and database-time expiry behavior;
+- forged-role denial;
+- platform/support denial;
+- invalid or mixed active-scope denial;
+- cross-tenant information hiding;
+- protected Event fields not being caller writable;
+- canonical initial draft values and database-owned timestamps;
+- rollback leaving no Event and not mutating Session state;
+- database-enforced duplicate and concurrent uniqueness outcomes;
+- the removed `persist_draft` action being unavailable;
+- a fabricated human organizer actor being unable to call the remaining `create_event` action and insert an Event without the persisted proof chain.
+
+The TICK-63 forged-persona reproducer was used as the negative proof that the earlier two-action candidate was vulnerable and was converted into permanent regression coverage for the corrected single-action boundary.
+
+TICK-28 remains responsible for supplemental integrated evidence beyond TICK-26 core TDD: direct runtime SQL isolation, broader failure permutations, transaction-local tenant-context cleanup after commit/rollback/exception, pool reuse, telemetry label checks, and the normal/partitioned PostgreSQL 18.6 integration matrix. TICK-28 must not weaken or replace the merged TICK-26 behavior.
+
+## Reviewed TICK-26 implementation evidence
+
+PR #45 was independently reviewed at exact implementation head `9d1f652e898f8793e48c4242d34a6acf54c99e07` against base `b55c435f8dfd17bd46a0e10f6e1d11c4d7185269`. The exact diff contained 14 files and no dependency-file changes.
+
+Exact-head CI run [40880231442](https://github.com/JCSchoeman96/ticketing/actions/runs/40880231442) completed successfully before merge. That run verified:
+
+- `mix check` passed;
+- `mix hex.audit` found no retired or security-advisory packages;
+- canonical authority verification reported CANON-1 2.0.18 and the active T0 tracer;
+- `mix ash.codegen --check` passed without generated-state drift;
+- application ExUnit: 111 passed;
+- Credo strict: no issues;
+- Sobelow completed at the configured Medium-or-higher failure threshold, with only existing Low Confidence findings in adjacent infrastructure;
+- partitioned PostgreSQL 18.6 Repo smoke: 18 passed;
+- `mix check.types` / Dialyzer passed.
+
+Builder-local evidence on the same implementation tree additionally recorded 31 focused Event tests passing, `mix precommit` passing, `mix hex.audit` clean, `mix ash.codegen --check` clean, PostgreSQL 18.6, and `git diff --check` passing.
+
+PR #45 merged as signed GitHub main commit `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`. Post-merge push CI run [40883731325](https://github.com/JCSchoeman96/ticketing/actions/runs/40883731325) completed successfully on that exact SHA. Its `bootstrap` job passed application setup, `mix check`, and the partitioned PostgreSQL 18.6 smoke; its separate `check_types` job also completed successfully, including Dialyzer. This is the merged-main verification for the TICK-26 implementation code. TICK-26 still remains open until this documentation closeout is independently reviewed, merged, and freshly verified.
 
 ## Reviewed SEC-03 implementation evidence
 
@@ -91,7 +136,7 @@ The merged-main run verified:
 - Partitioned PostgreSQL 18 Repo smoke: 18 passed.
 - Dialyzer: `Total errors: 0, Skipped: 0, Unnecessary Skips: 0`.
 
-This is the current reviewed merged implementation baseline for the dependency-security gate.
+That remains the reviewed merged implementation evidence for the current dependency-security gate; TICK-26 changes no dependency versions.
 
 ## Historical SEC-01 evidence
 
@@ -99,7 +144,7 @@ SEC-01 remains a historical implementation record rather than the current depend
 
 ## Warning posture
 
-Completed TICK-14 records reviewed upstream/dependency warning families, including OTP `xmerl_ucs` missing-spec warnings during cold PLT construction and `yamerl` deprecated prefix-catch warnings. Current CI also reports the existing Mix `xref: [exclude: ...]` deprecation and several upstream dependency compiler/type warnings. They do not change the green application gate and were not suppressed by SEC-03.
+Completed TICK-14 records reviewed upstream/dependency warning families, including OTP `xmerl_ucs` missing-spec warnings during cold PLT construction and `yamerl` deprecated prefix-catch warnings. Current CI also reports the existing Mix `xref: [exclude: ...]` deprecation and several upstream dependency compiler/type warnings. They do not change the green application gate and were not suppressed by TICK-26 or SEC-03.
 
 The low-confidence Sobelow findings remain in existing infrastructure/tooling code. No Medium-or-higher finding failed the configured security check.
 

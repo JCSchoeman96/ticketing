@@ -12,11 +12,12 @@ These files are derived implementation documentation. They describe code that ha
 ## Domains
 
 - [Identity](domains/identity/README.md)
+- [Events](domains/events/README.md)
 
-The Events domain and cross-domain flow documentation are added only after those implementations merge. The merged TICK-25 baseline does not yet contain Event creation.
+The merged TICK-26 baseline now contains the governed organizer-to-draft-Event creation path. Occurrence creation, publication, sales, commerce, ticketing and later T0 behavior remain unimplemented unless a later merged dossier says otherwise.
 
 ## Handoffs
 
 - [T0-00 closeout record](handoffs/T0-00.md)
 
-`T0-01.md` is created only when the complete T0-01 increment has merged and its final closeout evidence can be frozen.
+`T0-01.md` is created only when the complete T0-01 increment has merged and its final closeout evidence can be frozen. TICK-28 remains downstream of TICK-26, so the T0-01 handoff is not yet final.
