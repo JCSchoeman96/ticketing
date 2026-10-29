@@ -118,20 +118,22 @@ defmodule Ticketing.Platform.ObservabilityPrivacyTest do
     Enum.flat_map(emissions, fn {event_name, metadata} ->
       metrics
       |> Enum.filter(&(Map.fetch!(&1, :event_name) == event_name))
-      |> Enum.map(fn metric ->
-        tags = Map.get(metric, :tags, [])
-        tag_values = Map.get(metric, :tag_values)
-
-        values =
-          if is_function(tag_values, 1) do
-            tag_values.(metadata)
-          else
-            metadata
-          end
-
-        Map.take(values, tags)
-      end)
+      |> Enum.map(&metric_label_map(&1, metadata))
     end)
+  end
+
+  defp metric_label_map(metric, metadata) do
+    tags = Map.get(metric, :tags, [])
+    tag_values = Map.get(metric, :tag_values)
+
+    values =
+      if is_function(tag_values, 1) do
+        tag_values.(metadata)
+      else
+        metadata
+      end
+
+    Map.take(values, tags)
   end
 
   defp drain_metric_emissions(acc \\ []) do
