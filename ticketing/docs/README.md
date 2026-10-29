@@ -14,7 +14,7 @@ These files are derived implementation documentation. They describe code that ha
 - [Identity](domains/identity/README.md)
 - [Events](domains/events/README.md)
 
-The merged T0-01 increment contains the governed organizer-to-draft-Event creation path and its supplemental TICK-28 verification. This does not implement Event publication, Occurrence, sales, commerce, ticketing or later T0 behavior. See the [T0-01 implementation handoff](handoffs/T0-01.md) for the frozen merged-state record.
+The merged T0-01 increment contains the governed organizer-to-draft-Event creation path and its supplemental TICK-28 verification. This does not implement Event publication, Occurrence, sales, commerce, ticketing or later T0 behavior. See the [T0-01 implementation handoff](handoffs/T0-01.md) for the merged-state record.
 
 ## Handoffs
 
