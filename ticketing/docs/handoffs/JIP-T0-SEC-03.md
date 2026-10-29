@@ -121,7 +121,7 @@ Do not roll back to Bandit 1.14.0 or Tidewave 0.9.1. If a runtime regression app
 
 TICK-62 and TICK-60 may close after the successful merged-main verification recorded above. Parent TICK-61 remains open until the required derived documentation closeout is reviewed, merged, and checked against the implementation merge.
 
-The SEC-01 parent TICK-57 is closed out alongside this documentation so its historical record is preserved without reintroducing stale current-state documentation from draft PR #48.
+The SEC-01 parent TICK-57 is intended to close alongside this documentation so its historical record is preserved without reintroducing stale current-state documentation from draft PR #48.
 
 TICK-26 remains blocked until the documentation closeout is complete and a fresh readiness check re-verifies current main, authority/CANON/manifest/ROADMAP/tracer, governing JIP, dependencies, and prior implementation candidate staleness. Pre-SEC-03 CI evidence must not be reused as current merge evidence.
 
