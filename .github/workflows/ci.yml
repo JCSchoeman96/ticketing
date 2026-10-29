@@ -132,6 +132,7 @@ jobs:
           mix test
           test/ticketing/repo_smoke_test.exs
           test/ticketing/events/t0_01_integration_invariants_test.exs
+          test/ticketing/events/t0_01_tenant_context_continuity_test.exs
           test/ticketing/platform/observability_privacy_test.exs
 
   check_types:
