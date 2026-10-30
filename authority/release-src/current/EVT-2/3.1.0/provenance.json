@@ -1,0 +1,23 @@
+{
+  "bootstrap_commit": "84340ff1d2bc78a44f012d29717162663323ee29",
+  "candidate_preparation_base_commit": "84340ff1d2bc78a44f012d29717162663323ee29",
+  "provenance_statement": "Candidate EVT-2@3.1.0 is derived from exact selected EVT-2@3.0.0 on the verified TICK-64 base; the paired artifacts carry the authority-only correction.",
+  "source_bundle_path": "contracts/EVT-2/EVT-2_bundle_v3.0.0.zip",
+  "source_members": [
+    {
+      "bytes": 71682,
+      "sha256": "d28ac691168ba2a847272c2e2f41b67de30d4e954e88cefd94d730e7f02b53ee",
+      "source_member_path": "release-src/current/EVT-2/3.1.0/contract.json",
+      "tracked_source_path": "contract.json"
+    },
+    {
+      "bytes": 23395,
+      "sha256": "951e55bd0814fd76f762e33791dd605e58671d8c0b7b200c808c5e3367890115",
+      "source_member_path": "release-src/current/EVT-2/3.1.0/test-gates.json",
+      "tracked_source_path": "test-gates.json"
+    }
+  ],
+  "source_version": "3.0.0",
+  "source_zip_bytes": 87721,
+  "source_zip_sha256": "61eddff7863a5e77d05ad45533a8b8dd6e19bf436fdc8a07ec2897c394e914eb"
+}

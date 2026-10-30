@@ -22,11 +22,16 @@
     {
       "summary": "Define the T0 trusted active-session consumption policy after TEN-1 org membership proof: authoritative user_id and session_id, read-only persisted Session liveness on database UTC time, explicit auth-context active_scope and active_role, and no T0 Session issuance, mutation or session-event emission (TICK-36).",
       "ts_utc": "2026-10-22T14:40:00Z"
+    },
+    {
+      "date_utc": "2026-10-30",
+      "summary": "Add the org-scoped Occurrence admission-policy management capability.",
+      "version": "4.2.0"
     }
   ],
   "contract_ref": {
     "doc_id": "IAM-1",
-    "version": "4.1.3"
+    "version": "4.2.0"
   },
   "doc_id": "IAM-1-GATE",
   "gates": [
@@ -87,16 +92,16 @@
         {
           "details": {
             "artifact_kind": "test_gates",
-            "equals": "4.1.3",
+            "equals": "4.2.0",
             "json_pointer": "/contract_ref/version"
           },
           "mode": "automated",
           "type": "json_pointer_equals"
         }
       ],
-      "description": "Gate contract_ref MUST point at IAM-1 v4.0.0 (prevents version identity drift).",
+      "description": "Gate contract_ref MUST point at IAM-1 v4.2.0.",
       "enforced_by": "ci_contract_gate_strict",
-      "failure_message": "IAM-1-GATE contract_ref version does not match IAM-1 v4.0.0.",
+      "failure_message": "IAM-1-GATE contract_ref version does not match IAM-1 v4.2.0.",
       "id": "IAM-1-GATE-040-CONTRACT-VERSION-PIN",
       "level": "P0",
       "must": true,
@@ -1053,14 +1058,40 @@
       "level": "P0",
       "must": true,
       "title": "T0 trusted active session consumption"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT-2.set_occurrence_admission_policy",
+            "json_pointer": "/approved_authority_corrections/capability_action_map/evt.occurrence.admission_policy.manage"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_occurrence_admission_policy_authority.py::test_policy_management_is_prospective_and_uses_owner_admin_capability"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ],
+      "description": "Only the distinct human org_owner/org_admin capability authorizes the EVT-2 policy-management action.",
+      "failure_message": "Occurrence admission-policy management is not bound to its exact organization capability.",
+      "id": "IAM-1-GATE-T0-OCCURRENCE-ADMISSION-POLICY-CAPABILITY",
+      "level": "P0",
+      "must": true,
+      "title": "Occurrence admission-policy capability binding"
     }
   ],
-  "generated_at_utc": "2026-10-22T14:40:00Z",
-  "last_updated_utc": "2026-10-22T14:40:00Z",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
+  "last_updated_utc": "2026-10-30T07:28:46Z",
   "schema_version": "test-gates/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",
   "title": "IAM-1 Test Gates",
-  "updated_at_utc": "2026-10-22T14:40:00Z",
-  "version": "4.1.3"
+  "updated_at_utc": "2026-10-30T07:28:46Z",
+  "version": "4.2.0"
 }

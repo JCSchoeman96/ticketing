@@ -2,23 +2,23 @@
   "artifact_kind": "bundle_manifest",
   "bundle": {
     "bundle_id": "OBS-1",
-    "bundle_version": "2.9.0"
+    "bundle_version": "2.9.1"
   },
   "doc_id": "OBS-1",
   "files": [
     {
-      "bytes": 70777,
-      "path": "OBS-1_Contract_v2.9.0.json",
-      "sha256": "591fd3ec869f9202624a3813c0347bf1a3912aa50b71397682b86a1ac2e6c758"
+      "bytes": 71469,
+      "path": "OBS-1_Contract_v2.9.1.json",
+      "sha256": "ec09efb287b84f5742d493885a5d30b9c5448cbd67a39becbf315f19075d3f3f"
     },
     {
-      "bytes": 31858,
-      "path": "OBS-1_Test_Gates_v2.9.0.json",
-      "sha256": "48f5b496e4a00f6eaf5a9b2250e80934cbc0db0060774ac78f435730acea9313"
+      "bytes": 32912,
+      "path": "OBS-1_Test_Gates_v2.9.1.json",
+      "sha256": "d8a6a68d9bb99aa385c2bcce58c7f95541cd2f3b4948cf5c7a00ee111b946654"
     }
   ],
-  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
   "schema_version": "bundle-manifest/1.0",
   "suite_schema": "CS-0@3.0.1",
-  "version": "2.9.0"
+  "version": "2.9.1"
 }

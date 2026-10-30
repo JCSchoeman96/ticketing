@@ -2,23 +2,23 @@
   "artifact_kind": "bundle_manifest",
   "bundle": {
     "bundle_id": "ERR-1",
-    "bundle_version": "2.0.0"
+    "bundle_version": "2.0.1"
   },
   "doc_id": "ERR-1",
   "files": [
     {
-      "bytes": 60689,
-      "path": "ERR-1_Contract_v2.0.0.json",
-      "sha256": "6b5d39f02ade6b5a3dfae09e9dec51901e5943387b1afa4b1960768d4a3bf7ed"
+      "bytes": 61419,
+      "path": "ERR-1_Contract_v2.0.1.json",
+      "sha256": "4ad1265c110a4ebaca21bdb94b70188a82bf3521fe32404e7bbb58ea0b4b6643"
     },
     {
-      "bytes": 24683,
-      "path": "ERR-1_Test_Gates_v2.0.0.json",
-      "sha256": "fcfd0fae8edef8d209144da301728c9edcd0c5aba404fa5eb436c6a3e423f0e1"
+      "bytes": 26301,
+      "path": "ERR-1_Test_Gates_v2.0.1.json",
+      "sha256": "88cf287d0e49a4471d7ab4fc5e392f9740536be311ba433b0ae7656f6d6fc484"
     }
   ],
-  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
   "schema_version": "bundle-manifest/1.0",
   "suite_schema": "CS-0@3.0.1",
-  "version": "2.0.0"
+  "version": "2.0.1"
 }

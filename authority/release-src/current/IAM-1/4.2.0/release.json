@@ -1,0 +1,13 @@
+{
+  "doc_id": "IAM-1",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
+  "release_intent": "TICK-64 authority successor candidate for IAM-1@4.1.3; see the occurrence admission-policy repair in this branch.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "canonical-successor",
+    "path": "provenance.json",
+    "source_zip_sha256": "6ce59be209da4396cd8c5f02d43622d7999e10632aef806d7883301377c04ff5"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "4.2.0"
+}

@@ -1,0 +1,23 @@
+{
+  "bootstrap_commit": "84340ff1d2bc78a44f012d29717162663323ee29",
+  "candidate_preparation_base_commit": "84340ff1d2bc78a44f012d29717162663323ee29",
+  "provenance_statement": "Candidate OBS-1@2.9.1 is derived from exact selected OBS-1@2.9.0 on the verified TICK-64 base; the paired artifacts carry the authority-only correction.",
+  "source_bundle_path": "contracts/OBS-1/OBS-1_bundle_v2.9.0.zip",
+  "source_members": [
+    {
+      "bytes": 71469,
+      "sha256": "ec09efb287b84f5742d493885a5d30b9c5448cbd67a39becbf315f19075d3f3f",
+      "source_member_path": "release-src/current/OBS-1/2.9.1/contract.json",
+      "tracked_source_path": "contract.json"
+    },
+    {
+      "bytes": 32912,
+      "sha256": "d8a6a68d9bb99aa385c2bcce58c7f95541cd2f3b4948cf5c7a00ee111b946654",
+      "source_member_path": "release-src/current/OBS-1/2.9.1/test-gates.json",
+      "tracked_source_path": "test-gates.json"
+    }
+  ],
+  "source_version": "2.9.0",
+  "source_zip_bytes": 103776,
+  "source_zip_sha256": "dbe74836e2f0a784cebea332efd74cb76d87ea2016637f8d1b55ad3a68eb5c06"
+}

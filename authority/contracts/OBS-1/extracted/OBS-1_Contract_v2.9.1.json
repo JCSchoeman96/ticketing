@@ -402,6 +402,14 @@
       ],
       "date": "2026-01-30",
       "version": "2.7.16"
+    },
+    {
+      "changes": [
+        "Register EVT-2.set_occurrence_admission_policy as a stable T0 operation ID.",
+        "Require EVT-2 3.1.0 for the operation binding."
+      ],
+      "date": "2026-10-30",
+      "version": "2.9.1"
     }
   ],
   "critical_operations": {
@@ -582,6 +590,12 @@
       "edge_type": "foundation_floor",
       "min_version": "1.6.0",
       "reason": "Constitutional baseline; payout/release-blocking observability scope."
+    },
+    {
+      "doc_id": "EVT-2",
+      "edge_type": "requires",
+      "min_version": "3.1.0",
+      "reason": "Stable operation identity for EVT-2 3.1.0 actions, including admission-policy management."
     }
   ],
   "doc_id": "OBS-1",
@@ -682,7 +696,7 @@
   },
   "emits_events": false,
   "foundation_ref": "V42",
-  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
   "incident_runtime_evidence_requirements": {
     "required_scenarios": [
       {
@@ -771,7 +785,7 @@
       "text": "GC-001 detection: Any attempt to confirm or capture payment after the seat hold is expired/released, or after checkout expires (including grace window closure), MUST be (a) rejected, (b) logged with strong correlation fields, and (c) surfaced via a dedicated metric and alert class. At minimum emit error codes: PAY_LATE_CAPTURE_AFTER_HOLD_EXPIRED, SEAT_HOLD_EXPIRED, ORD_CHECKOUT_EXPIRED. Emit metric pay.late_capture.after_hold_expiry.count (tagged by provider and environment) and page via alert class late_capture_after_hold_expiry (sev1) when thresholds are breached."
     }
   ],
-  "last_updated_utc": "2026-04-17T05:55:00Z",
+  "last_updated_utc": "2026-10-30T07:28:46Z",
   "normative_source": "json",
   "observed_flags": [
     {
@@ -810,6 +824,200 @@
       "owner_contract": "IR-1"
     }
   ],
+  "operation_id_binding": {
+    "source": "canonical contract_id.action_id",
+    "t0_operation_ids": [
+      "EVT-2.create_event",
+      "EVT-2.set_occurrence_admission_policy",
+      "EVT-2.create_occurrence",
+      "EVT-2.publish_event",
+      "EVT-2.open_occurrence_sales",
+      "EVT-2.close_occurrence_sales",
+      "ORD-1.create_checkout",
+      "SEAT-1.claim_bucket_inventory",
+      "OFFER-1.create_offer",
+      "OFFER-1.create_product",
+      "OFFER-1.create_product_revision",
+      "OFFER-1.create_offer_window",
+      "OFFER-1.activate_offer",
+      "OFFER-1.activate_product",
+      "OFFER-1.build_cart_quote",
+      "OFFER-1.emit_ord_line_items",
+      "PRICE-1.create_program",
+      "PRICE-1.create_revision",
+      "PRICE-1.activate_revision",
+      "PRICE-1.create_phase",
+      "PRICE-1.create_rule",
+      "PRICE-1.create_snapshot",
+      "PRICE-1.activate_snapshot",
+      "PRICE-1.consume_snapshot",
+      "SEAT-1.create_inventory_bucket",
+      "SEAT-1.verify_bucket_hold_proofs",
+      "SEAT-1.extend_bucket_hold_grace",
+      "SEAT-1.release_bucket_hold",
+      "SEAT-1.expire_bucket_holds",
+      "OFFER-1.archive_offer",
+      "OFFER-1.archive_product"
+    ],
+    "uniqueness": "one stable operation_id per T0 action"
+  },
+  "operation_registry": {
+    "EVT-2.close_occurrence_sales": {
+      "action_id": "close_occurrence_sales",
+      "contract_id": "EVT-2",
+      "operation_id": "EVT-2.close_occurrence_sales"
+    },
+    "EVT-2.create_event": {
+      "action_id": "create_event",
+      "contract_id": "EVT-2",
+      "operation_id": "EVT-2.create_event"
+    },
+    "EVT-2.create_occurrence": {
+      "action_id": "create_occurrence",
+      "contract_id": "EVT-2",
+      "operation_id": "EVT-2.create_occurrence"
+    },
+    "EVT-2.open_occurrence_sales": {
+      "action_id": "open_occurrence_sales",
+      "contract_id": "EVT-2",
+      "operation_id": "EVT-2.open_occurrence_sales"
+    },
+    "EVT-2.publish_event": {
+      "action_id": "publish_event",
+      "contract_id": "EVT-2",
+      "operation_id": "EVT-2.publish_event"
+    },
+    "EVT-2.set_occurrence_admission_policy": {
+      "action_id": "set_occurrence_admission_policy",
+      "contract_id": "EVT-2",
+      "operation_id": "EVT-2.set_occurrence_admission_policy"
+    },
+    "OFFER-1.activate_offer": {
+      "action_id": "activate_offer",
+      "contract_id": "OFFER-1",
+      "operation_id": "OFFER-1.activate_offer"
+    },
+    "OFFER-1.activate_product": {
+      "action_id": "activate_product",
+      "contract_id": "OFFER-1",
+      "operation_id": "OFFER-1.activate_product"
+    },
+    "OFFER-1.archive_offer": {
+      "action_id": "archive_offer",
+      "contract_id": "OFFER-1",
+      "operation_id": "OFFER-1.archive_offer"
+    },
+    "OFFER-1.archive_product": {
+      "action_id": "archive_product",
+      "contract_id": "OFFER-1",
+      "operation_id": "OFFER-1.archive_product"
+    },
+    "OFFER-1.build_cart_quote": {
+      "action_id": "build_cart_quote",
+      "contract_id": "OFFER-1",
+      "operation_id": "OFFER-1.build_cart_quote"
+    },
+    "OFFER-1.create_offer": {
+      "action_id": "create_offer",
+      "contract_id": "OFFER-1",
+      "operation_id": "OFFER-1.create_offer"
+    },
+    "OFFER-1.create_offer_window": {
+      "action_id": "create_offer_window",
+      "contract_id": "OFFER-1",
+      "operation_id": "OFFER-1.create_offer_window"
+    },
+    "OFFER-1.create_product": {
+      "action_id": "create_product",
+      "contract_id": "OFFER-1",
+      "operation_id": "OFFER-1.create_product"
+    },
+    "OFFER-1.create_product_revision": {
+      "action_id": "create_product_revision",
+      "contract_id": "OFFER-1",
+      "operation_id": "OFFER-1.create_product_revision"
+    },
+    "OFFER-1.emit_ord_line_items": {
+      "action_id": "emit_ord_line_items",
+      "contract_id": "OFFER-1",
+      "operation_id": "OFFER-1.emit_ord_line_items"
+    },
+    "ORD-1.create_checkout": {
+      "action_id": "create_checkout",
+      "contract_id": "ORD-1",
+      "operation_id": "ORD-1.create_checkout"
+    },
+    "PRICE-1.activate_revision": {
+      "action_id": "activate_revision",
+      "contract_id": "PRICE-1",
+      "operation_id": "PRICE-1.activate_revision"
+    },
+    "PRICE-1.activate_snapshot": {
+      "action_id": "activate_snapshot",
+      "contract_id": "PRICE-1",
+      "operation_id": "PRICE-1.activate_snapshot"
+    },
+    "PRICE-1.consume_snapshot": {
+      "action_id": "consume_snapshot",
+      "contract_id": "PRICE-1",
+      "operation_id": "PRICE-1.consume_snapshot"
+    },
+    "PRICE-1.create_phase": {
+      "action_id": "create_phase",
+      "contract_id": "PRICE-1",
+      "operation_id": "PRICE-1.create_phase"
+    },
+    "PRICE-1.create_program": {
+      "action_id": "create_program",
+      "contract_id": "PRICE-1",
+      "operation_id": "PRICE-1.create_program"
+    },
+    "PRICE-1.create_revision": {
+      "action_id": "create_revision",
+      "contract_id": "PRICE-1",
+      "operation_id": "PRICE-1.create_revision"
+    },
+    "PRICE-1.create_rule": {
+      "action_id": "create_rule",
+      "contract_id": "PRICE-1",
+      "operation_id": "PRICE-1.create_rule"
+    },
+    "PRICE-1.create_snapshot": {
+      "action_id": "create_snapshot",
+      "contract_id": "PRICE-1",
+      "operation_id": "PRICE-1.create_snapshot"
+    },
+    "SEAT-1.claim_bucket_inventory": {
+      "action_id": "claim_bucket_inventory",
+      "contract_id": "SEAT-1",
+      "operation_id": "SEAT-1.claim_bucket_inventory"
+    },
+    "SEAT-1.create_inventory_bucket": {
+      "action_id": "create_inventory_bucket",
+      "contract_id": "SEAT-1",
+      "operation_id": "SEAT-1.create_inventory_bucket"
+    },
+    "SEAT-1.expire_bucket_holds": {
+      "action_id": "expire_bucket_holds",
+      "contract_id": "SEAT-1",
+      "operation_id": "SEAT-1.expire_bucket_holds"
+    },
+    "SEAT-1.extend_bucket_hold_grace": {
+      "action_id": "extend_bucket_hold_grace",
+      "contract_id": "SEAT-1",
+      "operation_id": "SEAT-1.extend_bucket_hold_grace"
+    },
+    "SEAT-1.release_bucket_hold": {
+      "action_id": "release_bucket_hold",
+      "contract_id": "SEAT-1",
+      "operation_id": "SEAT-1.release_bucket_hold"
+    },
+    "SEAT-1.verify_bucket_hold_proofs": {
+      "action_id": "verify_bucket_hold_proofs",
+      "contract_id": "SEAT-1",
+      "operation_id": "SEAT-1.verify_bucket_hold_proofs"
+    }
+  },
   "outbox_events": [],
   "owners": {
     "primary": "SRE",
@@ -1748,193 +1956,5 @@
       }
     ]
   },
-  "version": "2.9.0",
-  "operation_registry": {
-    "EVT-2.close_occurrence_sales": {
-      "operation_id": "EVT-2.close_occurrence_sales",
-      "contract_id": "EVT-2",
-      "action_id": "close_occurrence_sales"
-    },
-    "EVT-2.create_event": {
-      "operation_id": "EVT-2.create_event",
-      "contract_id": "EVT-2",
-      "action_id": "create_event"
-    },
-    "EVT-2.create_occurrence": {
-      "operation_id": "EVT-2.create_occurrence",
-      "contract_id": "EVT-2",
-      "action_id": "create_occurrence"
-    },
-    "EVT-2.open_occurrence_sales": {
-      "operation_id": "EVT-2.open_occurrence_sales",
-      "contract_id": "EVT-2",
-      "action_id": "open_occurrence_sales"
-    },
-    "EVT-2.publish_event": {
-      "operation_id": "EVT-2.publish_event",
-      "contract_id": "EVT-2",
-      "action_id": "publish_event"
-    },
-    "OFFER-1.activate_offer": {
-      "operation_id": "OFFER-1.activate_offer",
-      "contract_id": "OFFER-1",
-      "action_id": "activate_offer"
-    },
-    "OFFER-1.activate_product": {
-      "operation_id": "OFFER-1.activate_product",
-      "contract_id": "OFFER-1",
-      "action_id": "activate_product"
-    },
-    "OFFER-1.archive_offer": {
-      "operation_id": "OFFER-1.archive_offer",
-      "contract_id": "OFFER-1",
-      "action_id": "archive_offer"
-    },
-    "OFFER-1.archive_product": {
-      "operation_id": "OFFER-1.archive_product",
-      "contract_id": "OFFER-1",
-      "action_id": "archive_product"
-    },
-    "OFFER-1.build_cart_quote": {
-      "operation_id": "OFFER-1.build_cart_quote",
-      "contract_id": "OFFER-1",
-      "action_id": "build_cart_quote"
-    },
-    "OFFER-1.create_offer": {
-      "operation_id": "OFFER-1.create_offer",
-      "contract_id": "OFFER-1",
-      "action_id": "create_offer"
-    },
-    "OFFER-1.create_offer_window": {
-      "operation_id": "OFFER-1.create_offer_window",
-      "contract_id": "OFFER-1",
-      "action_id": "create_offer_window"
-    },
-    "OFFER-1.create_product": {
-      "operation_id": "OFFER-1.create_product",
-      "contract_id": "OFFER-1",
-      "action_id": "create_product"
-    },
-    "OFFER-1.create_product_revision": {
-      "operation_id": "OFFER-1.create_product_revision",
-      "contract_id": "OFFER-1",
-      "action_id": "create_product_revision"
-    },
-    "OFFER-1.emit_ord_line_items": {
-      "operation_id": "OFFER-1.emit_ord_line_items",
-      "contract_id": "OFFER-1",
-      "action_id": "emit_ord_line_items"
-    },
-    "ORD-1.create_checkout": {
-      "operation_id": "ORD-1.create_checkout",
-      "contract_id": "ORD-1",
-      "action_id": "create_checkout"
-    },
-    "PRICE-1.activate_revision": {
-      "operation_id": "PRICE-1.activate_revision",
-      "contract_id": "PRICE-1",
-      "action_id": "activate_revision"
-    },
-    "PRICE-1.activate_snapshot": {
-      "operation_id": "PRICE-1.activate_snapshot",
-      "contract_id": "PRICE-1",
-      "action_id": "activate_snapshot"
-    },
-    "PRICE-1.consume_snapshot": {
-      "operation_id": "PRICE-1.consume_snapshot",
-      "contract_id": "PRICE-1",
-      "action_id": "consume_snapshot"
-    },
-    "PRICE-1.create_phase": {
-      "operation_id": "PRICE-1.create_phase",
-      "contract_id": "PRICE-1",
-      "action_id": "create_phase"
-    },
-    "PRICE-1.create_program": {
-      "operation_id": "PRICE-1.create_program",
-      "contract_id": "PRICE-1",
-      "action_id": "create_program"
-    },
-    "PRICE-1.create_revision": {
-      "operation_id": "PRICE-1.create_revision",
-      "contract_id": "PRICE-1",
-      "action_id": "create_revision"
-    },
-    "PRICE-1.create_rule": {
-      "operation_id": "PRICE-1.create_rule",
-      "contract_id": "PRICE-1",
-      "action_id": "create_rule"
-    },
-    "PRICE-1.create_snapshot": {
-      "operation_id": "PRICE-1.create_snapshot",
-      "contract_id": "PRICE-1",
-      "action_id": "create_snapshot"
-    },
-    "SEAT-1.claim_bucket_inventory": {
-      "operation_id": "SEAT-1.claim_bucket_inventory",
-      "contract_id": "SEAT-1",
-      "action_id": "claim_bucket_inventory"
-    },
-    "SEAT-1.create_inventory_bucket": {
-      "operation_id": "SEAT-1.create_inventory_bucket",
-      "contract_id": "SEAT-1",
-      "action_id": "create_inventory_bucket"
-    },
-    "SEAT-1.expire_bucket_holds": {
-      "operation_id": "SEAT-1.expire_bucket_holds",
-      "contract_id": "SEAT-1",
-      "action_id": "expire_bucket_holds"
-    },
-    "SEAT-1.extend_bucket_hold_grace": {
-      "operation_id": "SEAT-1.extend_bucket_hold_grace",
-      "contract_id": "SEAT-1",
-      "action_id": "extend_bucket_hold_grace"
-    },
-    "SEAT-1.release_bucket_hold": {
-      "operation_id": "SEAT-1.release_bucket_hold",
-      "contract_id": "SEAT-1",
-      "action_id": "release_bucket_hold"
-    },
-    "SEAT-1.verify_bucket_hold_proofs": {
-      "operation_id": "SEAT-1.verify_bucket_hold_proofs",
-      "contract_id": "SEAT-1",
-      "action_id": "verify_bucket_hold_proofs"
-    }
-  },
-  "operation_id_binding": {
-    "source": "canonical contract_id.action_id",
-    "uniqueness": "one stable operation_id per T0 action",
-    "t0_operation_ids": [
-      "EVT-2.create_event",
-      "EVT-2.create_occurrence",
-      "EVT-2.publish_event",
-      "EVT-2.open_occurrence_sales",
-      "EVT-2.close_occurrence_sales",
-      "ORD-1.create_checkout",
-      "SEAT-1.claim_bucket_inventory",
-      "OFFER-1.create_offer",
-      "OFFER-1.create_product",
-      "OFFER-1.create_product_revision",
-      "OFFER-1.create_offer_window",
-      "OFFER-1.activate_offer",
-      "OFFER-1.activate_product",
-      "OFFER-1.build_cart_quote",
-      "OFFER-1.emit_ord_line_items",
-      "PRICE-1.create_program",
-      "PRICE-1.create_revision",
-      "PRICE-1.activate_revision",
-      "PRICE-1.create_phase",
-      "PRICE-1.create_rule",
-      "PRICE-1.create_snapshot",
-      "PRICE-1.activate_snapshot",
-      "PRICE-1.consume_snapshot",
-      "SEAT-1.create_inventory_bucket",
-      "SEAT-1.verify_bucket_hold_proofs",
-      "SEAT-1.extend_bucket_hold_grace",
-      "SEAT-1.release_bucket_hold",
-      "SEAT-1.expire_bucket_holds",
-      "OFFER-1.archive_offer",
-      "OFFER-1.archive_product"
-    ]
-  }
+  "version": "2.9.1"
 }

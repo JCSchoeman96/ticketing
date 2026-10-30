@@ -19,7 +19,9 @@ B0 does not include product-domain work. Do not expand it into sales, inventory,
 
 **Status: NEXT**
 
-Deliver one end-to-end general-admission sale path. An authenticated organizer uses explicit tenant context to create and publish an Event and Occurrence, configure a reusable PRICE-1 program revision and an OFFER-1 ProductRevision, and open sales for a GA inventory bucket. A buyer retrieves the sellable offer, obtains a quote, claims inventory atomically, creates an idempotent Order, and retrieves the persisted Order in the same tenant.
+Deliver one end-to-end general-admission sale path. An authenticated organizer uses explicit tenant context to create and publish an Event, configure the organization's Occurrence admission policy, and create an Occurrence whose explicit check-in window satisfies that policy. The organizer then configures a reusable PRICE-1 program revision and an OFFER-1 ProductRevision, and opens sales for a GA inventory bucket. A buyer retrieves the sellable offer, obtains a quote, claims inventory atomically, creates an idempotent Order, and retrieves the persisted Order in the same tenant.
+
+EVT-2 has no implicit admission-policy default. An organization without a configured policy cannot create an Occurrence; policy changes apply prospectively and do not change persisted Occurrence windows.
 
 The installed contracts define the GA hold-to-checkout path:
 

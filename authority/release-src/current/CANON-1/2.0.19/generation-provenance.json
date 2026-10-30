@@ -1,0 +1,46 @@
+{
+  "canonical_member_count": 56,
+  "format_version": 1,
+  "generated_release": {
+    "doc_id": "CANON-1",
+    "version": "2.0.19"
+  },
+  "generation_inputs": {
+    "active_manifest_sha256": "f44764cd8310281b7f34a2cef6e50bb67ee659e147268a65e83a86586a842dd0",
+    "base_canon_version": "2.0.18",
+    "base_canon_zip_sha256": "cf63192ceb17a7fafc1f7c0fda795945a83a8b58a9aa1f46b1eccd0f4f843a0c",
+    "candidate_releases": [
+      {
+        "doc_id": "ERR-1",
+        "sha256": "6080473b396202d74cd009ff63de9033eed88fa0d6f0ad0566d2afbabbd01a56",
+        "version": "2.0.1"
+      },
+      {
+        "doc_id": "EVT-2",
+        "sha256": "5618b6649bd079176a724f46a35453220f3c7be5b7814d4e63faa4d27ae9c8a3",
+        "version": "3.1.0"
+      },
+      {
+        "doc_id": "IAM-1",
+        "sha256": "512e54c94486eccfa8225477f14defe39206dd7e32a611450ffed08366adb202",
+        "version": "4.2.0"
+      },
+      {
+        "doc_id": "OBS-1",
+        "sha256": "a18a1d6443f34485685d98ba31779d3ebbc8b1d20ed9717d75753737eba1c335",
+        "version": "2.9.1"
+      }
+    ],
+    "dependency_closure_sha256": "57910a72f49210933e311b126ac0516b5e3c4f71b08c34699934df60f086787e",
+    "generator_commit": "84340ff1d2bc78a44f012d29717162663323ee29",
+    "generator_version": "2.0.0",
+    "manifest_validation_status": "VALID",
+    "superseded_identity_defects": []
+  },
+  "generation_status": "BUILT_CANDIDATE_SOURCE",
+  "generator": "tools/generate_canon.py",
+  "generator_commit": "84340ff1d2bc78a44f012d29717162663323ee29",
+  "generator_version": "2.0.0",
+  "resolved_selection_path": "release-src/current/CANON-1/2.0.19/resolved-selection.json",
+  "resolved_selection_sha256": "28460fb2ca791f723d75dafe7cf082a4dd878309ad2c28449c0eaf07693b9328"
+}

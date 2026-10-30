@@ -8,6 +8,7 @@
     "capability_action_map": {
       "evt.event.create": "EVT-2.create_event",
       "evt.event.publish": "EVT-2.publish_event",
+      "evt.occurrence.admission_policy.manage": "EVT-2.set_occurrence_admission_policy",
       "evt.occurrence.create": "EVT-2.create_occurrence",
       "evt.occurrence.sales_close": "EVT-2.close_occurrence_sales",
       "evt.occurrence.sales_open": "EVT-2.open_occurrence_sales",
@@ -434,6 +435,17 @@
         ],
         "capability": "evt.experiment_stop_confirm",
         "description": "Confirm stopping an experiment (after system proposal or manual decision)."
+      },
+      {
+        "allowed_actor_kinds": [
+          "human"
+        ],
+        "allowed_roles": [
+          "org_admin",
+          "org_owner"
+        ],
+        "capability": "evt.occurrence.admission_policy.manage",
+        "description": "Set or replace the tenant's Occurrence admission policy."
       },
       {
         "allowed_actor_kinds": [
@@ -1212,9 +1224,9 @@
       "notes": [
         "The trusted authentication/session boundary authenticates the underlying session credential and then supplies authoritative user_id and session_id; these identifiers are authentication results, not tenant, role or capability grants.",
         "Candidate org_id, requested active_scope and requested active_role are untrusted selectors until TEN-1 org_membership_probe proves an active membership; no Session or role read occurs before that proof.",
-    "After successful membership proof, T0 validates the persisted Session under the proven org tenant and derives the active persona only from persisted OrgRoleAssignment state; caller-supplied role lists never grant authority.",
-    "The requested active_role MUST match exactly one active, non-revoked OrgRoleAssignment for the authoritative user_id and proven org_id.",
-    "The constructed auth_context.actor.org_membership_id MUST equal the proven active OrgMembership id; auth_context.actor.org_id MUST equal the proven org_id; auth_context.actor.user_id MUST equal the authoritative user_id; and auth_context.session_id MUST equal the validated persisted Session id.",
+        "After successful membership proof, T0 validates the persisted Session under the proven org tenant and derives the active persona only from persisted OrgRoleAssignment state; caller-supplied role lists never grant authority.",
+        "The requested active_role MUST match exactly one active, non-revoked OrgRoleAssignment for the authoritative user_id and proven org_id.",
+        "The constructed auth_context.actor.org_membership_id MUST equal the proven active OrgMembership id; auth_context.actor.org_id MUST equal the proven org_id; auth_context.actor.user_id MUST equal the authoritative user_id; and auth_context.session_id MUST equal the validated persisted Session id.",
         "This T0 path is a read-only consumer of an already-issued Session: it MUST NOT receive or derive a raw session token, compare token_hash, issue, refresh, extend, rebind, revoke or write last_seen_at_utc on a Session, or emit ticketing.iam.session.created.v1 or ticketing.iam.session.revoked.v1.",
         "Session liveness is evaluated at time of use against authoritative database UTC time; invalid, missing, inactive, expired, revoked or mismatched Sessions fail uniformly as ERR_UNAUTHENTICATED under the IAM-1 session-invalid posture without revealing whether another tenant or session exists.",
         "Denied or inactive requested roles, and capabilities that the verified active persona does not authorize, fail as ERR_FORBIDDEN under ordinary same-tenant authorization semantics."
@@ -1600,8 +1612,8 @@
     {
       "doc_id": "EVT-2",
       "edge_type": "requires",
-      "min_version": "2.4.0",
-      "reason": "Phase-5 schema_ref normalization token authority."
+      "min_version": "3.1.0",
+      "reason": "The governed Event and Occurrence actions, including Occurrence admission-policy management."
     },
     {
       "doc_id": "OBS-1",
@@ -1637,7 +1649,7 @@
   "dependency_floors": {
     "API-0": "1.1.1",
     "EVT-1": "2.16.4",
-    "EVT-2": "2.4.0",
+    "EVT-2": "3.1.0",
     "SEC-1": "3.3.1"
   },
   "dependency_pins": {
@@ -1764,8 +1776,8 @@
     }
   },
   "emits_events": true,
-  "generated_at_utc": "2026-10-22T14:40:00Z",
-  "last_updated_utc": "2026-10-22T14:40:00Z",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
+  "last_updated_utc": "2026-10-30T07:28:46Z",
   "normative_source": {
     "format": "json"
   },
@@ -1903,5 +1915,5 @@
   },
   "tier": 1,
   "title": "Identity and Access Management Contract",
-  "version": "4.1.3"
+  "version": "4.2.0"
 }
