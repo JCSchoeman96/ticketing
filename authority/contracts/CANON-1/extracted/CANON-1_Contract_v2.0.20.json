@@ -707,22 +707,22 @@
     {
       "artifacts": [
         {
-          "bytes": 41411,
+          "bytes": 46554,
           "path": "OBQC-1_bundle_v2.2.0/OBQC-1_Contract_v2.2.0.json",
-          "sha256": "42ce0e27a461b61016a5ec875ade85747f18445dc811a18f919f4ffd23ee1973"
+          "sha256": "5875ceb178aa543dfc187ccc7d69513fb98620c1975dbecf7a00afcab6cf0a6e"
         },
         {
-          "bytes": 8055,
+          "bytes": 9081,
           "path": "OBQC-1_bundle_v2.2.0/OBQC-1_Test_Gates_v2.2.0.json",
-          "sha256": "1bd8f1d38465acdc23f57c45678cae68d2c6c3471ad29bec85d29cbefb3db261"
+          "sha256": "cd86d010cd0e9355d4c99067356b0f695e87b0b295974f0f996b055eea730f94"
         },
         {
           "bytes": 626,
           "path": "OBQC-1_bundle_v2.2.0/bundle.manifest.json",
-          "sha256": "8fcc23af1e57c3168288b8cb190ad17fc678f9512be7eb903bfd6a55946fe03d"
+          "sha256": "70f63012124caecbc71b95eed84f990705bff9990e1bbc956aeea6394053bcec"
         }
       ],
-      "bundle_sha256": "5eb67fee232a8f027655408fd38d4a68e0d9bd4e5f517672d9f0ecb1b54cd0e5",
+      "bundle_sha256": "7e960ab94980a74876afa1008da164e9b774a300762b4b19e3d7c2dbe66d0532",
       "doc_id": "OBQC-1",
       "membership_status": "CANON_MEMBER",
       "selection_basis": [
@@ -1534,7 +1534,7 @@
   "dependency_floors": {},
   "doc_id": "CANON-1",
   "emits_events": false,
-  "generated_at_utc": "2026-10-30T10:30:26Z",
+  "generated_at_utc": "2026-10-30T11:03:05Z",
   "generation": {
     "generation_inputs": {
       "active_manifest_sha256": "a96395058325e0cf4fba5c80542c8c7428d4795772bc9d7a7575d95eeec07ce0",
@@ -1543,7 +1543,7 @@
       "candidate_releases": [
         {
           "doc_id": "OBQC-1",
-          "sha256": "5eb67fee232a8f027655408fd38d4a68e0d9bd4e5f517672d9f0ecb1b54cd0e5",
+          "sha256": "7e960ab94980a74876afa1008da164e9b774a300762b4b19e3d7c2dbe66d0532",
           "version": "2.2.0"
         }
       ],
@@ -1556,7 +1556,7 @@
     "generator": "tools/generate_canon.py",
     "generator_commit": "51c47fe7a10b3a04b95a1b7fe85999217e660449",
     "generator_version": "2.0.0",
-    "resolved_selection_sha256": "00c4327352cd136be5f05260018b568c4ea1b9bcbbbbcf62f05a87ab8e679ab2"
+    "resolved_selection_sha256": "5b0546b3ea288e02df037408f993e1fd9b9928861d070d0bf2b3540d96eface9"
   },
   "not_current_versions": [
     {

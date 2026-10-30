@@ -31,7 +31,7 @@
     "candidate_releases": [
       {
         "doc_id": "OBQC-1",
-        "sha256": "5eb67fee232a8f027655408fd38d4a68e0d9bd4e5f517672d9f0ecb1b54cd0e5",
+        "sha256": "7e960ab94980a74876afa1008da164e9b774a300762b4b19e3d7c2dbe66d0532",
         "version": "2.2.0"
       }
     ],
@@ -282,7 +282,7 @@
       "selection_basis": [
         "explicit validated successor candidate for OBQC-1"
       ],
-      "sha256": "5eb67fee232a8f027655408fd38d4a68e0d9bd4e5f517672d9f0ecb1b54cd0e5",
+      "sha256": "7e960ab94980a74876afa1008da164e9b774a300762b4b19e3d7c2dbe66d0532",
       "version": "2.2.0"
     },
     {

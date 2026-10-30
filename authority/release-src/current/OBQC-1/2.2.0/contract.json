@@ -104,7 +104,15 @@
         "ticketing_payload_path": "action_arguments.ticketing_payload",
         "ticketing_payload_shape": "%{version: integer | string, args: map}",
         "ticketing_controlled_input_location": "action_arguments.ticketing_payload.args",
-        "arbitrary_extra_args_allowed": false
+        "arbitrary_extra_args_allowed": false,
+        "tenant_scoped_ticketing_policy": {
+          "framework_tenant_required": true,
+          "ticketing_payload_org_id_required": true,
+          "tenant_org_id_must_match": true,
+          "missing_or_mismatched_identity": "fail_closed_before_governed_resource_access",
+          "scheduler_cron": false,
+          "invocation": "AshOban.run_trigger/3 with an explicit tenant"
+        }
       },
       "scheduled_action_worker": {
         "required_framework_keys": [
@@ -122,7 +130,12 @@
         "ticketing_payload_path": "action_arguments.ticketing_payload",
         "ticketing_payload_shape": "%{version: integer | string, args: map}",
         "ticketing_controlled_input_location": "action_arguments.ticketing_payload.args",
-        "arbitrary_extra_args_allowed": false
+        "arbitrary_extra_args_allowed": false,
+        "tenant_scoped_required_framework_keys": [
+          "action_arguments",
+          "tenant"
+        ],
+        "tenantless_behavior": "The v0.10.3 worker calls list_tenants before branching; when tenant is absent and multiple tenants exist it inserts tenant-bound copies, and when only one tenant exists it falls back to that first tenant."
       },
       "scheduler_control_job": {
         "required_framework_keys": [],
@@ -134,8 +147,12 @@
         ],
         "ticketing_payload_required": false,
         "ticketing_payload_allowed": false,
-        "purpose": "Framework-generated control job that enumerates tenants and schedules tenant-bound trigger jobs; it MUST NOT perform a Ticketing domain mutation or external side effect.",
-        "compatibility": "The payload-free generated argument shape MUST remain readable across the current and immediately previous deployed application versions; stable scheduler_module_name is required."
+        "purpose": "The v0.10.3 generated trigger scheduler enumerates tenants, streams the trigger resource under each tenant, then inserts tenant-bound trigger jobs. The scheduler job itself has no single org_id and therefore does not satisfy OBQC-1-TEN-001 for tenant-scoped resources.",
+        "compatibility": "This is only the observed payload-free framework argument profile, not a TEN-1 or OBQC-1-TEN-001 exception. Its current/previous framework compatibility does not authorize tenant-scoped reads or cross-tenant discovery.",
+        "tenant_scoped_resource_access": "prohibited",
+        "is_ten_001_exception": false,
+        "ticketing_policy": "Not authorized for tenant-scoped Ticketing resources. scheduler_cron MUST be false; T0 uses direct AshOban.run_trigger/3 with an explicit tenant. Any future tenant-wide coordinator requires separately reviewed authority.",
+        "observed_upstream_behavior": "Enumerates tenants, calls stream(actor, tenant), sets query tenant, runs Ash.stream!, then builds and inserts tenant-bound trigger jobs."
       },
       "shared_rules": {
         "no_unlisted_top_level_keys": true,
@@ -143,7 +160,7 @@
           "primary_key": "Stable resource identity only.",
           "metadata": "Safe, non-sensitive framework metadata only; no Ticketing business payload.",
           "action_arguments": "Ticketing-controlled job input MUST exist only in the nested ticketing_payload object.",
-          "tenant": "Must be established before tenant-scoped Ash access; where duplicated as org_id in ticketing_payload.args, values MUST match or the job MUST fail closed.",
+          "tenant": "For tenant-scoped Ticketing work, framework tenant is mandatory and must be established before governed Ash access. Where org_id is carried in ticketing_payload.args, it is mandatory and MUST match the framework tenant; missing identity or mismatch fails closed before governed resource access.",
           "actor": "Optional. Persist only the minimal AUTH-030 tuple plus evaluated_at_utc when actor context is required; otherwise set actor_persister to :none or equivalent."
         },
         "size_accounting": "Count the complete persisted Oban job args map, including all framework keys and the nested ticketing_payload, against max_args_bytes.",
@@ -159,6 +176,36 @@
           "AshOban.VerifyModuleNames"
         ],
         "drift_rule": "A package version or generated argument profile not listed by a verified capability signature MUST fail CI until authority is updated."
+      },
+      "tenant_scoped_resource_policy": {
+        "authority": "OBQC-1-TEN-001 and TEN-1; no TEN-1 semantics are changed",
+        "framework_tenant_required": true,
+        "ticketing_org_id_required": true,
+        "tenant_org_id_consistency": "must_match",
+        "missing_identity": "fail_closed_before_governed_resource_access",
+        "mismatch": "fail_closed_before_governed_resource_access",
+        "trigger_scheduler": {
+          "scheduler_cron": false,
+          "invocation": "AshOban.run_trigger/3 with an explicit tenant",
+          "tenant_wide_discovery_authorized": false,
+          "generated_scheduler_tenant_scoped_access": "prohibited"
+        },
+        "scheduled_action": {
+          "tenant_bound_required": true,
+          "tenant_org_id_must_match": true,
+          "tenantless_fanout_authorized": false,
+          "tenantless_single_tenant_fallback_authorized": false,
+          "missing_tenant": "fail_closed_before_governed_resource_access",
+          "mismatch": "fail_closed_before_governed_resource_access",
+          "t0_use": "not_used; T0 tenant-scoped work uses direct tenant-bound trigger invocation",
+          "future_coordinator": "Any tenantless or tenant-enumerating coordinator requires separately reviewed TEN-1 and OBQC-1 authority; this contract grants no such capability."
+        },
+        "non_tenant_control_job": {
+          "tenantless_execution_allowed": true,
+          "may_access_tenant_scoped_resources": false,
+          "global_resource_rule": "TEN-1 global resource allowlist only",
+          "tenant_enumeration_authorized": false
+        }
       }
     }
   },
@@ -218,7 +265,8 @@
       "date": "2026-10-30",
       "changes": [
         "MINOR: Preserve the exact version/args wrapper for standard Oban workers and define an allowlisted AshOban framework envelope with a versioned Ticketing payload.",
-        "MINOR: Define a safe, payload-free AshOban scheduler control-job exception and compatibility evidence from the prior deployed source commit, removing the unavailable planned ART-0 dependency.",
+        "MINOR: Replace unavailable ART-0 compatibility evidence with sanitized fixtures tied to the actual previous deployed source commit and first-deployment baseline handling.",
+        "MINOR: Require explicit tenant-bound execution for tenant-scoped AshOban work; prohibit tenant-scoped trigger schedulers and tenantless scheduled-action fan-out/fallback without a separate TEN-1/OBQC-1 authority decision.",
         "MINOR: Require fail-closed payload version and tenant checks, full persisted-args size accounting, and capability-profile drift gates."
       ]
     }
@@ -319,7 +367,7 @@
   "doc_id": "OBQC-1",
   "emits_events": false,
   "foundation_ref": "V42",
-  "generated_at_utc": "2026-10-30T10:19:32Z",
+  "generated_at_utc": "2026-10-30T11:03:05Z",
   "job_versioning": {
     "field_name": "version",
     "required": true,
@@ -355,9 +403,10 @@
     },
     "notes": [
       "Standard Oban workers MUST use the exact two-key version/args wrapper.",
-      "AshOban-generated resource action workers use only the exact framework outer-key allowlist and keep Ticketing-controlled inputs under action_arguments.ticketing_payload.",
-      "AshOban-generated scheduler control jobs are the sole payload-free exception because the framework creates those control jobs without Ticketing action inputs; their arguments MUST match the certified profile and they MUST have no domain or external side effects.",
-      "Workers MUST handle the current and immediately previous semantic payload versions during rolling deploys, except the first deployment with no prior worker version or queued jobs.",
+      "AshOban-generated trigger and scheduled-action worker profiles are framework-specific; all Ticketing-controlled input remains under action_arguments.ticketing_payload.",
+      "A payload-free generated trigger scheduler profile is not an exception to OBQC-1-TEN-001 and is prohibited for tenant-scoped Ticketing resource access.",
+      "Tenant-scoped trigger jobs MUST be invoked directly with an explicit tenant and scheduler_cron false; tenantless scheduled-action fan-out and first-tenant fallback are not authorized for tenant-scoped Ticketing actions.",
+      "Current and immediately previous deployed semantic Ticketing payload versions MUST be compatible, except the first deployment with no prior worker version or queued jobs.",
       "Deploys that introduce incompatible argument shapes MUST drain or transform old jobs or provide an explicitly versioned migration worker."
     ]
   },
@@ -693,7 +742,7 @@
       "rationale": "Prevents stale or incompatible jobs across standard and AshOban framework-generated worker deployments.",
       "rule_id": "OBQC-1-VERSION-001",
       "severity": "P0",
-      "text": "Standard Oban workers MUST use the exact version/args wrapper. AshOban-generated resource action workers MUST use the certified framework-aware allowlist and a versioned nested Ticketing payload; the payload-free scheduler control job is the only exception and MUST remain side-effect free. Current and immediately previous deployed payload versions MUST be compatible, with first-deployment baseline handling as specified by job_versioning.compatibility_evidence.",
+      "text": "Standard Oban workers MUST use the exact version/args wrapper. AshOban-generated resource action workers MUST use the certified framework-aware allowlist and a versioned nested Ticketing payload. A payload-free scheduler control-job profile is only an observed framework shape and is not an exception to OBQC-1-TEN-001. Current and immediately previous deployed Ticketing payload versions MUST be compatible, with first-deployment baseline handling as specified by job_versioning.compatibility_evidence.",
       "title": "VERSIONING - OBQC-1-VERSION-001"
     },
     {
@@ -864,13 +913,29 @@
         "ash_oban_integration.ash_oban_generated_args",
         "job_versioning"
       ],
-      "text": "AshOban-generated trigger and scheduled-action worker args MUST contain only the exact certified framework key allowlist and MUST place all Ticketing-controlled job input under action_arguments.ticketing_payload as a versioned {version, args} map. Reserved framework keys MUST NOT be replaced by extra_args or :args. Tenant disagreement between AshOban tenant and ticketing_payload.args.org_id MUST fail closed. Persisted actor data MUST satisfy AUTH-030; when actor persistence is unnecessary, actor_persister MUST be :none or equivalent. The complete persisted args map MUST respect max_args_bytes."
+      "text": "AshOban-generated trigger and scheduled-action worker args MUST contain only the exact certified framework key allowlist and MUST place all Ticketing-controlled job input under action_arguments.ticketing_payload as a versioned {version, args} map. Reserved framework keys MUST NOT be replaced by extra_args or :args. For tenant-scoped Ticketing work, framework tenant and ticketing_payload.args.org_id are both mandatory and MUST match; missing identity or disagreement MUST fail closed before governed resource access. Persisted actor data MUST satisfy AUTH-030; when actor persistence is unnecessary, actor_persister MUST be :none or equivalent. The complete persisted args map MUST respect max_args_bytes."
+    },
+    {
+      "id": "OBQC-1-ASH-TEN-002",
+      "rule_id": "OBQC-1-ASH-TEN-002",
+      "category": "tenancy",
+      "severity": "P0",
+      "title": "ASHOBAN - Tenant-bound execution only for tenant-scoped Ticketing work",
+      "applies_to": [
+        "ash_oban_integration.ash_oban_generated_args",
+        "ash_oban_integration.ash_oban_generated_args.tenant_scoped_resource_policy"
+      ],
+      "references_contracts": [
+        "TEN-1"
+      ],
+      "rationale": "Generated scheduler and tenantless fan-out jobs may read tenant-scoped resources without one explicit org_id, contradicting OBQC-1-TEN-001 and TEN-1.",
+      "text": "This rule does not create an exception to OBQC-1-TEN-001 or alter TEN-1. Any AshOban generated job that accesses a tenant-scoped Ticketing resource MUST carry an explicit framework tenant and matching org_id in ticketing_payload.args before governed resource access. Tenant-scoped triggers MUST use scheduler_cron false and direct AshOban.run_trigger/3 invocation with the explicit tenant. Generated trigger scheduler jobs MUST NOT read/stream tenant-scoped Ticketing resources. Tenantless scheduled-action fan-out and first-tenant fallback MUST NOT be used for tenant-scoped Ticketing actions. A tenantless control job MUST NOT access tenant-scoped resources; global resource access is limited to the TEN-1 global resource allowlist. Any future tenant-wide coordinator requires separately reviewed TEN-1 and OBQC-1 authority."
     }
   ],
   "schema_version": "contract-suite/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",
-  "summary": "Defines queue taxonomy, topology-aware concurrency, Ash 3.x AshOban integration, framework-aware and versioned job arguments, replication safety, payload limits, retry controls, and Oban database index requirements.",
+  "summary": "Defines queue taxonomy, topology-aware concurrency, Ash 3.x AshOban integration, framework-aware and versioned job arguments, explicit tenant-bound AshOban execution, replication safety, payload limits, retry controls, and Oban database index requirements.",
   "tier": 2,
   "title": "Oban Queue and Concurrency Contract",
   "topology_integration": {

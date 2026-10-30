@@ -46,6 +46,20 @@
     "scheduler_control_job_optional_keys": [
       "actor"
     ],
-    "scheduler_tenant_behavior": "Scheduler enumerates configured tenants and builds tenant-bound trigger jobs."
+    "trigger_scheduler": {
+      "scheduler_module_defined_only_when_scheduler_cron": true,
+      "enumerates_tenants_before_trigger_insertion": true,
+      "calls_stream_with_each_tenant": true,
+      "stream_sets_tenant_before_ash_stream": true,
+      "reads_trigger_resource_rows": true,
+      "inserts_tenant_bound_trigger_jobs_after_stream": true
+    },
+    "scheduled_action": {
+      "calls_list_tenants_before_branch": true,
+      "tenantless_job_fans_out_when_multiple_tenants": true,
+      "fanout_jobs_receive_each_tenant_before_action": true,
+      "tenantless_single_tenant_falls_back_to_first_tenant": true,
+      "action_tenant_comes_from_job_args_when_present": true
+    }
   }
 }

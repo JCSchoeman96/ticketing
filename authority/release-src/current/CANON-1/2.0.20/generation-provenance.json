@@ -12,7 +12,7 @@
     "candidate_releases": [
       {
         "doc_id": "OBQC-1",
-        "sha256": "5eb67fee232a8f027655408fd38d4a68e0d9bd4e5f517672d9f0ecb1b54cd0e5",
+        "sha256": "7e960ab94980a74876afa1008da164e9b774a300762b4b19e3d7c2dbe66d0532",
         "version": "2.2.0"
       }
     ],
@@ -27,5 +27,5 @@
   "generator_commit": "51c47fe7a10b3a04b95a1b7fe85999217e660449",
   "generator_version": "2.0.0",
   "resolved_selection_path": "release-src/current/CANON-1/2.0.20/resolved-selection.json",
-  "resolved_selection_sha256": "00c4327352cd136be5f05260018b568c4ea1b9bcbbbbcf62f05a87ab8e679ab2"
+  "resolved_selection_sha256": "5b0546b3ea288e02df037408f993e1fd9b9928861d070d0bf2b3540d96eface9"
 }
