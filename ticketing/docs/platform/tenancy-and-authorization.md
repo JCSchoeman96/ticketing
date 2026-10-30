@@ -2,11 +2,11 @@
 
 > Nature and status: Derived implementation documentation. This document describes merged platform behavior and does not define product semantics.
 >
-> Last verified main SHA: `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`
+> Last verified main SHA: `25a6a0956d7bb81214e348c7511132f5297d0fc5`
 >
 > Governing JIP: JIP-T0-01 v0.1.6. Relevant merged Plane work: TICK-25 and TICK-26 plus the previously merged tenant/database substrate they reuse.
 >
-> Relevant merged implementation PRs: [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40) and [#45 (TICK-26)](https://github.com/JCSchoeman96/ticketing/pull/45).
+> Relevant merged implementation PRs: [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40), [#45 (TICK-26)](https://github.com/JCSchoeman96/ticketing/pull/45), and [#55 (TICK-28 verification)](https://github.com/JCSchoeman96/ticketing/pull/55).
 
 ## Database-role boundary
 
@@ -48,7 +48,17 @@ The merged constrained-runtime Identity tests prove:
 - the matching tenant exposes the row;
 - knowing a globally unique Session or RoleAssignment physical UUID does not bypass tenant isolation.
 
-TICK-26 exercises Event insertion through the same tenant-scoped runtime boundary and verifies cross-tenant/fabricated-organizer attempts do not create an Event. TICK-28 remains responsible for the supplemental direct-SQL isolation, pool-reuse, context-cleanup and broader integrated failure-path evidence.
+TICK-26 exercises Event insertion through the same tenant-scoped runtime boundary and verifies cross-tenant/fabricated-organizer attempts do not create an Event. TICK-28 adds the following integrated verification evidence without changing the authorization mechanism:
+
+- the candidate `org_id` is installed as transaction-local context for the matching Membership probe and remains only a selector until that persisted proof succeeds;
+- after Membership proof, the same UUID remains in `app.current_org_id` through Event insertion;
+- test instrumentation observes the Membership query and Event INSERT on the same PostgreSQL backend PID, with one tenant-context transition;
+- cleanup is verified after commit, proof rollback and exception, followed by reuse of the pooled backend without tenant bleed;
+- direct-SQL cross-tenant reads of Membership, Session and RoleAssignment rows return no rows, including when the caller knows globally unique physical UUIDs;
+- direct-SQL write probes target Event rows: updating another tenant's Event affects zero rows, and changing an Event's `org_id` is rejected by RLS; TICK-28 does not directly test Identity-table writes, although those tables have RLS `WITH CHECK` policies;
+- runtime-role tests verify the role is not the table owner, is not a superuser and has `NOBYPASSRLS` posture.
+
+These are test observations of the approved transaction and RLS behavior. They do not create a new authorization mechanism or make a UUID an authorization credential.
 
 The global `identity_users` table is outside tenant RLS semantics.
 
@@ -115,4 +125,4 @@ All Event persistence remains authorized (`authorize?: true`). Events does not d
 
 TICK-26 ends after one authorized tenant-owned draft Event is persisted. It does not implement occurrence creation, publication, publication outbox/event behavior, sales, commerce, tickets or ledger behavior.
 
-TICK-28 remains the next supplemental T0-01 integration-evidence slice. It may extend failure/RLS/pool-reuse verification, but it must not weaken or replace the already merged TICK-26 authorization and transaction boundary.
+TICK-28 is merged verification evidence for the same create-only T0-01 boundary. The complete record is in the [T0-01 implementation handoff](../handoffs/T0-01.md). Event publication, Occurrence and later sales work remain outside this increment.

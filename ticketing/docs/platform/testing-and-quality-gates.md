@@ -2,13 +2,13 @@
 
 > Nature and status: Derived implementation documentation. This document records current verification mechanics and merged baseline evidence; it does not define product semantics.
 >
-> Last verified implementation main SHA: `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`
+> Last verified implementation main SHA: `25a6a0956d7bb81214e348c7511132f5297d0fc5`
 >
-> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.6 / Plane TICK-25, TICK-26 and TICK-54; JIP-T0-SEC-01 v0.1.0 / Plane TICK-57 as historical security evidence; JIP-T0-SEC-03 v0.1.0 / Plane TICK-61 as the current dependency-security restoration.
+> Governing JIPs: JIP-T0-00 / Plane TICK-1, approved; JIP-T0-01 v0.1.6 / Plane TICK-25, TICK-26, TICK-28, TICK-29 and TICK-54; JIP-T0-SEC-01 v0.1.0 / Plane TICK-57 as historical security evidence; JIP-T0-SEC-03 v0.1.0 / Plane TICK-61 as the current dependency-security restoration.
 >
-> Plane work includes TICK-6, TICK-7, TICK-8, TICK-9, TICK-13, TICK-14, TICK-17, TICK-25, TICK-26, TICK-53, TICK-54, TICK-56, TICK-57, TICK-60, TICK-61, and TICK-62.
+> Plane work includes TICK-6, TICK-7, TICK-8, TICK-9, TICK-13, TICK-14, TICK-17, TICK-25, TICK-26, TICK-28, TICK-29, TICK-53, TICK-54, TICK-56, TICK-57, TICK-60, TICK-61, and TICK-62.
 >
-> Relevant merged PRs include [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42), [#45 (TICK-26)](https://github.com/JCSchoeman96/ticketing/pull/45), [#47 (SEC-01)](https://github.com/JCSchoeman96/ticketing/pull/47), and [#51 (SEC-03)](https://github.com/JCSchoeman96/ticketing/pull/51).
+> Relevant merged PRs include [#40 (TICK-25)](https://github.com/JCSchoeman96/ticketing/pull/40), [#42 (TICK-54)](https://github.com/JCSchoeman96/ticketing/pull/42), [#45 (TICK-26)](https://github.com/JCSchoeman96/ticketing/pull/45), [#47 (SEC-01)](https://github.com/JCSchoeman96/ticketing/pull/47), [#51 (SEC-03)](https://github.com/JCSchoeman96/ticketing/pull/51), and [#55 (TICK-28)](https://github.com/JCSchoeman96/ticketing/pull/55).
 
 ## Mix aliases
 
@@ -94,7 +94,19 @@ The merged TICK-26 suite covers the organizer-to-draft-Event boundary, including
 
 The TICK-63 forged-persona reproducer was used as the negative proof that the earlier two-action candidate was vulnerable and was converted into permanent regression coverage for the corrected single-action boundary.
 
-TICK-28 remains responsible for supplemental integrated evidence beyond TICK-26 core TDD: direct runtime SQL isolation, broader failure permutations, transaction-local tenant-context cleanup after commit/rollback/exception, pool reuse, telemetry label checks, and the normal/partitioned PostgreSQL 18.6 integration matrix. TICK-28 must not weaken or replace the merged TICK-26 behavior.
+TICK-28 adds supplemental integrated evidence beyond TICK-26 core TDD: Membership/Session/RoleAssignment failure permutations, direct runtime SQL tenant isolation, backend/GUC continuity, tenant-context cleanup after commit/rollback/exception and pool reuse, and emitted log/metric-label privacy checks. It verifies existing TICK-26 behavior and adds no product semantics.
+
+### Reviewed TICK-28 verification evidence
+
+PR #55 was reviewed at final head `b94273073e51f9e21416d6bf90f31df4e68af185` against base `d8af2c0cccfe65e9b643558c66d621666474e3dd`. The documentation-only PR #54 preceded it; PR #55 changed only CI selection and tests. No application code, configuration, migration, dependency, canonical authority or JIP/spec changed.
+
+Exact-head [CI run 40904871784](https://github.com/JCSchoeman96/ticketing/actions/runs/40904871784) passed on that head. It reported 119 normal ExUnit tests, 26 partitioned PostgreSQL 18.6 tests, Credo across 243 modules/functions with no issues, and Dialyzer with zero errors, skips or unnecessary skips. The application verification also passed `mix check`, including authority verification and the configured Sobelow gate.
+
+After PR #55 merged as `25a6a0956d7bb81214e348c7511132f5297d0fc5`, merged-main [CI run 40912494436](https://github.com/JCSchoeman96/ticketing/actions/runs/40912494436) passed. Its bootstrap job passed application verification and partitioned PostgreSQL 18.6 verification; `check_types` / Dialyzer passed. The run reported 119 normal tests, 26 partitioned tests, Credo with no issues and Dialyzer with zero errors, skips or unnecessary skips.
+
+Implementation-session local evidence recorded the targeted TICK-28 suite at 8 passed, `mix check` at 119 passed, `mix precommit` at 119 passed, and `mix check.types` at zero errors, skips or unnecessary skips. These local results supplement the exact-head and merged-main CI evidence; CI is the acceptance evidence for PostgreSQL 18.6.
+
+The [T0-01 implementation handoff](../handoffs/T0-01.md) records the complete coverage and the supplementary Tidewave/DEV inspection limitation.
 
 ## Reviewed TICK-26 implementation evidence
 
@@ -114,7 +126,7 @@ Exact-head CI run [40880231442](https://github.com/JCSchoeman96/ticketing/action
 
 Builder-local evidence on the same implementation tree additionally recorded 31 focused Event tests passing, `mix precommit` passing, `mix hex.audit` clean, `mix ash.codegen --check` clean, PostgreSQL 18.6, and `git diff --check` passing.
 
-PR #45 merged as signed GitHub main commit `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`. Post-merge push CI run [40883731325](https://github.com/JCSchoeman96/ticketing/actions/runs/40883731325) completed successfully on that exact SHA. Its `bootstrap` job passed application setup, `mix check`, and the partitioned PostgreSQL 18.6 smoke; its separate `check_types` job also completed successfully, including Dialyzer. This is the merged-main verification for the TICK-26 implementation code. TICK-26 still remains open until this documentation closeout is independently reviewed, merged, and freshly verified.
+PR #45 merged as signed GitHub main commit `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`. Post-merge push CI run [40883731325](https://github.com/JCSchoeman96/ticketing/actions/runs/40883731325) completed successfully on that exact SHA. Its `bootstrap` job passed application setup, `mix check`, and the partitioned PostgreSQL 18.6 smoke; its separate `check_types` job also completed successfully, including Dialyzer. PR #55 and its merged-main verification later added TICK-28 evidence without changing the Event-create implementation.
 
 ## Reviewed SEC-03 implementation evidence
 

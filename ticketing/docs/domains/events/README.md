@@ -2,11 +2,11 @@
 
 > Nature and status: Derived implementation documentation. This dossier describes the merged `Ticketing.Events` implementation and does not define product semantics.
 >
-> Last verified main SHA: `a1e3c663ca50e0bf7a92e8860a3d40c452d1368f`
+> Last verified main SHA: `25a6a0956d7bb81214e348c7511132f5297d0fc5`
 >
 > Governing JIP: JIP-T0-01 v0.1.6 / Plane TICK-26.
 >
-> Merged implementation PR: [#45](https://github.com/JCSchoeman96/ticketing/pull/45).
+> Merged implementation PRs: [#45](https://github.com/JCSchoeman96/ticketing/pull/45) and [#55](https://github.com/JCSchoeman96/ticketing/pull/55). PR #55 adds verification evidence only.
 
 ## Ownership and current boundary
 
@@ -149,7 +149,7 @@ The merged TICK-26 tests cover the implemented boundary, including:
 - regression proving the removed `persist_draft` action is unavailable;
 - regression proving a fabricated human organizer map cannot directly invoke the remaining `create_event` action and insert an Event without persisted proof.
 
-TICK-28 remains responsible for the supplemental integrated direct-SQL/RLS, pool-reuse, tenant-context-cleanup, telemetry and wider failure-path matrix. Those future tests do not change the Event semantics described here.
+TICK-28 adds supplemental integrated direct-SQL/RLS, pool-reuse, tenant-context-cleanup, telemetry-privacy and wider failure-path evidence. It changes no Event semantics or production code. See the [T0-01 implementation handoff](../../handoffs/T0-01.md) for the exact evidence and CI runs.
 
 ## Not implemented here
 

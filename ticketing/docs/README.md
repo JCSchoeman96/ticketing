@@ -14,10 +14,9 @@ These files are derived implementation documentation. They describe code that ha
 - [Identity](domains/identity/README.md)
 - [Events](domains/events/README.md)
 
-The merged TICK-26 baseline now contains the governed organizer-to-draft-Event creation path. Occurrence creation, publication, sales, commerce, ticketing and later T0 behavior remain unimplemented unless a later merged dossier says otherwise.
+The merged T0-01 increment contains the governed organizer-to-draft-Event creation path and its supplemental TICK-28 verification. This does not implement Event publication, Occurrence, sales, commerce, ticketing or later T0 behavior. See the [T0-01 implementation handoff](handoffs/T0-01.md) for the merged-state record.
 
 ## Handoffs
 
 - [T0-00 closeout record](handoffs/T0-00.md)
-
-`T0-01.md` is created only when the complete T0-01 increment has merged and its final closeout evidence can be frozen. TICK-28 remains downstream of TICK-26, so the T0-01 handoff is not yet final.
+- [T0-01 closeout record](handoffs/T0-01.md)
