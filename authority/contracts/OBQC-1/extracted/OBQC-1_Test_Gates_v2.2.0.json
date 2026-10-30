@@ -2,7 +2,7 @@
   "artifact_kind": "test_gates",
   "contract_ref": {
     "doc_id": "OBQC-1",
-    "version": "2.1.9"
+    "version": "2.2.0"
   },
   "doc_id": "OBQC-1-GATE",
   "gates": [
@@ -44,7 +44,7 @@
       "assertions": [
         {
           "details": {
-            "bundle_id": "OBQC-1_bundle_v2.1.8"
+            "bundle_id": "OBQC-1_bundle_v2.2.0"
           },
           "mode": "automated",
           "type": "require_bundle_files_match_manifest"
@@ -71,7 +71,7 @@
         {
           "details": {
             "artifact_kind": "contract",
-            "equals": "2.1.9",
+            "equals": "2.2.0",
             "json_pointer": "/version"
           },
           "mode": "automated",
@@ -117,7 +117,7 @@
         {
           "details": {
             "artifact_kind": "test_gates",
-            "equals": "2.1.9",
+            "equals": "2.2.0",
             "json_pointer": "/version"
           },
           "mode": "automated",
@@ -135,7 +135,7 @@
         {
           "details": {
             "artifact_kind": "test_gates",
-            "equals": "2.1.9",
+            "equals": "2.2.0",
             "json_pointer": "/contract_ref/version"
           },
           "mode": "automated",
@@ -244,13 +244,33 @@
       "level": "P0",
       "must": true,
       "title": "OBQC-1 Gate 0007"
+    },
+    {
+      "id": "OBQC1-JOB-ARGS-001",
+      "level": "P0",
+      "must": true,
+      "title": "Standard and AshOban job argument compatibility",
+      "description": "Verify the standard wrapper, exact AshOban framework profiles, nested versioned payload, compatibility evidence, tenant and actor safeguards, and the pinned generated-argument signature.",
+      "failure_message": "OBQC-1 job-argument policies or the certified AshOban generated-argument profile are incomplete or drifted.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "contract_pointer": "/job_versioning",
+            "ashoban_policy_pointer": "/ash_oban_integration/ash_oban_generated_args",
+            "upstream_profile_fixture": "authority/tests/fixtures/ash_oban_0.10.3_build_trigger_signature.json",
+            "test": "authority.tests.test_obqc1_job_args_envelope"
+          }
+        }
+      ]
     }
   ],
-  "generated_at_utc": "2026-02-07T03:40:00.836883Z",
-  "last_updated_utc": "2026-02-07T03:40:00.836883Z",
+  "generated_at_utc": "2026-10-30T10:19:32Z",
+  "last_updated_utc": "2026-10-30T10:19:32Z",
   "schema_version": "test-gates/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",
-  "title": "OBQC-1 Test Gates v2.1.8",
-  "version": "2.1.9"
+  "title": "OBQC-1 Test Gates v2.2.0",
+  "version": "2.2.0"
 }

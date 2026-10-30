@@ -519,14 +519,14 @@ def test_t0_planning_snapshot_matches_current_installed_authority() -> None:
     assert len(canon["canonical_bundles"]) == 56
     assert f"**Authority snapshot:** CANON-1 {canon['version']}" in tracer
     assert f"CANON-1 {canon['version']} pins {len(canon['canonical_bundles'])} CANON members" in tracer
-    assert "**Contracts baseline:** `ea6ebbb84664aeb383d21ccbd92d30dd1a93939f`" in tracer
+    assert "**Contracts baseline:** `51c47fe7a10b3a04b95a1b7fe85999217e660449`" in tracer
     assert "**Implementation baseline:** `9bbec7e5c926f8036ef32e261fbeb8ae9377e0ac`" in tracer
     snapshot_versions = {row["doc_id"]: row["version"] for row in canon["canonical_bundles"]}
     snapshot_versions["CANON-1"] = canon["version"]
     for doc_id in (
         "CANON-1", "V42-0", "CS-0", "BP-0", "EVT-2", "TEN-1", "IAM-1", "IAM-2",
         "OFFER-1", "SEAT-1", "PRICE-1", "ORD-1", "TAX-1", "PII-1", "API-0", "ERR-1",
-        "OBS-1", "EVT-1", "LOCKS-1",
+        "OBS-1", "EVT-1", "OBQC-1", "LOCKS-1",
     ):
         assert f"| {doc_id} | {snapshot_versions[doc_id]} |" in tracer
     assert records["EXT-1"]["membership"] == "DEPENDENCY_ONLY"

@@ -1,11 +1,11 @@
 # T0: Tenant-scoped GA pending sale
 
 - **Roadmap status:** NEXT
-- **Contracts baseline:** `ea6ebbb84664aeb383d21ccbd92d30dd1a93939f`
+- **Contracts baseline:** `51c47fe7a10b3a04b95a1b7fe85999217e660449`
 - **Implementation baseline:** `9bbec7e5c926f8036ef32e261fbeb8ae9377e0ac`
 - **Implementation repository:** `JCSchoeman96/ticketing`
 - **Phoenix application directory:** `ticketing/`
-- **Authority snapshot:** CANON-1 2.0.19, read from the active manifest and verified against installed CANON pins
+- **Authority snapshot:** CANON-1 2.0.20, read from the active manifest and verified against installed CANON pins
 
 ## Scope
 
@@ -17,11 +17,11 @@ B0 is COMPLETE. The implementation repository is `JCSchoeman96/ticketing`; its P
 
 ## Current authority snapshot
 
-Versions come from `contracts/manifest.json`. CANON-1 2.0.19 pins 56 CANON members. EXT-1 is an accepted dependency-only record, not a CANON member.
+Versions come from `contracts/manifest.json`. CANON-1 2.0.20 pins 56 CANON members. EXT-1 is an accepted dependency-only record, not a CANON member.
 
 | Authority | Version | Membership | T0 use |
 |---|---:|---|---|
-| CANON-1 | 2.0.19 | CANON_INDEX | Current suite membership and pins |
+| CANON-1 | 2.0.20 | CANON_INDEX | Current suite membership and pins |
 | V42-0 | 1.8.2 | CANON_MEMBER | Constitutional contract baseline |
 | CS-0 | 3.0.1 | CANON_MEMBER | Contract and test-gate structure |
 | BP-0 | 3.0.1 | CANON_MEMBER | Bundle posture |
@@ -39,6 +39,7 @@ Versions come from `contracts/manifest.json`. CANON-1 2.0.19 pins 56 CANON membe
 | ERR-1 | 2.0.1 | CANON_MEMBER | Registered error codes and subcodes, including EVT admission-policy failures |
 | OBS-1 | 2.9.1 | CANON_MEMBER | Required logs, spans, metrics, and alerts; stable policy-management operation ID |
 | EVT-1 | 3.0.0 | CANON_MEMBER | Registered event vocabulary |
+| OBQC-1 | 2.2.0 | CANON_MEMBER | AshOban job-envelope compatibility for the durable outbox prerequisite (TICK-65) |
 | LOCKS-1 | 3.0.0 | CANON_MEMBER | Durable idempotency identity, request hash, replay, and concurrency |
 | EXT-1 | 2.1.7 | DEPENDENCY_ONLY | Accepted dependency only |
 

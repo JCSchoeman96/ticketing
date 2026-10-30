@@ -1,0 +1,51 @@
+{
+  "profile_id": "ash_oban@0.10.3",
+  "upstream": {
+    "repository": "https://github.com/ash-project/ash_oban",
+    "tag": "v0.10.3",
+    "tag_commit": "419b2c6cc0a0f7f5e6851af5cabba98a2a3ad09f",
+    "source_file": "lib/ash_oban.ex",
+    "source_file_sha256": "84ecbc8a610ce574fae0f8eb649c8d74f45b2e0d61715d6eb3a572d89fa28bab",
+    "generated_worker_source_files": [
+      {
+        "path": "lib/transformers/define_action_workers.ex",
+        "sha256": "8615df31543a641f933212dc80a3a0f4cb9f4ee0a693cf2a1040d6535f76fe3b"
+      },
+      {
+        "path": "lib/transformers/define_schedulers.ex",
+        "sha256": "57b6bf9a779817831b8f94394610edf9f5d4269f64cf163734aa462f6e53b870"
+      }
+    ]
+  },
+  "observed_behavior": {
+    "run_trigger": "AshOban.run_trigger/3 calls AshOban.build_trigger/3, then Oban.insert!/1.",
+    "build_trigger_arity": 3,
+    "trigger_worker_framework_keys": [
+      "primary_key",
+      "metadata",
+      "action_arguments",
+      "tenant"
+    ],
+    "actor_key": "Added only when a configured actor persister stores an actor.",
+    "reserved_keys": [
+      "primary_key",
+      "metadata",
+      "action_arguments",
+      "tenant",
+      "actor"
+    ],
+    "extra_args_behavior": "Reserved keys are removed from extra_args and :args; generated framework values take precedence.",
+    "scheduled_action_worker_base_keys": [
+      "action_arguments"
+    ],
+    "scheduled_action_worker_optional_keys": [
+      "actor",
+      "tenant"
+    ],
+    "scheduler_control_job_base_keys": [],
+    "scheduler_control_job_optional_keys": [
+      "actor"
+    ],
+    "scheduler_tenant_behavior": "Scheduler enumerates configured tenants and builds tenant-bound trigger jobs."
+  }
+}

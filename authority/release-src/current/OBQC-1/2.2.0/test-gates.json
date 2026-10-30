@@ -1,0 +1,276 @@
+{
+  "artifact_kind": "test_gates",
+  "contract_ref": {
+    "doc_id": "OBQC-1",
+    "version": "2.2.0"
+  },
+  "doc_id": "OBQC-1-GATE",
+  "gates": [
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "CS-0@3.0.1"
+          },
+          "mode": "automated",
+          "type": "suite_schema_matches"
+        }
+      ],
+      "description": "suite_schema pinned and consistent",
+      "failure_message": "suite_schema pinned and consistent",
+      "id": "OBQC-1.GATE.0001",
+      "level": "P0",
+      "must": true,
+      "title": "OBQC-1 Gate 0001"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "expected": "bundle.manifest.json"
+          },
+          "mode": "automated",
+          "type": "require_bundle_manifest_filename"
+        }
+      ],
+      "description": "manifest filename is bundle.manifest.json",
+      "failure_message": "manifest filename is bundle.manifest.json",
+      "id": "OBQC-1.GATE.0002",
+      "level": "P0",
+      "must": true,
+      "title": "OBQC-1 Gate 0002"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "bundle_id": "OBQC-1_bundle_v2.2.0"
+          },
+          "mode": "automated",
+          "type": "require_bundle_files_match_manifest"
+        }
+      ],
+      "description": "manifest matches actual bundle json artifacts",
+      "failure_message": "manifest matches actual bundle json artifacts",
+      "id": "OBQC-1.GATE.0003",
+      "level": "P0",
+      "must": true,
+      "title": "OBQC-1 Gate 0003"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OBQC-1",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "2.2.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "contract-suite/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "contract metadata parity",
+      "failure_message": "contract metadata parity",
+      "id": "OBQC-1.GATE.0004",
+      "level": "P0",
+      "must": true,
+      "title": "OBQC-1 Gate 0004"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "OBQC-1-GATE",
+            "json_pointer": "/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "2.2.0",
+            "json_pointer": "/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "OBQC-1",
+            "json_pointer": "/contract_ref/doc_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "2.2.0",
+            "json_pointer": "/contract_ref/version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "test-gates/1.0",
+            "json_pointer": "/schema_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "test_gates",
+            "equals": "CS-0@3.0.1",
+            "json_pointer": "/suite_schema"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "test gates metadata parity",
+      "failure_message": "test gates metadata parity",
+      "id": "OBQC-1.GATE.0005",
+      "level": "P0",
+      "must": true,
+      "title": "OBQC-1 Gate 0005"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OBQC-1-AUTH-010",
+            "json_pointer": "/rules/18/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OBQC-1-AUTH-020",
+            "json_pointer": "/rules/19/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "OBQC-1-AUTH-030",
+            "json_pointer": "/rules/20/id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
+      "description": "Require fresh auth + minimal auth context for jobs (GC-032).",
+      "failure_message": "Require fresh auth + minimal auth context for jobs (GC-032).",
+      "id": "OBQC-1-GATE-160",
+      "level": "P0",
+      "must": true,
+      "title": "OBQC-1 Gate 0006"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": false,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/outbox_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "forbid_regex": [
+              ".+"
+            ],
+            "json_pointers": [
+              "/events/outbox_events"
+            ]
+          },
+          "mode": "automated",
+          "type": "forbid_regex_in_artifact"
+        }
+      ],
+      "description": "OBQC-1 is a non-producer: emits_events MUST be false and outbox_events MUST be empty (no CI theatre).",
+      "failure_message": "OBQC-1 is a non-producer: emits_events MUST be false and outbox_events MUST be empty (no CI theatre).",
+      "id": "OBQC1-NONPROD-001",
+      "level": "P0",
+      "must": true,
+      "title": "OBQC-1 Gate 0007"
+    },
+    {
+      "id": "OBQC1-JOB-ARGS-001",
+      "level": "P0",
+      "must": true,
+      "title": "Standard and AshOban job argument compatibility",
+      "description": "Verify the standard wrapper, exact AshOban framework profiles, nested versioned payload, compatibility evidence, tenant and actor safeguards, and the pinned generated-argument signature.",
+      "failure_message": "OBQC-1 job-argument policies or the certified AshOban generated-argument profile are incomplete or drifted.",
+      "assertions": [
+        {
+          "mode": "automated",
+          "type": "property_tests",
+          "details": {
+            "contract_pointer": "/job_versioning",
+            "ashoban_policy_pointer": "/ash_oban_integration/ash_oban_generated_args",
+            "upstream_profile_fixture": "authority/tests/fixtures/ash_oban_0.10.3_build_trigger_signature.json",
+            "test": "authority.tests.test_obqc1_job_args_envelope"
+          }
+        }
+      ]
+    }
+  ],
+  "generated_at_utc": "2026-10-30T10:19:32Z",
+  "last_updated_utc": "2026-10-30T10:19:32Z",
+  "schema_version": "test-gates/1.0",
+  "status": "active",
+  "suite_schema": "CS-0@3.0.1",
+  "title": "OBQC-1 Test Gates v2.2.0",
+  "version": "2.2.0"
+}
