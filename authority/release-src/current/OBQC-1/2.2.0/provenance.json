@@ -1,0 +1,35 @@
+{
+  "bootstrap_commit": "51c47fe7a10b3a04b95a1b7fe85999217e660449",
+  "candidate_preparation_base_commit": "51c47fe7a10b3a04b95a1b7fe85999217e660449",
+  "provenance_statement": "OBQC-1 2.2.0 is a semantic successor prepared from the exact installed canonical OBQC-1 2.1.9 bundle. The change resolves TICK-66 by preserving the standard worker wrapper and adding a capability-verified AshOban framework-aware argument policy that remains subordinate to TEN-1 and OBQC-1-TEN-001. It replaces the unavailable planned ART-0 source with sanitized compatibility fixtures from the immutable previous deployed application source commit.",
+  "source_bundle_path": "authority/contracts/OBQC-1/OBQC-1_bundle_v2.1.9.zip",
+  "source_zip_sha256": "f5da57378e0f8f294f020af98c397c1ca84e632f2cdcd22a63b7db9c07800eea",
+  "source_zip_bytes": 40554,
+  "source_version": "2.1.9",
+  "source_members": [
+    {
+      "tracked_source_path": "contract.json",
+      "source_member_path": "OBQC-1_bundle_v2.2.0/OBQC-1_Contract_v2.2.0.json",
+      "sha256": "5875ceb178aa543dfc187ccc7d69513fb98620c1975dbecf7a00afcab6cf0a6e",
+      "bytes": 46554
+    },
+    {
+      "tracked_source_path": "test-gates.json",
+      "source_member_path": "OBQC-1_bundle_v2.2.0/OBQC-1_Test_Gates_v2.2.0.json",
+      "sha256": "cd86d010cd0e9355d4c99067356b0f695e87b0b295974f0f996b055eea730f94",
+      "bytes": 9081
+    }
+  ],
+  "origin_members": [
+    {
+      "source_member_path": "OBQC-1_bundle_v2.1.9/OBQC-1_Contract_v2.1.9.json",
+      "sha256": "3afa25d0acec65f51d72a24184e23ba09e8807937930519e9100ba26d0bf6355",
+      "bytes": 32302
+    },
+    {
+      "source_member_path": "OBQC-1_bundle_v2.1.9/OBQC-1_Test_Gates_v2.1.9.json",
+      "sha256": "74c3ea5800b6d8cd5f2990d63ef9014f2bc20c78163d19547187516439c5fa47",
+      "bytes": 7098
+    }
+  ]
+}

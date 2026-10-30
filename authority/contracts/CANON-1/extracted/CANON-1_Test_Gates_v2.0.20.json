@@ -2,7 +2,7 @@
   "artifact_kind": "test_gates",
   "contract_ref": {
     "doc_id": "CANON-1",
-    "version": "2.0.19"
+    "version": "2.0.20"
   },
   "doc_id": "CANON-1-GATE",
   "gates": [
@@ -1181,10 +1181,10 @@
         },
         {
           "details": {
-            "accepted_path": "contracts/OBQC-1/OBQC-1_bundle_v2.1.9.zip",
+            "accepted_path": "contracts/OBQC-1/OBQC-1_bundle_v2.2.0.zip",
             "doc_id": "OBQC-1",
-            "expected_sha256": "f5da57378e0f8f294f020af98c397c1ca84e632f2cdcd22a63b7db9c07800eea",
-            "version": "2.1.9"
+            "expected_sha256": "7e960ab94980a74876afa1008da164e9b774a300762b4b19e3d7c2dbe66d0532",
+            "version": "2.2.0"
           },
           "mode": "automated",
           "type": "canon_bundle_sha_match"
@@ -1192,10 +1192,10 @@
         {
           "details": {
             "doc_id": "OBQC-1",
-            "expected_bytes": 32302,
-            "expected_sha256": "3afa25d0acec65f51d72a24184e23ba09e8807937930519e9100ba26d0bf6355",
-            "path": "OBQC-1_bundle_v2.1.9/OBQC-1_Contract_v2.1.9.json",
-            "version": "2.1.9"
+            "expected_bytes": 46554,
+            "expected_sha256": "5875ceb178aa543dfc187ccc7d69513fb98620c1975dbecf7a00afcab6cf0a6e",
+            "path": "OBQC-1_bundle_v2.2.0/OBQC-1_Contract_v2.2.0.json",
+            "version": "2.2.0"
           },
           "mode": "automated",
           "type": "canon_artifact_sha_match"
@@ -1203,10 +1203,10 @@
         {
           "details": {
             "doc_id": "OBQC-1",
-            "expected_bytes": 7098,
-            "expected_sha256": "74c3ea5800b6d8cd5f2990d63ef9014f2bc20c78163d19547187516439c5fa47",
-            "path": "OBQC-1_bundle_v2.1.9/OBQC-1_Test_Gates_v2.1.9.json",
-            "version": "2.1.9"
+            "expected_bytes": 9081,
+            "expected_sha256": "cd86d010cd0e9355d4c99067356b0f695e87b0b295974f0f996b055eea730f94",
+            "path": "OBQC-1_bundle_v2.2.0/OBQC-1_Test_Gates_v2.2.0.json",
+            "version": "2.2.0"
           },
           "mode": "automated",
           "type": "canon_artifact_sha_match"
@@ -1215,9 +1215,9 @@
           "details": {
             "doc_id": "OBQC-1",
             "expected_bytes": 626,
-            "expected_sha256": "c959d0226e551479656fec8ae6abd0ffc5f197ea96d25579046123f9e875d079",
-            "path": "OBQC-1_bundle_v2.1.9/bundle.manifest.json",
-            "version": "2.1.9"
+            "expected_sha256": "70f63012124caecbc71b95eed84f990705bff9990e1bbc956aeea6394053bcec",
+            "path": "OBQC-1_bundle_v2.2.0/bundle.manifest.json",
+            "version": "2.2.0"
           },
           "mode": "automated",
           "type": "canon_artifact_sha_match"
@@ -2489,10 +2489,10 @@
       "title": "Every current member has one accepted exact-hash pin."
     }
   ],
-  "generated_at_utc": "2026-10-30T08:11:59Z",
+  "generated_at_utc": "2026-10-30T11:03:05Z",
   "schema_version": "test-gates/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",
   "title": "CANON-1 Test Gates",
-  "version": "2.0.19"
+  "version": "2.0.20"
 }

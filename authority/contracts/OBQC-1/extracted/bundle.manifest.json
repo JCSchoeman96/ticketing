@@ -2,23 +2,23 @@
   "artifact_kind": "bundle_manifest",
   "bundle": {
     "bundle_id": "OBQC-1",
-    "bundle_version": "2.1.9"
+    "bundle_version": "2.2.0"
   },
   "doc_id": "OBQC-1",
   "files": [
     {
-      "bytes": 32302,
-      "path": "OBQC-1_Contract_v2.1.9.json",
-      "sha256": "3afa25d0acec65f51d72a24184e23ba09e8807937930519e9100ba26d0bf6355"
+      "bytes": 46554,
+      "path": "OBQC-1_Contract_v2.2.0.json",
+      "sha256": "5875ceb178aa543dfc187ccc7d69513fb98620c1975dbecf7a00afcab6cf0a6e"
     },
     {
-      "bytes": 7098,
-      "path": "OBQC-1_Test_Gates_v2.1.9.json",
-      "sha256": "74c3ea5800b6d8cd5f2990d63ef9014f2bc20c78163d19547187516439c5fa47"
+      "bytes": 9081,
+      "path": "OBQC-1_Test_Gates_v2.2.0.json",
+      "sha256": "cd86d010cd0e9355d4c99067356b0f695e87b0b295974f0f996b055eea730f94"
     }
   ],
-  "generated_at_utc": "2026-10-09T00:00:00Z",
+  "generated_at_utc": "2026-10-30T11:03:05Z",
   "schema_version": "bundle-manifest/1.0",
   "suite_schema": "CS-0@3.0.1",
-  "version": "2.1.9"
+  "version": "2.2.0"
 }

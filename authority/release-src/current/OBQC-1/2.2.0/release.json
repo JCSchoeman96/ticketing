@@ -1,0 +1,13 @@
+{
+  "doc_id": "OBQC-1",
+  "version": "2.2.0",
+  "suite_schema": "CS-0@3.0.1",
+  "generated_at_utc": "2026-10-30T11:03:05Z",
+  "release_status": "candidate",
+  "release_intent": "Minor semantic successor resolving TICK-66 by defining framework-aware AshOban generated arguments, preserving the standard Oban wrapper, and enforcing tenant-bound execution without creating a scheduler or tenantless fan-out exception to TEN-1 / OBQC-1-TEN-001.",
+  "source_provenance": {
+    "kind": "installed-canonical-successor",
+    "path": "provenance.json",
+    "source_zip_sha256": "f5da57378e0f8f294f020af98c397c1ca84e632f2cdcd22a63b7db9c07800eea"
+  }
+}
