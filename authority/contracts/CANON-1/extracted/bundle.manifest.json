@@ -2,23 +2,23 @@
   "artifact_kind": "bundle_manifest",
   "bundle": {
     "bundle_id": "CANON-1",
-    "bundle_version": "2.0.18"
+    "bundle_version": "2.0.19"
   },
   "doc_id": "CANON-1",
   "files": [
     {
-      "bytes": 57674,
-      "path": "CANON-1_Contract_v2.0.18.json",
-      "sha256": "74108673d5b9cf3a9848b90d79d8e3d2c7fddd0b0eb35ebb50dbd0ee0cc24a24"
+      "bytes": 58193,
+      "path": "CANON-1_Contract_v2.0.19.json",
+      "sha256": "7d838a0a2abf4f1001ecfb830fc050bb4184f3785bbdb483443ffb02bc3d0007"
     },
     {
       "bytes": 90469,
-      "path": "CANON-1_Test_Gates_v2.0.18.json",
-      "sha256": "c1befb3b4f2436537908d75e0a8c037ba4615ab153fae13a119f72b2799e38ba"
+      "path": "CANON-1_Test_Gates_v2.0.19.json",
+      "sha256": "2adf2ea8851dc605d4a5328e7050d689e96b6d619a0908a463ee05d1d7cd3851"
     }
   ],
-  "generated_at_utc": "2026-10-22T14:40:00Z",
+  "generated_at_utc": "2026-10-30T08:11:59Z",
   "schema_version": "bundle-manifest/1.0",
   "suite_schema": "CS-0@3.0.1",
-  "version": "2.0.18"
+  "version": "2.0.19"
 }

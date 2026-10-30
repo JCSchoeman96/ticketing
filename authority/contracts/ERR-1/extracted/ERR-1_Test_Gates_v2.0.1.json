@@ -1,8 +1,18 @@
 {
   "artifact_kind": "test_gates",
+  "authority_review_gates": [
+    {
+      "description": "Review the approved authority corrections in the paired versionless contract.json draft. Confirm the contract text contains no contradictory legacy lock for the corrected behavior.",
+      "failure_message": "Approved authority correction or legacy contradiction remains unresolved.",
+      "id": "ERR-1-FPP-CORRECTION-REVIEW",
+      "level": "P0",
+      "mode": "manual",
+      "must": true
+    }
+  ],
   "contract_ref": {
     "doc_id": "ERR-1",
-    "version": "2.0.0"
+    "version": "2.0.1"
   },
   "doc_id": "ERR-1-GATE",
   "gates": [
@@ -36,6 +46,15 @@
           "details": {},
           "mode": "automated",
           "type": "require_bundle_files_match_manifest"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR-1_bundle_v2.0.1",
+            "json_pointer": "/bundle_id"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
         }
       ],
       "description": "Bundle MUST contain canonical bundle.manifest.json filename and files MUST match manifest.",
@@ -59,7 +78,7 @@
         {
           "details": {
             "artifact_kind": "contract",
-            "equals": "2.0.0",
+            "equals": "2.0.1",
             "json_pointer": "/version"
           },
           "mode": "automated",
@@ -77,7 +96,7 @@
         {
           "details": {
             "artifact_kind": "gates",
-            "equals": "2.0.0",
+            "equals": "2.0.1",
             "json_pointer": "/contract_ref/version"
           },
           "mode": "automated",
@@ -322,11 +341,36 @@
           },
           "mode": "automated",
           "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "3.1.0",
+            "json_pointer": "/registry/domain_subcode_floors/EVT-2/min_version"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": 6,
+            "json_pointer": "/registry/domain_subcode_floors/EVT-2/subcode_count"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_occurrence_admission_policy_authority.py::test_evt_subcode_floor_tracks_occurrence_admission_errors"
+          },
+          "mode": "automated",
+          "type": "property_tests"
         }
       ],
-      "description": "ERR-1 registry MUST declare domain subcode floors for COMM-1, INT-1, and NOTIF-1.",
+      "description": "ERR-1 registry MUST declare domain subcode floors for COMM-1, INT-1, NOTIF-1, and EVT-2.",
       "enforced_by": "ci_contract_gate_strict",
-      "failure_message": "ERR-1 domain subcode floors MUST be declared.",
+      "failure_message": "ERR-1 domain subcode floors MUST be declared for COMM-1, INT-1, NOTIF-1, and EVT-2.",
       "id": "ERR_1_GATE_110_DOMAIN_SUBCODE_FLOORS_DECLARED",
       "level": "P0",
       "must": true,
@@ -685,11 +729,11 @@
     {
       "assertions": [
         {
-          "mode": "automated",
-          "type": "property_tests",
           "details": {
             "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_ash_class_mappings_target_registered_top_level_errors"
-          }
+          },
+          "mode": "automated",
+          "type": "property_tests"
         },
         {
           "details": {
@@ -707,12 +751,6 @@
       "title": "Ash class mappings target registered errors"
     },
     {
-      "id": "ERR_1_GATE_140_TAX_SUBCODES_REGISTERED",
-      "title": "TAX subcodes match the error registry",
-      "description": "Every TAX-1 declared subcode used by the T0 quote path appears exactly once in ERR-1 with the declared top-level code.",
-      "failure_message": "A TAX-1 subcode is missing, duplicated, or has a conflicting top-level mapping in ERR-1.",
-      "level": "P0",
-      "must": true,
       "assertions": [
         {
           "details": {
@@ -721,24 +759,55 @@
           "mode": "automated",
           "type": "property_tests"
         }
-      ]
+      ],
+      "description": "Every TAX-1 declared subcode used by the T0 quote path appears exactly once in ERR-1 with the declared top-level code.",
+      "failure_message": "A TAX-1 subcode is missing, duplicated, or has a conflicting top-level mapping in ERR-1.",
+      "id": "ERR_1_GATE_140_TAX_SUBCODES_REGISTERED",
+      "level": "P0",
+      "must": true,
+      "title": "TAX subcodes match the error registry"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT_ADMISSION_POLICY_INVALID",
+            "json_pointer": "/registry/subcodes/243/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_VALIDATION",
+            "json_pointer": "/registry/subcodes/243/top_level"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_occurrence_admission_policy_authority.py::test_occurrence_admission_errors_and_observability_operation_are_registered"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ],
+      "description": "EVT-2 invalid-policy, missing-policy, and out-of-policy-window subcodes have their required stable top-level classifications and occur exactly once.",
+      "failure_message": "EVT-2 occurrence admission-policy errors are missing, duplicated, or misclassified.",
+      "id": "ERR_1_GATE_150_EVT_ADMISSION_POLICY_CODES_REGISTERED",
+      "level": "P0",
+      "must": true,
+      "title": "EVT-2 admission-policy codes registered"
     }
   ],
-  "generated_at_utc": "2026-10-18T09:26:57Z",
-  "last_updated_utc": "2026-06-03T14:50:00Z",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
+  "last_updated_utc": "2026-10-30T07:28:46Z",
   "schema_version": "test-gates/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",
   "title": "ERR-1 Test Gates",
-  "version": "2.0.0",
-  "authority_review_gates": [
-    {
-      "id": "ERR-1-FPP-CORRECTION-REVIEW",
-      "level": "P0",
-      "must": true,
-      "mode": "manual",
-      "description": "Review the approved authority corrections in the paired versionless contract.json draft. Confirm the contract text contains no contradictory legacy lock for the corrected behavior.",
-      "failure_message": "Approved authority correction or legacy contradiction remains unresolved."
-    }
-  ]
+  "version": "2.0.1"
 }

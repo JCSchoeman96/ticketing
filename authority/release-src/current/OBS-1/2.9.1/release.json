@@ -1,0 +1,13 @@
+{
+  "doc_id": "OBS-1",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
+  "release_intent": "TICK-64 authority successor candidate for OBS-1@2.9.0; see the occurrence admission-policy repair in this branch.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "canonical-successor",
+    "path": "provenance.json",
+    "source_zip_sha256": "dbe74836e2f0a784cebea332efd74cb76d87ea2016637f8d1b55ad3a68eb5c06"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.9.1"
+}

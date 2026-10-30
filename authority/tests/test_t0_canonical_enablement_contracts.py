@@ -420,7 +420,7 @@ def test_event_publication_timestamp_and_outbox_metadata_agree() -> None:
 
 
 def test_successor_artifact_identity_matches_each_candidate_version() -> None:
-    versions = {"OFFER-1": "2.0.0", "SEAT-1": "4.1.0", "ORD-1": "4.0.1", "EVT-2": "3.0.0"}
+    versions = {"OFFER-1": "2.0.0", "SEAT-1": "4.1.0", "ORD-1": "4.0.1", "EVT-2": "3.1.0"}
     stale = {
         "OFFER-1": ("1.2.0", "1.3.2", "1.3.4"),
         "SEAT-1": ("3.6.1", "3.6.2", "3.7.1", "3.7.2", "4.0.0"),

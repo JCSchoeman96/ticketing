@@ -1,0 +1,13 @@
+{
+  "doc_id": "EVT-2",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
+  "release_intent": "TICK-64 authority successor candidate for EVT-2@3.0.0; see the occurrence admission-policy repair in this branch.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "canonical-successor",
+    "path": "provenance.json",
+    "source_zip_sha256": "61eddff7863a5e77d05ad45533a8b8dd6e19bf436fdc8a07ec2897c394e914eb"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "3.1.0"
+}

@@ -1,7 +1,10 @@
 {
+  "approved_authority_corrections": {
+    "external_error_authority": "ERR-1 alone defines external top-level error and subcode identifiers. Other contracts may reference registered ERR-1 identifiers only. Missing tenant and missing or wrong-tenant hidden resource responses are HTTP 404 ERR_NOT_FOUND; internal causes remain audit/telemetry only."
+  },
   "artifact_kind": "contract",
-  "artifact_name": "ERR-1_Contract_v2.0.0.json",
-  "bundle_id": "ERR-1_bundle_v2.0.0",
+  "artifact_name": "ERR-1_Contract_v2.0.1.json",
+  "bundle_id": "ERR-1_bundle_v2.0.1",
   "bundle_manifest_filename": "bundle.manifest.json",
   "canonical": true,
   "canonical_meta": {
@@ -204,6 +207,17 @@
       "date_utc": "2026-02-02",
       "summary": "Mandate microsecond precision for occurred_at; reclassify IAM_RECOVERY_CODE_USED to ERR_PRECONDITION and require security signal emission.",
       "version": "1.5.1"
+    },
+    {
+      "breaking": false,
+      "changes": [
+        "Register EVT_ADMISSION_POLICY_INVALID as ERR_VALIDATION for invalid policy configuration.",
+        "Register EVT_ADMISSION_POLICY_MISSING as ERR_PRECONDITION.",
+        "Register EVT_CHECK_IN_WINDOW_OUT_OF_POLICY as ERR_VALIDATION."
+      ],
+      "date_utc": "2026-10-30",
+      "summary": "Register EVT-2 occurrence admission-policy errors and producer floor.",
+      "version": "2.0.1"
     }
   ],
   "dependencies": [
@@ -246,13 +260,13 @@
     {
       "doc_id": "EVT-2",
       "edge_type": "registry_floor",
-      "min_version": "2.4.0",
-      "reason": "Schema_ref token normalization context."
+      "min_version": "3.1.0",
+      "reason": "Registry floor for EVT-2 3.1.0 occurrence admission-policy errors."
     }
   ],
   "dependency_floors": {
     "EVT-1": "2.16.4",
-    "EVT-2": "2.4.0"
+    "EVT-2": "3.1.0"
   },
   "doc_id": "ERR-1",
   "emits_events": false,
@@ -296,14 +310,14 @@
   "format_rules": {
     "subcode_pattern": "^[A-Z0-9]+_[A-Z0-9]+(?:_[A-Z0-9]+)*$"
   },
-  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
   "invariants": {
     "ERR-INV-TIME-USEC": {
       "severity": "P0",
       "text": "All occurred_at timestamps in error envelopes MUST use utc_datetime_usec (microsecond precision)."
     }
   },
-  "last_updated_utc": "2026-06-03T14:50:00Z",
+  "last_updated_utc": "2026-10-30T07:28:46Z",
   "mappings": {
     "ash_3": {
       "aggregate_translation_rules": [
@@ -442,13 +456,6 @@
         "Retry decisions MUST align with retryability taxonomy; job configuration may override with stricter behavior."
       ]
     },
-    "webhooks": {
-      "delivery_error_envelope": "problem_details",
-      "rules": [
-        "Webhook delivery failures MUST be recorded with stable code/subcode and retryability.",
-        "Webhook consumers MUST receive the canonical problem-details envelope on webhook error callbacks (if implemented)."
-      ]
-    },
     "tenant_hidden_http_boundary": {
       "applies_to": [
         "missing_tenant_context",
@@ -458,14 +465,6 @@
       ],
       "external_response": {
         "http_status": 404,
-        "top_level_code": "ERR_NOT_FOUND",
-        "subcode": null,
-        "omit_fields": [
-          "detail"
-        ],
-        "omit_extensions": [
-          "subcode"
-        ],
         "must_not_include_headers": [
           "www-authenticate",
           "x-tenant-id",
@@ -473,31 +472,46 @@
           "x-policy",
           "x-error-class"
         ],
+        "omit_extensions": [
+          "subcode"
+        ],
+        "omit_fields": [
+          "detail"
+        ],
+        "subcode": null,
+        "top_level_code": "ERR_NOT_FOUND",
         "uniform_by_hidden_reason": true
       },
-      "precedence": "Apply before HTTP serialization for every applies_to case. TEN-1 external response policy overrides Ash classification and ERR-1 registry top-level mappings. Preserve internal classifications and causes for audit and telemetry only. TEN_SUPPORT_MODE_UNAUTHORIZED remains ERR_FORBIDDEN and is not a tenant-hidden case under this mapping.",
       "internal_causes": [
         {
-          "case": "missing_tenant_context",
-          "subcode": "TEN_TENANT_CONTEXT_MISSING",
           "ash_error_leaf": "Ash.Error.Invalid.TenantRequired",
-          "retention": "audit_and_telemetry_only"
+          "case": "missing_tenant_context",
+          "retention": "audit_and_telemetry_only",
+          "subcode": "TEN_TENANT_CONTEXT_MISSING"
         },
         {
           "case": "tenant_mismatch",
-          "subcode": "TEN_TENANT_MISMATCH",
-          "retention": "audit_and_telemetry_only"
+          "retention": "audit_and_telemetry_only",
+          "subcode": "TEN_TENANT_MISMATCH"
         },
         {
           "case": "rls_denied",
-          "subcode": "TEN_RLS_DENIED",
-          "retention": "audit_and_telemetry_only"
+          "retention": "audit_and_telemetry_only",
+          "subcode": "TEN_RLS_DENIED"
         },
         {
           "case": "cross_tenant_hidden",
-          "subcode": "TEN_CROSS_TENANT_HIDDEN",
-          "retention": "audit_and_telemetry_only"
+          "retention": "audit_and_telemetry_only",
+          "subcode": "TEN_CROSS_TENANT_HIDDEN"
         }
+      ],
+      "precedence": "Apply before HTTP serialization for every applies_to case. TEN-1 external response policy overrides Ash classification and ERR-1 registry top-level mappings. Preserve internal classifications and causes for audit and telemetry only. TEN_SUPPORT_MODE_UNAUTHORIZED remains ERR_FORBIDDEN and is not a tenant-hidden case under this mapping."
+    },
+    "webhooks": {
+      "delivery_error_envelope": "problem_details",
+      "rules": [
+        "Webhook delivery failures MUST be recorded with stable code/subcode and retryability.",
+        "Webhook consumers MUST receive the canonical problem-details envelope on webhook error callbacks (if implemented)."
       ]
     }
   },
@@ -587,6 +601,11 @@
         "min_version": "1.1.5",
         "subcode_count": 27,
         "subcode_prefix": "COMM_"
+      },
+      "EVT-2": {
+        "min_version": "3.1.0",
+        "subcode_count": 6,
+        "subcode_prefix": "EVT_"
       },
       "INT-1": {
         "min_version": "1.0.4",
@@ -1630,6 +1649,18 @@
       {
         "subcode": "NOTIF_VARIABLE_MAPPING_FAILED",
         "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "EVT_ADMISSION_POLICY_MISSING",
+        "top_level": "ERR_PRECONDITION"
+      },
+      {
+        "subcode": "EVT_CHECK_IN_WINDOW_OUT_OF_POLICY",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "EVT_ADMISSION_POLICY_INVALID",
+        "top_level": "ERR_VALIDATION"
       }
     ],
     "top_level_codes": [
@@ -1843,10 +1874,7 @@
     "multi-tenant"
   ],
   "title": "ERR-1 — Error Handling & Error Code Registry",
-  "updated_at": "2026-06-03T14:50:00Z",
-  "updated_at_utc": "2026-06-03T14:50:00Z",
-  "version": "2.0.0",
-  "approved_authority_corrections": {
-    "external_error_authority": "ERR-1 alone defines external top-level error and subcode identifiers. Other contracts may reference registered ERR-1 identifiers only. Missing tenant and missing or wrong-tenant hidden resource responses are HTTP 404 ERR_NOT_FOUND; internal causes remain audit/telemetry only."
-  }
+  "updated_at": "2026-10-30T07:28:46Z",
+  "updated_at_utc": "2026-10-30T07:28:46Z",
+  "version": "2.0.1"
 }

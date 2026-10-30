@@ -2,23 +2,23 @@
   "artifact_kind": "bundle_manifest",
   "bundle": {
     "bundle_id": "EVT-2",
-    "bundle_version": "3.0.0"
+    "bundle_version": "3.1.0"
   },
   "doc_id": "EVT-2",
   "files": [
     {
-      "bytes": 65717,
-      "path": "EVT-2_Contract_v3.0.0.json",
-      "sha256": "486a2403e458f881d464408cd728ce35f1f719408722bfdc5a5fdc42ba0750c8"
+      "bytes": 74546,
+      "path": "EVT-2_Contract_v3.1.0.json",
+      "sha256": "414baee7ddf33e00ef478aa1f8a518bab457bd4950c50b773d890fa23f9e7b0f"
     },
     {
-      "bytes": 20863,
-      "path": "EVT-2_Test_Gates_v3.0.0.json",
-      "sha256": "9fa1d0f92144d1cb012bd413e37271c31ffd9ed9aa8cf54cbdd427135d8906a5"
+      "bytes": 25888,
+      "path": "EVT-2_Test_Gates_v3.1.0.json",
+      "sha256": "69c4b1cd3bb3a8b3e9d18c91cff633e314943d8b49fa0d31dfb1f710d9f1d833"
     }
   ],
-  "generated_at_utc": "2026-10-18T09:26:57Z",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
   "schema_version": "bundle-manifest/1.0",
   "suite_schema": "CS-0@3.0.1",
-  "version": "3.0.0"
+  "version": "3.1.0"
 }

@@ -1,0 +1,23 @@
+{
+  "bootstrap_commit": "84340ff1d2bc78a44f012d29717162663323ee29",
+  "candidate_preparation_base_commit": "84340ff1d2bc78a44f012d29717162663323ee29",
+  "provenance_statement": "Candidate IAM-1@4.2.0 is derived from exact selected IAM-1@4.1.3 on the verified TICK-64 base; the paired artifacts carry the authority-only correction.",
+  "source_bundle_path": "contracts/IAM-1/IAM-1_bundle_v4.1.3.zip",
+  "source_members": [
+    {
+      "bytes": 59500,
+      "sha256": "3984e926b1a417de19f2dc9b52209e9d0794d674c226b65296f215b21e830418",
+      "source_member_path": "release-src/current/IAM-1/4.2.0/contract.json",
+      "tracked_source_path": "contract.json"
+    },
+    {
+      "bytes": 39015,
+      "sha256": "a86ee5cb5345b58c757c848ed163c746b76b64cf90c40e139c1844b88098a19d",
+      "source_member_path": "release-src/current/IAM-1/4.2.0/test-gates.json",
+      "tracked_source_path": "test-gates.json"
+    }
+  ],
+  "source_version": "4.1.3",
+  "source_zip_bytes": 97972,
+  "source_zip_sha256": "6ce59be209da4396cd8c5f02d43622d7999e10632aef806d7883301377c04ff5"
+}

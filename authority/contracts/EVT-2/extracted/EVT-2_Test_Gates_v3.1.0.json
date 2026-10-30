@@ -2,7 +2,7 @@
   "artifact_kind": "test_gates",
   "contract_ref": {
     "doc_id": "EVT-2",
-    "version": "3.0.0"
+    "version": "3.1.0"
   },
   "doc_id": "EVT-2-GATE",
   "gates": [
@@ -236,193 +236,184 @@
       "title": "EVT-2-GATE-LAW-SOVEREIGNTY-VERIFICATION"
     },
     {
-      "id": "EVT-2-T0-PUBLISH",
-      "title": "EVT-2-T0-PUBLISH",
-      "level": "P0",
-      "must": true,
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.event.published.v1",
+            "json_pointer": "/domain_actions/publish_event/outbox_event"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "published",
+            "json_pointer": "/domain_actions/publish_event/state_transition/to"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
       "description": "Event publication is an explicit transition using the existing registered event.",
       "failure_message": "EVT-2-T0-PUBLISH failed.",
-      "assertions": [
-        {
-          "mode": "automated",
-          "type": "json_pointer_equals",
-          "details": {
-            "artifact_kind": "contract",
-            "json_pointer": "/domain_actions/publish_event/outbox_event",
-            "equals": "ticketing.event.published.v1"
-          }
-        },
-        {
-          "mode": "automated",
-          "type": "json_pointer_equals",
-          "details": {
-            "artifact_kind": "contract",
-            "json_pointer": "/domain_actions/publish_event/state_transition/to",
-            "equals": "published"
-          }
-        }
-      ]
-    },
-    {
-      "id": "EVT-2-T0-SALES",
-      "title": "EVT-2-T0-SALES",
+      "id": "EVT-2-T0-PUBLISH",
       "level": "P0",
       "must": true,
+      "title": "EVT-2-T0-PUBLISH"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sales_open",
+            "json_pointer": "/domain_actions/open_occurrence_sales/state_transition/to"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "sales_closed",
+            "json_pointer": "/domain_actions/close_occurrence_sales/state_transition/to"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Regardless of persisted sales status, buyer sale eligibility MUST fail closed unless database UTC satisfies sales_open_at_utc <= now < sales_close_at_utc, parent Event is published, and existing occurrence sovereignty/cancellation/postponement guards pass. No timer or worker is specified by this action law.",
+            "json_pointer": "/state_lifecycle/buyer_eligibility"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
       "description": "Occurrence sale opening and closing are explicit guarded transitions.",
       "failure_message": "EVT-2-T0-SALES failed.",
-      "assertions": [
-        {
-          "mode": "automated",
-          "type": "json_pointer_equals",
-          "details": {
-            "artifact_kind": "contract",
-            "json_pointer": "/domain_actions/open_occurrence_sales/state_transition/to",
-            "equals": "sales_open"
-          }
-        },
-        {
-          "mode": "automated",
-          "type": "json_pointer_equals",
-          "details": {
-            "artifact_kind": "contract",
-            "json_pointer": "/domain_actions/close_occurrence_sales/state_transition/to",
-            "equals": "sales_closed"
-          }
-        },
-        {
-          "mode": "automated",
-          "type": "json_pointer_equals",
-          "details": {
-            "artifact_kind": "contract",
-            "json_pointer": "/state_lifecycle/buyer_eligibility",
-            "equals": "Regardless of persisted sales status, buyer sale eligibility MUST fail closed unless database UTC satisfies sales_open_at_utc <= now < sales_close_at_utc, parent Event is published, and existing occurrence sovereignty/cancellation/postponement guards pass. No timer or worker is specified by this action law."
-          }
-        }
-      ]
-    },
-    {
-      "id": "EVT-2-T0-PUBLISH-STATE",
-      "title": "EVT-2-T0-PUBLISH-STATE",
+      "id": "EVT-2-T0-SALES",
       "level": "P0",
       "must": true,
+      "title": "EVT-2-T0-SALES"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": true,
+            "json_pointer": "/emits_events"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.event.published.v1",
+            "json_pointer": "/domain_actions/publish_event/outbox_event"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "published_at_utc",
+            "json_pointer": "/data_model/resources/0/attributes/13/name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "Atomically set status=published, published_at_utc=database_now, increment version, and enqueue ticketing.event.published.v1.",
+            "json_pointer": "/domain_actions/publish_event/state_transition/side_effects"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ticketing.event.published.v1",
+            "json_pointer": "/outbox_events/0/event_name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        }
+      ],
       "description": "Publication timestamp, version, and registered outbox event agree with publish_event.",
       "failure_message": "EVT-2-T0-PUBLISH-STATE failed.",
-      "assertions": [
-        {
-          "mode": "automated",
-          "type": "json_pointer_equals",
-          "details": {
-            "artifact_kind": "contract",
-            "json_pointer": "/emits_events",
-            "equals": true
-          }
-        },
-        {
-          "mode": "automated",
-          "type": "json_pointer_equals",
-          "details": {
-            "artifact_kind": "contract",
-            "json_pointer": "/domain_actions/publish_event/outbox_event",
-            "equals": "ticketing.event.published.v1"
-          }
-        },
-        {
-          "mode": "automated",
-          "type": "json_pointer_equals",
-          "details": {
-            "artifact_kind": "contract",
-            "json_pointer": "/data_model/resources/0/attributes/13/name",
-            "equals": "published_at_utc"
-          }
-        },
-        {
-          "mode": "automated",
-          "type": "json_pointer_equals",
-          "details": {
-            "artifact_kind": "contract",
-            "json_pointer": "/domain_actions/publish_event/state_transition/side_effects",
-            "equals": "Atomically set status=published, published_at_utc=database_now, increment version, and enqueue ticketing.event.published.v1."
-          }
-        },
-        {
-          "mode": "automated",
-          "type": "json_pointer_equals",
-          "details": {
-            "artifact_kind": "contract",
-            "json_pointer": "/outbox_events/0/event_name",
-            "equals": "ticketing.event.published.v1"
-          }
-        }
-      ]
-    },
-    {
-      "id": "EVT2-T0-CREATION-SOURCES",
-      "title": "T0 creation sources",
-      "description": "create_event and create_occurrence define a source for every non-null T0 resource field.",
-      "failure_message": "create_event and create_occurrence define a source for every non-null T0 resource field.",
+      "id": "EVT-2-T0-PUBLISH-STATE",
       "level": "P0",
       "must": true,
+      "title": "EVT-2-T0-PUBLISH-STATE"
+    },
+    {
       "assertions": [
         {
-          "mode": "manual",
-          "type": "acceptance_criteria",
           "details": {
             "artifact_kind": "contract",
             "expected": "create_event and create_occurrence define a source for every non-null T0 resource field."
-          }
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
         }
-      ]
-    },
-    {
-      "id": "EVT2-T0-LOCK-VERSION",
-      "title": "T0 state CAS fencing",
-      "description": "Event and Occurrence declare non-null lock_version default 1, and every T0 transition uses CAS fencing.",
-      "failure_message": "Event and Occurrence declare non-null lock_version default 1, and every T0 transition uses CAS fencing.",
+      ],
+      "description": "create_event and create_occurrence define a source for every non-null T0 resource field.",
+      "failure_message": "create_event and create_occurrence define a source for every non-null T0 resource field.",
+      "id": "EVT2-T0-CREATION-SOURCES",
       "level": "P0",
       "must": true,
+      "title": "T0 creation sources"
+    },
+    {
       "assertions": [
         {
-          "mode": "manual",
-          "type": "acceptance_criteria",
           "details": {
             "artifact_kind": "contract",
             "expected": "Event and Occurrence declare non-null lock_version default 1, and every T0 transition uses CAS fencing."
-          }
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
         }
-      ]
-    },
-    {
-      "id": "EVT2-T0-SALES-CLOSE-PRINCIPALS",
-      "title": "Sales close initiators",
-      "description": "Human close uses evt.occurrence.sales_close. Automatic close accepts authenticated system only after sales_close_at_utc and preserves request context.",
-      "failure_message": "Human close uses evt.occurrence.sales_close. Automatic close accepts authenticated system only after sales_close_at_utc and preserves request context.",
+      ],
+      "description": "Event and Occurrence declare non-null lock_version default 1, and every T0 transition uses CAS fencing.",
+      "failure_message": "Event and Occurrence declare non-null lock_version default 1, and every T0 transition uses CAS fencing.",
+      "id": "EVT2-T0-LOCK-VERSION",
       "level": "P0",
       "must": true,
+      "title": "T0 state CAS fencing"
+    },
+    {
       "assertions": [
         {
-          "mode": "manual",
-          "type": "acceptance_criteria",
           "details": {
             "artifact_kind": "contract",
             "expected": "Human close uses evt.occurrence.sales_close. Automatic close accepts authenticated system only after sales_close_at_utc and preserves request context."
-          }
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
         }
-      ]
-    },
-    {
-      "id": "EVT2-T0-QUARANTINE",
-      "title": "T0 deferred lifecycle quarantine",
-      "description": "EVT-2 retains deferred lifecycle states and postpone_occurrence while T0 quarantines child creation, postponement, rescheduling, cancellation, and completion.",
-      "failure_message": "EVT-2 lifecycle states or T0 deferred-operation quarantine changed unexpectedly.",
+      ],
+      "description": "Human close uses evt.occurrence.sales_close. Automatic close accepts authenticated system only after sales_close_at_utc and preserves request context.",
+      "failure_message": "Human close uses evt.occurrence.sales_close. Automatic close accepts authenticated system only after sales_close_at_utc and preserves request context.",
+      "id": "EVT2-T0-SALES-CLOSE-PRINCIPALS",
       "level": "P0",
       "must": true,
+      "title": "Sales close initiators"
+    },
+    {
       "assertions": [
         {
-          "mode": "automated",
-          "type": "json_pointer_equals",
           "details": {
             "artifact_kind": "contract",
-            "json_pointer": "/data_model/resources/1/attributes/24/one_of",
             "equals": [
               "scheduled",
               "sales_open",
@@ -432,29 +423,29 @@
               "cancel_pending",
               "cancelled",
               "completed"
-            ]
-          }
+            ],
+            "json_pointer": "/data_model/resources/1/attributes/24/one_of"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
         },
         {
-          "mode": "automated",
-          "type": "json_pointer_equals",
           "details": {
             "artifact_kind": "contract",
-            "json_pointer": "/t0_quarantine/deferred_lifecycle_states",
             "equals": [
               "cancel_pending",
               "cancelled",
               "postponed",
               "rescheduled"
-            ]
-          }
+            ],
+            "json_pointer": "/t0_quarantine/deferred_lifecycle_states"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
         },
         {
-          "mode": "automated",
-          "type": "json_pointer_equals",
           "details": {
             "artifact_kind": "contract",
-            "json_pointer": "/t0_quarantine/deferred_operations",
             "equals": [
               "child occurrence creation",
               "postpone_occurrence",
@@ -462,63 +453,72 @@
               "request_cancel_occurrence",
               "approve_cancel_occurrence",
               "completion"
-            ]
-          }
+            ],
+            "json_pointer": "/t0_quarantine/deferred_operations"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
         },
         {
-          "mode": "automated",
-          "type": "json_pointer_equals",
           "details": {
             "artifact_kind": "contract",
-            "json_pointer": "/domain_actions/postpone_occurrence/purpose",
-            "equals": "Mark occurrence postponed; stop sales; open customer-choice workflow (deadline + events)."
-          }
+            "equals": "Mark occurrence postponed; stop sales; open customer-choice workflow (deadline + events).",
+            "json_pointer": "/domain_actions/postpone_occurrence/purpose"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
         },
         {
-          "mode": "manual",
-          "type": "acceptance_criteria",
           "details": {
             "artifact_kind": "contract",
             "expected": "Retain cancel_pending, cancelled, postponed, rescheduled, and postpone_occurrence as EVT-2 lifecycle concepts. The T0 path must quarantine child occurrence creation, postponement, rescheduling, cancellation, and completion. The quarantine does not add actions or event names."
-          }
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
         }
-      ]
-    },
-    {
-      "id": "EVT2-T0-SALES-CLOSE-EVENT",
-      "title": "T0 sales close event parity",
-      "description": "The governed sales-close action derives all registered payload fields and commits the outbox row atomically.",
-      "failure_message": "T0 sales-close producer payload or atomic outbox boundary is incomplete.",
+      ],
+      "description": "EVT-2 retains deferred lifecycle states and postpone_occurrence while T0 quarantines child creation, postponement, rescheduling, cancellation, and completion.",
+      "failure_message": "EVT-2 lifecycle states or T0 deferred-operation quarantine changed unexpectedly.",
+      "id": "EVT2-T0-QUARANTINE",
       "level": "P0",
       "must": true,
+      "title": "T0 deferred lifecycle quarantine"
+    },
+    {
       "assertions": [
         {
-          "mode": "automated",
-          "type": "json_pointer_equals",
           "details": {
             "artifact_kind": "contract",
-            "json_pointer": "/domain_actions/close_occurrence_sales/outbox_event",
-            "equals": "ticketing.occurrence.sales.closed.v1"
-          }
+            "equals": "ticketing.occurrence.sales.closed.v1",
+            "json_pointer": "/domain_actions/close_occurrence_sales/outbox_event"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
         },
         {
-          "mode": "automated",
-          "type": "json_pointer_equals",
           "details": {
             "artifact_kind": "contract",
-            "json_pointer": "/outbox_events/2/event_name",
-            "equals": "ticketing.occurrence.sales.closed.v1"
-          }
+            "equals": "ticketing.occurrence.sales.closed.v1",
+            "json_pointer": "/outbox_events/2/event_name"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
         },
         {
-          "mode": "manual",
-          "type": "acceptance_criteria",
           "details": {
             "artifact_kind": "contract",
             "expected": "The payload derives closed_reason as organizer_requested for authorized organizers and configured_sales_close_time for authenticated system principals; closed_at_utc is database time; version is committed Occurrence.version; state transition and outbox row commit atomically."
-          }
+          },
+          "mode": "manual",
+          "type": "acceptance_criteria"
         }
-      ]
+      ],
+      "description": "The governed sales-close action derives all registered payload fields and commits the outbox row atomically.",
+      "failure_message": "T0 sales-close producer payload or atomic outbox boundary is incomplete.",
+      "id": "EVT2-T0-SALES-CLOSE-EVENT",
+      "level": "P0",
+      "must": true,
+      "title": "T0 sales close event parity"
     },
     {
       "assertions": [
@@ -539,6 +539,7 @@
           "details": {
             "artifact_kind": "contract",
             "equals": [
+              "ERR_PRECONDITION",
               "ERR_VALIDATION"
             ],
             "json_pointer": "/domain_actions/create_occurrence/errors"
@@ -573,13 +574,6 @@
           "type": "json_pointer_equals"
         },
         {
-          "mode": "automated",
-          "type": "property_tests",
-          "details": {
-            "ci_task": "python -m pytest -q tests/test_t0_delta_authority_gates.py::test_t0_evt2_setup_action_errors_are_registered_and_unique"
-          }
-        },
-        {
           "details": {
             "artifact_kind": "contract",
             "equals": [
@@ -591,19 +585,159 @@
           },
           "mode": "automated",
           "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "ERR_FORBIDDEN",
+              "ERR_VALIDATION"
+            ],
+            "json_pointer": "/domain_actions/set_occurrence_admission_policy/errors"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_occurrence_admission_policy_authority.py::test_occurrence_creation_resolves_and_enforces_same_tenant_policy"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "ERR_VALIDATION",
+            "json_pointer": "/domain_actions/set_occurrence_admission_policy/error_mappings/0/code"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "EVT_ADMISSION_POLICY_INVALID",
+            "json_pointer": "/domain_actions/set_occurrence_admission_policy/error_mappings/0/subcode"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_occurrence_admission_policy_authority.py::test_policy_management_is_prospective_and_uses_owner_admin_capability"
+          },
+          "mode": "automated",
+          "type": "property_tests"
         }
       ],
-      "description": "T0 setup action errors use registered top-level codes and retain their action arrays.",
+      "description": "T0 setup action errors use registered top-level codes; invalid policy values map to EVT_ADMISSION_POLICY_INVALID without changing authorization errors.",
       "failure_message": "Gate EVT2_T0_SETUP_ACTION_ERROR_CODES failed.",
       "id": "EVT2_T0_SETUP_ACTION_ERROR_CODES",
       "level": "P0",
       "must": true,
       "title": "T0 setup action error codes registered"
+    },
+    {
+      "assertions": [
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "zero_or_one_per_org",
+            "json_pointer": "/invariants/occurrence_admission_policy/cardinality"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "check_in_open_at_utc <= check_in_close_at_utc",
+              "check_in_open_at_utc >= starts_at_utc - max_check_in_early_seconds",
+              "check_in_close_at_utc <= ends_at_utc + max_check_in_late_seconds"
+            ],
+            "json_pointer": "/invariants/occurrence_admission_policy/check_in_window_bounds"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_occurrence_admission_policy_authority.py::test_occurrence_admission_policy_is_a_zero_or_one_org_singleton"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_occurrence_admission_policy_authority.py::test_policy_management_is_prospective_and_uses_owner_admin_capability"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_occurrence_admission_policy_authority.py::test_occurrence_creation_resolves_and_enforces_same_tenant_policy"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": "absent",
+            "json_pointer": "/state_lifecycle/OccurrenceAdmissionPolicy/origin"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [
+              "configured"
+            ],
+            "json_pointer": "/state_lifecycle/OccurrenceAdmissionPolicy/states"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "artifact_kind": "contract",
+            "equals": [],
+            "json_pointer": "/state_lifecycle/OccurrenceAdmissionPolicy/terminal_states"
+          },
+          "mode": "automated",
+          "type": "json_pointer_equals"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_occurrence_admission_policy_authority.py::test_policy_presence_lifecycle_is_explicit_and_bounded"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        },
+        {
+          "details": {
+            "ci_task": "python -m pytest -q tests/test_occurrence_admission_policy_authority.py::test_negative_policy_values_are_invalid_and_zero_remains_valid"
+          },
+          "mode": "automated",
+          "type": "property_tests"
+        }
+      ],
+      "description": "EVT-2 defines the singleton org policy, create-transaction lookup, interval bounds, prospective updates, and the bounded absent/configured lifecycle.",
+      "failure_message": "EVT-2 Occurrence admission-policy errors, lifecycle, or policy semantics are incomplete or drifted.",
+      "id": "EVT2-T0-OCCURRENCE-ADMISSION-POLICY",
+      "level": "P0",
+      "must": true,
+      "title": "Tenant-scoped Occurrence admission policy"
     }
   ],
   "schema_version": "test-gates/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",
-  "title": "EVT-2 v3.0.0 Test Gates",
-  "version": "3.0.0"
+  "title": "EVT-2 v3.1.0 Test Gates",
+  "version": "3.1.0"
 }

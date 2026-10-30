@@ -1,0 +1,13 @@
+{
+  "doc_id": "ERR-1",
+  "generated_at_utc": "2026-10-30T07:28:46Z",
+  "release_intent": "TICK-64 authority successor candidate for ERR-1@2.0.0; see the occurrence admission-policy repair in this branch.",
+  "release_status": "candidate",
+  "source_provenance": {
+    "kind": "canonical-successor",
+    "path": "provenance.json",
+    "source_zip_sha256": "4376f55bc7ad6b64ec84ce7af19c3f26d39cecc0cae5324dc58ec498c5da7bce"
+  },
+  "suite_schema": "CS-0@3.0.1",
+  "version": "2.0.1"
+}

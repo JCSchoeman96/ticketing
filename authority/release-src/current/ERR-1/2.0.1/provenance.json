@@ -1,0 +1,23 @@
+{
+  "bootstrap_commit": "84340ff1d2bc78a44f012d29717162663323ee29",
+  "candidate_preparation_base_commit": "84340ff1d2bc78a44f012d29717162663323ee29",
+  "provenance_statement": "Candidate ERR-1@2.0.1 is derived from exact selected ERR-1@2.0.0 on the verified TICK-64 base and includes the authority review corrections.",
+  "source_bundle_path": "contracts/ERR-1/ERR-1_bundle_v2.0.0.zip",
+  "source_members": [
+    {
+      "bytes": 61616,
+      "sha256": "20354a92f5bb46cf94a0c12adb115614e01d922a5cbc288cd1b72ceaf9f971a5",
+      "source_member_path": "release-src/current/ERR-1/2.0.1/contract.json",
+      "tracked_source_path": "contract.json"
+    },
+    {
+      "bytes": 27165,
+      "sha256": "804524959fe1334996f850d4bacb0afbe9f63c224aeae8f50d59a704560baaf3",
+      "source_member_path": "release-src/current/ERR-1/2.0.1/test-gates.json",
+      "tracked_source_path": "test-gates.json"
+    }
+  ],
+  "source_version": "2.0.0",
+  "source_zip_bytes": 86513,
+  "source_zip_sha256": "4376f55bc7ad6b64ec84ce7af19c3f26d39cecc0cae5324dc58ec498c5da7bce"
+}
