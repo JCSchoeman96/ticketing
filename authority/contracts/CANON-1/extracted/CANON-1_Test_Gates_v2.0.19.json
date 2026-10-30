@@ -624,7 +624,7 @@
           "details": {
             "accepted_path": "contracts/ERR-1/ERR-1_bundle_v2.0.1.zip",
             "doc_id": "ERR-1",
-            "expected_sha256": "6080473b396202d74cd009ff63de9033eed88fa0d6f0ad0566d2afbabbd01a56",
+            "expected_sha256": "5166b5ee4a7fdacff8b113400d065d9176cddcf7f53686196dee204da6702dc5",
             "version": "2.0.1"
           },
           "mode": "automated",
@@ -633,8 +633,8 @@
         {
           "details": {
             "doc_id": "ERR-1",
-            "expected_bytes": 61419,
-            "expected_sha256": "4ad1265c110a4ebaca21bdb94b70188a82bf3521fe32404e7bbb58ea0b4b6643",
+            "expected_bytes": 61616,
+            "expected_sha256": "20354a92f5bb46cf94a0c12adb115614e01d922a5cbc288cd1b72ceaf9f971a5",
             "path": "ERR-1_bundle_v2.0.1/ERR-1_Contract_v2.0.1.json",
             "version": "2.0.1"
           },
@@ -644,8 +644,8 @@
         {
           "details": {
             "doc_id": "ERR-1",
-            "expected_bytes": 26301,
-            "expected_sha256": "88cf287d0e49a4471d7ab4fc5e392f9740536be311ba433b0ae7656f6d6fc484",
+            "expected_bytes": 27165,
+            "expected_sha256": "804524959fe1334996f850d4bacb0afbe9f63c224aeae8f50d59a704560baaf3",
             "path": "ERR-1_bundle_v2.0.1/ERR-1_Test_Gates_v2.0.1.json",
             "version": "2.0.1"
           },
@@ -656,7 +656,7 @@
           "details": {
             "doc_id": "ERR-1",
             "expected_bytes": 623,
-            "expected_sha256": "740d059df7b1818ee84db0729647ba647b75908a5694519727e37bce43bedd70",
+            "expected_sha256": "d4908d9b2683c105f43670955c262ad33e419efcfee3044e90f70637c77b2811",
             "path": "ERR-1_bundle_v2.0.1/bundle.manifest.json",
             "version": "2.0.1"
           },
@@ -710,7 +710,7 @@
           "details": {
             "accepted_path": "contracts/EVT-2/EVT-2_bundle_v3.1.0.zip",
             "doc_id": "EVT-2",
-            "expected_sha256": "5618b6649bd079176a724f46a35453220f3c7be5b7814d4e63faa4d27ae9c8a3",
+            "expected_sha256": "76ebe85a62f3cc065f5e964a48fe4f01087119b73a51edf0ec685cc46e053bd9",
             "version": "3.1.0"
           },
           "mode": "automated",
@@ -719,8 +719,8 @@
         {
           "details": {
             "doc_id": "EVT-2",
-            "expected_bytes": 71682,
-            "expected_sha256": "d28ac691168ba2a847272c2e2f41b67de30d4e954e88cefd94d730e7f02b53ee",
+            "expected_bytes": 74546,
+            "expected_sha256": "414baee7ddf33e00ef478aa1f8a518bab457bd4950c50b773d890fa23f9e7b0f",
             "path": "EVT-2_bundle_v3.1.0/EVT-2_Contract_v3.1.0.json",
             "version": "3.1.0"
           },
@@ -730,8 +730,8 @@
         {
           "details": {
             "doc_id": "EVT-2",
-            "expected_bytes": 23395,
-            "expected_sha256": "951e55bd0814fd76f762e33791dd605e58671d8c0b7b200c808c5e3367890115",
+            "expected_bytes": 25888,
+            "expected_sha256": "69c4b1cd3bb3a8b3e9d18c91cff633e314943d8b49fa0d31dfb1f710d9f1d833",
             "path": "EVT-2_bundle_v3.1.0/EVT-2_Test_Gates_v3.1.0.json",
             "version": "3.1.0"
           },
@@ -742,7 +742,7 @@
           "details": {
             "doc_id": "EVT-2",
             "expected_bytes": 623,
-            "expected_sha256": "9d521dd2e1e89e693d51774a9d5adfc08ca940f89c2aed19ffba8274e586cedd",
+            "expected_sha256": "299bb16e848781d215d8c0aeaed62ab0136206d7d0ac56adfd491ce3086dfd12",
             "path": "EVT-2_bundle_v3.1.0/bundle.manifest.json",
             "version": "3.1.0"
           },
@@ -2489,7 +2489,7 @@
       "title": "Every current member has one accepted exact-hash pin."
     }
   ],
-  "generated_at_utc": "2026-10-30T07:28:46Z",
+  "generated_at_utc": "2026-10-30T08:11:59Z",
   "schema_version": "test-gates/1.0",
   "status": "active",
   "suite_schema": "CS-0@3.0.1",

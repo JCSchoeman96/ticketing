@@ -1669,9 +1669,16 @@
       "purpose": "Set or replace the single tenant-scoped Occurrence admission policy for an organization.",
       "validation_rules": [
         "The explicit org_id MUST match the authenticated active organization tenant context.",
-        "Both policy values MUST be integers greater than or equal to zero; zero is valid.",
+        "Both policy values MUST be integers greater than or equal to zero; zero is valid. Invalid values return ERR_VALIDATION / EVT_ADMISSION_POLICY_INVALID without a policy write.",
         "IAM-1 MUST authorize this human organization action through evt.occurrence.admission_policy.manage.",
         "A policy change MUST NOT modify or revalidate already-persisted Occurrence check-in windows."
+      ],
+      "error_mappings": [
+        {
+          "code": "ERR_VALIDATION",
+          "condition": "Either max_check_in_early_seconds or max_check_in_late_seconds is not an integer greater than or equal to zero.",
+          "subcode": "EVT_ADMISSION_POLICY_INVALID"
+        }
       ]
     },
     "start_experiment": {
@@ -1755,7 +1762,7 @@
         "org_id"
       ],
       "implicit_platform_default": false,
-      "lifecycle": "no_active_inactive_state",
+      "lifecycle": "presence_configuration_only; absent is the pre-resource origin and configured is the only persisted state",
       "missing_policy": {
         "behavior": "fail_closed",
         "code": "ERR_PRECONDITION",
@@ -2091,7 +2098,62 @@
         }
       ]
     },
-    "buyer_eligibility": "Regardless of persisted sales status, buyer sale eligibility MUST fail closed unless database UTC satisfies sales_open_at_utc <= now < sales_close_at_utc, parent Event is published, and existing occurrence sovereignty/cancellation/postponement guards pass. No timer or worker is specified by this action law."
+    "buyer_eligibility": "Regardless of persisted sales status, buyer sale eligibility MUST fail closed unless database UTC satisfies sales_open_at_utc <= now < sales_close_at_utc, parent Event is published, and existing occurrence sovereignty/cancellation/postponement guards pass. No timer or worker is specified by this action law.",
+    "OccurrenceAdmissionPolicy": {
+      "origin": "absent",
+      "states": [
+        "configured"
+      ],
+      "terminal_states": [],
+      "transitions": [
+        {
+          "action": "set_occurrence_admission_policy",
+          "from": "absent",
+          "guards": [
+            "authenticated active organization tenant context",
+            "explicit org_id matches that tenant",
+            "no same-tenant OccurrenceAdmissionPolicy currently exists",
+            "both policy values are integers greater than or equal to zero"
+          ],
+          "initiator": {
+            "actor_kind": "human",
+            "authorization_contract": "IAM-1",
+            "capability": "evt.occurrence.admission_policy.manage",
+            "allowed_roles": [
+              "org_owner",
+              "org_admin"
+            ]
+          },
+          "invalid_behavior": "Authorization failure follows canonical IAM-1/ERR-1 semantics. Invalid policy values return ERR_VALIDATION / EVT_ADMISSION_POLICY_INVALID. No partial policy write.",
+          "side_effects": "Persist exactly one same-tenant OccurrenceAdmissionPolicy for org_id with the supplied early and late values.",
+          "terminal": false,
+          "to": "configured"
+        },
+        {
+          "action": "set_occurrence_admission_policy",
+          "from": "configured",
+          "guards": [
+            "authenticated active organization tenant context",
+            "explicit org_id matches that tenant",
+            "a same-tenant OccurrenceAdmissionPolicy exists",
+            "both replacement values are integers greater than or equal to zero"
+          ],
+          "initiator": {
+            "actor_kind": "human",
+            "authorization_contract": "IAM-1",
+            "capability": "evt.occurrence.admission_policy.manage",
+            "allowed_roles": [
+              "org_owner",
+              "org_admin"
+            ]
+          },
+          "invalid_behavior": "Authorization failure follows canonical IAM-1/ERR-1 semantics. Invalid policy values return ERR_VALIDATION / EVT_ADMISSION_POLICY_INVALID. No partial policy write.",
+          "side_effects": "Atomically replace the configured early and late values for that same organization as one governed policy mutation. Do not mutate or recompute existing Occurrence check-in windows.",
+          "terminal": false,
+          "to": "configured"
+        }
+      ]
+    }
   },
   "status": "draft",
   "suite_schema": "CS-0@3.0.1",

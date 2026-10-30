@@ -49,6 +49,11 @@ def test_occurrence_admission_policy_is_a_zero_or_one_org_singleton() -> None:
         assert attributes[name]["constraints"]["min"] == 0
         assert "max" not in attributes[name]["constraints"]
         assert "default" not in attributes[name]
+        assert policy["required_values"][name] == {
+            "minimum": 0,
+            "type": "integer",
+            "zero_valid": True,
+        }
     assert "status" not in attributes
 
 
@@ -119,10 +124,109 @@ def test_policy_management_is_prospective_and_uses_owner_admin_capability() -> N
     } <= set(action["inputs_required"])
     assert action["authorization_capability"] == capability
     assert action["policy_write"] == "create_if_absent_or_replace_existing_for_same_org"
+    assert action["error_mappings"] == [
+        {
+            "code": "ERR_VALIDATION",
+            "condition": (
+                "Either max_check_in_early_seconds or max_check_in_late_seconds is "
+                "not an integer greater than or equal to zero."
+            ),
+            "subcode": "EVT_ADMISSION_POLICY_INVALID",
+        }
+    ]
     assert policy["changes_apply_prospectively"] is True
     assert policy["existing_occurrence_windows"] == (
         "remain_unchanged_and_continue_to_govern_admission_decisions"
     )
+
+
+def test_policy_presence_lifecycle_is_explicit_and_bounded() -> None:
+    evt = selected_contract("EVT-2")
+    lifecycle = evt["state_lifecycle"]["OccurrenceAdmissionPolicy"]
+    transitions = lifecycle["transitions"]
+
+    assert lifecycle["origin"] == "absent"
+    assert lifecycle["states"] == ["configured"]
+    assert lifecycle["terminal_states"] == []
+    assert len(transitions) == 2
+    assert [(row["from"], row["to"]) for row in transitions] == [
+        ("absent", "configured"),
+        ("configured", "configured"),
+    ]
+    assert {row["action"] for row in transitions} == {
+        "set_occurrence_admission_policy"
+    }
+
+    expected_initiator = {
+        "actor_kind": "human",
+        "authorization_contract": "IAM-1",
+        "capability": "evt.occurrence.admission_policy.manage",
+        "allowed_roles": ["org_owner", "org_admin"],
+    }
+    expected_invalid_behavior = (
+        "Authorization failure follows canonical IAM-1/ERR-1 semantics. "
+        "Invalid policy values return ERR_VALIDATION / EVT_ADMISSION_POLICY_INVALID. "
+        "No partial policy write."
+    )
+    for transition in transitions:
+        assert transition["initiator"] == expected_initiator
+        assert transition["action"] == "set_occurrence_admission_policy"
+        assert transition["terminal"] is False
+        assert transition["invalid_behavior"] == expected_invalid_behavior
+
+    assert transitions[0]["guards"] == [
+        "authenticated active organization tenant context",
+        "explicit org_id matches that tenant",
+        "no same-tenant OccurrenceAdmissionPolicy currently exists",
+        "both policy values are integers greater than or equal to zero",
+    ]
+    assert transitions[0]["side_effects"] == (
+        "Persist exactly one same-tenant OccurrenceAdmissionPolicy for org_id "
+        "with the supplied early and late values."
+    )
+    assert transitions[1]["guards"] == [
+        "authenticated active organization tenant context",
+        "explicit org_id matches that tenant",
+        "a same-tenant OccurrenceAdmissionPolicy exists",
+        "both replacement values are integers greater than or equal to zero",
+    ]
+    assert transitions[1]["side_effects"] == (
+        "Atomically replace the configured early and late values for that same "
+        "organization as one governed policy mutation. Do not mutate or recompute "
+        "existing Occurrence check-in windows."
+    )
+
+
+def test_negative_policy_values_are_invalid_and_zero_remains_valid() -> None:
+    evt = selected_contract("EVT-2")
+    action = evt["domain_actions"]["set_occurrence_admission_policy"]
+    attributes = next(
+        row
+        for row in evt["data_model"]["resources"]
+        if row["name"] == "OccurrenceAdmissionPolicy"
+    )["attributes"]
+    constraints = {
+        row["name"]: row["constraints"]
+        for row in attributes
+        if row["name"] in {"max_check_in_early_seconds", "max_check_in_late_seconds"}
+    }
+
+    for field in ("max_check_in_early_seconds", "max_check_in_late_seconds"):
+        assert constraints[field] == {"min": 0}
+        assert evt["invariants"]["occurrence_admission_policy"]["required_values"][
+            field
+        ]["zero_valid"] is True
+
+    assert action["error_mappings"] == [
+        {
+            "code": "ERR_VALIDATION",
+            "condition": (
+                "Either max_check_in_early_seconds or max_check_in_late_seconds is "
+                "not an integer greater than or equal to zero."
+            ),
+            "subcode": "EVT_ADMISSION_POLICY_INVALID",
+        }
+    ]
 
 
 def test_occurrence_admission_errors_and_observability_operation_are_registered() -> None:
@@ -134,6 +238,11 @@ def test_occurrence_admission_errors_and_observability_operation_are_registered(
 
     assert subcodes["EVT_ADMISSION_POLICY_MISSING"] == "ERR_PRECONDITION"
     assert subcodes["EVT_CHECK_IN_WINDOW_OUT_OF_POLICY"] == "ERR_VALIDATION"
+    assert subcodes["EVT_ADMISSION_POLICY_INVALID"] == "ERR_VALIDATION"
+    assert sum(
+        row["subcode"] == "EVT_ADMISSION_POLICY_INVALID"
+        for row in err["registry"]["subcodes"]
+    ) == 1
 
 
 def test_evt_subcode_floor_tracks_occurrence_admission_errors() -> None:
@@ -151,9 +260,11 @@ def test_evt_subcode_floor_tracks_occurrence_admission_errors() -> None:
         "subcode_count": len(evt_subcodes),
         "subcode_prefix": "EVT_",
     }
-    assert {"EVT_ADMISSION_POLICY_MISSING", "EVT_CHECK_IN_WINDOW_OUT_OF_POLICY"} <= set(
-        evt_subcodes
-    )
+    assert {
+        "EVT_ADMISSION_POLICY_INVALID",
+        "EVT_ADMISSION_POLICY_MISSING",
+        "EVT_CHECK_IN_WINDOW_OUT_OF_POLICY",
+    } <= set(evt_subcodes)
 
 
 def test_occurrence_admission_policy_operation_is_registered_in_obs() -> None:

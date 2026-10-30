@@ -356,22 +356,22 @@
     {
       "artifacts": [
         {
-          "bytes": 61419,
+          "bytes": 61616,
           "path": "ERR-1_bundle_v2.0.1/ERR-1_Contract_v2.0.1.json",
-          "sha256": "4ad1265c110a4ebaca21bdb94b70188a82bf3521fe32404e7bbb58ea0b4b6643"
+          "sha256": "20354a92f5bb46cf94a0c12adb115614e01d922a5cbc288cd1b72ceaf9f971a5"
         },
         {
-          "bytes": 26301,
+          "bytes": 27165,
           "path": "ERR-1_bundle_v2.0.1/ERR-1_Test_Gates_v2.0.1.json",
-          "sha256": "88cf287d0e49a4471d7ab4fc5e392f9740536be311ba433b0ae7656f6d6fc484"
+          "sha256": "804524959fe1334996f850d4bacb0afbe9f63c224aeae8f50d59a704560baaf3"
         },
         {
           "bytes": 623,
           "path": "ERR-1_bundle_v2.0.1/bundle.manifest.json",
-          "sha256": "740d059df7b1818ee84db0729647ba647b75908a5694519727e37bce43bedd70"
+          "sha256": "d4908d9b2683c105f43670955c262ad33e419efcfee3044e90f70637c77b2811"
         }
       ],
-      "bundle_sha256": "6080473b396202d74cd009ff63de9033eed88fa0d6f0ad0566d2afbabbd01a56",
+      "bundle_sha256": "5166b5ee4a7fdacff8b113400d065d9176cddcf7f53686196dee204da6702dc5",
       "doc_id": "ERR-1",
       "membership_status": "CANON_MEMBER",
       "selection_basis": [
@@ -410,22 +410,22 @@
     {
       "artifacts": [
         {
-          "bytes": 71682,
+          "bytes": 74546,
           "path": "EVT-2_bundle_v3.1.0/EVT-2_Contract_v3.1.0.json",
-          "sha256": "d28ac691168ba2a847272c2e2f41b67de30d4e954e88cefd94d730e7f02b53ee"
+          "sha256": "414baee7ddf33e00ef478aa1f8a518bab457bd4950c50b773d890fa23f9e7b0f"
         },
         {
-          "bytes": 23395,
+          "bytes": 25888,
           "path": "EVT-2_bundle_v3.1.0/EVT-2_Test_Gates_v3.1.0.json",
-          "sha256": "951e55bd0814fd76f762e33791dd605e58671d8c0b7b200c808c5e3367890115"
+          "sha256": "69c4b1cd3bb3a8b3e9d18c91cff633e314943d8b49fa0d31dfb1f710d9f1d833"
         },
         {
           "bytes": 623,
           "path": "EVT-2_bundle_v3.1.0/bundle.manifest.json",
-          "sha256": "9d521dd2e1e89e693d51774a9d5adfc08ca940f89c2aed19ffba8274e586cedd"
+          "sha256": "299bb16e848781d215d8c0aeaed62ab0136206d7d0ac56adfd491ce3086dfd12"
         }
       ],
-      "bundle_sha256": "5618b6649bd079176a724f46a35453220f3c7be5b7814d4e63faa4d27ae9c8a3",
+      "bundle_sha256": "76ebe85a62f3cc065f5e964a48fe4f01087119b73a51edf0ec685cc46e053bd9",
       "doc_id": "EVT-2",
       "membership_status": "CANON_MEMBER",
       "selection_basis": [
@@ -1534,7 +1534,7 @@
   "dependency_floors": {},
   "doc_id": "CANON-1",
   "emits_events": false,
-  "generated_at_utc": "2026-10-30T07:28:46Z",
+  "generated_at_utc": "2026-10-30T08:11:59Z",
   "generation": {
     "generation_inputs": {
       "active_manifest_sha256": "f44764cd8310281b7f34a2cef6e50bb67ee659e147268a65e83a86586a842dd0",
@@ -1543,12 +1543,12 @@
       "candidate_releases": [
         {
           "doc_id": "ERR-1",
-          "sha256": "6080473b396202d74cd009ff63de9033eed88fa0d6f0ad0566d2afbabbd01a56",
+          "sha256": "5166b5ee4a7fdacff8b113400d065d9176cddcf7f53686196dee204da6702dc5",
           "version": "2.0.1"
         },
         {
           "doc_id": "EVT-2",
-          "sha256": "5618b6649bd079176a724f46a35453220f3c7be5b7814d4e63faa4d27ae9c8a3",
+          "sha256": "76ebe85a62f3cc065f5e964a48fe4f01087119b73a51edf0ec685cc46e053bd9",
           "version": "3.1.0"
         },
         {
@@ -1571,7 +1571,7 @@
     "generator": "tools/generate_canon.py",
     "generator_commit": "84340ff1d2bc78a44f012d29717162663323ee29",
     "generator_version": "2.0.0",
-    "resolved_selection_sha256": "28460fb2ca791f723d75dafe7cf082a4dd878309ad2c28449c0eaf07693b9328"
+    "resolved_selection_sha256": "67df9619d747aabbaaa0b052e1ec7c7f33234ed5db9d6db13269935174697fdf"
   },
   "not_current_versions": [
     {

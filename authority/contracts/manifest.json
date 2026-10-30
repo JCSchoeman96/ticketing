@@ -150,19 +150,19 @@
         {
           "archive_path": "CANON-1_bundle_v2.0.19/CANON-1_Contract_v2.0.19.json",
           "extracted_path": "CANON-1_Contract_v2.0.19.json",
-          "sha256": "89c223f3ceeecf0506d8da952bf1f25c3c5b5b927eff6011a8a5dd82e0617ee8",
+          "sha256": "7d838a0a2abf4f1001ecfb830fc050bb4184f3785bbdb483443ffb02bc3d0007",
           "size": 58193
         },
         {
           "archive_path": "CANON-1_bundle_v2.0.19/CANON-1_Test_Gates_v2.0.19.json",
           "extracted_path": "CANON-1_Test_Gates_v2.0.19.json",
-          "sha256": "fdd658d990d6c5f6d0198bafe410a150dbac13a427ae9af268fe3edc880e5674",
+          "sha256": "2adf2ea8851dc605d4a5328e7050d689e96b6d619a0908a463ee05d1d7cd3851",
           "size": 90469
         },
         {
           "archive_path": "CANON-1_bundle_v2.0.19/bundle.manifest.json",
           "extracted_path": "bundle.manifest.json",
-          "sha256": "90ede9c27b61583f4c02343f9c54b607dc3869979fe9721ad333fea84910a85e",
+          "sha256": "4783dfd10022972379cbd45cfeadcbc90d1feb35bd5eec31a26ab067f297b61d",
           "size": 635
         }
       ],
@@ -172,7 +172,7 @@
       "membership": "CANON_INDEX",
       "version": "2.0.19",
       "zip_path": "contracts/CANON-1/CANON-1_bundle_v2.0.19.zip",
-      "zip_sha256": "f054cba40a957c440e01ca3d022df837d4c4279d3e85910cdb934ba1a1c6b992"
+      "zip_sha256": "c71252750b6d179d7614125eacf56d4d8314c1080181ee134da47d8ff7977c11"
     },
     {
       "artifacts": [
@@ -411,19 +411,19 @@
         {
           "archive_path": "ERR-1_bundle_v2.0.1/ERR-1_Contract_v2.0.1.json",
           "extracted_path": "ERR-1_Contract_v2.0.1.json",
-          "sha256": "4ad1265c110a4ebaca21bdb94b70188a82bf3521fe32404e7bbb58ea0b4b6643",
-          "size": 61419
+          "sha256": "20354a92f5bb46cf94a0c12adb115614e01d922a5cbc288cd1b72ceaf9f971a5",
+          "size": 61616
         },
         {
           "archive_path": "ERR-1_bundle_v2.0.1/ERR-1_Test_Gates_v2.0.1.json",
           "extracted_path": "ERR-1_Test_Gates_v2.0.1.json",
-          "sha256": "88cf287d0e49a4471d7ab4fc5e392f9740536be311ba433b0ae7656f6d6fc484",
-          "size": 26301
+          "sha256": "804524959fe1334996f850d4bacb0afbe9f63c224aeae8f50d59a704560baaf3",
+          "size": 27165
         },
         {
           "archive_path": "ERR-1_bundle_v2.0.1/bundle.manifest.json",
           "extracted_path": "bundle.manifest.json",
-          "sha256": "740d059df7b1818ee84db0729647ba647b75908a5694519727e37bce43bedd70",
+          "sha256": "d4908d9b2683c105f43670955c262ad33e419efcfee3044e90f70637c77b2811",
           "size": 623
         }
       ],
@@ -433,7 +433,7 @@
       "membership": "CANON_MEMBER",
       "version": "2.0.1",
       "zip_path": "contracts/ERR-1/ERR-1_bundle_v2.0.1.zip",
-      "zip_sha256": "6080473b396202d74cd009ff63de9033eed88fa0d6f0ad0566d2afbabbd01a56"
+      "zip_sha256": "5166b5ee4a7fdacff8b113400d065d9176cddcf7f53686196dee204da6702dc5"
     },
     {
       "artifacts": [
@@ -469,19 +469,19 @@
         {
           "archive_path": "EVT-2_bundle_v3.1.0/EVT-2_Contract_v3.1.0.json",
           "extracted_path": "EVT-2_Contract_v3.1.0.json",
-          "sha256": "d28ac691168ba2a847272c2e2f41b67de30d4e954e88cefd94d730e7f02b53ee",
-          "size": 71682
+          "sha256": "414baee7ddf33e00ef478aa1f8a518bab457bd4950c50b773d890fa23f9e7b0f",
+          "size": 74546
         },
         {
           "archive_path": "EVT-2_bundle_v3.1.0/EVT-2_Test_Gates_v3.1.0.json",
           "extracted_path": "EVT-2_Test_Gates_v3.1.0.json",
-          "sha256": "951e55bd0814fd76f762e33791dd605e58671d8c0b7b200c808c5e3367890115",
-          "size": 23395
+          "sha256": "69c4b1cd3bb3a8b3e9d18c91cff633e314943d8b49fa0d31dfb1f710d9f1d833",
+          "size": 25888
         },
         {
           "archive_path": "EVT-2_bundle_v3.1.0/bundle.manifest.json",
           "extracted_path": "bundle.manifest.json",
-          "sha256": "9d521dd2e1e89e693d51774a9d5adfc08ca940f89c2aed19ffba8274e586cedd",
+          "sha256": "299bb16e848781d215d8c0aeaed62ab0136206d7d0ac56adfd491ce3086dfd12",
           "size": 623
         }
       ],
@@ -491,7 +491,7 @@
       "membership": "CANON_MEMBER",
       "version": "3.1.0",
       "zip_path": "contracts/EVT-2/EVT-2_bundle_v3.1.0.zip",
-      "zip_sha256": "5618b6649bd079176a724f46a35453220f3c7be5b7814d4e63faa4d27ae9c8a3"
+      "zip_sha256": "76ebe85a62f3cc065f5e964a48fe4f01087119b73a51edf0ec685cc46e053bd9"
     },
     {
       "artifacts": [

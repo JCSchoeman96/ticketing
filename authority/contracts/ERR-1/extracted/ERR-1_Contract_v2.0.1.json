@@ -4,7 +4,7 @@
   },
   "artifact_kind": "contract",
   "artifact_name": "ERR-1_Contract_v2.0.1.json",
-  "bundle_id": "ERR-1_bundle_v2.0.0",
+  "bundle_id": "ERR-1_bundle_v2.0.1",
   "bundle_manifest_filename": "bundle.manifest.json",
   "canonical": true,
   "canonical_meta": {
@@ -211,11 +211,12 @@
     {
       "breaking": false,
       "changes": [
+        "Register EVT_ADMISSION_POLICY_INVALID as ERR_VALIDATION for invalid policy configuration.",
         "Register EVT_ADMISSION_POLICY_MISSING as ERR_PRECONDITION.",
         "Register EVT_CHECK_IN_WINDOW_OUT_OF_POLICY as ERR_VALIDATION."
       ],
       "date_utc": "2026-10-30",
-      "summary": "Register EVT-2 occurrence admission-policy failure subcodes and producer floor.",
+      "summary": "Register EVT-2 occurrence admission-policy errors and producer floor.",
       "version": "2.0.1"
     }
   ],
@@ -603,7 +604,7 @@
       },
       "EVT-2": {
         "min_version": "3.1.0",
-        "subcode_count": 5,
+        "subcode_count": 6,
         "subcode_prefix": "EVT_"
       },
       "INT-1": {
@@ -1655,6 +1656,10 @@
       },
       {
         "subcode": "EVT_CHECK_IN_WINDOW_OUT_OF_POLICY",
+        "top_level": "ERR_VALIDATION"
+      },
+      {
+        "subcode": "EVT_ADMISSION_POLICY_INVALID",
         "top_level": "ERR_VALIDATION"
       }
     ],

@@ -31,12 +31,12 @@
     "candidate_releases": [
       {
         "doc_id": "ERR-1",
-        "sha256": "6080473b396202d74cd009ff63de9033eed88fa0d6f0ad0566d2afbabbd01a56",
+        "sha256": "5166b5ee4a7fdacff8b113400d065d9176cddcf7f53686196dee204da6702dc5",
         "version": "2.0.1"
       },
       {
         "doc_id": "EVT-2",
-        "sha256": "5618b6649bd079176a724f46a35453220f3c7be5b7814d4e63faa4d27ae9c8a3",
+        "sha256": "76ebe85a62f3cc065f5e964a48fe4f01087119b73a51edf0ec685cc46e053bd9",
         "version": "3.1.0"
       },
       {
@@ -180,7 +180,7 @@
       "selection_basis": [
         "explicit validated successor candidate for ERR-1"
       ],
-      "sha256": "6080473b396202d74cd009ff63de9033eed88fa0d6f0ad0566d2afbabbd01a56",
+      "sha256": "5166b5ee4a7fdacff8b113400d065d9176cddcf7f53686196dee204da6702dc5",
       "version": "2.0.1"
     },
     {
@@ -198,7 +198,7 @@
       "selection_basis": [
         "explicit validated successor candidate for EVT-2"
       ],
-      "sha256": "5618b6649bd079176a724f46a35453220f3c7be5b7814d4e63faa4d27ae9c8a3",
+      "sha256": "76ebe85a62f3cc065f5e964a48fe4f01087119b73a51edf0ec685cc46e053bd9",
       "version": "3.1.0"
     },
     {
